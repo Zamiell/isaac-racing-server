@@ -82,6 +82,9 @@ func raceCreate(conn *ExtendedConnection, data *RaceCreateMessage) {
 
 	// Send everyone the new list of races
 	raceUpdateAll()
+
+	// Send the people in this race an update
+	racerUpdate(raceID)
 }
 
 func raceJoin(conn *ExtendedConnection, data *RaceMessage) {
@@ -136,6 +139,9 @@ func raceJoin(conn *ExtendedConnection, data *RaceMessage) {
 
 	// Send everyone the new list of races
 	raceUpdateAll()
+
+	// Send the people in this race an update
+	racerUpdate(raceID)
 }
 
 func raceLeave(conn *ExtendedConnection, data *RaceMessage) {
@@ -183,8 +189,11 @@ func raceLeave(conn *ExtendedConnection, data *RaceMessage) {
 	// Send everyone the new list of races
 	raceUpdateAll()
 
-	// Check to see if that race started or finished
-	raceCheckStartFinish(raceID)
+	// Send the people in this race an update
+	racerUpdate(raceID)
+
+	// Check to see if the race is ready to start
+	raceStart(raceID)
 }
 
 func raceReady(conn *ExtendedConnection, data *RaceMessage) {
@@ -223,18 +232,18 @@ func raceReady(conn *ExtendedConnection, data *RaceMessage) {
 	}
 
 	// Change their status to "ready"
-	if racerSetStatus(conn, userID, raceID, "ready", functionName) == false {
+	if racerSetStatus(conn, username, raceID, "ready", functionName) == false {
 		return
 	}
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send the people in this race an update
+	racerUpdate(raceID)
 
-	// Check to see if the race is now ready to start
-	raceCheckStartFinish(raceID)
+	// Check to see if the race is ready to start
+	raceStart(raceID)
 }
 
 func raceUnready(conn *ExtendedConnection, data *RaceMessage) {
@@ -273,15 +282,15 @@ func raceUnready(conn *ExtendedConnection, data *RaceMessage) {
 	}
 
 	// Change their status to "not ready"
-	if racerSetStatus(conn, userID, raceID, "not ready", functionName) == false {
+	if racerSetStatus(conn, username, raceID, "not ready", functionName) == false {
 		return
 	}
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send the people in this race an update
+	racerUpdate(raceID)
 }
 
 func raceRuleset(conn *ExtendedConnection, data *RaceRulesetMessage) {
@@ -347,6 +356,9 @@ func raceRuleset(conn *ExtendedConnection, data *RaceRulesetMessage) {
 
 	// Send everyone the new list of races
 	raceUpdateAll()
+
+	// Send the people in this race an update
+	racerUpdate(raceID)
 }
 
 func raceDone(conn *ExtendedConnection, data *RaceMessage) {
@@ -385,18 +397,18 @@ func raceDone(conn *ExtendedConnection, data *RaceMessage) {
 	}
 
 	// Change their status to "finished"
-	if racerSetStatus(conn, userID, raceID, "finished", functionName) == false {
+	if racerSetStatus(conn, username, raceID, "finished", functionName) == false {
 		return
 	}
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send the people in this race an update
+	racerUpdate(raceID)
 
-	// Check to see if the race is now completed
-	raceCheckStartFinish(raceID)
+	// Check to see if the race is ready to finish
+	raceFinish(raceID)
 }
 
 func raceQuit(conn *ExtendedConnection, data *RaceMessage) {
@@ -435,18 +447,18 @@ func raceQuit(conn *ExtendedConnection, data *RaceMessage) {
 	}
 
 	// Change their status to "quit"
-	if racerSetStatus(conn, userID, raceID, "quit", functionName) == false {
+	if racerSetStatus(conn, username, raceID, "quit", functionName) == false {
 		return
 	}
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send the people in this race an update
+	racerUpdate(raceID)
 
-	// Check to see if the race is now completed
-	raceCheckStartFinish(raceID)
+	// Check to see if the race is ready to finish
+	raceFinish(raceID)
 }
 
 func raceComment(conn *ExtendedConnection, data *RaceCommentMessage) {
@@ -489,8 +501,8 @@ func raceComment(conn *ExtendedConnection, data *RaceCommentMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send the people in this race an update
+	racerUpdate(raceID)
 }
 
 func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
@@ -545,8 +557,8 @@ func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send the people in this race an update
+	racerUpdate(raceID)
 }
 
 func raceFloor(conn *ExtendedConnection, data *RaceFloorMessage) {
@@ -601,8 +613,8 @@ func raceFloor(conn *ExtendedConnection, data *RaceFloorMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send the people in this race an update
+	racerUpdate(raceID)
 }
 
 /*
@@ -712,9 +724,9 @@ func racerValidateStatus(conn *ExtendedConnection, userID int, raceID int, statu
 	return true
 }
 
-func racerSetStatus(conn *ExtendedConnection, userID int, raceID int, status string, functionName string) bool {
+func racerSetStatus(conn *ExtendedConnection, username string, raceID int, status string, functionName string) bool {
 	// Change the status in the database
-	if err := db.RaceParticipants.SetStatus(userID, raceID, status); err != nil {
+	if err := db.RaceParticipants.SetStatus(username, raceID, status); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	}
@@ -740,7 +752,7 @@ func raceUpdate(conn *ExtendedConnection) {
 	conn.Connection.Emit("raceList", raceList)
 }
 
-// Called whenever anything race-related happens
+// Called whenever someone joins or leaves a race, a race changes status, or a race changes ruleset
 func raceUpdateAll() {
 	// Get the current races
 	var raceList []model.Race
@@ -753,6 +765,30 @@ func raceUpdateAll() {
 	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceList", raceList)
+	}
+	connectionMap.RUnlock()
+}
+
+// Called whenever someone does something inside of a race
+func racerUpdate(raceID int) {
+	// Get the list of racers for this race
+	var racerList []model.Racer
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send it to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		username := racer.Name
+		conn, ok := connectionMap.m[username]
+		if ok == true { // Not all racers may be online during a running race
+			conn.Connection.Emit("racerList", &RacerList{
+				raceID,
+				racerList,
+			})
+		}
 	}
 	connectionMap.RUnlock()
 }
@@ -790,15 +826,14 @@ func raceStart(raceID int) {
 	raceUpdateAll()
 
 	// Get the list of people in this race
-	racers, err := db.RaceParticipants.GetRacerList(raceID)
+	racers, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		return
 	}
 
 	// Send everyone in the race a message describing exactly when it will start
 	connectionMap.RLock()
-	for _, racer := range racers {
-		username := racer.Name
+	for _, username := range racers {
 		conn, ok := connectionMap.m[username]
 		if ok == true {
 			conn.Connection.Emit("raceStart", &RaceStartMessage{
@@ -814,13 +849,16 @@ func raceStart(raceID int) {
 	// Sleep 10 seconds
 	time.Sleep(10 * time.Second)
 
-	// Start the race
+	// Start the race (which will set everyone's status to "racing")
 	if err := db.Races.Start(raceID); err != nil {
 		return
 	}
 
 	// Send everyone the new list of races
 	raceUpdateAll()
+
+	// Send the people in this race an update
+	racerUpdate(raceID)
 
 	// Sleep 30 minutes
 	time.Sleep(30 * time.Minute)
@@ -833,15 +871,15 @@ func raceStart(raceID int) {
 	}
 
 	// The race is still going, so get the list of people still in this race
-	racers, err = db.RaceParticipants.GetRacerList(raceID)
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		return
 	}
 
 	// If any are still racing, force them to quit
-	for _, racer := range racers {
+	for _, racer := range racerList {
 		if racer.Status == "racing" {
-			if err := db.RaceParticipants.SetStatus(racer.ID, raceID, "quit"); err != nil {
+			if err := db.RaceParticipants.SetStatus(racer.Name, raceID, "quit"); err != nil {
 				return
 			}
 		}

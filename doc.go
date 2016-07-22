@@ -3,7 +3,7 @@
 TODO
 ----
 
-- send race start message
+- only send racing information thats necessary
 - send item commands for pickup
 - stylize username
 - discover chat room list
@@ -170,8 +170,11 @@ success {"type":"raceCreate","msg":{"name":"poop2","ruleset":"diversity","id":1}
 Whenever a chat room is updated:
 roomList {"room":"global","users":[{"name":"zamiel","admin":0,"squelched":0,"status":"","datetime_joined":0,"datetime_finished":0,"place":0,"comment":"","floor":0}]}
 
-Whenever a new race has been created an something happens in an existing race:
-raceList [{"id":1,"name":"-","status":"open","ruleset":"unseeded","datetime_created":1469048748,"datetime_started":0,"captain":"zamiel","racers":[{"name":"zamiel","status":"not ready","datetime_joined":1469048748,"datetime_finished":0,"place":0,"comment":"-","floor":1}]}]
+Whenever someone joins or leaves a race, a race changes status, or a race changes ruleset:
+raceList [{"id":3,"name":"-","status":"open","ruleset":"unseeded","datetime_created":1469177311,"datetime_started":0,"captain":"zamiel","racers":["zamiel"]}]
+
+Whenever someone does something inside of a race:
+racerList {"id":3,"racerList":[{"name":"zamiel","status":"not ready","datetime_joined":1469177311,"datetime_finished":0,"place":0,"comment":"-","items":null,"floor":1}]}
 
 When a race is starting:
 raceStart {"id":10,"time":1469147515988023769}

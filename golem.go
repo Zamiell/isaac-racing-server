@@ -376,7 +376,10 @@ func connClose(conn *ExtendedConnection) {
 		// Send everyone the new list of races
 		raceUpdateAll()
 
-		// Check to see if that race started or finished
+		// Send the people in this race an update
+		racerUpdate(raceID)
+
+		// Check to see if the race should start or finish
 		raceCheckStartFinish(raceID)
 	}
 

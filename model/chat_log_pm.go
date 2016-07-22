@@ -19,18 +19,15 @@ type ChatLogPM struct {
  */
 
 func (self *ChatLogPM) Insert(recipient string, username string, msg string) error {
-	// Local variables
-	functionName := "modelChatLogPMInsert"
-
 	// Add the message
 	stmt, err := db.Prepare("INSERT INTO chat_log_pm (recipient_id, user_id, message) VALUES ((SELECT id FROM users WHERE username = ?), (SELECT id FROM users WHERE username = ?), ?)")
 	if err != nil {
-		log.Error("Database error in the", functionName, "function:", err)
+		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(recipient, username, msg)
 	if err != nil {
-		log.Error("Database error in the", functionName, "function:", err)
+		log.Error("Database error:", err)
 		return err
 	}
 

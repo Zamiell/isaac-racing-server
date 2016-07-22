@@ -5,6 +5,8 @@ package main
  */
 
 import (
+	"github.com/Zamiell/isaac-racing-server/model"
+
 	"time"
 	"github.com/trevex/golem"
 )
@@ -102,6 +104,12 @@ type RaceFloorMessage struct {
 type RaceStartMessage struct {
 	ID   int   `json:"id"`
 	Time int64 `json:"time"`
+}
+
+// Sent to tell the client that something has happened within the particular race
+type RacerList struct {
+	ID        int           `json:"id"`
+	RacerList []model.Racer `json:"racerList"`
 }
 
 /*

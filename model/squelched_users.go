@@ -21,16 +21,13 @@ type SquelchedUsers struct {
  */
 
 func (self *SquelchedUsers) Check(username string) (bool, error) {
-	// Local variables
-	functionName := "modelSquelchedUsersCheck"
-
 	// Check if this user is squelched
 	var id int
 	err := db.QueryRow("SELECT id FROM squelched_users WHERE user_id = (SELECT id FROM users WHERE username = ?)", username).Scan(&id)
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		log.Error("Database error in the", functionName, "function:", err)
+		log.Error("Database error:", err)
 		return false, err
 	} else {
 		return true, nil
@@ -38,18 +35,15 @@ func (self *SquelchedUsers) Check(username string) (bool, error) {
 }
 
 func (self *SquelchedUsers) Insert(username string, adminResponsible int) error {
-	// Local variables
-	functionName := "modelSquelchedUsersInsert"
-
 	// Add the user to the squelched list in the database
 	stmt, err := db.Prepare("INSERT INTO squelched_users (user_id, admin_responsible) VALUES ((SELECT id from users WHERE username = ?), ?)")
 	if err != nil {
-		log.Error("Database error in the", functionName, "function:", err)
+		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(username, adminResponsible)
 	if err != nil {
-		log.Error("Database error in the", functionName, "function:", err)
+		log.Error("Database error:", err)
 		return err
 	}
 
@@ -57,18 +51,15 @@ func (self *SquelchedUsers) Insert(username string, adminResponsible int) error 
 }
 
 func (self *SquelchedUsers) Delete(username string) error {
-	// Local variables
-	functionName := "modelSquelchedUsersDelete"
-
 	// Remove the user from the squelched list in the database
 	stmt, err := db.Prepare("DELETE FROM squelched_users WHERE user_id = (SELECT id from users WHERE username = ?)")
 	if err != nil {
-		log.Error("Database error in the", functionName, "function:", err)
+		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(username)
 	if err != nil {
-		log.Error("Database error in the", functionName, "function:", err)
+		log.Error("Database error:", err)
 		return err
 	}
 
