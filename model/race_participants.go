@@ -101,6 +101,14 @@ func (self *RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 			log.Error("Database error:", err)
 			return nil, err
 		}
+
+		// Add their item list to the object
+		if itemList, err := self.db.RaceParticipantItems.GetItemList(racer.Name, raceID); err != nil {
+			return nil, err
+		} else {
+			racer.Items = itemList
+		}
+
 		racerList = append(racerList, racer)
 	}
 

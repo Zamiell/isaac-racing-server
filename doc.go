@@ -3,7 +3,6 @@
 TODO
 ----
 
-- only send racing information thats necessary
 - send item commands for pickup
 - stylize username
 - discover chat room list
@@ -174,7 +173,7 @@ Whenever someone joins or leaves a race, a race changes status, or a race change
 raceList [{"id":3,"name":"-","status":"open","ruleset":"unseeded","datetime_created":1469177311,"datetime_started":0,"captain":"zamiel","racers":["zamiel"]}]
 
 Whenever someone does something inside of a race:
-racerList {"id":3,"racerList":[{"name":"zamiel","status":"not ready","datetime_joined":1469177311,"datetime_finished":0,"place":0,"comment":"-","items":null,"floor":1}]}
+racerList {"id":6,"racers":[{"name":"zamiel","status":"not ready","datetime_joined":1469178564,"datetime_finished":0,"place":0,"comment":"-","items":[],"floor":1}]}
 
 When a race is starting:
 raceStart {"id":10,"time":1469147515988023769}

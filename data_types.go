@@ -108,8 +108,8 @@ type RaceStartMessage struct {
 
 // Sent to tell the client that something has happened within the particular race
 type RacerList struct {
-	ID        int           `json:"id"`
-	RacerList []model.Racer `json:"racerList"`
+	ID     int           `json:"id"`
+	Racers []model.Racer `json:"racers"`
 }
 
 /*

@@ -23,9 +23,9 @@ type Item struct {
  *  race_participant_items table functions
  */
 
-func (self *RaceParticipantItems) GetItemList(userID int, raceID int) ([]Item, error) {
-	// Get the people in this race
-	/*rows, err := db.Query("SELECT users.id, users.username, race_participants.status, race_participants.datetime_joined, race_participants.datetime_finished, race_participants.place, race_participants.comment, race_participants.floor FROM race_participants JOIN users ON users.id = race_participants.user_id WHERE race_participants.race_id = ?", raceID)
+func (self *RaceParticipantItems) GetItemList(username string, raceID int) ([]Item, error) {
+	// Get the items that this user got so far in the race
+	rows, err := db.Query("SELECT item_id, floor FROM race_participant_items WHERE race_participant_id = (SELECT id FROM race_participants WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?)", username, raceID)
 	if err != nil {
 		log.Error("Database error:", err)
 		return nil, err
@@ -33,19 +33,18 @@ func (self *RaceParticipantItems) GetItemList(userID int, raceID int) ([]Item, e
 	defer rows.Close()
 
 	// We have to initialize this way to avoid sending a null on an empty array: https://danott.co/posts/json-marshalling-empty-slices-to-empty-arrays-in-go.html
-	racerList := make([]Racer, 0)
+	itemList := make([]Item, 0)
 	for rows.Next() {
-		var racer Racer
-		err := rows.Scan(&racer.ID, &racer.Name, &racer.Status, &racer.DatetimeJoined, &racer.DatetimeFinished, &racer.Place, &racer.Comment, &racer.Floor)
+		var item Item
+		err := rows.Scan(&item.ID, &item.Floor)
 		if err != nil {
 			log.Error("Database error:", err)
 			return nil, err
 		}
-		racerList = append(racerList, racer)
+		itemList = append(itemList, item)
 	}
 
-	return racerList, nil*/
-	return nil, nil
+	return itemList, nil
 }
 
 func (self *RaceParticipantItems) Insert(userID int, raceID int, itemID int) error {
