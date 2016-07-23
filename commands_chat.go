@@ -12,7 +12,7 @@ import (
  *  WebSocket room/chat command functions
  */
 
- func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
+func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
 	// Local variables
 	functionName := "roomJoin"
 	username := conn.Username
@@ -292,7 +292,6 @@ func roomGetAll(conn *ExtendedConnection) {
 	// Send success confirmation
 	connSuccess(conn, functionName, "")
 }
-
 
 /*
  *  WebSocket room/chat subroutines

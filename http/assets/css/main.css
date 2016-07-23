@@ -1,5 +1,14 @@
-@import url("font-awesome.min.css");
+@import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css");
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,300italic,400italic");
+
+/*
+ *  Isaac Racing Server stuff
+ */
+
+ .belt {
+     width: 70px;
+     height: auto;
+ }
 
 /*
 	Alpha by HTML5 UP
@@ -1792,10 +1801,8 @@
 /* Basic */
 
 	body {
-		/*background: #f5f5f5;*/
-		/*background: #262626;*/
-		background-image: url("images/overlay.png"), url("../../images/background.png");
-
+		background-color: #000000;
+		background-image: url("/images/fabric-of-squares.png");
 	}
 
 	body, input, select, textarea {
@@ -2830,6 +2837,10 @@
 				border: 0;
 			}
 
+				#header h1 a:hover {
+					color: rgba(255, 255, 255, 0.8);
+				}
+
 		#header nav {
 			height: inherit;
 			line-height: inherit;
@@ -2861,6 +2872,10 @@
 						padding: 0 1em;
 						border-radius: 6px;
 					}
+
+						#header nav > ul > li a:hover {
+							background-color: rgba(255, 255, 255, 0.1);
+						}
 
 					#header nav > ul > li a:not(.button) {
 						color: #fff;

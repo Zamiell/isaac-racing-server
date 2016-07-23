@@ -92,6 +92,9 @@ func main() {
 	// Clean up any non-started races before we start
 	db.Races.Cleanup()
 
+	// Initialize the achievements
+	achievementsInit()
+
 	// Create a WebSocket router using the Golem framework
 	router := golem.NewRouter()
 	router.SetConnectionExtension(NewExtendedConnection)

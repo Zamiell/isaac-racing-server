@@ -3,7 +3,6 @@
 TODO
 ----
 
-- discover chat room list
 - userprofile
 - send last chat when joining race
 - send last chat when joining channel

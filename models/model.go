@@ -25,8 +25,8 @@ type Model struct {
 	SquelchedUsers
 	ChatLog
 	ChatLogPM
-	//Achievements
-	//UserAchievements
+	Achievements
+	UserAchievements
 }
 
 /*
@@ -64,8 +64,8 @@ func GetModel(logger *logging.Logger) *Model {
 	model.SquelchedUsers.db = model
 	model.ChatLog.db = model
 	model.ChatLogPM.db = model
-	//model.Achievements.db = model
-	//model.UserAchievements.db = model
+	model.Achievements.db = model
+	model.UserAchievements.db = model
 
 	return model
 }
