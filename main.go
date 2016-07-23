@@ -5,19 +5,19 @@ package main // In Go, executable commands must always use package main
  */
 
 import (
-	"github.com/Zamiell/isaac-racing-server/model"
+	"github.com/Zamiell/isaac-racing-server/models"
 
-	"net/http"                      // For establishing an HTTP server
-	"os"                            // For logging and reading environment variables
-	"sync"                          // For locking and unlocking the connection map
-	"time"                          // For dealing with timestamps
+	"net/http" // For establishing an HTTP server
+	"os"       // For logging and reading environment variables
+	"sync"     // For locking and unlocking the connection map
+	"time"     // For dealing with timestamps
 
-	"github.com/op/go-logging"      // For logging
-	"github.com/joho/godotenv"      // For reading environment variables that contain secrets
-	"github.com/didip/tollbooth"    // For rate-limiting login requests
-	"github.com/trevex/golem"       // The Golem WebSocket framework
-	"github.com/gorilla/sessions"   // For cookie sessions (1/2)
-	"github.com/gorilla/context"    // For cookie sessions (2/2)
+	"github.com/didip/tollbooth"  // For rate-limiting login requests
+	"github.com/gorilla/context"  // For cookie sessions (1/2)
+	"github.com/gorilla/sessions" // For cookie sessions (2/2)
+	"github.com/joho/godotenv"    // For reading environment variables that contain secrets
+	"github.com/op/go-logging"    // For logging
+	"github.com/trevex/golem"     // The Golem WebSocket framework
 )
 
 /*
@@ -30,8 +30,8 @@ const (
 	domain      = "isaacitemtracker.com"
 	auth0Domain = "isaacserver.auth0.com"
 	useSSL      = true
-	SSLCertFile = "/etc/letsencrypt/live/isaacitemtracker.com/fullchain.pem"
-	SSLKeyFile  = "/etc/letsencrypt/live/isaacitemtracker.com/privkey.pem"
+	sslCertFile = "/etc/letsencrypt/live/isaacitemtracker.com/fullchain.pem"
+	sslKeyFile  = "/etc/letsencrypt/live/isaacitemtracker.com/privkey.pem"
 )
 
 /*
@@ -39,16 +39,18 @@ const (
  */
 
 var (
-	log = logging.MustGetLogger("isaac")
-	sessionStore *sessions.CookieStore
-	roomManager = golem.NewRoomManager()
-	PMManager = golem.NewRoomManager()
+	log           = logging.MustGetLogger("isaac")
+	sessionStore  *sessions.CookieStore
+	roomManager   = golem.NewRoomManager()
+	pmManager     = golem.NewRoomManager()
 	connectionMap = struct {
-		sync.RWMutex // Maps are not safe for concurrent use: https://blog.golang.org/go-maps-in-action
+		// Maps are not safe for concurrent use: https://blog.golang.org/go-maps-in-action
+		sync.RWMutex
 		m map[string]*ExtendedConnection
 	}{m: make(map[string]*ExtendedConnection)}
 	chatRoomMap = struct {
-		sync.RWMutex // Maps are not safe for concurrent use: https://blog.golang.org/go-maps-in-action
+		// Maps are not safe for concurrent use: https://blog.golang.org/go-maps-in-action
+		sync.RWMutex
 		m map[string][]User
 	}{m: make(map[string][]User)}
 	db *model.Model
@@ -59,7 +61,7 @@ var (
  */
 
 func main() {
-	// Configure logging: http://godoc.org/github.com/op/go-logging#Formatter 
+	// Configure logging: http://godoc.org/github.com/op/go-logging#Formatter
 	loggingBackend := logging.NewLogBackend(os.Stdout, "", 0)
 	logFormat := logging.MustStringFormatter( // https://golang.org/pkg/time/#Time.Format
 		`%{time:Mon Jan 2 15:04:05 MST 2006} - %{level:.4s} - %{shortfile} - %{message}`,
@@ -79,7 +81,7 @@ func main() {
 	sessionStore.Options = &sessions.Options{
 		Domain:   domain,
 		Path:     "/",
-		MaxAge:   5, // 5 seconds
+		MaxAge:   5,    // 5 seconds
 		Secure:   true, // Only send the cookie over HTTPS: https://www.owasp.org/index.php/Testing_for_cookies_attributes_(OTG-SESS-002)
 		HttpOnly: true, // Mitigate XSS attacks: https://www.owasp.org/index.php/HttpOnly
 	}
@@ -106,6 +108,7 @@ func main() {
 	router.On("roomLeave", roomLeave)
 	router.On("roomMessage", roomMessage)
 	router.On("privateMessage", privateMessage)
+	router.On("roomGetAll", roomGetAll)
 
 	// Race commands
 	router.On("raceCreate", raceCreate)
@@ -119,6 +122,10 @@ func main() {
 	router.On("raceComment", raceComment)
 	router.On("raceItem", raceItem)
 	router.On("raceFloor", raceFloor)
+
+	// Profile commands
+	router.On("profileGet", profileGet)
+	router.On("profileSetUsername", profileSetUsername)
 
 	// Admin commands
 	router.On("adminBan", adminBan)
@@ -138,9 +145,10 @@ func main() {
 	 */
 
 	// Assign functions to URIs
-	http.HandleFunc("/ws", router.Handler())
+	//http.HandleFunc("/", httpHome)
+	http.Handle("/", http.FileServer(http.Dir("http")))
 	http.Handle("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler))
-	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))
+	http.HandleFunc("/ws", router.Handler())
 
 	// Welcome message
 	log.Info("Starting isaac-racing-server on port " + port + ".")
@@ -148,9 +156,9 @@ func main() {
 	// Listen and serve
 	if useSSL == true {
 		if err := http.ListenAndServeTLS(
-			":" + port, // Nothing before the colon implies 0.0.0.0
-			SSLCertFile,
-			SSLKeyFile,
+			":"+port, // Nothing before the colon implies 0.0.0.0
+			sslCertFile,
+			sslKeyFile,
 			context.ClearHandler(http.DefaultServeMux), // We wrap with context.ClearHandler or else we will leak memory: http://www.gorillatoolkit.org/pkg/sessions
 		); err != nil {
 			log.Fatal("ListenAndServeTLS failed:", err)
@@ -158,7 +166,7 @@ func main() {
 	} else {
 		// Listen and serve (HTTP)
 		if err := http.ListenAndServe(
-			":" + port, // Nothing before the colon implies 0.0.0.0
+			":"+port, // Nothing before the colon implies 0.0.0.0
 			context.ClearHandler(http.DefaultServeMux), // We wrap with context.ClearHandler or else we will leak memory: http://www.gorillatoolkit.org/pkg/sessions
 		); err != nil {
 			log.Fatal("ListenAndServeTLS failed:", err)

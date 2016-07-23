@@ -3,13 +3,19 @@
 TODO
 ----
 
-- send item commands for pickup
-- stylize username
 - discover chat room list
 - userprofile
 - send last chat when joining race
 - send last chat when joining channel
 - achievements
+
+
+
+Misc. Notes
+-----------
+
+Get line count:
+find . -name "*.go" | xargs cat | wc -l
 
 
 
@@ -60,7 +66,7 @@ COOKIE="isaac.sid=MTQ2ODEyMzIyN3xEdi1CQkFFQ180SUFBUkFCRUFBQVh2LUNBQU1HYzNSeWFXNW
 
 
 WebSocket chat commands
---------------------------------
+-----------------------
 
 Join chat channel:
 roomJoin {"name":"fartchannel"}
@@ -77,10 +83,13 @@ roomMessage {"to":"_race_1","msg":"gg"}
 Send private message:
 privateMessage {"to":"zamiel","msg":"private message lol"}
 
+Get a list of all of the current rooms:
+roomGetAll {}
+
 
 
 WebSocket race commands
---------------------------------
+-----------------------
 
 Create a race:
 raceCreate {}
@@ -120,8 +129,19 @@ raceFloor {"id":1,"floor":2}
 
 
 
+WebSocket profile commands
+--------------------------
+
+Get the profile of a user:
+profileGet {"name":"zamiel2"}
+
+Set the username to a new stylization:
+profileSetUsername {"name":"zAmIeL2"}
+
+
+
 WebSocket admin commands
---------------------------------
+------------------------
 
 Ban a user:
 adminBan {"name":"zamiel2"}
@@ -169,6 +189,9 @@ success {"type":"raceCreate","msg":{"name":"poop2","ruleset":"diversity","id":1}
 Whenever a chat room is updated:
 roomList {"room":"global","users":[{"name":"zamiel","admin":0,"squelched":0,"status":"","datetime_joined":0,"datetime_finished":0,"place":0,"comment":"","floor":0}]}
 
+When a list of chat rooms is requested:
+roomListAll [{"room":"global","numUsers":1}]
+
 Whenever someone joins or leaves a race, a race changes status, or a race changes ruleset:
 raceList [{"id":3,"name":"-","status":"open","ruleset":"unseeded","datetime_created":1469177311,"datetime_started":0,"captain":"zamiel","racers":["zamiel"]}]
 
@@ -177,6 +200,9 @@ racerList {"id":6,"racers":[{"name":"zamiel","status":"not ready","datetime_join
 
 When a race is starting:
 raceStart {"id":10,"time":1469147515988023769}
+
+When a profile is requested:
+profile { TODO }
 
 */
 

@@ -12,14 +12,14 @@ import (
  *  WebSocket room/chat command functions
  */
 
-func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
+ func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
 	// Local variables
 	functionName := "roomJoin"
-	username     := conn.Username
-	room         := data.Name
+	username := conn.Username
+	room := data.Name
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command for room \"" + room + "\".")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for room \""+room+"\".")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -70,11 +70,11 @@ func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
 func roomLeave(conn *ExtendedConnection, data *RoomMessage) {
 	// Local variables
 	functionName := "roomLeave"
-	username     := conn.Username
-	room         := data.Name
+	username := conn.Username
+	room := data.Name
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command for room \"" + room + "\".")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for room \""+room+"\".")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -129,8 +129,8 @@ func roomLeave(conn *ExtendedConnection, data *RoomMessage) {
 func roomMessage(conn *ExtendedConnection, data *ChatMessage) {
 	// Local variables
 	functionName := "roomMessage"
-	username     := conn.Username
-	room         := data.To
+	username := conn.Username
+	room := data.To
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -200,8 +200,8 @@ func roomMessage(conn *ExtendedConnection, data *ChatMessage) {
 func privateMessage(conn *ExtendedConnection, data *ChatMessage) {
 	// Local variables
 	functionName := "privateMessage"
-	username     := conn.Username
-	recipient    := data.To
+	username := conn.Username
+	recipient := data.To
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -255,11 +255,44 @@ func privateMessage(conn *ExtendedConnection, data *ChatMessage) {
 	log.Info("PM <" + data.From + "> <" + data.To + "> " + data.Msg)
 
 	// Send the message
-	PMManager.Emit(data.To, functionName, &data)
+	pmManager.Emit(data.To, functionName, &data)
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 }
+
+func roomGetAll(conn *ExtendedConnection) {
+	// Local variables
+	functionName := "roomGetAll"
+	username := conn.Username
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+
+	// Rate limit all commands
+	if commandRateLimit(conn) == true {
+		return
+	}
+
+	// We have to initialize this way to avoid sending a null on an empty array: https://danott.co/posts/json-marshalling-empty-slices-to-empty-arrays-in-go.html
+	roomList := make([]Room, 0)
+	chatRoomMap.RLock()
+	for roomName, users := range chatRoomMap.m {
+		// Add the room to the list
+		roomList = append(roomList, Room{
+			roomName,
+			len(users),
+		})
+	}
+	chatRoomMap.RUnlock()
+
+	// Send it to the user
+	conn.Connection.Emit("roomListAll", roomList)
+
+	// Send success confirmation
+	connSuccess(conn, functionName, "")
+}
+
 
 /*
  *  WebSocket room/chat subroutines
@@ -267,8 +300,8 @@ func privateMessage(conn *ExtendedConnection, data *ChatMessage) {
 
 func roomJoinSub(conn *ExtendedConnection, room string) {
 	// Local variables
-	username  := conn.Username
-	admin     := conn.Admin
+	username := conn.Username
+	admin := conn.Admin
 	squelched := conn.Squelched
 
 	// Join the room

@@ -7,9 +7,9 @@ package main
 func adminBan(conn *ExtendedConnection, data *AdminMessage) {
 	// Local variables
 	functionName := "adminBan"
-	userID       := conn.UserID
-	username     := conn.Username
-	recipient    := data.Name
+	userID := conn.UserID
+	username := conn.Username
+	recipient := data.Name
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -119,8 +119,8 @@ func adminBan(conn *ExtendedConnection, data *AdminMessage) {
 func adminUnban(conn *ExtendedConnection, data *AdminMessage) {
 	// Local variables
 	functionName := "adminUnban"
-	username     := conn.Username
-	recipient    := data.Name
+	username := conn.Username
+	recipient := data.Name
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -192,9 +192,9 @@ func adminUnban(conn *ExtendedConnection, data *AdminMessage) {
 func adminBanIP(conn *ExtendedConnection, data *AdminIPMessage) {
 	// Local variables
 	functionName := "adminBanIP"
-	userID       := conn.UserID
-	username     := conn.Username
-	ip           := data.IP
+	userID := conn.UserID
+	username := conn.Username
+	ip := data.IP
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -240,8 +240,8 @@ func adminBanIP(conn *ExtendedConnection, data *AdminIPMessage) {
 func adminUnbanIP(conn *ExtendedConnection, data *AdminIPMessage) {
 	// Local variables
 	functionName := "adminUnbanIP"
-	username     := conn.Username
-	ip           := data.IP
+	username := conn.Username
+	ip := data.IP
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -287,9 +287,9 @@ func adminUnbanIP(conn *ExtendedConnection, data *AdminIPMessage) {
 func adminSquelch(conn *ExtendedConnection, data *AdminMessage) {
 	// Local variables
 	functionName := "adminSquelch"
-	userID       := conn.UserID
-	username     := conn.Username
-	recipient    := data.Name
+	userID := conn.UserID
+	username := conn.Username
+	recipient := data.Name
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -400,8 +400,8 @@ func adminSquelch(conn *ExtendedConnection, data *AdminMessage) {
 func adminUnsquelch(conn *ExtendedConnection, data *AdminMessage) {
 	// Local variables
 	functionName := "adminUnsquelch"
-	username     := conn.Username
-	recipient    := data.Name
+	username := conn.Username
+	recipient := data.Name
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -512,8 +512,8 @@ func adminUnsquelch(conn *ExtendedConnection, data *AdminMessage) {
 func adminPromote(conn *ExtendedConnection, data *AdminMessage) {
 	// Local variables
 	functionName := "adminPromote"
-	username     := conn.Username
-	recipient    := data.Name
+	username := conn.Username
+	recipient := data.Name
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -615,8 +615,8 @@ func adminPromote(conn *ExtendedConnection, data *AdminMessage) {
 func adminDemote(conn *ExtendedConnection, data *AdminMessage) {
 	// Local variables
 	functionName := "adminDemote"
-	username     := conn.Username
-	recipient    := data.Name
+	username := conn.Username
+	recipient := data.Name
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {

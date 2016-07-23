@@ -5,16 +5,15 @@ package main
  */
 
 import (
+	"encoding/json"           // For Auth0 authentication (1/3)
+	"github.com/trevex/golem" // The Golem WebSocket framework
+	"golang.org/x/oauth2"     // For Auth0 authentication (2/3)
+	"io/ioutil"               // For Auth0 authentication (3/3)
 	"net"                     // For splitting the IP address from the port
 	"net/http"                // For establishing an HTTP server
 	"os"                      // For logging and reading environment variables
 	"strconv"                 // For converting integers to strings
 	"time"                    // For rate limiting
-
-	"github.com/trevex/golem" // The Golem WebSocket framework
-	"golang.org/x/oauth2"     // For Auth0 authentication (1/3)
-	"encoding/json"           // For Auth0 authentication (2/3)
-	"io/ioutil"               // For Auth0 authentication (3/3)
 )
 
 /*
@@ -33,7 +32,7 @@ const (
 func NewExtendedConnection(conn *golem.Connection) *ExtendedConnection {
 	return &ExtendedConnection{
 		Connection: conn,
-		UserID:     0,  // These values will be set (again) during the connOpen function
+		UserID:     0, // These values will be set (again) during the connOpen function
 		Username:   "",
 		Admin:      0,
 	}
@@ -46,13 +45,14 @@ func NewExtendedConnection(conn *golem.Connection) *ExtendedConnection {
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// Local variables
 	functionName := "loginHandler"
-	ip, _, _     := net.SplitHostPort(r.RemoteAddr)
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if userIsBanned == true {
+		log.Info("IP \"" + ip + "\" tried to log in, but they are banned.")
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
@@ -82,7 +82,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	client := conf.Client(oauth2.NoContext, &token)
 	resp, err := client.Get("https://" + auth0Domain + "/userinfo")
 	if err != nil {
-		log.Error("Failed to login with Auth0 token \"" + token.AccessToken + "\":", err)
+		log.Error("Failed to login with Auth0 token \""+token.AccessToken+"\":", err)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
@@ -91,7 +91,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	raw, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		log.Error("Failed to read the body of the profile for Auth0 token \"" + token.AccessToken + "\":", err)
+		log.Error("Failed to read the body of the profile for Auth0 token \""+token.AccessToken+"\":", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -127,9 +127,9 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Save the information to the session
-	session.Values["userID"]    = userInfo.UserID
-	session.Values["username"]  = username
-	session.Values["admin"]     = userInfo.Admin
+	session.Values["userID"] = userInfo.UserID
+	session.Values["username"] = username
+	session.Values["admin"] = userInfo.Admin
 	session.Values["squelched"] = userInfo.Squelched
 	if err := session.Save(r, w); err != nil {
 		log.Error("Failed to save the session cookie:", err)
@@ -138,7 +138,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Log the login request
-	log.Info("User \"" + username + "\" logged in from:", ip)
+	log.Info("User \""+username+"\" logged in from:", ip)
 }
 
 /*
@@ -148,10 +148,11 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 func validateSession(w http.ResponseWriter, r *http.Request) bool {
 	// Local variables
 	functionName := "validateSession"
-	ip, _, _     := net.SplitHostPort(r.RemoteAddr)
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
+		log.Info("IP \"" + ip + "\" tried to establish a WebSocket connection, but they are banned.")
 		return false
 	} else if userIsBanned == true {
 		return false
@@ -257,10 +258,10 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	}
 
 	// Store user information in the Golem connection so that we can use it in the Golem WebSocket functions later on
-	conn.UserID             = userID
-	conn.Username           = username
-	conn.Admin              = admin
-	conn.Squelched          = squelched
+	conn.UserID = userID
+	conn.Username = username
+	conn.Admin = admin
+	conn.Squelched = squelched
 	conn.RateLimitAllowance = rateLimitRate
 	conn.RateLimitLastCheck = time.Now()
 
@@ -290,10 +291,10 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	connectionMap.Unlock()
 
 	// Log the connection
-	log.Info("User \"" + username + "\" connected;", len(connectionMap.m), "user(s) now connected.")
+	log.Info("User \""+username+"\" connected;", len(connectionMap.m), "user(s) now connected.")
 
 	// Join the user to the PMManager room corresponding to their username for private messages
-	PMManager.Join(username, conn.Connection)
+	pmManager.Join(username, conn.Connection)
 
 	// Find out if the user is in any races that are currently going on
 	raceIDs, err := db.RaceParticipants.GetCurrentRaces(userID)
@@ -304,7 +305,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	// Iterate over the races that they are currently in
 	for _, raceID := range raceIDs {
 		// Join the user to the chat room coresponding to this race
-		roomJoinSub(conn, "_race_" + strconv.Itoa(raceID))
+		roomJoinSub(conn, "_race_"+strconv.Itoa(raceID))
 	}
 
 	// Send the user the current list of races
@@ -313,7 +314,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 
 func connClose(conn *ExtendedConnection) {
 	// Local variables
-	userID   := conn.UserID
+	userID := conn.UserID
 	username := conn.Username
 
 	// Delete the connection from the connection map
@@ -323,7 +324,7 @@ func connClose(conn *ExtendedConnection) {
 
 	// Leave the chat rooms
 	roomManager.LeaveAll(conn.Connection)
-	PMManager.LeaveAll(conn.Connection)
+	pmManager.LeaveAll(conn.Connection)
 
 	// Delete the user from all rooms in the chat room map
 	chatRoomMap.Lock()
@@ -384,7 +385,7 @@ func connClose(conn *ExtendedConnection) {
 	}
 
 	// Log the disconnection
-	log.Info("User \"" + username + "\" disconnected;", len(connectionMap.m), "user(s) now connected.")
+	log.Info("User \""+username+"\" disconnected;", len(connectionMap.m), "user(s) now connected.")
 }
 
 /*
@@ -419,7 +420,7 @@ func connError(conn *ExtendedConnection, functionName string, msg string) {
 // Called at the beginning of every command handler
 func commandRateLimit(conn *ExtendedConnection) bool {
 	// Local variables
-	username     := conn.Username
+	username := conn.Username
 
 	// Rate limit commands; algorithm from: http://stackoverflow.com/questions/667508/whats-a-good-rate-limiting-algorithm
 	now := time.Now()
@@ -435,7 +436,7 @@ func commandRateLimit(conn *ExtendedConnection) bool {
 		conn.Connection.Close()
 		return true
 	} else {
-		conn.RateLimitAllowance -= 1
+		conn.RateLimitAllowance--
 		return false
 	}
 }

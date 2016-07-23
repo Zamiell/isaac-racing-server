@@ -5,7 +5,7 @@ package main
  */
 
 import (
-	"github.com/Zamiell/isaac-racing-server/model"
+	"github.com/Zamiell/isaac-racing-server/models"
 
 	"strconv"
 	"time"
@@ -18,13 +18,13 @@ import (
 func raceCreate(conn *ExtendedConnection, data *RaceCreateMessage) {
 	// Local variables
 	functionName := "raceCreate"
-	userID       := conn.UserID
-	username     := conn.Username
-	name         := data.Name
-	ruleset      := data.Ruleset
+	userID := conn.UserID
+	username := conn.Username
+	name := data.Name
+	ruleset := data.Ruleset
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -78,7 +78,7 @@ func raceCreate(conn *ExtendedConnection, data *RaceCreateMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Join the user to the channel for that race
-	roomJoinSub(conn, "_race_" + strconv.Itoa(raceID))
+	roomJoinSub(conn, "_race_"+strconv.Itoa(raceID))
 
 	// Send everyone the new list of races
 	raceUpdateAll()
@@ -90,12 +90,12 @@ func raceCreate(conn *ExtendedConnection, data *RaceCreateMessage) {
 func raceJoin(conn *ExtendedConnection, data *RaceMessage) {
 	// Local variables
 	functionName := "raceJoin"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -131,7 +131,7 @@ func raceJoin(conn *ExtendedConnection, data *RaceMessage) {
 	}
 
 	// Join the user to the channel for that race
-	roomJoinSub(conn, "_race_" + strconv.Itoa(raceID))
+	roomJoinSub(conn, "_race_"+strconv.Itoa(raceID))
 
 	// Send success confirmation
 	data.Name = name // Requested by Chronometrics as extra information for the client
@@ -147,12 +147,12 @@ func raceJoin(conn *ExtendedConnection, data *RaceMessage) {
 func raceLeave(conn *ExtendedConnection, data *RaceMessage) {
 	// Local variables
 	functionName := "raceLeave"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -181,7 +181,7 @@ func raceLeave(conn *ExtendedConnection, data *RaceMessage) {
 	}
 
 	// Disconnect the user from the channel for that race
-	roomLeaveSub(conn, "_race_" + strconv.Itoa(raceID))
+	roomLeaveSub(conn, "_race_"+strconv.Itoa(raceID))
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
@@ -199,12 +199,12 @@ func raceLeave(conn *ExtendedConnection, data *RaceMessage) {
 func raceReady(conn *ExtendedConnection, data *RaceMessage) {
 	// Local variables
 	functionName := "raceReady"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -249,12 +249,12 @@ func raceReady(conn *ExtendedConnection, data *RaceMessage) {
 func raceUnready(conn *ExtendedConnection, data *RaceMessage) {
 	// Local variables
 	functionName := "raceUnready"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -296,13 +296,13 @@ func raceUnready(conn *ExtendedConnection, data *RaceMessage) {
 func raceRuleset(conn *ExtendedConnection, data *RaceRulesetMessage) {
 	// Local variables
 	functionName := "raceUnready"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
-	ruleset      := data.Ruleset
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+	ruleset := data.Ruleset
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -364,12 +364,12 @@ func raceRuleset(conn *ExtendedConnection, data *RaceRulesetMessage) {
 func raceDone(conn *ExtendedConnection, data *RaceMessage) {
 	// Local variables
 	functionName := "raceDone"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -414,12 +414,12 @@ func raceDone(conn *ExtendedConnection, data *RaceMessage) {
 func raceQuit(conn *ExtendedConnection, data *RaceMessage) {
 	// Local variables
 	functionName := "raceQuit"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -464,13 +464,13 @@ func raceQuit(conn *ExtendedConnection, data *RaceMessage) {
 func raceComment(conn *ExtendedConnection, data *RaceCommentMessage) {
 	// Local variables
 	functionName := "raceQuit"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
-	comment      := data.Comment
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+	comment := data.Comment
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -508,13 +508,13 @@ func raceComment(conn *ExtendedConnection, data *RaceCommentMessage) {
 func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
 	// Local variables
 	functionName := "raceItem"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
-	itemID       := data.ItemID
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+	itemID := data.ItemID
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -543,7 +543,7 @@ func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
 
 	// Validate that the item number is sane
 	if itemID < 1 || itemID > 441 { // This will need to be updated once we know the highest item ID in Afterbirth+
-		log.Warning("User \"" + username + "\" attempted to add an item", itemID, "to their build, but that is a bogus number.")
+		log.Warning("User \""+username+"\" attempted to add an item", itemID, "to their build, but that is a bogus number.")
 		connError(conn, functionName, "That is not a valid item ID.")
 		return
 	}
@@ -564,13 +564,13 @@ func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
 func raceFloor(conn *ExtendedConnection, data *RaceFloorMessage) {
 	// Local variables
 	functionName := "raceFloor"
-	userID       := conn.UserID
-	username     := conn.Username
-	raceID       := data.ID
-	floor        := data.Floor
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+	floor := data.Floor
 
 	// Log the received command
-	log.Debug("User \"" + username + "\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -599,7 +599,7 @@ func raceFloor(conn *ExtendedConnection, data *RaceFloorMessage) {
 
 	// Validate that the floor is sane
 	if floor < 1 || floor > 10 {
-		log.Warning("User \"" + username + "\" attempted to update their floor, but", floor, "is a bogus number.")
+		log.Warning("User \""+username+"\" attempted to update their floor, but", floor, "is a bogus number.")
 		connError(conn, functionName, "That is not a valid floor.")
 		return
 	}
@@ -624,11 +624,11 @@ func raceFloor(conn *ExtendedConnection, data *RaceFloorMessage) {
 func raceValidate(conn *ExtendedConnection, data interface{}, functionName string) bool {
 	// Local variables
 	username := conn.Username
-	raceID   := data.(*RaceMessage).ID
+	raceID := data.(*RaceMessage).ID
 
 	// Validate that the requested race is sane
 	if raceID <= 0 {
-		log.Warning("User \"" + username + "\" attempted to call", functionName, "with a bogus ID of " + strconv.Itoa(raceID) + ".")
+		log.Warning("User \""+username+"\" attempted to call", functionName, "with a bogus ID of "+strconv.Itoa(raceID)+".")
 		connError(conn, functionName, "You must provide a valid race number.")
 		return false
 	}
@@ -638,8 +638,8 @@ func raceValidate(conn *ExtendedConnection, data interface{}, functionName strin
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if exists == false {
-		log.Warning("User \"" + username + "\" attempted to call", functionName, "on race ID " + strconv.Itoa(raceID) + ", but it doesn't exist.")
-		connError(conn, functionName, "Race " + strconv.Itoa(raceID) + " does not exist.")
+		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but it doesn't exist.")
+		connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" does not exist.")
 		return false
 	}
 
@@ -650,15 +650,15 @@ func raceValidate(conn *ExtendedConnection, data interface{}, functionName strin
 func raceValidateStatus(conn *ExtendedConnection, data interface{}, status string, functionName string) bool {
 	// Local variables
 	username := conn.Username
-	raceID   := data.(*RaceMessage).ID
+	raceID := data.(*RaceMessage).ID
 
 	// Validate that the race is set to the correct status
 	if correctStatus, err := db.Races.CheckStatus(raceID, status); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if correctStatus == false {
-		log.Warning("User \"" + username + "\" attempted to call", functionName, "on race ID " + strconv.Itoa(raceID) + ", but race is not set to status \"" + status + "\".")
-		connError(conn, functionName, "Race " + strconv.Itoa(raceID) + " is not set to status \"" + status + "\".")
+		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but race is not set to status \""+status+"\".")
+		connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" is not set to status \""+status+"\".")
 		return false
 	}
 
@@ -668,17 +668,17 @@ func raceValidateStatus(conn *ExtendedConnection, data interface{}, status strin
 
 func raceValidateIn(conn *ExtendedConnection, data interface{}, functionName string) bool {
 	// Local variables
-	userID   := conn.UserID
+	userID := conn.UserID
 	username := conn.Username
-	raceID   := data.(*RaceMessage).ID
+	raceID := data.(*RaceMessage).ID
 
 	// Validate that they are in the race
 	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if userInRace == false {
-		log.Warning("User \"" + username + "\" attempted to call", functionName, "on race ID " + strconv.Itoa(raceID) + ", but they are not in that race.")
-		connError(conn, functionName, "You are not in race " + strconv.Itoa(raceID) + ".")
+		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are not in that race.")
+		connError(conn, functionName, "You are not in race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
 
@@ -688,17 +688,17 @@ func raceValidateIn(conn *ExtendedConnection, data interface{}, functionName str
 
 func raceValidateOut(conn *ExtendedConnection, data interface{}, functionName string) bool {
 	// Local variables
-	userID   := conn.UserID
+	userID := conn.UserID
 	username := conn.Username
-	raceID   := data.(*RaceMessage).ID
+	raceID := data.(*RaceMessage).ID
 
 	// Validate that they are not already in the race
 	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if userInRace == true {
-		log.Warning("User \"" + username + "\" attempted to call", functionName, "on race ID " + strconv.Itoa(raceID) + ", but they are already in that race.")
-		connError(conn, functionName, "You are already in race " + strconv.Itoa(raceID) + ".")
+		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are already in that race.")
+		connError(conn, functionName, "You are already in race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
 
@@ -715,8 +715,8 @@ func racerValidateStatus(conn *ExtendedConnection, userID int, raceID int, statu
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if correctStatus == false {
-		log.Warning("User \"" + username + "\" attempted to call", functionName, "on race ID " + strconv.Itoa(raceID) + ", but they are not set to status \"" + status + "\".")
-		connError(conn, functionName, "You can only do that if your status is set to \"" + status + "\".")
+		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are not set to status \""+status+"\".")
+		connError(conn, functionName, "You can only do that if your status is set to \""+status+"\".")
 		return false
 	}
 
