@@ -87,22 +87,22 @@ func achievementsInit() {
 		225: {"Seeded Item Mastery - Sacred Heart", "Complete a seeded race in less than 11 minutes with a Sacred Heart start."},
 
 		// Item synergies (2 items)
-		301: {"Score, the Shop Has Mapping!", "Buy a piece of mapping from a shop after already having The Mind."},
-		302: {"My Bombs Don't Hurt Me", "Complete a race where you had Dr. Fetus and Ipecac."},
-		303: {"Green Lung Best Lung", "Complete a race where you had Monstro's Lung and Ipecac."},
-		304: {"Sometimes You Should Take Tiny Planet", "Complete a race with Brimstone and Tiny Planet."},
-		305: {"This Build Takes Skill", "Complete a race with Ipecac and Toxic Shock."},
-		306: {"Propel Yourself Through the Door", "Complete a race with Epic Fetus and Holy Mantle."},
-		307: {"Sometimes You Should Stay on a Tears Build", "Complete a race with Cricket's Body and The Parasite."},
-		308: {"It's Technically a DPS Up", "Complete a race with Ipecac and Cricket's Body."},
-		309: {"Like It Wasn't Powerful Enough Already", "Complete a race with Mega Blast and Car Battery."},
-		355: {"7 Shots Is Better Than One", "Complete a race with Mutant Spider and The Inner Eye."},
+		301: {"My Bombs Don't Hurt Me", "Complete a race where you had Dr. Fetus and Ipecac."},
+		302: {"Green Lung Best Lung", "Complete a race where you had Monstro's Lung and Ipecac."},
+		303: {"Sometimes You Should Take Tiny Planet", "Complete a race with Brimstone and Tiny Planet."},
+		304: {"This Build Takes Skill", "Complete a race with Ipecac and Toxic Shock."},
+		305: {"Missile Yourself Through the Door", "Complete a race with Epic Fetus and Holy Mantle."},
+		306: {"Sometimes You Should Stay on a Tears Build", "Complete a race with Cricket's Body and The Parasite."},
+		307: {"It's Technically a DPS Up", "Complete a race with Ipecac and Cricket's Body."},
+		308: {"Like It Wasn't Powerful Enough Already", "Complete a race with Mega Blast and Car Battery."},
+		309: {"7 Shots Is Better Than One", "Complete a race with Mutant Spider and The Inner Eye."},
 
 		// Item synergies (3 items)
 		351: {"Day of the Tentacles", "Complete a race with Monstro's Lung, Brimstone, and a homing item."},
 		352: {"Ultimate Friends", "Complete a race with Lil' Brimstone, Incubus, and BFFS!"},
 		353: {"It's Beautiful", "Complete a race with Epic Fetus, Brimstone, and Rubber Cement."},
 		354: {"Shields Are Pretty Good", "Complete a race where you had Blood Rights, The Polaroid, and Scapular."},
+		355: {"Shop Irony", "Complete a race with The Mind and a piece of mapping."},
 
 		// Miscellaneous
 		401: {"Last Man Standing", "Complete a race with at least 5 people where everyone else died or quit."},
@@ -118,6 +118,9 @@ func achievementsInit() {
 		411: {"Never Guppy", "Finish two races in a row where you had the Guppy transformation."},
 		412: {"U Can't Touch This", "Finish a race without taking damage."},
 		413: {"Maybe I Shouldn't Have Min-Maxed So Hard", "Finish a race with 12 hearts."},
+		414: {"Beter Late Than Never": "Find an Emperor card on The Chest."},
+		415: {"Everybody Wins!", "Finish a race where you tied for 1st place."}
+		416: {"Decisions, Decisions", "Enter a boss rush with 2 or more \"starting\" items."}
 	}
 
 	// Delete every row in the database

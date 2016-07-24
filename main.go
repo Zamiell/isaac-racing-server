@@ -148,10 +148,10 @@ func main() {
 	 */
 
 	// Assign functions to URIs
-	//http.HandleFunc("/", httpHome)
-	http.Handle("/", http.FileServer(http.Dir("http")))
-	http.Handle("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler))
-	http.HandleFunc("/ws", router.Handler())
+	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))            // Serve static files
+	http.HandleFunc("/", serveTemplate)                                                                   // Anything that is not a static file will match this
+	http.Handle("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler)) // Rate limit the login handler
+	http.HandleFunc("/ws", router.Handler())                                                              // The golem router handles websockets
 
 	// Welcome message
 	log.Info("Starting isaac-racing-server on port " + port + ".")

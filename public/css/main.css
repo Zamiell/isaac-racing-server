@@ -1802,7 +1802,7 @@
 
   body {
     background-color: #000000;
-    background-image: url("/images/fabric-of-squares.png");
+    background-image: url("/public/img/fabric-of-squares.png");
   }
 
   body, input, select, textarea {
@@ -3058,7 +3058,7 @@
   #banner {
     background-attachment: scroll, fixed;
     background-color: #666;
-    background-image: url("images/overlay.png"), url("../../images/banner.jpg");
+    background-image: url("/public/img/overlay.png"), url("/public/img/banner.jpg");
     background-position: top left, center center;
     background-repeat: repeat, no-repeat;
     background-size: auto, cover;

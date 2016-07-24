@@ -73,7 +73,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	var token oauth2.Token
 	err := decoder.Decode(&token)
 	if err != nil {
-		log.Error("Failed to receive access token from user:", err)
+		log.Warning("Failed to receive access token from user:", err)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}

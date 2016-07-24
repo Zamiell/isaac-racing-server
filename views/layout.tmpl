@@ -1,0 +1,31 @@
+{{define "layout"}}
+<!DOCTYPE HTML>
+<!--
+	Alpha by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Racing+ - {{template "title"}}</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<!--[if lte IE 8]><script src="/public/js/ie/html5shiv.js"></script><![endif]-->
+		<link rel="stylesheet" href="/public/css/main.css" />
+		<!--[if lte IE 8]><link rel="stylesheet" href="/public/css/ie8.css" /><![endif]-->
+		<link rel="icon" type="image/png" href="/public/img/favicon.png">
+	</head>
+
+	{{template "body"}}
+
+	<!-- Scripts -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.dropotron/1.4.3/jquery.dropotron.js"></script>
+		<script src="/public/js/jquery.scrollgress.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/skel/3.0.1/skel.min.js"></script>
+		<script src="/public/js/util.js"></script>
+		<!--[if lte IE 8]><script src="/public/js/ie/respond.min.js"></script><![endif]-->
+		<script src="/public/js/main.js"></script>
+	</body>
+</html>
+{{end}}
