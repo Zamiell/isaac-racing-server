@@ -99,28 +99,29 @@ func achievementsInit() {
 
 		// Item synergies (3 items)
 		351: {"Day of the Tentacles", "Complete a race with Monstro's Lung, Brimstone, and a homing item."},
-		352: {"Ultimate Friends", "Complete a race with Lil' Brimstone, Incubus, and BFFS!"},
-		353: {"It's Beautiful", "Complete a race with Epic Fetus, Brimstone, and Rubber Cement."},
-		354: {"Shields Are Pretty Good", "Complete a race where you had Blood Rights, The Polaroid, and Scapular."},
-		355: {"Shop Irony", "Complete a race with The Mind and a piece of mapping."},
+		352: {"Shop Irony", "Complete a race with The Mind and a piece of mapping."},
+		353: {"Ultimate Friends", "Complete a race with Lil' Brimstone, Incubus, and BFFS!"},
+		354: {"It's Beautiful", "Complete a race with Epic Fetus, Brimstone, and Rubber Cement."},
+		355: {"Shields Are Pretty Good", "Complete a race where you had Blood Rights, The Polaroid, and Scapular."},
 
 		// Miscellaneous
 		401: {"Last Man Standing", "Complete a race with at least 5 people where everyone else died or quit."},
 		402: {"Marginal Expected Value", "Complete a race where you did not open any chests on The Chest."},
 		403: {"Optimal Shoveling", "Complete a race where you immediately skipped floor 3, floor 5, and floor 7 using We Need to Go Deeper!"},
 		404: {"Filthy Thief", "Complete a race where you \"stole\" an item from the Boss Rush."},
-		405: {"Worth It", "Complete a race where you took Experimental Treatment as the third piece of the Spun transformation."},
-		406: {"Clutch Leviathan", "Complete a race where you used the Leviathan transformation to take a devil deal that you otherwise wouldn't have been able to."},
-		407: {"Winners Don't Use Drugs", "Finish 2nd place in a race where you used a Tears Down pill."},
-		408: {"Pretty Basic", "Complete a race without taking an item that gives damage up."},
-		409: {"Last Resort at Critical Health", "Complete a race after having used the D4 or the D100 at least once."},
-		410: {"I Deserved This Win", "Finish 1st place in a race with at least 2 people after having procced a Guppy's Collar."},
-		411: {"Never Guppy", "Finish two races in a row where you had the Guppy transformation."},
-		412: {"U Can't Touch This", "Finish a race without taking damage."},
-		413: {"Maybe I Shouldn't Have Min-Maxed So Hard", "Finish a race with 12 hearts."},
-		414: {"Beter Late Than Never": "Find an Emperor card on The Chest."},
-		415: {"Everybody Wins!", "Finish a race where you tied for 1st place."}
-		416: {"Decisions, Decisions", "Enter a boss rush with 2 or more \"starting\" items."}
+		405: {"Decisions, Decisions", "Complete a race where you \"stole\" an item from the Bosh Rush that had 2 or more \"starting\" items."},
+		406: {"Worth It", "Complete a race where you took Experimental Treatment as the third piece of the Spun transformation."},
+		407: {"Clutch Leviathan", "Complete a race where you used the Leviathan transformation to take a devil deal that you otherwise wouldn't have been able to."},
+		408: {"Winners Don't Use Drugs", "Finish 2nd place in a race where you used a Tears Down pill."},
+		410: {"Pretty Basic", "Complete a race without taking an item that gives damage up."},
+		411: {"Last Resort at Critical Health", "Complete a race after having used the D4 or the D100 at least once."},
+		412: {"I Deserved This Win", "Finish 1st place in a race with at least 2 people after having procced a Guppy's Collar or a Broken Ankh."},
+		413: {"Never Guppy", "Finish two races in a row where you had the Guppy transformation."},
+		414: {"U Can't Touch This", "Finish a race without taking damage."},
+		415: {"Maybe I Shouldn't Have Min-Maxed So Hard", "Finish a race with 12 hearts."},
+		416: {"Beter Late Than Never", "Find an Emperor card on The Chest."},
+		417: {"Everybody Wins!", "Finish a race where you tied for 1st place."},
+		418: {"Consolation Prize", "Only receive Devil/Angel rooms on floor 2, floor 5, and floor 8 without taking any red heart damage."},
 	}
 
 	// Delete every row in the database

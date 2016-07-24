@@ -9,15 +9,19 @@ import (
 
 	"net/http" // For establishing an HTTP server
 	"os"       // For logging and reading environment variables
+	"strconv"  // For converting the port number
 	"sync"     // For locking and unlocking the connection map
 	"time"     // For dealing with timestamps
 
-	"github.com/didip/tollbooth"  // For rate-limiting login requests
-	"github.com/gorilla/context"  // For cookie sessions (1/2)
-	"github.com/gorilla/sessions" // For cookie sessions (2/2)
-	"github.com/joho/godotenv"    // For reading environment variables that contain secrets
-	"github.com/op/go-logging"    // For logging
-	"github.com/trevex/golem"     // The Golem WebSocket framework
+	"github.com/didip/tollbooth"     // For rate-limiting login requests
+	"github.com/gorilla/context"     // For cookie sessions (1/2)
+	"github.com/gorilla/sessions"    // For cookie sessions (2/2)
+	"github.com/joho/godotenv"       // For reading environment variables that contain secrets
+	"github.com/op/go-logging"       // For logging
+	"github.com/tdewolff/minify"     // For minification (1/3)
+	"github.com/tdewolff/minify/css" // For minification (2/3)
+	"github.com/tdewolff/minify/js"  // For minification (3/3)
+	"github.com/trevex/golem"        // The Golem WebSocket framework
 )
 
 /*
@@ -25,7 +29,7 @@ import (
  */
 
 const (
-	port        = "443"
+	port        = 443
 	sessionName = "isaac.sid"
 	domain      = "isaacitemtracker.com"
 	auth0Domain = "isaacserver.auth0.com"
@@ -147,19 +151,42 @@ func main() {
 	 *  HTTP stuff
 	 */
 
+	// Minify CSS and JS
+	m := minify.New()
+	m.AddFunc("text/css", css.Minify)
+	for _, fileName := range []string{"main", "ie8"} {
+		inputFile, _ := os.Open("public/css/" + fileName + ".css")
+		outputFile, _ := os.Create("public/css/" + fileName + ".min.css")
+		if err := m.Minify("text/css", outputFile, inputFile); err != nil {
+			log.Error("Failed to minify \""+fileName+".css\":", err)
+		}
+	}
+	m.AddFunc("text/javascript", js.Minify)
+	for _, fileName := range []string{"main", "util"} {
+		inputFile, _ := os.Open("public/js/" + fileName + ".js")
+		outputFile, _ := os.Create("public/js/" + fileName + ".min.js")
+		if err := m.Minify("text/javascript", outputFile, inputFile); err != nil {
+			log.Error("Failed to minify \""+fileName+".js\":", err)
+		}
+	}
+
 	// Assign functions to URIs
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))            // Serve static files
 	http.HandleFunc("/", serveTemplate)                                                                   // Anything that is not a static file will match this
 	http.Handle("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler)) // Rate limit the login handler
 	http.HandleFunc("/ws", router.Handler())                                                              // The golem router handles websockets
 
+	/*
+	 *  Start the server
+	 */
+
 	// Welcome message
-	log.Info("Starting isaac-racing-server on port " + port + ".")
+	log.Info("Starting isaac-racing-server on port " + strconv.Itoa(port) + ".")
 
 	// Listen and serve
 	if useSSL == true {
 		if err := http.ListenAndServeTLS(
-			":"+port, // Nothing before the colon implies 0.0.0.0
+			":"+strconv.Itoa(port), // Nothing before the colon implies 0.0.0.0
 			sslCertFile,
 			sslKeyFile,
 			context.ClearHandler(http.DefaultServeMux), // We wrap with context.ClearHandler or else we will leak memory: http://www.gorillatoolkit.org/pkg/sessions
@@ -169,7 +196,7 @@ func main() {
 	} else {
 		// Listen and serve (HTTP)
 		if err := http.ListenAndServe(
-			":"+port, // Nothing before the colon implies 0.0.0.0
+			":"+strconv.Itoa(port),                     // Nothing before the colon implies 0.0.0.0
 			context.ClearHandler(http.DefaultServeMux), // We wrap with context.ClearHandler or else we will leak memory: http://www.gorillatoolkit.org/pkg/sessions
 		); err != nil {
 			log.Fatal("ListenAndServeTLS failed:", err)
