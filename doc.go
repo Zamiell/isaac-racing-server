@@ -5,8 +5,9 @@ TODO
 
 - move database erorr messages to parent
 
+- ruleset: http://pastebin.com/mZYnxa0F
+- race data commands: http://pastebin.com/PG8TpLqh
 
-- rulset: http://pastebin.com/PG8TpLqh
 - userprofile
 - leaderboard
 - achievement logic
@@ -100,13 +101,13 @@ Outgoing WebSocket commands - chat
 ----------------------------------
 
 When you join a new chat room, you get the list of people in it:
-roomList TODO
+roomList {"room":"global","users":[{"name":"zamiel","admin":0,"squelched":0},{"name":"zamiel2","admin":0,"squelched":0}]}
 
 When you join a new chat room, you get the chat history for the past 50 messages (or all the messages if its a "_race_#" channel):
-roomHistoryList [{"name":"zamiel2","msg":"i poopd","datetime":1469468332}]
+roomHistory {"room":"global","history":[{"name":"zamiel","msg":"MrDestructoid","datetime":1469662590}]}
 
 Someone else joined a chat room that you are in:
-roomJoined TODO
+roomJoined {"room":"global","user":{"name":"zamiel2","admin":0,"squelched":0}}
 
 Someone else left a chat room that you are in:
 roomLeft {"room":"global","name":"chronometrics"}
@@ -156,7 +157,7 @@ Unready in a race:
 raceUnready {"id":1}
 
 Change a ruleset in a race (if you are the race captain):
-raceRuleset {"id":1,"ruleset":"diversity"}
+raceRuleset {"id":3,"ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0}
 
 Finish a race:
 raceFinish {"id":1}
@@ -168,7 +169,7 @@ Comment in a race:
 raceComment {"id":1,"msg":"died to mom"}
 
 Got a new item:
-raceItem {"id":1,"item_id":"100"}
+raceItem {"id":1,"itemID":100}
 
 Got to a new floor:
 raceFloor {"id":1,"floor":2}
@@ -182,7 +183,7 @@ When someone joins a new race or is already in an existing race upon connection:
 racerList {"id":6,"racers":[{"name":"zamiel","status":"not ready","datetime_joined":1469178564,"datetime_finished":0,"place":0,"comment":"-","items":[],"floor":1}]}
 
 When a new race is created:
-raceCreated TODO
+raceCreated {"id":3,"name":"-","status":"open","ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0},"datetime_created":1469660053,"datetime_started":0,"captain":"zamiel","racers":["zamiel"]}
 
 When someone joins a race:
 raceJoin {"id":1,"name":"zamiel"}
@@ -190,14 +191,17 @@ raceJoin {"id":1,"name":"zamiel"}
 When someone leaves a race:
 raceLeft {"id":1,"name":"zamiel"}
 
+When the race ruleset changes:
+raceSetRuleset {"id":3,"ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0}}
+
+When a race is starting (time is in UnixNano() format):
+raceStart {"id":10,"time":1469147515988023769}
+
 When someone readies up:
 racerSetStatus {"id":1,"name":"zamiel","status":"ready"}
 
 When someone unreadies:
 racerSetStatus {"id":1,"name":"zamiel","status":"not ready"}
-
-When a race is starting (time is in UnixNano() format):
-raceStart {"id":10,"time":1469147515988023769}
 
 When someone finishes:
 racerSetStatus {"id":1,"name":"zamiel","status":"finished"}
@@ -206,10 +210,10 @@ When someone quits:
 racerSetStatus {"id":1,"name":"zamiel","status":"quit"}
 
 When someone gets a new item:
-racerAddItem {} TODO
+racerAddItem {"id":1,"name":"zamiel","item":{"id":100,"floor":1}}
 
 When someone gets to a new floor:
-racerSetFloor {} TODO
+racerSetFloor {"id":1,"name":"zamiel","floor":2}
 
 
 
@@ -281,7 +285,7 @@ Outgoing WebSocket commands - miscellaneous
 -------------------------------------------
 
 You did something right:
-success {"type":"raceCreate","msg":{"name":"poop2","ruleset":"diversity","id":1}}
+success {"type":"raceCreate","input":{"room":"","msg":"","name":"","ruleset":{"type":"","character":0,"goal":"","seed":"","instantStart":0},"id":0,"comment":"","itemID":0,"floor":0,"ip":""}}
 
 An error occured:
 error {"type":"logout","msg":"You have logged on from somewhere else, so I'll disconnect you here."}

@@ -7,7 +7,9 @@ package main
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
 
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -36,14 +38,54 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		name = "-"
 	}
 
-	// Validate that the ruleset cannot be empty
-	if ruleset == "" {
-		ruleset = "unseeded"
+	// Validate that the ruleset options cannot be empty
+	if ruleset.Type == "" {
+		ruleset.Type = "unseeded"
+	}
+	if ruleset.Character == 0 {
+		ruleset.Character = 4 // Judas
 	}
 
-	// Validate the ruleset
-	if ruleset != "unseeded" && ruleset != "seeded" && ruleset != "diversity" {
+	if ruleset.Goal == "" {
+		ruleset.Goal = "chest"
+	}
+
+	if ruleset.Seed == "" {
+		ruleset.Seed = "-"
+	}
+
+	// Validate the ruleset type
+	if ruleset.Type != "unseeded" && ruleset.Type != "seeded" && ruleset.Type != "diversity" && ruleset.Type != "vanilla" {
 		connError(conn, functionName, "That is not a valid ruleset.")
+		return
+	}
+
+	// Validate the character
+	if ruleset.Character < 1 || ruleset.Character > 13 {
+		connError(conn, functionName, "That is not a valid instant start item.")
+		return
+	}
+
+	// Validate the goal
+	if ruleset.Goal != "chest" && ruleset.Goal != "dark room" && ruleset.Goal != "mega satan" {
+		connError(conn, functionName, "That is not a valid goal.")
+		return
+	}
+
+	// Validate the seed
+	if ruleset.Seed != "-" {
+		ruleset.Seed = strings.ToUpper(ruleset.Seed)
+		ruleset.Seed = strings.Replace(ruleset.Seed, " ", "", -1)
+		alphanumeric := regexp.MustCompile(`^[A-Z0-9]{8}$`) // Upper case letters or numbers x8
+		if alphanumeric.MatchString(ruleset.Seed) == false {
+			connError(conn, functionName, "That is not a valid seed.")
+			return
+		}
+	}
+
+	// Validate the instant start
+	if ruleset.InstantStart < 0 || ruleset.InstantStart > 441 { // This will need to be updated once we know the highest item ID in Afterbirth+
+		connError(conn, functionName, "That is not a valid instant start item.")
 		return
 	}
 
@@ -361,9 +403,54 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Validate the ruleset
-	if ruleset != "unseeded" && ruleset != "seeded" && ruleset != "diversity" {
+	// Validate that the ruleset options cannot be empty
+	if ruleset.Type == "" {
+		ruleset.Type = "unseeded"
+	}
+	if ruleset.Character == 0 {
+		ruleset.Character = 4 // Judas
+	}
+
+	if ruleset.Goal == "" {
+		ruleset.Goal = "chest"
+	}
+
+	if ruleset.Seed == "" {
+		ruleset.Seed = "-"
+	}
+
+	// Validate the ruleset type
+	if ruleset.Type != "unseeded" && ruleset.Type != "seeded" && ruleset.Type != "diversity" && ruleset.Type != "vanilla" {
 		connError(conn, functionName, "That is not a valid ruleset.")
+		return
+	}
+
+	// Validate the character
+	if ruleset.Character < 1 || ruleset.Character > 13 {
+		connError(conn, functionName, "That is not a valid instant start item.")
+		return
+	}
+
+	// Validate the goal
+	if ruleset.Goal != "chest" && ruleset.Goal != "dark room" && ruleset.Goal != "mega satan" {
+		connError(conn, functionName, "That is not a valid goal.")
+		return
+	}
+
+	// Validate the seed
+	if ruleset.Seed != "-" {
+		ruleset.Seed = strings.ToUpper(ruleset.Seed)
+		ruleset.Seed = strings.Replace(ruleset.Seed, " ", "", -1)
+		alphanumeric := regexp.MustCompile(`^[A-Z0-9]{8}$`) // Upper case letters or numbers x8
+		if alphanumeric.MatchString(ruleset.Seed) == false {
+			connError(conn, functionName, "That is not a valid seed.")
+			return
+		}
+	}
+
+	// Validate the instant start
+	if ruleset.InstantStart < 0 || ruleset.InstantStart > 441 { // This will need to be updated once we know the highest item ID in Afterbirth+
+		connError(conn, functionName, "That is not a valid instant start item.")
 		return
 	}
 
@@ -909,7 +996,7 @@ func raceCheckStart(raceID int) {
 	// Sleep 10 seconds
 	time.Sleep(10 * time.Second)
 
-	// Start the race (which will set everyone's status to "racing")
+	// Start the race (which will set everyone's status to "racing" and everyone's floor to 1)
 	if err := db.Races.Start(raceID); err != nil {
 		return
 	}

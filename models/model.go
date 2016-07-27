@@ -36,8 +36,8 @@ type LoginInformation struct {
 	Squelched int
 }
 
-// Sent in the "roomHistoryList" command (in the "roomJoinSub" function)
-type ChatHistoryMessage struct {
+// Sent in the "roomHistory" command (in the "roomJoinSub" function)
+type RoomHistory struct {
 	Name     string `json:"name"`
 	Msg      string `json:"msg"`
 	Datetime int    `json:"datetime"`
@@ -49,11 +49,18 @@ type Race struct {
 	ID              int      `json:"id"`
 	Name            string   `json:"name"`
 	Status          string   `json:"status"`
-	Ruleset         string   `json:"ruleset"`
+	Ruleset         Ruleset  `json:"ruleset"`
 	DatetimeCreated int      `json:"datetime_created"`
 	DatetimeStarted int      `json:"datetime_started"`
 	Captain         string   `json:"captain"` // This is an integer in the database but we convert it to their name during the SELECT
 	Racers          []string `json:"racers"`
+}
+type Ruleset struct {
+	Type         string `json:"type"`
+	Character    int    `json:"character"`
+	Goal         string `json:"goal"`
+	Seed         string `json:"seed"`
+	InstantStart int    `json:"instantStart"`
 }
 
 // Sent in the "racerList" command (in the "connOpen" function)

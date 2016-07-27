@@ -330,25 +330,25 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 	connectionMap.RUnlock()
 
 	// Get the chat history for this channel
-	var chatHistoryList []model.ChatHistoryMessage
+	var roomHistoryList []model.RoomHistory
 	if strings.HasPrefix(room, "_race_") {
 		// Get all of the history
 		var err error
-		chatHistoryList, err = db.ChatLog.Get(room, -1) // In SQLite, LIMIT -1 returns all results
+		roomHistoryList, err = db.ChatLog.Get(room, -1) // In SQLite, LIMIT -1 returns all results
 		if err != nil {
 			return
 		}
 	} else {
 		// Get only the last 50 entries
 		var err error
-		chatHistoryList, err = db.ChatLog.Get(room, 50)
+		roomHistoryList, err = db.ChatLog.Get(room, 50)
 		if err != nil {
 			return
 		}
 	}
 
 	// Send the chat history
-	conn.Connection.Emit("roomHistoryList", chatHistoryList)
+	conn.Connection.Emit("roomHistory", &RoomHistoryMessage{room, roomHistoryList})
 
 	// Log the join
 	log.Debug("User \"" + conn.Username + "\" joined room: #" + room)

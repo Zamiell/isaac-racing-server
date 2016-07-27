@@ -333,7 +333,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 				if race.Status == "starting" {
 					// Send them a message describing exactly when it will start
 					conn.Connection.Emit("raceStart", &RaceStartMessage{
-						raceID,
+						race.ID,
 						time.Now().Add(10 * time.Second).UnixNano(), // 10 seconds in the future
 					})
 				}
@@ -417,12 +417,12 @@ func logout(conn *ExtendedConnection) {
 
 // Sent to the client after a successful command
 func connSuccess(conn *ExtendedConnection, functionName string, msg interface{}) {
-	conn.Connection.Emit("success", &SystemMessage{functionName, msg})
+	conn.Connection.Emit("success", &SuccessMessage{functionName, msg})
 }
 
 // Sent to the client if either their command was unsuccessful or something else went wrong
 func connError(conn *ExtendedConnection, functionName string, msg string) {
-	conn.Connection.Emit("error", &SystemMessage{functionName, msg})
+	conn.Connection.Emit("error", &ErrorMessage{functionName, msg})
 }
 
 // Called at the beginning of every command handler

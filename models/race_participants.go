@@ -285,6 +285,22 @@ func (self *RaceParticipants) SetFloor(userID int, raceID int, floor int) error 
 	return nil
 }
 
+func (self *RaceParticipants) SetAllFloor(raceID int, floor int) error {
+	// Update the floor for everyone in this race
+	stmt, err := db.Prepare("UPDATE race_participants SET floor = ? WHERE race_id = ?")
+	if err != nil {
+		log.Error("Database error:", err)
+		return err
+	}
+	_, err = stmt.Exec(floor, raceID)
+	if err != nil {
+		log.Error("Database error:", err)
+		return err
+	}
+
+	return nil
+}
+
 func (self *RaceParticipants) Insert(userID int, raceID int) error {
 	// Add the user to the participants list for that race
 	stmt, err := db.Prepare("INSERT INTO race_participants (user_id, race_id) VALUES (?, ?)")

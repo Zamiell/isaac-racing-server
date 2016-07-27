@@ -38,7 +38,10 @@ func (self *Races) Exists(raceID int) (bool, error) {
 func (self *Races) GetCurrentRaces() ([]Race, error) {
 	// Get the current races
 	rows, err := db.Query(
-		"SELECT id, name, status, ruleset, datetime_created, datetime_started, (SELECT username FROM users WHERE id = captain) as captain " +
+		"SELECT id, name, status, " +
+			"ruleset, character, goal, " +
+			"seed, instant_start, datetime_created, " +
+			"datetime_started, (SELECT username FROM users WHERE id = captain) as captain " +
 			"FROM races WHERE status != 'finished'",
 	)
 	if err != nil {
@@ -51,7 +54,12 @@ func (self *Races) GetCurrentRaces() ([]Race, error) {
 	raceList := make([]Race, 0)
 	for rows.Next() {
 		var race Race
-		err := rows.Scan(&race.ID, &race.Name, &race.Status, &race.Ruleset, &race.DatetimeCreated, &race.DatetimeStarted, &race.Captain)
+		err := rows.Scan(
+			&race.ID, &race.Name, &race.Status,
+			&race.Ruleset.Type, &race.Ruleset.Character, &race.Ruleset.Goal,
+			&race.Ruleset.Seed, &race.Ruleset.InstantStart, &race.DatetimeCreated,
+			&race.DatetimeStarted, &race.Captain,
+		)
 		if err != nil {
 			log.Error("Database error:", err)
 			return nil, err
@@ -164,14 +172,14 @@ func (self *Races) SetStatus(raceID int, status string) error {
 	return nil
 }
 
-func (self *Races) SetRuleset(raceID int, ruleset string) error {
+func (self *Races) SetRuleset(raceID int, ruleset Ruleset) error {
 	// Set the new ruleset for this race
-	stmt, err := db.Prepare("UPDATE races SET ruleset = ? WHERE id = ?")
+	stmt, err := db.Prepare("UPDATE races SET ruleset = ?, character = ?, goal = ?, seed = ?, instant_start = ? WHERE id = ?")
 	if err != nil {
 		log.Error("Database error:", err)
 		return err
 	}
-	_, err = stmt.Exec(ruleset, raceID)
+	_, err = stmt.Exec(ruleset.Type, ruleset.Character, ruleset.Goal, ruleset.Seed, ruleset.InstantStart, raceID)
 	if err != nil {
 		log.Error("Database error:", err)
 		return err
@@ -198,6 +206,11 @@ func (self *Races) Start(raceID int) error {
 		return err
 	}
 
+	// Update the status for everyone in the race to "racing"
+	if err := self.db.RaceParticipants.SetAllFloor(raceID, 1); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -217,14 +230,14 @@ func (self *Races) Finish(raceID int) error {
 	return nil
 }
 
-func (self *Races) Insert(name string, ruleset string, userID int) (int, error) {
+func (self *Races) Insert(name string, ruleset Ruleset, userID int) (int, error) {
 	// Add the race to the database
 	var raceID int
-	if stmt, err := db.Prepare("INSERT INTO races (name, ruleset, captain) VALUES (?, ?, ?)"); err != nil {
+	if stmt, err := db.Prepare("INSERT INTO races (name, ruleset, character, goal, seed, instant_start, captain) VALUES (?, ?, ?, ?, ?, ?, ?)"); err != nil {
 		log.Error("Database error:", err)
 		return 0, err
 	} else {
-		result, err := stmt.Exec(name, ruleset, userID)
+		result, err := stmt.Exec(name, ruleset.Type, ruleset.Character, ruleset.Goal, ruleset.Seed, ruleset.InstantStart, userID)
 		if err != nil {
 			log.Error("Database error:", err)
 			return 0, err

@@ -12,7 +12,7 @@ type ChatLog struct {
  *  chat_log table functions
  */
 
-func (self *ChatLog) Get(room string, count int) ([]ChatHistoryMessage, error) {
+func (self *ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 	// Validate function arguments
 	if count == -1 {
 		// TODO ?
@@ -31,18 +31,18 @@ func (self *ChatLog) Get(room string, count int) ([]ChatHistoryMessage, error) {
 	defer rows.Close()
 
 	// We have to initialize this way to avoid sending a null on an empty array: https://danott.co/posts/json-marshalling-empty-slices-to-empty-arrays-in-go.html
-	chatHistoryList := make([]ChatHistoryMessage, 0)
+	roomHistoryList := make([]RoomHistory, 0)
 	for rows.Next() {
-		var message ChatHistoryMessage
+		var message RoomHistory
 		err := rows.Scan(&message.Name, &message.Msg, &message.Datetime)
 		if err != nil {
 			log.Error("Database error:", err)
 			return nil, err
 		}
-		chatHistoryList = append(chatHistoryList, message)
+		roomHistoryList = append(roomHistoryList, message)
 	}
 
-	return chatHistoryList, nil
+	return roomHistoryList, nil
 }
 
 func (self *ChatLog) Insert(room string, username string, msg string) error {

@@ -122,9 +122,9 @@ func achievementsInit() {
 		416: {"Beter Late Than Never", "Find an Emperor card on The Chest."},
 		417: {"Collaborative Victory", "Finish a race where you tied for 1st place."},
 		418: {"Consolation Prize", "Only receive Devil/Angel rooms on floor 2, floor 5, and floor 8 without taking any red heart damage."},
-		419: {"Confident in Your Dodging Ability", "Take two devil deals that leave you with only one heart remaining."}.
-		420: {"???", "Spawn as Judas' Shadow with more than 2 hearts."}, // Reference to EladDifficult
-}
+		419: {"Confident in Your Dodging Ability", "Take two devil deals that leave you with only one heart remaining."},
+		420: {"Not Very \"Difficult\"", "Spawn as Judas' Shadow with more than 2 hearts."}, // Reference to EladDifficult
+		421: {"Bomb of Kings", "Kill Pin with 1 bomb and no other forms of damage."},       // Reference to the Battle of Kings showmatch series
 	}
 
 	// Delete every row in the database

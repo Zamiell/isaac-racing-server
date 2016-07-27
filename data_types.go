@@ -27,21 +27,27 @@ type ExtendedConnection struct {
 
 // Recieved in all commands
 type IncomingCommandMessage struct {
-	Room    string `json:"room"`
-	Msg     string `json:"msg"`
-	Name    string `json:"name"`
-	Ruleset string `json:"ruleset"`
-	ID      int    `json:"id"`
-	Comment string `json:"comment"`
-	ItemID  int    `json:"itemID"`
-	Floor   int    `json:"floor"`
-	IP      string `json:"ip"`
+	Room    string        `json:"room"`
+	Msg     string        `json:"msg"`
+	Name    string        `json:"name"`
+	Ruleset model.Ruleset `json:"ruleset"`
+	ID      int           `json:"id"`
+	Comment string        `json:"comment"`
+	ItemID  int           `json:"itemID"`
+	Floor   int           `json:"floor"`
+	IP      string        `json:"ip"`
+}
+
+// Sent in an "success" command (in the "connSuccess" function)
+type SuccessMessage struct {
+	Type  string      `json:"type"`
+	Input interface{} `json:"input"`
 }
 
 // Sent in an "error" command (in the "connError" function)
-type SystemMessage struct {
-	Type string      `json:"type"`
-	Msg  interface{} `json:"msg"`
+type ErrorMessage struct {
+	Type string `json:"type"`
+	Msg  string `json:"msg"`
 }
 
 /*
@@ -57,6 +63,12 @@ type User struct {
 	Name      string `json:"name"`
 	Admin     int    `json:"admin"`
 	Squelched int    `json:"squelched"`
+}
+
+// Sent in the "roomHistory" command to the person that is joining the room (in the "roomJoinSub" function)
+type RoomHistoryMessage struct {
+	Room    string              `json:"room"`
+	History []model.RoomHistory `json:"history"`
 }
 
 // Sent in the "roomJoined" command to everyone who is already in the room (in the "roomJoinSub" function)
@@ -130,8 +142,8 @@ type RaceMessage struct {
 
 // Sent in the "raceSetRuleset" command (in the "raceRuleset" function)
 type RaceSetRulesetMessage struct {
-	ID      int    `json:"id"`
-	Ruleset string `json:"ruleset"`
+	ID      int           `json:"id"`
+	Ruleset model.Ruleset `json:"ruleset"`
 }
 
 // Sent in the "raceSetStatus" command (in the "raceCheckStart" functions)
