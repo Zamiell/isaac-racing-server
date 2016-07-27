@@ -5,6 +5,7 @@ package main
  */
 
 import (
+	"github.com/Zamiell/isaac-racing-server/models"
 	"strings"
 )
 
@@ -12,11 +13,11 @@ import (
  *  WebSocket room/chat command functions
  */
 
-func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
+func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "roomJoin"
 	username := conn.Username
-	room := data.Name
+	room := data.Room
 
 	// Log the received command
 	log.Debug("User \""+username+"\" sent a", functionName, "command for room \""+room+"\".")
@@ -40,12 +41,12 @@ func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
 		return
 	}
 
-	// Validate that the room exists
+	// Validate that they are not already in the room
 	chatRoomMap.RLock()
 	users, ok := chatRoomMap.m[room]
 	chatRoomMap.RUnlock()
 	if ok == true {
-		// Validate that they are not already in the room
+		// The room exists (at least 1 person is in it)
 		userInRoom := false
 		for _, user := range users {
 			if user.Name == username {
@@ -60,18 +61,18 @@ func roomJoin(conn *ExtendedConnection, data *RoomMessage) {
 		}
 	}
 
-	// Let them join the room
-	roomJoinSub(conn, room)
-
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// Let them join the room
+	roomJoinSub(conn, room)
 }
 
-func roomLeave(conn *ExtendedConnection, data *RoomMessage) {
+func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "roomLeave"
 	username := conn.Username
-	room := data.Name
+	room := data.Room
 
 	// Log the received command
 	log.Debug("User \""+username+"\" sent a", functionName, "command for room \""+room+"\".")
@@ -119,18 +120,19 @@ func roomLeave(conn *ExtendedConnection, data *RoomMessage) {
 		return
 	}
 
-	// Let them leave the room
-	roomLeaveSub(conn, room)
-
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// Let them leave the room
+	roomLeaveSub(conn, room)
 }
 
-func roomMessage(conn *ExtendedConnection, data *ChatMessage) {
+func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "roomMessage"
 	username := conn.Username
-	room := data.To
+	room := data.Room
+	msg := data.Msg
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -168,7 +170,7 @@ func roomMessage(conn *ExtendedConnection, data *ChatMessage) {
 	}
 
 	// Don't allow empty messages
-	if data.Msg == "" {
+	if msg == "" {
 		return
 	}
 
@@ -178,30 +180,28 @@ func roomMessage(conn *ExtendedConnection, data *ChatMessage) {
 		return
 	}
 
-	// Make sure that clients cannot masquerade as others
-	data.From = conn.Username
-
 	// Add the new message to the database
-	if err := db.ChatLog.Insert(room, data.From, data.Msg); err != nil {
+	if err := db.ChatLog.Insert(room, username, msg); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
 	// Log the message
-	log.Info("#" + room + " <" + data.From + "> " + data.Msg)
-
-	// Send the message
-	roomManager.Emit(room, functionName, &data)
+	log.Info("#" + room + " <" + username + "> " + msg)
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// Send the message
+	roomManager.Emit(room, "roomMessage", &RoomMessageMessage{room, username, msg})
 }
 
-func privateMessage(conn *ExtendedConnection, data *ChatMessage) {
+func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "privateMessage"
 	username := conn.Username
-	recipient := data.To
+	recipient := data.Name
+	msg := data.Msg
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -217,7 +217,7 @@ func privateMessage(conn *ExtendedConnection, data *ChatMessage) {
 
 	// Validate that the person is online
 	connectionMap.RLock()
-	_, ok := connectionMap.m[data.To]
+	_, ok := connectionMap.m[recipient]
 	connectionMap.RUnlock()
 	if ok == false {
 		log.Warning("User \"" + username + "\" tried to private message \"" + recipient + "\", who is offline.")
@@ -226,7 +226,7 @@ func privateMessage(conn *ExtendedConnection, data *ChatMessage) {
 	}
 
 	// Don't allow empty messages
-	if data.Msg == "" {
+	if msg == "" {
 		return
 	}
 
@@ -236,34 +236,31 @@ func privateMessage(conn *ExtendedConnection, data *ChatMessage) {
 		return
 	}
 
-	// Make sure that clients cannot masquerade as others
-	data.From = conn.Username
-
 	// Don't allow people to send PMs to themselves
-	if data.From == data.To {
+	if recipient == username {
 		connError(conn, functionName, "You cannot send a private message to yourself.")
 		return
 	}
 
 	// Add the new message to the database
-	if err := db.ChatLogPM.Insert(recipient, data.From, data.Msg); err != nil {
+	if err := db.ChatLogPM.Insert(recipient, username, msg); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
 	// Log the message
-	log.Info("PM <" + data.From + "> <" + data.To + "> " + data.Msg)
-
-	// Send the message
-	pmManager.Emit(data.To, functionName, &data)
+	log.Info("PM <" + username + "> <" + recipient + "> " + msg)
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// Send the message
+	pmManager.Emit(recipient, "privateMessage", &PrivateMessageMessage{username, msg})
 }
 
-func roomGetAll(conn *ExtendedConnection) {
+func roomListAll(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
-	functionName := "roomGetAll"
+	functionName := "roomListAll"
 	username := conn.Username
 
 	// Log the received command
@@ -286,11 +283,11 @@ func roomGetAll(conn *ExtendedConnection) {
 	}
 	chatRoomMap.RUnlock()
 
+	// Send success confirmation
+	connSuccess(conn, functionName, data)
+
 	// Send it to the user
 	conn.Connection.Emit("roomListAll", roomList)
-
-	// Send success confirmation
-	connSuccess(conn, functionName, "")
 }
 
 /*
@@ -308,19 +305,50 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 
 	// Add the user to the chat room mapping
 	chatRoomMap.Lock()
-	chatRoomMap.m[room] = append(chatRoomMap.m[room], User{username, admin, squelched})
-	users := chatRoomMap.m[room]
+	userObject := User{username, admin, squelched}
+	chatRoomMap.m[room] = append(chatRoomMap.m[room], userObject)
+	users := chatRoomMap.m[room] // Save the list of users in the room for later
 	chatRoomMap.Unlock()
 
-	// Since the amount of people in the chat room changed, send everyone an update
+	// Give the user the list of everyone in the chat room and tell everyone else that someone is joining
 	connectionMap.RLock()
 	for _, user := range users {
-		connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-			room,
-			users,
-		})
+		userConnection, ok := connectionMap.m[user.Name]
+		if ok == true { // All users in the chat room should be technically be online but there could be a race condition
+			if user.Name == username {
+				// Give the user the list of everyone in the chat room
+				conn.Connection.Emit("roomList", &RoomListMessage{room, users})
+			} else {
+				// Send them a notification that someone else joined
+				userConnection.Connection.Emit("roomJoined", &RoomJoinedMessage{room, userObject})
+			}
+		} else {
+			log.Error("Failed to get the connection for user \"" + user.Name + "\" while connecting user \"" + username + "\" to room \"" + room + "\".")
+			continue
+		}
 	}
 	connectionMap.RUnlock()
+
+	// Get the chat history for this channel
+	var chatHistoryList []model.ChatHistoryMessage
+	if strings.HasPrefix(room, "_race_") {
+		// Get all of the history
+		var err error
+		chatHistoryList, err = db.ChatLog.Get(room, -1) // In SQLite, LIMIT -1 returns all results
+		if err != nil {
+			return
+		}
+	} else {
+		// Get only the last 50 entries
+		var err error
+		chatHistoryList, err = db.ChatLog.Get(room, 50)
+		if err != nil {
+			return
+		}
+	}
+
+	// Send the chat history
+	conn.Connection.Emit("roomHistoryList", chatHistoryList)
 
 	// Log the join
 	log.Debug("User \"" + conn.Username + "\" joined room: #" + room)
@@ -362,10 +390,13 @@ func roomLeaveSub(conn *ExtendedConnection, room string) {
 	// Since the amount of people in the chat room changed, send everyone an update
 	connectionMap.RLock()
 	for _, user := range users {
-		connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-			room,
-			users,
-		})
+		userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
+		if ok == true {
+			userConnection.Connection.Emit("roomLeft", &RoomLeftMessage{room, username})
+		} else {
+			log.Error("Failed to get the connection for user \"" + user.Name + "\" while disconnecting user \"" + username + "\" from room \"" + room + "\".")
+			continue
+		}
 	}
 	connectionMap.RUnlock()
 

@@ -29,6 +29,50 @@ type Model struct {
 	UserAchievements
 }
 
+// Used internally in the "Users.Login" function
+type LoginInformation struct {
+	UserID    int
+	Admin     int
+	Squelched int
+}
+
+// Sent in the "roomHistoryList" command (in the "roomJoinSub" function)
+type ChatHistoryMessage struct {
+	Name     string `json:"name"`
+	Msg      string `json:"msg"`
+	Datetime int    `json:"datetime"`
+}
+
+// Sent in the "raceList" command (in the "connOpen" function)
+// Sent in the "raceCreated" command (in the "raceCreate" function)
+type Race struct {
+	ID              int      `json:"id"`
+	Name            string   `json:"name"`
+	Status          string   `json:"status"`
+	Ruleset         string   `json:"ruleset"`
+	DatetimeCreated int      `json:"datetime_created"`
+	DatetimeStarted int      `json:"datetime_started"`
+	Captain         string   `json:"captain"` // This is an integer in the database but we convert it to their name during the SELECT
+	Racers          []string `json:"racers"`
+}
+
+// Sent in the "racerList" command (in the "connOpen" function)
+// Used internally in the "raceStart" function
+type Racer struct {
+	Name             string `json:"name"`
+	Status           string `json:"status"`
+	DatetimeJoined   int    `json:"datetime_joined"`
+	DatetimeFinished int    `json:"datetime_finished"`
+	Place            int    `json:"place"`
+	Comment          string `json:"comment"`
+	Items            []Item `json:"items"`
+	Floor            int    `json:"floor"`
+}
+type Item struct {
+	ID    int `json:"id"`
+	Floor int `json:"floor"`
+}
+
 /*
  *  Global variables
  */
@@ -42,10 +86,10 @@ var (
  *  Initialization function
  */
 
-func GetModel(logger *logging.Logger) *Model {
+func GetModel(dbFile string, logger *logging.Logger) *Model {
 	// Initialize the database
 	var err error
-	db, err = sql.Open("sqlite3", "database.sqlite")
+	db, err = sql.Open("sqlite3", dbFile)
 	if err != nil {
 		logger.Fatal("Failed to open database:", err)
 	}

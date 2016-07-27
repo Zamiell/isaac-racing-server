@@ -16,12 +16,6 @@ type Users struct {
 	db *Model
 }
 
-type LoginInformation struct {
-	UserID    int
-	Admin     int
-	Squelched int
-}
-
 /*
  *  users table functions
  */

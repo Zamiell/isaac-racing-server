@@ -12,7 +12,7 @@ import (
  *  WebSocket room/chat command functions
  */
 
-func profileGet(conn *ExtendedConnection, data *ProfileMessage) {
+func profileGet(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "profileSetUsername"
 	username := conn.Username
@@ -41,16 +41,16 @@ func profileGet(conn *ExtendedConnection, data *ProfileMessage) {
 
 	// Get the number of races
 	// TODO
-	var profile string
-
-	// Send them the profile
-	conn.Connection.Emit("profile", profile)
+	var profile Profile
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// Send them the profile
+	conn.Connection.Emit("profile", profile)
 }
 
-func profileSetUsername(conn *ExtendedConnection, data *ProfileMessage) {
+func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "profileSetUsername"
 	userID := conn.UserID
@@ -86,6 +86,9 @@ func profileSetUsername(conn *ExtendedConnection, data *ProfileMessage) {
 	// Set the new username in the connection
 	conn.Username = newUsername
 
+	// Send success confirmation
+	connSuccess(conn, functionName, data)
+
 	// Look for this user in all chat rooms
 	chatRoomMap.Lock()
 	for room, users := range chatRoomMap.m {
@@ -105,22 +108,21 @@ func profileSetUsername(conn *ExtendedConnection, data *ProfileMessage) {
 			users, ok := chatRoomMap.m[room]
 			if ok == false {
 				log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
-				chatRoomMap.Unlock()
-				return
+				continue
 			}
 
 			connectionMap.RLock()
 			for _, user := range users {
-				connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-					room,
-					users,
-				})
+				userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
+				if ok == true {
+					userConnection.Connection.Emit("roomSetName", &RoomSetNameMessage{room, username, newUsername})
+				} else {
+					log.Error("Failed to get the connection for user \"" + user.Name + "\" while setting a new username for user \"" + username + "\".")
+					continue
+				}
 			}
 			connectionMap.RUnlock()
 		}
 	}
 	chatRoomMap.Unlock()
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
 }

@@ -17,17 +17,6 @@ type Races struct {
 	db *Model
 }
 
-type Race struct {
-	ID              int      `json:"id"`
-	Name            string   `json:"name"`
-	Status          string   `json:"status"`
-	Ruleset         string   `json:"ruleset"`
-	DatetimeCreated int      `json:"datetime_created"`
-	DatetimeStarted int      `json:"datetime_started"`
-	Captain         string   `json:"captain"`
-	Racers          []string `json:"racers"`
-}
-
 /*
  *  races table functions
  */
@@ -48,7 +37,10 @@ func (self *Races) Exists(raceID int) (bool, error) {
 
 func (self *Races) GetCurrentRaces() ([]Race, error) {
 	// Get the current races
-	rows, err := db.Query("SELECT id, name, status, ruleset, datetime_created, datetime_started, (SELECT username FROM users WHERE id = captain) as captain FROM races WHERE status != 'finished'")
+	rows, err := db.Query(
+		"SELECT id, name, status, ruleset, datetime_created, datetime_started, (SELECT username FROM users WHERE id = captain) as captain " +
+			"FROM races WHERE status != 'finished'",
+	)
 	if err != nil {
 		log.Error("Database error:", err)
 		return nil, err
@@ -77,18 +69,6 @@ func (self *Races) GetCurrentRaces() ([]Race, error) {
 	}
 
 	return raceList, nil
-}
-
-func (self *Races) GetName(raceID int) (string, error) {
-	// Get the name of this race
-	var name string
-	err := db.QueryRow("SELECT name FROM races WHERE id = ?", raceID).Scan(&name)
-	if err != nil {
-		log.Error("Database error:", err)
-		return "", err
-	}
-
-	return name, nil
 }
 
 func (self *Races) GetStatus(raceID int) (string, error) {
@@ -237,14 +217,14 @@ func (self *Races) Finish(raceID int) error {
 	return nil
 }
 
-func (self *Races) Insert(userID int, name string) (int, error) {
+func (self *Races) Insert(name string, ruleset string, userID int) (int, error) {
 	// Add the race to the database
 	var raceID int
-	if stmt, err := db.Prepare("INSERT INTO races (name, captain) VALUES (?, ?)"); err != nil {
+	if stmt, err := db.Prepare("INSERT INTO races (name, ruleset, captain) VALUES (?, ?, ?)"); err != nil {
 		log.Error("Database error:", err)
 		return 0, err
 	} else {
-		result, err := stmt.Exec(name, userID)
+		result, err := stmt.Exec(name, ruleset, userID)
 		if err != nil {
 			log.Error("Database error:", err)
 			return 0, err

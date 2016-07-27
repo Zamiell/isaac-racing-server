@@ -25,7 +25,20 @@ type ExtendedConnection struct {
 	RateLimitLastCheck time.Time
 }
 
-// Used in "connSuccess" and "connError"
+// Recieved in all commands
+type IncomingCommandMessage struct {
+	Room    string `json:"room"`
+	Msg     string `json:"msg"`
+	Name    string `json:"name"`
+	Ruleset string `json:"ruleset"`
+	ID      int    `json:"id"`
+	Comment string `json:"comment"`
+	ItemID  int    `json:"itemID"`
+	Floor   int    `json:"floor"`
+	IP      string `json:"ip"`
+}
+
+// Sent in an "error" command (in the "connError" function)
 type SystemMessage struct {
 	Type string      `json:"type"`
 	Msg  interface{} `json:"msg"`
@@ -35,20 +48,8 @@ type SystemMessage struct {
  *  Chat room data types
  */
 
-// Received in "roomJoom" and "roomLeave"
-type RoomMessage struct {
-	Name string `json:"name"`
-}
-
-// Received in "roomMessage" and "privateMessage"
-type ChatMessage struct {
-	To   string `json:"to"`
-	From string `json:"from"`
-	Msg  string `json:"msg"`
-}
-
-// Sent on connection and whenever someone joins or leaves a chat channel
-type RoomList struct {
+// Sent in the "roomList" command to the person that is joining the room (in the "roomJoinSub" function)
+type RoomListMessage struct {
 	Room  string `json:"room"`
 	Users []User `json:"users"`
 }
@@ -58,7 +59,53 @@ type User struct {
 	Squelched int    `json:"squelched"`
 }
 
-// Sent in "roomGetAll"
+// Sent in the "roomJoined" command to everyone who is already in the room (in the "roomJoinSub" function)
+type RoomJoinedMessage struct {
+	Room string `json:"room"`
+	User User   `json:"user"`
+}
+
+// Sent in the "roomLeft" command (in the "roomLeaveSub" function)
+type RoomLeftMessage struct {
+	Room string `json:"room"`
+	Name string `json:"name"`
+}
+
+// Sent in the "roomMessage" command (in the "roomMessage" function)
+type RoomMessageMessage struct {
+	Room string `json:"room"`
+	Name string `json:"name"`
+	Msg  string `json:"msg"`
+}
+
+// Sent in the "privateMessage" command (in the "privateMessage" function)
+type PrivateMessageMessage struct {
+	Name string `json:"name"`
+	Msg  string `json:"msg"`
+}
+
+// Sent in the "roomSetName" command (in the "profileSetUsername" function)
+type RoomSetNameMessage struct {
+	Room    string `json:"room"`
+	Name    string `json:"name"`
+	NewName string `json:"newName"`
+}
+
+// Sent in the "roomSetSquelched" command (in the "adminSquelch" and "adminUnsquelch" functions)
+type RoomSetSquelchedMessage struct {
+	Room      string `json:"room"`
+	Name      string `json:"name"`
+	Squelched int    `json:"squelched"`
+}
+
+// Sent in the "roomSetAdmin" command (in the "adminPromote" and "adminDemote" functions)
+type RoomSetAdminMessage struct {
+	Room  string `json:"room"`
+	Name  string `json:"name"`
+	Admin int    `json:"admin"`
+}
+
+// Sent as part of the "roomListAll" command (in the "roomListAll" function)
 type Room struct {
 	Room     string `json:"room"`
 	NumUsers int    `json:"numUsers"`
@@ -68,47 +115,57 @@ type Room struct {
  *  Race data types
  */
 
-// Received in "raceJoin", "raceLeave", "raceReady", "raceUnready", "raceDone", and "raceQuit"
-type RaceMessage struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"` // Only used when returning information back to the client
-}
-
-// Received in "raceCreate"
-type RaceCreateMessage struct {
-	Name    string `json:"name"`
-	Ruleset string `json:"ruleset"`
-	ID      int    `json:"id"` // Only used when returning information back to the client
-}
-
-// Received in "raceRuleset"
-type RaceRulesetMessage struct {
-	ID      int    `json:"id"`
-	Ruleset string `json:"ruleset"`
-}
-
-// Received in "raceComment"
-type RaceCommentMessage struct {
-	ID      int    `json:"id"`
-	Comment string `json:"comment"`
-}
-
-// Received in "raceItem"
-type RaceItemMessage struct {
-	ID     int `json:"id"`
-	ItemID int `json:"itemID"`
-}
-
-// Received in "raceFloor"
-type RaceFloorMessage struct {
-	ID    int `json:"id"`
-	Floor int `json:"floor"`
-}
-
-// Sent to tell the client that something has happened within the particular race
+// Sent in the "racerList" command (in the "connOpen" function)
 type RacerList struct {
 	ID     int           `json:"id"`
 	Racers []model.Racer `json:"racers"`
+}
+
+// Sent in the "raceJoined" command (in the "raceJoin" function)
+// Sent in the "raceLeft" command (in the "raceLeave" and "adminBan" functions)
+type RaceMessage struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
+// Sent in the "raceSetRuleset" command (in the "raceRuleset" function)
+type RaceSetRulesetMessage struct {
+	ID      int    `json:"id"`
+	Ruleset string `json:"ruleset"`
+}
+
+// Sent in the "raceSetStatus" command (in the "raceCheckStart" functions)
+type RaceSetStatusMessage struct {
+	ID     int    `json:"id"`
+	Status string `json:"status"`
+}
+
+// Sent in the "racerSetStatus" command (in the "raceReady", "raceUnready", "raceFinish", and "raceQuit" functions)
+type RacerSetStatusMessage struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Status string `json:"status"`
+}
+
+// Sent in the "racerSetComment" command (in the "raceComment" functions)
+type RacerSetCommentMessage struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	Comment string `json:"comment"`
+}
+
+// Sent in the "racerAddItem" command (in the "raceItem" function)
+type RacerAddItemMessage struct {
+	ID   int        `json:"id"`
+	Name string     `json:"name"`
+	Item model.Item `json:"item"`
+}
+
+// Sent in the "racerSetFloor" command (in the "raceFloor" functions)
+type RacerSetFloorMessage struct {
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Floor int    `json:"floor"`
 }
 
 // Sent to tell the client exactly when the race is starting
@@ -121,26 +178,7 @@ type RaceStartMessage struct {
  *  Profile data types
  */
 
-// Received in "profileGet" and "profileSetUsername"
-type ProfileMessage struct {
-	Name string `json:"name"`
-}
-
-// Sent after a "profileGet"
+// Sent in the "profile" command (in the "getProfile" function)
 type Profile struct {
 	// TODO
-}
-
-/*
- *  Admin data types
- */
-
-// Received in "adminBan", "adminUnban", "adminSquelch", "adminSquelch", "adminUnsquelch", "adminPromote", and "adminDemote"
-type AdminMessage struct {
-	Name string `json:"name"`
-}
-
-// Received in "adminBanIP" and "adminUnbanIP"
-type AdminIPMessage struct {
-	IP string `json:"ip"`
 }

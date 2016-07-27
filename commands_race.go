@@ -15,7 +15,7 @@ import (
  *  WebSocket race command functions
  */
 
-func raceCreate(conn *ExtendedConnection, data *RaceCreateMessage) {
+func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceCreate"
 	userID := conn.UserID
@@ -67,27 +67,35 @@ func raceCreate(conn *ExtendedConnection, data *RaceCreateMessage) {
 	}
 
 	// Create the race (and add this user to the participants list for that race)
-	raceID, err := db.Races.Insert(userID, name)
+	raceID, err := db.Races.Insert(name, ruleset, userID)
 	if err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
 	// Send success confirmation
-	data.ID = raceID // Requested by Chronometrics as extra information for the client
 	connSuccess(conn, functionName, data)
+
+	// Send everyone a notification that a new race has been started
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceCreated", &model.Race{
+			ID:              raceID,
+			Name:            name,
+			Status:          "open",
+			Ruleset:         ruleset,
+			DatetimeCreated: int(time.Now().Unix()),
+			Captain:         username,
+			Racers:          []string{username},
+		})
+	}
+	connectionMap.RUnlock()
 
 	// Join the user to the channel for that race
 	roomJoinSub(conn, "_race_"+strconv.Itoa(raceID))
-
-	// Send everyone the new list of races
-	raceUpdateAll()
-
-	// Send the people in this race an update
-	racerUpdate(raceID)
 }
 
-func raceJoin(conn *ExtendedConnection, data *RaceMessage) {
+func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceJoin"
 	userID := conn.UserID
@@ -123,28 +131,21 @@ func raceJoin(conn *ExtendedConnection, data *RaceMessage) {
 		return
 	}
 
-	// Get the name of this race
-	name, err := db.Races.GetName(raceID)
-	if err != nil {
-		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-		return
-	}
+	// Send success confirmation
+	connSuccess(conn, functionName, data)
 
 	// Join the user to the channel for that race
 	roomJoinSub(conn, "_race_"+strconv.Itoa(raceID))
 
-	// Send success confirmation
-	data.Name = name // Requested by Chronometrics as extra information for the client
-	connSuccess(conn, functionName, data)
-
-	// Send everyone the new list of races
-	raceUpdateAll()
-
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Send everyone a notification that the user joined
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceJoined", RaceMessage{raceID, username})
+	}
+	connectionMap.RUnlock()
 }
 
-func raceLeave(conn *ExtendedConnection, data *RaceMessage) {
+func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceLeave"
 	userID := conn.UserID
@@ -180,23 +181,24 @@ func raceLeave(conn *ExtendedConnection, data *RaceMessage) {
 		return
 	}
 
-	// Disconnect the user from the channel for that race
-	roomLeaveSub(conn, "_race_"+strconv.Itoa(raceID))
-
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Disconnect the user from the channel for that race
+	roomLeaveSub(conn, "_race_"+strconv.Itoa(raceID))
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Send everyone a notification that the user left
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceLeft", RaceMessage{raceID, username})
+	}
+	connectionMap.RUnlock()
 
 	// Check to see if the race is ready to start
-	raceStart(raceID)
+	raceCheckStart(raceID)
 }
 
-func raceReady(conn *ExtendedConnection, data *RaceMessage) {
+func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceReady"
 	userID := conn.UserID
@@ -239,14 +241,27 @@ func raceReady(conn *ExtendedConnection, data *RaceMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send a notification to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
+		if ok == true { // Not all racers may be online during a race
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "ready"})
+		}
+	}
+	connectionMap.RUnlock()
 
 	// Check to see if the race is ready to start
-	raceStart(raceID)
+	raceCheckStart(raceID)
 }
 
-func raceUnready(conn *ExtendedConnection, data *RaceMessage) {
+func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceUnready"
 	userID := conn.UserID
@@ -289,11 +304,24 @@ func raceUnready(conn *ExtendedConnection, data *RaceMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send a notification to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
+		if ok == true { // Not all racers may be online during a race
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready"})
+		}
+	}
+	connectionMap.RUnlock()
 }
 
-func raceRuleset(conn *ExtendedConnection, data *RaceRulesetMessage) {
+func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceUnready"
 	userID := conn.UserID
@@ -354,16 +382,17 @@ func raceRuleset(conn *ExtendedConnection, data *RaceRulesetMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send everyone the new list of races
-	raceUpdateAll()
-
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Send everyone a notification that the ruleset has changed for this race
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceSetRuleset", RaceSetRulesetMessage{raceID, ruleset})
+	}
+	connectionMap.RUnlock()
 }
 
-func raceDone(conn *ExtendedConnection, data *RaceMessage) {
+func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
-	functionName := "raceDone"
+	functionName := "raceFinish"
 	userID := conn.UserID
 	username := conn.Username
 	raceID := data.ID
@@ -404,14 +433,27 @@ func raceDone(conn *ExtendedConnection, data *RaceMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send a notification to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
+		if ok == true { // Not all racers may be online during a race
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "finished"})
+		}
+	}
+	connectionMap.RUnlock()
 
 	// Check to see if the race is ready to finish
-	raceFinish(raceID)
+	raceCheckFinish(raceID)
 }
 
-func raceQuit(conn *ExtendedConnection, data *RaceMessage) {
+func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceQuit"
 	userID := conn.UserID
@@ -454,14 +496,27 @@ func raceQuit(conn *ExtendedConnection, data *RaceMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send a notification to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
+		if ok == true { // Not all racers may be online during a race
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "quit"})
+		}
+	}
+	connectionMap.RUnlock()
 
 	// Check to see if the race is ready to finish
-	raceFinish(raceID)
+	raceCheckFinish(raceID)
 }
 
-func raceComment(conn *ExtendedConnection, data *RaceCommentMessage) {
+func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceQuit"
 	userID := conn.UserID
@@ -492,6 +547,18 @@ func raceComment(conn *ExtendedConnection, data *RaceCommentMessage) {
 		return
 	}
 
+	// Validate that the comment is not empty
+	if comment == "" {
+		connError(conn, functionName, "That is an invalid comment.")
+		return
+	}
+
+	// Validate that the user is not squelched
+	if conn.Squelched == 1 {
+		connError(conn, functionName, "You have been squelched by an administrator, so you cannot submit comments.")
+		return
+	}
+
 	// Set their comment in the database
 	if err := db.RaceParticipants.SetComment(userID, raceID, comment); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -501,11 +568,24 @@ func raceComment(conn *ExtendedConnection, data *RaceCommentMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send a notification to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
+		if ok == true { // Not all racers may be online during a race
+			conn.Connection.Emit("racerSetComment", &RacerSetCommentMessage{raceID, username, comment})
+		}
+	}
+	connectionMap.RUnlock()
 }
 
-func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
+func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceItem"
 	userID := conn.UserID
@@ -548,8 +628,15 @@ func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
 		return
 	}
 
+	// Get their current floor
+	floor, err := db.RaceParticipants.GetFloor(userID, raceID)
+	if err != nil {
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
 	// Add this item to their build
-	if err := db.RaceParticipantItems.Insert(userID, raceID, itemID); err != nil {
+	if err := db.RaceParticipantItems.Insert(userID, raceID, itemID, floor); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -557,11 +644,25 @@ func raceItem(conn *ExtendedConnection, data *RaceItemMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send a notification to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
+		if ok == true { // Not all racers may be online during a race
+			item := model.Item{itemID, floor}
+			conn.Connection.Emit("racerAddItem", &RacerAddItemMessage{raceID, username, item})
+		}
+	}
+	connectionMap.RUnlock()
 }
 
-func raceFloor(conn *ExtendedConnection, data *RaceFloorMessage) {
+func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceFloor"
 	userID := conn.UserID
@@ -613,18 +714,31 @@ func raceFloor(conn *ExtendedConnection, data *RaceFloorMessage) {
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
 
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		return
+	}
+
+	// Send a notification to all the people in this particular race
+	connectionMap.RLock()
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
+		if ok == true { // Not all racers may be online during a race
+			conn.Connection.Emit("racerSetFloor", &RacerSetFloorMessage{raceID, username, floor})
+		}
+	}
+	connectionMap.RUnlock()
 }
 
 /*
  *  Race subroutines
  */
 
-func raceValidate(conn *ExtendedConnection, data interface{}, functionName string) bool {
+func raceValidate(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
 	// Local variables
 	username := conn.Username
-	raceID := data.(*RaceMessage).ID
+	raceID := data.ID
 
 	// Validate that the requested race is sane
 	if raceID <= 0 {
@@ -647,10 +761,10 @@ func raceValidate(conn *ExtendedConnection, data interface{}, functionName strin
 	return true
 }
 
-func raceValidateStatus(conn *ExtendedConnection, data interface{}, status string, functionName string) bool {
+func raceValidateStatus(conn *ExtendedConnection, data *IncomingCommandMessage, status string, functionName string) bool {
 	// Local variables
 	username := conn.Username
-	raceID := data.(*RaceMessage).ID
+	raceID := data.ID
 
 	// Validate that the race is set to the correct status
 	if correctStatus, err := db.Races.CheckStatus(raceID, status); err != nil {
@@ -666,11 +780,11 @@ func raceValidateStatus(conn *ExtendedConnection, data interface{}, status strin
 	return true
 }
 
-func raceValidateIn(conn *ExtendedConnection, data interface{}, functionName string) bool {
+func raceValidateIn(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
 	// Local variables
 	userID := conn.UserID
 	username := conn.Username
-	raceID := data.(*RaceMessage).ID
+	raceID := data.ID
 
 	// Validate that they are in the race
 	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
@@ -686,11 +800,11 @@ func raceValidateIn(conn *ExtendedConnection, data interface{}, functionName str
 	return true
 }
 
-func raceValidateOut(conn *ExtendedConnection, data interface{}, functionName string) bool {
+func raceValidateOut(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
 	// Local variables
 	userID := conn.UserID
 	username := conn.Username
-	raceID := data.(*RaceMessage).ID
+	raceID := data.ID
 
 	// Validate that they are not already in the race
 	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
@@ -735,78 +849,20 @@ func racerSetStatus(conn *ExtendedConnection, username string, raceID int, statu
 	return true
 }
 
-// Called when a client initially connects
-func raceUpdate(conn *ExtendedConnection) {
-	// Local variables
-	functionName := "raceUpdate"
-
-	// Get the current races
-	var raceList []model.Race
-	raceList, err := db.Races.GetCurrentRaces()
-	if err != nil {
-		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-		return
-	}
-
-	// Send it to the user
-	conn.Connection.Emit("raceList", raceList)
-}
-
-// Called whenever someone joins or leaves a race, a race changes status, or a race changes ruleset
-func raceUpdateAll() {
-	// Get the current races
-	var raceList []model.Race
-	raceList, err := db.Races.GetCurrentRaces()
-	if err != nil {
-		return
-	}
-
-	// Send it to all users
-	connectionMap.RLock()
-	for _, conn := range connectionMap.m {
-		conn.Connection.Emit("raceList", raceList)
-	}
-	connectionMap.RUnlock()
-}
-
-// Called whenever someone does something inside of a race
-func racerUpdate(raceID int) {
-	// Get the list of racers for this race
-	var racerList []model.Racer
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
-	if err != nil {
-		return
-	}
-
-	// Send it to all the people in this particular race
-	connectionMap.RLock()
-	for _, racer := range racerList {
-		username := racer.Name
-		conn, ok := connectionMap.m[username]
-		if ok == true { // Not all racers may be online during a running race
-			conn.Connection.Emit("racerList", &RacerList{
-				raceID,
-				racerList,
-			})
-		}
-	}
-	connectionMap.RUnlock()
-}
-
-// Called after a user leaves a race, someone readies, or someone quits
+// Called after someone disconnects or someone is banned
 func raceCheckStartFinish(raceID int) {
 	// Get the status of the race
 	if status, err := db.Races.GetStatus(raceID); err != nil {
 		return
 	} else if status == "open" {
-		go raceStart(raceID) // Need to use a goroutine since this function uses sleeps
+		go raceCheckStart(raceID) // Need to use a goroutine since this function uses sleeps
 	} else if status == "in progress" {
-		raceFinish(raceID)
+		raceCheckFinish(raceID)
 	}
 }
 
 // Check to see if a race is ready to start, and if so, start it
-func raceStart(raceID int) {
+func raceCheckStart(raceID int) {
 	// Check if everyone is ready
 	if sameStatus, err := db.RaceParticipants.CheckAllStatus(raceID, "ready"); err != nil {
 		return
@@ -822,8 +878,12 @@ func raceStart(raceID int) {
 		return
 	}
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send everyone a notification that the race is starting soon
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceSetStatus", &RaceSetStatusMessage{raceID, "starting"})
+	}
+	connectionMap.RUnlock()
 
 	// Get the list of people in this race
 	racers, err := db.RaceParticipants.GetRacerNames(raceID)
@@ -854,11 +914,12 @@ func raceStart(raceID int) {
 		return
 	}
 
-	// Send everyone the new list of races
-	raceUpdateAll()
-
-	// Send the people in this race an update
-	racerUpdate(raceID)
+	// Send everyone a notification that the race is now in progress
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceSetStatus", &RaceSetStatusMessage{raceID, "in progress"})
+	}
+	connectionMap.RUnlock()
 
 	// Sleep 30 minutes
 	time.Sleep(30 * time.Minute)
@@ -886,11 +947,11 @@ func raceStart(raceID int) {
 	}
 
 	// Close down the race
-	raceFinish(raceID)
+	raceCheckFinish(raceID)
 }
 
 // Check to see if a rate is ready to finish, and if so, finish it
-func raceFinish(raceID int) {
+func raceCheckFinish(raceID int) {
 	// Check if anyone is still racing
 	if stillRacing, err := db.RaceParticipants.CheckStillRacing(raceID); err != nil {
 		return
@@ -906,6 +967,10 @@ func raceFinish(raceID int) {
 		return
 	}
 
-	// Send everyone the new list of races
-	raceUpdateAll()
+	// Send everyone a notification that the race is now finished
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceSetStatus", &RaceSetStatusMessage{raceID, "finished"})
+	}
+	connectionMap.RUnlock()
 }

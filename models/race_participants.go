@@ -16,17 +16,6 @@ type RaceParticipants struct {
 	db *Model
 }
 
-type Racer struct {
-	Name             string `json:"name"`
-	Status           string `json:"status"`
-	DatetimeJoined   int    `json:"datetime_joined"`
-	DatetimeFinished int    `json:"datetime_finished"`
-	Place            int    `json:"place"`
-	Comment          string `json:"comment"`
-	Items            []Item `json:"items"`
-	Floor            int    `json:"floor"`
-}
-
 /*
  *  race_participants table functions
  */
@@ -93,7 +82,12 @@ func (self *RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
 
 func (self *RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 	// Get the people in this race
-	rows, err := db.Query("SELECT users.username, race_participants.status, race_participants.datetime_joined, race_participants.datetime_finished, race_participants.place, race_participants.comment, race_participants.floor FROM race_participants JOIN users ON users.id = race_participants.user_id WHERE race_participants.race_id = ?", raceID)
+	rows, err := db.Query(
+		"SELECT users.username, race_participants.status, race_participants.datetime_joined, race_participants.datetime_finished, "+
+			"race_participants.place, race_participants.comment, race_participants.floor "+
+			"FROM race_participants JOIN users ON users.id = race_participants.user_id WHERE race_participants.race_id = ?",
+		raceID,
+	)
 	if err != nil {
 		log.Error("Database error:", err)
 		return nil, err
@@ -145,6 +139,18 @@ func (self *RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 	}
 
 	return racerNames, nil
+}
+
+func (self *RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
+	// Check to see what floor this user is currently on
+	var floor int
+	err := db.QueryRow("SELECT floor FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&floor)
+	if err != nil {
+		log.Error("Database error:", err)
+		return 0, err
+	} else {
+		return floor, nil
+	}
 }
 
 func (self *RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) {

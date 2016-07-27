@@ -57,6 +57,21 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Get the session (this may be an empty session)
+	session, err := sessionStore.Get(r, sessionName)
+	if err != nil {
+		log.Error("Unable to get the session during the", functionName, "function:", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	// Check to see if they are already logged in
+	if _, ok := session.Values["userID"]; ok == true {
+		log.Warning("User from IP \"" + ip + "\" tried to get a session cookie, but they are already logged in.")
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
 	// Instantiate the OAuth2 package
 	conf := &oauth2.Config{
 		ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
@@ -71,7 +86,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// Get the POST JSON of the access token (that the client got from https://isaacserver.auth0.com/oauth/ro)
 	decoder := json.NewDecoder(r.Body)
 	var token oauth2.Token
-	err := decoder.Decode(&token)
+	err = decoder.Decode(&token)
 	if err != nil {
 		log.Warning("Failed to receive access token from user:", err)
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
@@ -100,14 +115,6 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	var profile map[string]interface{}
 	if err := json.Unmarshal(raw, &profile); err != nil {
 		log.Error("Failed to unmarshall the profile:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	// Get the session (this may be an empty session)
-	session, err := sessionStore.Get(r, sessionName)
-	if err != nil {
-		log.Error("Unable to get the session during the", functionName, "function:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -296,20 +303,45 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	// Join the user to the PMManager room corresponding to their username for private messages
 	pmManager.Join(username, conn.Connection)
 
-	// Find out if the user is in any races that are currently going on
-	raceIDs, err := db.RaceParticipants.GetCurrentRaces(userID)
+	// Get the current list of races
+	raceList, err := db.Races.GetCurrentRaces()
 	if err != nil {
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
-	// Iterate over the races that they are currently in
-	for _, raceID := range raceIDs {
-		// Join the user to the chat room coresponding to this race
-		roomJoinSub(conn, "_race_"+strconv.Itoa(raceID))
-	}
+	// Send it to the user
+	conn.Connection.Emit("raceList", raceList)
 
-	// Send the user the current list of races
-	raceUpdate(conn)
+	// Find out if the user is in any races that are currently going on
+	for _, race := range raceList {
+		for _, racer := range race.Racers {
+			if racer == username {
+				// Join the user to the chat room coresponding to this race
+				roomJoinSub(conn, "_race_"+strconv.Itoa(race.ID))
+
+				// Get all the information about the racers in this race
+				racerList, err := db.RaceParticipants.GetRacerList(race.ID)
+				if err != nil {
+					return
+				}
+
+				// Send it to the user
+				conn.Connection.Emit("racerList", &RacerList{race.ID, racerList})
+
+				// If the race is currently in the 10 second countdown
+				if race.Status == "starting" {
+					// Send them a message describing exactly when it will start
+					conn.Connection.Emit("raceStart", &RaceStartMessage{
+						raceID,
+						time.Now().Add(10 * time.Second).UnixNano(), // 10 seconds in the future
+					})
+				}
+
+				break
+			}
+		}
+	}
 }
 
 func connClose(conn *ExtendedConnection) {
@@ -322,44 +354,26 @@ func connClose(conn *ExtendedConnection) {
 	delete(connectionMap.m, username) // This will do nothing if the entry doesn't exist
 	connectionMap.Unlock()
 
-	// Leave the chat rooms
-	roomManager.LeaveAll(conn.Connection)
-	pmManager.LeaveAll(conn.Connection)
-
-	// Delete the user from all rooms in the chat room map
-	chatRoomMap.Lock()
+	// Make a list of all the chat rooms this person is in
+	var chatRoomList []string
+	chatRoomMap.RLock()
 	for room, users := range chatRoomMap.m {
-		// See if the user is in this chat room
-		index := -1
-		for i, user := range users {
+		for _, user := range users {
 			if user.Name == username {
-				index = i
+				chatRoomList = append(chatRoomList, room)
 				break
 			}
 		}
-		if index != -1 {
-			// Remove them from the slice
-			chatRoomMap.m[room] = append(users[:index], users[index+1:]...)
-
-			// Since the amount of people in the chat room changed, send everyone an update
-			users, ok := chatRoomMap.m[room]
-			if ok == false {
-				log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
-				chatRoomMap.Unlock()
-				return
-			}
-
-			connectionMap.RLock()
-			for _, user := range users {
-				connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-					room,
-					users,
-				})
-			}
-			connectionMap.RUnlock()
-		}
 	}
-	chatRoomMap.Unlock()
+	chatRoomMap.RUnlock()
+
+	// Leave all the chat rooms
+	for _, room := range chatRoomList {
+		roomLeaveSub(conn, room)
+	}
+
+	// Leave the chat room dedicated for private messages
+	pmManager.LeaveAll(conn.Connection)
 
 	// Check to see if this user is in any races that are not already in progress
 	raceIDs, err := db.RaceParticipants.GetNotStartedRaces(userID)
@@ -375,10 +389,10 @@ func connClose(conn *ExtendedConnection) {
 		}
 
 		// Send everyone the new list of races
-		raceUpdateAll()
+		// TODO
 
 		// Send the people in this race an update
-		racerUpdate(raceID)
+		// TODO
 
 		// Check to see if the race should start or finish
 		raceCheckStartFinish(raceID)
@@ -403,18 +417,12 @@ func logout(conn *ExtendedConnection) {
 
 // Sent to the client after a successful command
 func connSuccess(conn *ExtendedConnection, functionName string, msg interface{}) {
-	conn.Connection.Emit("success", &SystemMessage{
-		functionName,
-		msg,
-	})
+	conn.Connection.Emit("success", &SystemMessage{functionName, msg})
 }
 
 // Sent to the client if either their command was unsuccessful or something else went wrong
 func connError(conn *ExtendedConnection, functionName string, msg string) {
-	conn.Connection.Emit("error", &SystemMessage{
-		functionName,
-		msg,
-	})
+	conn.Connection.Emit("error", &SystemMessage{functionName, msg})
 }
 
 // Called at the beginning of every command handler

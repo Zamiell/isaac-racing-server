@@ -8,15 +8,14 @@ import (
 	"html/template"
 	"net/http"
 	"os"
-	"path"
 )
 
 func serveTemplate(w http.ResponseWriter, r *http.Request) {
-	lp := path.Join("views", "layout.tmpl")
+	lp := projectPath + "/views/layout.tmpl"
 	if r.URL.Path == "/" {
 		r.URL.Path = "/home"
 	}
-	fp := path.Join("views", r.URL.Path+".tmpl")
+	fp := projectPath + "/views/" + r.URL.Path + ".tmpl"
 
 	// Return a 404 if the template doesn't exist
 	info, err := os.Stat(fp)

@@ -8,8 +8,7 @@ func achievementsInit() {
 		2: {"I Think I Have the Hang of This", "Complete 10 races."},
 		3: {"Intermediate Racist", "Complete 50 races."},
 		4: {"Expert Racist", "Complete 100 races."},
-		5: {"Seasoned Veteran", "Complete 500 races."},
-		6: {"Orange Juice", "Complete 1000 races."},
+		5: {"Orange Juice", "Complete 500 races."}, // Reference to Ou_J
 
 		7: {"Dipping Your Toe in the Water", "Complete a race with every ruleset."},
 		8: {"Experimental Treatment", "Complete 10 races with every ruleset."},
@@ -28,15 +27,15 @@ func achievementsInit() {
 
 		// Streaks
 		17: {"I'm Having a Good Day", "Finish 1st place in 3 races in a row with 5 people or more."},
-		18: {"A Literal God, Tasteless", "Finish 1st place in 5 races in a row with 5 people or more."},
+		18: {"A Literal God, Tasteless", "Finish 1st place in 5 races in a row with 5 people or more."}, // Reference to a Starcraft 2 meme
 		19: {"I'm Having a Bad Day", "Quit out of 3 races in a row with 5 people or more."},
 
 		// Complete a race with X time
 		20: {"Pretty Darn Fast", "Complete an unseeded race in less than 13 minutes."},
 		21: {"Speeding Bullet", "Complete an unseeded race in less than 12 minutes."},
 		22: {"Fast Like Sanic", "Complete an unseeded race in less than 11 minutes."},
-		23: {"Dea1hly Fast", "Complete an unseeded race in less than 10 minutes."},
-		24: {"Fizzy Giraffe", "Complete an unseeded race in less than 9 minutes."},
+		23: {"Dea1hly Fast", "Complete an unseeded race in less than 10 minutes."}, // Reference to Dea1h
+		24: {"Fizzy Giraffe", "Complete an unseeded race in less than 9 minutes."}, // Reference to giraffeFizzoid
 
 		// Complete a race with X time with X item, unseeded
 		101: {"Unseeded Item Mastery - 20/20", "Complete an unseeded race in less than 12 minutes with a 20/20 start."},
@@ -90,19 +89,20 @@ func achievementsInit() {
 		301: {"My Bombs Don't Hurt Me", "Complete a race where you had Dr. Fetus and Ipecac."},
 		302: {"Green Lung Best Lung", "Complete a race where you had Monstro's Lung and Ipecac."},
 		303: {"Sometimes You Should Take Tiny Planet", "Complete a race with Brimstone and Tiny Planet."},
-		304: {"This Build Takes Skill", "Complete a race with Ipecac and Toxic Shock."},
-		305: {"Missile Yourself Through the Door", "Complete a race with Epic Fetus and Holy Mantle."},
-		306: {"Sometimes You Should Stay on a Tears Build", "Complete a race with Cricket's Body and The Parasite."},
-		307: {"It's Technically a DPS Up", "Complete a race with Ipecac and Cricket's Body."},
-		308: {"Like It Wasn't Powerful Enough Already", "Complete a race with Mega Blast and Car Battery."},
-		309: {"7 Shots Is Better Than One", "Complete a race with Mutant Spider and The Inner Eye."},
+		304: {"Sometimes You Should Take Dunce Cap", "Complete a race with Epic Fetus and Dunce Cap."},
+		305: {"This Build Takes Skill", "Complete a race with Ipecac and Toxic Shock."},
+		306: {"Missile Yourself Through the Door", "Complete a race with Epic Fetus and Holy Mantle."},
+		307: {"Sometimes You Should Stay on a Tears Build", "Complete a race with Cricket's Body and The Parasite."},
+		308: {"It's Technically a DPS Up", "Complete a race with Ipecac and Cricket's Body."},
+		309: {"Like It Wasn't Powerful Enough Already", "Complete a race with Mega Blast and Car Battery."},
+		310: {"7 Shots Is Better Than One", "Complete a race with Mutant Spider and The Inner Eye."},
+		311: {"Massive Multiplier", "Complete a race with Technology and A Lump of Coal."},
 
 		// Item synergies (3 items)
 		351: {"Day of the Tentacles", "Complete a race with Monstro's Lung, Brimstone, and a homing item."},
-		352: {"Shop Irony", "Complete a race with The Mind and a piece of mapping."},
-		353: {"Ultimate Friends", "Complete a race with Lil' Brimstone, Incubus, and BFFS!"},
-		354: {"It's Beautiful", "Complete a race with Epic Fetus, Brimstone, and Rubber Cement."},
-		355: {"Shields Are Pretty Good", "Complete a race where you had Blood Rights, The Polaroid, and Scapular."},
+		352: {"Ultimate Friends", "Complete a race with Lil' Brimstone, Incubus, and BFFS!"},
+		353: {"It's Beautiful", "Complete a race with Epic Fetus, Brimstone, and Rubber Cement."},
+		354: {"Shields Are Pretty Good", "Complete a race where you had Blood Rights, The Polaroid, and Scapular."},
 
 		// Miscellaneous
 		401: {"Last Man Standing", "Complete a race with at least 5 people where everyone else died or quit."},
@@ -120,8 +120,11 @@ func achievementsInit() {
 		414: {"U Can't Touch This", "Finish a race without taking damage."},
 		415: {"Maybe I Shouldn't Have Min-Maxed So Hard", "Finish a race with 12 hearts."},
 		416: {"Beter Late Than Never", "Find an Emperor card on The Chest."},
-		417: {"Everybody Wins!", "Finish a race where you tied for 1st place."},
+		417: {"Collaborative Victory", "Finish a race where you tied for 1st place."},
 		418: {"Consolation Prize", "Only receive Devil/Angel rooms on floor 2, floor 5, and floor 8 without taking any red heart damage."},
+		419: {"Confident in Your Dodging Ability", "Take two devil deals that leave you with only one heart remaining."}.
+		420: {"???", "Spawn as Judas' Shadow with more than 2 hearts."}, // Reference to EladDifficult
+}
 	}
 
 	// Delete every row in the database
@@ -134,5 +137,7 @@ func achievementsInit() {
 		if err := db.Achievements.Insert(id, achievement[0], achievement[1]); err != nil {
 			log.Fatal("Failed to insert the achievements:", err)
 		}
+
 	}
+	log.Info("Added", len(achievementList), "achievements.")
 }

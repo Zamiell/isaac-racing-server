@@ -3,10 +3,19 @@
 TODO
 ----
 
+- move database erorr messages to parent
+
+
+- rulset: http://pastebin.com/PG8TpLqh
 - userprofile
-- send last chat when joining race
-- send last chat when joining channel
-- achievements
+- leaderboard
+- achievement logic
+
+
+CLIENT TODO
+-----------
+
+- Test connecting to server when race status is "starting"
 
 
 
@@ -64,31 +73,69 @@ COOKIE="isaac.sid=MTQ2ODEyMzIyN3xEdi1CQkFFQ180SUFBUkFCRUFBQVh2LUNBQU1HYzNSeWFXNW
 
 
 
-WebSocket chat commands
------------------------
+Incoming WebSocket commands - chat
+----------------------------------
 
-Join chat channel:
-roomJoin {"name":"fartchannel"}
+Join a new chat room:
+roomJoin {"room":"fartchannel"}
 
-Leave chat channel:
-roomLeave {"name":"fartchannel"}
+Leave a chat room:
+roomLeave {"room":"fartchannel"}
 
-Send message:
-roomMessage {"to":"global","msg":"i poopd"}
+Send a message to a chat room:
+roomMessage {"room":"global","msg":"i poopd"}
 
-Send message to a race channel:
-roomMessage {"to":"_race_1","msg":"gg"}
+Send a message to a chat room for a race:
+roomMessage {"room":"_race_1","msg":"gg"}
 
-Send private message:
-privateMessage {"to":"zamiel","msg":"private message lol"}
+Send a private message:
+privateMessage {"name":"zamiel","msg":"private message lol"}
 
 Get a list of all of the current rooms:
-roomGetAll {}
+roomListAll {}
 
 
 
-WebSocket race commands
------------------------
+Outgoing WebSocket commands - chat
+----------------------------------
+
+When you join a new chat room, you get the list of people in it:
+roomList TODO
+
+When you join a new chat room, you get the chat history for the past 50 messages (or all the messages if its a "_race_#" channel):
+roomHistoryList [{"name":"zamiel2","msg":"i poopd","datetime":1469468332}]
+
+Someone else joined a chat room that you are in:
+roomJoined TODO
+
+Someone else left a chat room that you are in:
+roomLeft {"room":"global","name":"chronometrics"}
+
+Someone sent a message to a chat room that you are in:
+roomMessage {"room":"global","name":"zamiel",msg":"i poopd"}
+
+Someone sent you a private message:
+privateMessage {"name":"chronometrics","msg":"i lit the candle"}
+
+When a list of all the chat rooms is requested:
+roomListAll [{"room":"global","numUsers":1}]
+
+Someone got squelched:
+roomSetSquelched {"room":"global","username":"cmondinger","squelched":1}
+
+Someone got unsquelched:
+roomSetSquelched {"room":"global","username":"cmondinger","squelched":0}
+
+Someone got promoted:
+roomSetAdmin {"room":"global","username":"sillypears","admin":1}
+
+Someone got demoted:
+roomSetAdmin {"room":"global","username":"sillypears","admin":0}
+
+
+
+Incoming WebSocket commands - race
+----------------------------------
 
 Create a race:
 raceCreate {}
@@ -108,11 +155,11 @@ raceReady {"id":1}
 Unready in a race:
 raceUnready {"id":1}
 
-Change a ruleset in a race:
+Change a ruleset in a race (if you are the race captain):
 raceRuleset {"id":1,"ruleset":"diversity"}
 
 Finish a race:
-raceDone {"id":1}
+raceFinish {"id":1}
 
 Quit a race:
 raceQuit {"id":1}
@@ -128,8 +175,46 @@ raceFloor {"id":1,"floor":2}
 
 
 
-WebSocket profile commands
---------------------------
+Outgoing WebSocket commands - race
+----------------------------------
+
+When someone joins a new race or is already in an existing race upon connection:
+racerList {"id":6,"racers":[{"name":"zamiel","status":"not ready","datetime_joined":1469178564,"datetime_finished":0,"place":0,"comment":"-","items":[],"floor":1}]}
+
+When a new race is created:
+raceCreated TODO
+
+When someone joins a race:
+raceJoin {"id":1,"name":"zamiel"}
+
+When someone leaves a race:
+raceLeft {"id":1,"name":"zamiel"}
+
+When someone readies up:
+racerSetStatus {"id":1,"name":"zamiel","status":"ready"}
+
+When someone unreadies:
+racerSetStatus {"id":1,"name":"zamiel","status":"not ready"}
+
+When a race is starting (time is in UnixNano() format):
+raceStart {"id":10,"time":1469147515988023769}
+
+When someone finishes:
+racerSetStatus {"id":1,"name":"zamiel","status":"finished"}
+
+When someone quits:
+racerSetStatus {"id":1,"name":"zamiel","status":"quit"}
+
+When someone gets a new item:
+racerAddItem {} TODO
+
+When someone gets to a new floor:
+racerSetFloor {} TODO
+
+
+
+Incoming WebSocket commands - profile
+-------------------------------------
 
 Get the profile of a user:
 profileGet {"name":"zamiel2"}
@@ -139,8 +224,16 @@ profileSetUsername {"name":"zAmIeL2"}
 
 
 
-WebSocket admin commands
-------------------------
+Outgoing WebSocket commands - profile
+-------------------------------------
+
+When a profile is requested:
+profile { TODO }
+
+
+
+Incoming WebSocket commands - admin
+-----------------------------------
 
 Ban a user:
 adminBan {"name":"zamiel2"}
@@ -168,40 +261,32 @@ adminDemote {"name":"zamiel2"}
 
 
 
-WebSocket miscellaneous commands
---------------------------------
+Outgoing WebSocket commands - admin
+-----------------------------------
+
+You got banned:
+error {"type":"adminBan","msg":"You have been banned. If you think this was a mistake, please contact the administration to appeal."}
+
+
+
+Incoming WebSocket commands - miscellaneous
+-------------------------------------------
 
 Logout:
 logout {}
 
 
 
-WebSocket responses back from the server
-----------------------------------------
-
-An error occured:
-error {"type":"logout","msg":"You have logged on from somewhere else, so I'll disconnect you here."}
+Outgoing WebSocket commands - miscellaneous
+-------------------------------------------
 
 You did something right:
 success {"type":"raceCreate","msg":{"name":"poop2","ruleset":"diversity","id":1}}
 
-Whenever a chat room is updated:
-roomList {"room":"global","users":[{"name":"zamiel","admin":0,"squelched":0,"status":"","datetime_joined":0,"datetime_finished":0,"place":0,"comment":"","floor":0}]}
+An error occured:
+error {"type":"logout","msg":"You have logged on from somewhere else, so I'll disconnect you here."}
 
-When a list of chat rooms is requested:
-roomListAll [{"room":"global","numUsers":1}]
 
-Whenever someone joins or leaves a race, a race changes status, or a race changes ruleset:
-raceList [{"id":3,"name":"-","status":"open","ruleset":"unseeded","datetime_created":1469177311,"datetime_started":0,"captain":"zamiel","racers":["zamiel"]}]
-
-Whenever someone does something inside of a race:
-racerList {"id":6,"racers":[{"name":"zamiel","status":"not ready","datetime_joined":1469178564,"datetime_finished":0,"place":0,"comment":"-","items":[],"floor":1}]}
-
-When a race is starting:
-raceStart {"id":10,"time":1469147515988023769}
-
-When a profile is requested:
-profile { TODO }
 
 */
 

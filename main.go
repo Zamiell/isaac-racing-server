@@ -43,6 +43,7 @@ const (
  */
 
 var (
+	projectPath   = os.Getenv("GOPATH") + "/src/github.com/Zamiell/isaac-racing-server"
 	log           = logging.MustGetLogger("isaac")
 	sessionStore  *sessions.CookieStore
 	roomManager   = golem.NewRoomManager()
@@ -74,7 +75,7 @@ func main() {
 	logging.SetBackend(loggingBackendFormatted)
 
 	// Load the .env file which contains environment variables with secret values
-	err := godotenv.Load()
+	err := godotenv.Load(projectPath + "/.env")
 	if err != nil {
 		log.Fatal("Failed to load .env file:", err)
 	}
@@ -91,7 +92,7 @@ func main() {
 	}
 
 	// Initialize the database model
-	db = model.GetModel(log)
+	db = model.GetModel(projectPath+"/database.sqlite", log)
 
 	// Clean up any non-started races before we start
 	db.Races.Cleanup()
@@ -115,7 +116,7 @@ func main() {
 	router.On("roomLeave", roomLeave)
 	router.On("roomMessage", roomMessage)
 	router.On("privateMessage", privateMessage)
-	router.On("roomGetAll", roomGetAll)
+	router.On("roomListAll", roomListAll)
 
 	// Race commands
 	router.On("raceCreate", raceCreate)
@@ -124,7 +125,7 @@ func main() {
 	router.On("raceReady", raceReady)
 	router.On("raceUnready", raceUnready)
 	router.On("raceRuleset", raceRuleset)
-	router.On("raceDone", raceDone)
+	router.On("raceFinish", raceFinish)
 	router.On("raceQuit", raceQuit)
 	router.On("raceComment", raceComment)
 	router.On("raceItem", raceItem)

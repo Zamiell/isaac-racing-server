@@ -4,7 +4,7 @@ package main
  *  WebSocket admin command functions
  */
 
-func adminBan(conn *ExtendedConnection, data *AdminMessage) {
+func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminBan"
 	userID := conn.UserID
@@ -86,11 +86,12 @@ func adminBan(conn *ExtendedConnection, data *AdminMessage) {
 			return
 		}
 
-		// Send everyone the new list of races
-		raceUpdateAll()
-
-		// Send the people in this race an update
-		racerUpdate(raceID)
+		// Send everyone a notification that the user left
+		connectionMap.RLock()
+		for _, conn := range connectionMap.m {
+			conn.Connection.Emit("raceLeft", RaceMessage{raceID, recipient})
+		}
+		connectionMap.RUnlock()
 
 		// Check to see if the race should start or finish
 		raceCheckStartFinish(raceID)
@@ -104,9 +105,6 @@ func adminBan(conn *ExtendedConnection, data *AdminMessage) {
 		// Disconnect the user
 		connError(bannedConnection, functionName, "You have been banned. If you think this was a mistake, please contact the administration to appeal.")
 		bannedConnection.Connection.Close()
-	} else {
-		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-		return
 	}
 
 	// Log the ban
@@ -116,7 +114,7 @@ func adminBan(conn *ExtendedConnection, data *AdminMessage) {
 	connSuccess(conn, functionName, data)
 }
 
-func adminUnban(conn *ExtendedConnection, data *AdminMessage) {
+func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminUnban"
 	username := conn.Username
@@ -189,7 +187,7 @@ func adminUnban(conn *ExtendedConnection, data *AdminMessage) {
 	connSuccess(conn, functionName, data)
 }
 
-func adminBanIP(conn *ExtendedConnection, data *AdminIPMessage) {
+func adminBanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminBanIP"
 	userID := conn.UserID
@@ -237,7 +235,7 @@ func adminBanIP(conn *ExtendedConnection, data *AdminIPMessage) {
 	connSuccess(conn, functionName, data)
 }
 
-func adminUnbanIP(conn *ExtendedConnection, data *AdminIPMessage) {
+func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminUnbanIP"
 	username := conn.Username
@@ -284,7 +282,7 @@ func adminUnbanIP(conn *ExtendedConnection, data *AdminIPMessage) {
 	connSuccess(conn, functionName, data)
 }
 
-func adminSquelch(conn *ExtendedConnection, data *AdminMessage) {
+func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminSquelch"
 	userID := conn.UserID
@@ -373,16 +371,18 @@ func adminSquelch(conn *ExtendedConnection, data *AdminMessage) {
 				users, ok := chatRoomMap.m[room]
 				if ok == false {
 					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
-					chatRoomMap.Unlock()
-					return
+					continue
 				}
 
 				connectionMap.RLock()
 				for _, user := range users {
-					connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-						room,
-						users,
-					})
+					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
+					if ok == true {
+						userConnection.Connection.Emit("roomSetSquelched", &RoomSetSquelchedMessage{room, recipient, 1})
+					} else {
+						log.Error("Failed to get the connection for user \"" + user.Name + "\" while squelching user \"" + recipient + "\".")
+						continue
+					}
 				}
 				connectionMap.RUnlock()
 			}
@@ -397,7 +397,7 @@ func adminSquelch(conn *ExtendedConnection, data *AdminMessage) {
 	connSuccess(conn, functionName, data)
 }
 
-func adminUnsquelch(conn *ExtendedConnection, data *AdminMessage) {
+func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminUnsquelch"
 	username := conn.Username
@@ -485,16 +485,18 @@ func adminUnsquelch(conn *ExtendedConnection, data *AdminMessage) {
 				users, ok := chatRoomMap.m[room]
 				if ok == false {
 					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
-					chatRoomMap.Unlock()
-					return
+					continue
 				}
 
 				connectionMap.RLock()
 				for _, user := range users {
-					connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-						room,
-						users,
-					})
+					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
+					if ok == true {
+						userConnection.Connection.Emit("roomSetSquelched", &RoomSetSquelchedMessage{room, recipient, 0})
+					} else {
+						log.Error("Failed to get the connection for user \"" + user.Name + "\" while unsquelching user \"" + recipient + "\".")
+						continue
+					}
 				}
 				connectionMap.RUnlock()
 			}
@@ -509,7 +511,7 @@ func adminUnsquelch(conn *ExtendedConnection, data *AdminMessage) {
 	connSuccess(conn, functionName, data)
 }
 
-func adminPromote(conn *ExtendedConnection, data *AdminMessage) {
+func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminPromote"
 	username := conn.Username
@@ -588,16 +590,18 @@ func adminPromote(conn *ExtendedConnection, data *AdminMessage) {
 				users, ok := chatRoomMap.m[room]
 				if ok == false {
 					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
-					chatRoomMap.Unlock()
-					return
+					continue
 				}
 
 				connectionMap.RLock()
 				for _, user := range users {
-					connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-						room,
-						users,
-					})
+					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
+					if ok == true {
+						userConnection.Connection.Emit("roomSetAdmin", &RoomSetAdminMessage{room, recipient, 1})
+					} else {
+						log.Error("Failed to get the connection for user \"" + user.Name + "\" while promoting user \"" + recipient + "\".")
+						continue
+					}
 				}
 				connectionMap.RUnlock()
 			}
@@ -612,7 +616,7 @@ func adminPromote(conn *ExtendedConnection, data *AdminMessage) {
 	connSuccess(conn, functionName, data)
 }
 
-func adminDemote(conn *ExtendedConnection, data *AdminMessage) {
+func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "adminDemote"
 	username := conn.Username
@@ -691,16 +695,18 @@ func adminDemote(conn *ExtendedConnection, data *AdminMessage) {
 				users, ok := chatRoomMap.m[room]
 				if ok == false {
 					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
-					chatRoomMap.Unlock()
-					return
+					continue
 				}
 
 				connectionMap.RLock()
 				for _, user := range users {
-					connectionMap.m[user.Name].Connection.Emit("roomList", &RoomList{
-						room,
-						users,
-					})
+					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
+					if ok == true {
+						userConnection.Connection.Emit("roomSetAdmin", &RoomSetAdminMessage{room, recipient, 0})
+					} else {
+						log.Error("Failed to get the connection for user \"" + user.Name + "\" while demoting user \"" + recipient + "\".")
+						continue
+					}
 				}
 				connectionMap.RUnlock()
 			}
