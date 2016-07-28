@@ -176,7 +176,10 @@ raceFloor {"id":1,"floor":2}
 Outgoing WebSocket commands - race
 ----------------------------------
 
-When someone joins a new race or is already in an existing race upon connection:
+On inital connection, you get a list of all of the races that are currently open or ongoing:
+raceList [{"id":1,"name":"-","status":"in progress","ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0},"datetime_created":1469661657,"datetime_started":1469661673,"captain":"zamiel","racers":["zamiel"]}]
+
+When you join a new race (or are already in an existing race on initial connection because you dropped connection in the middle of the race):
 racerList {"id":6,"racers":[{"name":"zamiel","status":"not ready","datetime_joined":1469178564,"datetime_finished":0,"place":0,"comment":"-","items":[],"floor":1}]}
 
 When a new race is created:
@@ -272,12 +275,6 @@ error {"type":"adminBan","msg":"You have been banned. If you think this was a mi
 
 Incoming WebSocket commands - miscellaneous
 -------------------------------------------
-
-On inital connection, you get a list of all of the races that are currently open or ongoing:
-raceList [{"id":1,"name":"-","status":"in progress","ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0},"datetime_created":1469661657,"datetime_started":1469661673,"captain":"zamiel","racers":["zamiel"]}]
-
-On initial connection, you get a list of all of the race "stuff" for a race that you currently happen to already be in (meaning you disconnected earlier in the race):
-racerList {"id":1,"racers":[{"name":"zamiel","status":"racing","datetime_joined":1469661657,"datetime_finished":0,"place":0,"comment":"-","items":[{"id":100,"floor":1}],"floor":2}]}
 
 Logout:
 logout {}
