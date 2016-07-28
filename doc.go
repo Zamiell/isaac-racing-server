@@ -3,9 +3,6 @@
 TODO
 ----
 
-- move database erorr messages to parent
-
-- ruleset: http://pastebin.com/mZYnxa0F
 - race data commands: http://pastebin.com/PG8TpLqh
 
 - userprofile
@@ -275,6 +272,12 @@ error {"type":"adminBan","msg":"You have been banned. If you think this was a mi
 
 Incoming WebSocket commands - miscellaneous
 -------------------------------------------
+
+On inital connection, you get a list of all of the races that are currently open or ongoing:
+raceList [{"id":1,"name":"-","status":"in progress","ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0},"datetime_created":1469661657,"datetime_started":1469661673,"captain":"zamiel","racers":["zamiel"]}]
+
+On initial connection, you get a list of all of the race "stuff" for a race that you currently happen to already be in (meaning you disconnected earlier in the race):
+racerList {"id":1,"racers":[{"name":"zamiel","status":"racing","datetime_joined":1469661657,"datetime_finished":0,"place":0,"comment":"-","items":[{"id":100,"floor":1}],"floor":2}]}
 
 Logout:
 logout {}
