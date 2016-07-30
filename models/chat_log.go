@@ -25,7 +25,6 @@ func (self *ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 		count,
 	)
 	if err != nil {
-		log.Error("Database error:", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -36,7 +35,6 @@ func (self *ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 		var message RoomHistory
 		err := rows.Scan(&message.Name, &message.Msg, &message.Datetime)
 		if err != nil {
-			log.Error("Database error:", err)
 			return nil, err
 		}
 		roomHistoryList = append(roomHistoryList, message)
@@ -49,12 +47,10 @@ func (self *ChatLog) Insert(room string, username string, msg string) error {
 	// Add the message
 	stmt, err := db.Prepare("INSERT INTO chat_log (room, user_id, message) VALUES (?, (SELECT id FROM users WHERE username = ?), ?)")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(room, username, msg)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 

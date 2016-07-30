@@ -28,7 +28,6 @@ func (self *Races) Exists(raceID int) (bool, error) {
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else {
 		return true, nil
@@ -45,7 +44,6 @@ func (self *Races) GetCurrentRaces() ([]Race, error) {
 			"FROM races WHERE status != 'finished'",
 	)
 	if err != nil {
-		log.Error("Database error:", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -61,7 +59,6 @@ func (self *Races) GetCurrentRaces() ([]Race, error) {
 			&race.DatetimeStarted, &race.Captain,
 		)
 		if err != nil {
-			log.Error("Database error:", err)
 			return nil, err
 		}
 
@@ -84,7 +81,6 @@ func (self *Races) GetStatus(raceID int) (string, error) {
 	var status string
 	err := db.QueryRow("SELECT status FROM races WHERE id = ?", raceID).Scan(&status)
 	if err != nil {
-		log.Error("Database error:", err)
 		return "", err
 	}
 
@@ -95,7 +91,6 @@ func (self *Races) CheckName(name string) (bool, error) {
 	// Check to see if there are non-finished races with the same name
 	rows, err := db.Query("SELECT name FROM races WHERE status != 'finished'")
 	if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	}
 	defer rows.Close()
@@ -104,7 +99,6 @@ func (self *Races) CheckName(name string) (bool, error) {
 		var raceName string
 		err := rows.Scan(&raceName)
 		if err != nil {
-			log.Error("Database error:", err)
 			return false, err
 		}
 
@@ -123,7 +117,6 @@ func (self *Races) CheckStatus(raceID int, status string) (bool, error) {
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else {
 		return true, nil
@@ -137,7 +130,6 @@ func (self *Races) CheckCaptain(raceID int, captain int) (bool, error) {
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else {
 		return true, nil
@@ -149,7 +141,6 @@ func (self *Races) CaptainCount(userID int) (int, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(id) as count FROM races WHERE status != 'finished' AND captain = ?", userID).Scan(&count)
 	if err != nil {
-		log.Error("Database error:", err)
 		return 0, err
 	}
 
@@ -160,12 +151,10 @@ func (self *Races) SetStatus(raceID int, status string) error {
 	// Set the new status for this race
 	stmt, err := db.Prepare("UPDATE races SET status = ? WHERE id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(status, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -176,12 +165,10 @@ func (self *Races) SetRuleset(raceID int, ruleset Ruleset) error {
 	// Set the new ruleset for this race
 	stmt, err := db.Prepare("UPDATE races SET ruleset = ?, character = ?, goal = ?, seed = ?, instant_start = ? WHERE id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(ruleset.Type, ruleset.Character, ruleset.Goal, ruleset.Seed, ruleset.InstantStart, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -192,12 +179,10 @@ func (self *Races) Start(raceID int) error {
 	// Change the status for this race to "in progress" and set "datetime_started" equal to now
 	stmt, err := db.Prepare("UPDATE races SET status = 'in progress', datetime_started = (strftime('%s', 'now')) WHERE id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -218,12 +203,10 @@ func (self *Races) Finish(raceID int) error {
 	// Change the status for this race to "finished" and set "datetime_finished" equal to now
 	stmt, err := db.Prepare("UPDATE races SET status = 'finished', datetime_finished = (strftime('%s', 'now')) WHERE id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -234,17 +217,14 @@ func (self *Races) Insert(name string, ruleset Ruleset, userID int) (int, error)
 	// Add the race to the database
 	var raceID int
 	if stmt, err := db.Prepare("INSERT INTO races (name, ruleset, character, goal, seed, instant_start, captain) VALUES (?, ?, ?, ?, ?, ?, ?)"); err != nil {
-		log.Error("Database error:", err)
 		return 0, err
 	} else {
 		result, err := stmt.Exec(name, ruleset.Type, ruleset.Character, ruleset.Goal, ruleset.Seed, ruleset.InstantStart, userID)
 		if err != nil {
-			log.Error("Database error:", err)
 			return 0, err
 		}
 		raceID64, err := result.LastInsertId()
 		if err != nil {
-			log.Error("Database error:", err)
 			return 0, err
 		}
 		raceID = int(raceID64)
@@ -262,7 +242,6 @@ func (self *Races) Cleanup() error {
 	// Get the current races
 	rows, err := db.Query("SELECT id FROM races WHERE status = 'open' OR status = 'starting'")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	defer rows.Close()
@@ -273,7 +252,6 @@ func (self *Races) Cleanup() error {
 		var raceID int
 		err := rows.Scan(&raceID)
 		if err != nil {
-			log.Error("Database error:", err)
 			return err
 		}
 
@@ -284,12 +262,10 @@ func (self *Races) Cleanup() error {
 	for _, raceID := range leftoverRaces {
 		stmt, err := db.Prepare("DELETE FROM race_participants WHERE race_id = ?")
 		if err != nil {
-			log.Error("Database error:", err)
 			return err
 		}
 		_, err = stmt.Exec(raceID)
 		if err != nil {
-			log.Error("Database error:", err)
 			return err
 		}
 	}
@@ -298,12 +274,10 @@ func (self *Races) Cleanup() error {
 	for _, raceID := range leftoverRaces {
 		stmt, err := db.Prepare("DELETE FROM races WHERE id = ?")
 		if err != nil {
-			log.Error("Database error:", err)
 			return err
 		}
 		_, err = stmt.Exec(raceID)
 		if err != nil {
-			log.Error("Database error:", err)
 			return err
 		}
 		log.Info("Deleted race", raceID, "during starting cleanup.")

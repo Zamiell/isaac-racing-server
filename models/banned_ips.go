@@ -27,7 +27,6 @@ func (self *BannedIPs) Check(ip string) (bool, error) {
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else {
 		return true, nil
@@ -38,12 +37,10 @@ func (self *BannedIPs) Insert(username string, adminResponsible int) error {
 	// Add the IP address to the banned list in the database
 	stmt, err := db.Prepare("INSERT INTO banned_ips (ip, admin_responsible) VALUES ((SELECT last_ip FROM users WHERE username = ?), ?)")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(username, adminResponsible)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -54,12 +51,10 @@ func (self *BannedIPs) InsertIP(ip string, adminResponsible int) error {
 	// Add the IP address to the banned list in the database
 	stmt, err := db.Prepare("INSERT INTO banned_ips (ip, admin_responsible) VALUES (?, ?)")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(ip, adminResponsible)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -70,12 +65,10 @@ func (self *BannedIPs) Delete(username string) error {
 	// Remove the IP address from the banned IP list in the database
 	stmt, err := db.Prepare("DELETE FROM banned_ips WHERE ip = (SELECT last_ip FROM users WHERE username = ?)")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(username)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -86,12 +79,10 @@ func (self *BannedIPs) DeleteIP(ip string) error {
 	// Remove the IP address from the banned IP list in the database
 	stmt, err := db.Prepare("DELETE FROM banned_ips WHERE ip = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(ip)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 

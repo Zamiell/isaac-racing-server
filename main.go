@@ -58,7 +58,8 @@ var (
 		sync.RWMutex
 		m map[string][]User
 	}{m: make(map[string][]User)}
-	db *model.Model
+	db           *model.Model
+	commandMutex = &sync.Mutex{} // Used to prevent race conditions
 )
 
 /*
@@ -147,6 +148,7 @@ func main() {
 
 	// Miscellaneous
 	router.On("logout", logout)
+	router.On("debug", debug)
 
 	/*
 	 *  HTTP stuff

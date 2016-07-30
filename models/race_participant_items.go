@@ -21,7 +21,6 @@ func (self *RaceParticipantItems) GetItemList(username string, raceID int) ([]It
 		raceID,
 	)
 	if err != nil {
-		log.Error("Database error:", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -32,7 +31,6 @@ func (self *RaceParticipantItems) GetItemList(username string, raceID int) ([]It
 		var item Item
 		err := rows.Scan(&item.ID, &item.Floor)
 		if err != nil {
-			log.Error("Database error:", err)
 			return nil, err
 		}
 		itemList = append(itemList, item)
@@ -48,12 +46,10 @@ func (self *RaceParticipantItems) Insert(userID int, raceID int, itemID int, flo
 			"VALUES ((SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?), ?, ?)",
 	)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(userID, raceID, itemID, floor)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 

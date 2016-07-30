@@ -11,13 +11,20 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	recipient := data.Name
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for recipient \""+recipient+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
-	// Validate that the user is an admin
+	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to ban someone, but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members or administrators can do that.")
 		return
@@ -25,6 +32,7 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to ban a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
@@ -32,18 +40,24 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userExists == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user does not exist.")
 		return
 	}
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsStaff == true {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to ban \"" + recipient + "\", but staff/admins cannot be banned.")
 		connError(conn, functionName, "You cannot ban a staff member or an administrator.")
 		return
@@ -51,9 +65,12 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is not already banned
 	if userIsBanned, err := db.BannedUsers.Check(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsBanned == true {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to ban \"" + recipient + "\", but they are already banned.")
 		connError(conn, functionName, "That user is already banned.")
 		return
@@ -61,12 +78,16 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Add this username to the ban list in the database
 	if err := db.BannedUsers.Insert(recipient, userID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
 	// Add their IP to the banned IP list
 	if err := db.BannedIPs.Insert(recipient, userID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -74,6 +95,8 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Find out if the user is in any races that are currently going on
 	raceIDs, err := db.RaceParticipants.GetCurrentRaces(userID)
 	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -82,6 +105,8 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	for _, raceID := range raceIDs {
 		// Remove this user from the participants list for that race
 		if err := db.RaceParticipants.Delete(userID, raceID); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
 			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 			return
 		}
@@ -112,6 +137,9 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -120,13 +148,20 @@ func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	recipient := data.Name
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for recipient \""+recipient+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
-	// Validate that the user is an admin
+	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to unban someone, but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members or administrators can do that.")
 		return
@@ -134,6 +169,7 @@ func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to unban a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
@@ -141,18 +177,24 @@ func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userExists == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user does not exist.")
 		return
 	}
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsStaff == true {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to unban \"" + recipient + "\", but staff/admins cannot be unbanned.")
 		connError(conn, functionName, "You cannot unban a staff member or an administrator.")
 		return
@@ -160,9 +202,12 @@ func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is banned
 	if userIsBanned, err := db.BannedUsers.Check(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsBanned == false {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to unban \"" + recipient + "\", but they are not banned.")
 		connError(conn, functionName, "That user is not banned.")
 		return
@@ -170,12 +215,16 @@ func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Remove this username from the ban list in the database
 	if err := db.BannedUsers.Delete(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
 	// Remove the user's last IP from the banned IP list, if present
 	if err := db.BannedIPs.Delete(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -185,6 +234,9 @@ func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func adminBanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -194,13 +246,20 @@ func adminBanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	ip := data.IP
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for IP address \""+ip+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
-	// Validate that the user is an admin
+	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to ban an IP, but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members or administrators can do that.")
 		return
@@ -208,6 +267,7 @@ func adminBanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested IP is sane
 	if ip == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to ban a blank IP.")
 		connError(conn, functionName, "That IP is not valid.")
 		return
@@ -215,15 +275,20 @@ func adminBanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested IP is not already banned
 	if IPBanned, err := db.BannedIPs.Check(ip); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if IPBanned == true {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That IP is already banned.")
 		return
 	}
 
 	// Add the IP to the list in the database
 	if err := db.BannedIPs.InsertIP(ip, userID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -233,6 +298,9 @@ func adminBanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -241,13 +309,20 @@ func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	ip := data.IP
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for IP address \""+ip+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
-	// Validate that the user is an admin
+	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to unban an IP, but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members or administrators can do that.")
 		return
@@ -255,6 +330,7 @@ func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested IP is sane
 	if ip == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to unban a blank IP.")
 		connError(conn, functionName, "That IP is not valid.")
 		return
@@ -262,15 +338,20 @@ func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested IP is not already banned
 	if IPBanned, err := db.BannedIPs.Check(ip); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if IPBanned == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That IP is not banned.")
 		return
 	}
 
 	// Remove the IP from the list in the database
 	if err := db.BannedIPs.DeleteIP(ip); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -280,6 +361,9 @@ func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -289,13 +373,20 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	recipient := data.Name
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for recipient \""+recipient+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
-	// Validate that the user is an admin
+	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to squelch \"" + recipient + "\", but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members and administrators can do that.")
 		return
@@ -303,6 +394,7 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to squelch a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
@@ -310,18 +402,24 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userExists == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user does not exist.")
 		return
 	}
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsStaff == true {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to squelch \"" + recipient + "\", but staff/admins cannot be squelched.")
 		connError(conn, functionName, "You cannot squelch a staff member or an administrator.")
 		return
@@ -329,15 +427,20 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that they are not already squelched
 	if userIsSquelched, err := db.SquelchedUsers.Check(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsSquelched == true {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user is already squelched.")
 		return
 	}
 
 	// Add this username to the squelched list in the database
 	if err := db.SquelchedUsers.Insert(recipient, userID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -395,6 +498,9 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -403,13 +509,20 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	recipient := data.Name
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for recipient \""+recipient+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
-	// Validate that the user is an admin
+	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to squelch someone, but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members and administrators can do that.")
 		return
@@ -417,6 +530,7 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to squelch a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
@@ -424,18 +538,24 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userExists == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user does not exist.")
 		return
 	}
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsStaff == true {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to unsquelch \"" + recipient + "\", but staff/admins cannot be unsquelched.")
 		connError(conn, functionName, "You cannot unsquelch a staff member or an administrator.")
 		return
@@ -443,15 +563,20 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that they are not already unsquelched
 	if userIsSquelched, err := db.SquelchedUsers.Check(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsSquelched == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user is not squelched.")
 		return
 	}
 
 	// Remove this username from the squelched list in the database
 	if err := db.SquelchedUsers.Delete(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -509,6 +634,9 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -517,13 +645,20 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	recipient := data.Name
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for recipient \""+recipient+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
 	// Validate that the user is an admin
-	if conn.Admin == 0 {
+	if conn.Admin != 2 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to promote someone, but they are not an administrator.")
 		connError(conn, functionName, "Only administrators can do that.")
 		return
@@ -531,6 +666,7 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to promote a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
@@ -538,18 +674,24 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userExists == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user does not exist.")
 		return
 	}
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsStaff == true {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to promote \"" + recipient + "\", but they are already staff/admin.")
 		connError(conn, functionName, "That user is already a staff member or an administrator.")
 		return
@@ -557,6 +699,8 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Set them to be a staff member
 	if err := db.Users.SetAdmin(recipient, 1); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -614,6 +758,9 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -622,13 +769,20 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	recipient := data.Name
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for recipient \""+recipient+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
 	}
 
 	// Validate that the user is an admin
-	if conn.Admin == 0 {
+	if conn.Admin != 2 {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to demote someone, but they are not an administrator.")
 		connError(conn, functionName, "Only administrators can do that.")
 		return
@@ -636,6 +790,7 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to demote a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
@@ -643,18 +798,24 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userExists == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user does not exist.")
 		return
 	}
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userIsStaff == false {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to demote \"" + recipient + "\", but they not staff/admin.")
 		connError(conn, functionName, "That user is not a staff member or an administrator.")
 		return
@@ -662,6 +823,8 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Set their admin status to 0
 	if err := db.Users.SetAdmin(recipient, 0); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -719,4 +882,7 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send success confirmation
 	connSuccess(conn, functionName, data)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }

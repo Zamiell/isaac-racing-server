@@ -3,11 +3,13 @@
 TODO
 ----
 
+- ruleset check if different, auto apply seed from database
 - race data commands: http://pastebin.com/PG8TpLqh
 
 - userprofile
 - leaderboard
 - achievement logic
+- racing ghosts
 
 
 CLIENT TODO

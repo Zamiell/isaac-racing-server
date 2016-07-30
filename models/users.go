@@ -20,73 +20,19 @@ type Users struct {
  *  users table functions
  */
 
-func (self *Users) Login(auth0ID string, username string, ip string) (bool, *LoginInformation, error) {
+func (self *Users) Login(auth0ID string) (int, string, int, error) {
 	// Check to see if they are in the user database already
 	var userID int
+	var username string
 	var admin int
-	var squelched int
-	err := db.QueryRow("SELECT id, admin FROM users WHERE auth0_id = ?", auth0ID).Scan(&userID, &admin)
+	err := db.QueryRow("SELECT id, username, admin FROM users WHERE auth0_id = ?", auth0ID).Scan(&userID, &username, &admin)
 	if err == sql.ErrNoRows {
-		// Add them to the database
-		stmt, err := db.Prepare("INSERT INTO users (auth0_id, username, last_ip) VALUES (?, ?, ?)")
-		if err != nil {
-			log.Error("Database error:", err)
-			return false, nil, err
-		}
-		result, err := stmt.Exec(auth0ID, username, ip)
-		if err != nil {
-			log.Error("Database error:", err)
-			return false, nil, err
-		}
-		userID64, err := result.LastInsertId()
-		if err != nil {
-			log.Error("Database error:", err)
-			return false, nil, err
-		}
-		userID = int(userID64)
-
-		// By default, new users are not administrators
-		admin = 0
-
-		// By default, new users are not squelched
-		squelched = 0
-
-		// Log the user creation
-		log.Info("Added \"" + username + "\" to the database (first login).")
+		return 0, "", 0, nil
 	} else if err != nil {
-		log.Error("Database error:", err)
-		return false, nil, err
+		return 0, "", 0, err
 	} else {
-		// Check to see if this user is banned
-		if userIsBanned, err := self.db.BannedUsers.Check(username); err != nil {
-			return false, nil, err
-		} else if userIsBanned == true {
-			return false, nil, nil
-		}
-
-		// Check to see if this user is squelched
-		if userIsSquelched, err := self.db.SquelchedUsers.Check(username); err != nil {
-			return false, nil, err
-		} else if userIsSquelched == true {
-			squelched = 1
-		} else {
-			squelched = 0
-		}
-
-		// Update the database with last_login and last_ip
-		stmt, err := db.Prepare("UPDATE users SET last_login = (strftime('%s', 'now')), last_ip = ? WHERE auth0_id = ?")
-		if err != nil {
-			log.Error("Database error:", err)
-			return false, nil, err
-		}
-		_, err = stmt.Exec(ip, auth0ID)
-		if err != nil {
-			log.Error("Database error:", err)
-			return false, nil, err
-		}
+		return userID, username, admin, nil
 	}
-
-	return true, &LoginInformation{userID, admin, squelched}, nil
 }
 
 func (self *Users) Exists(username string) (bool, error) {
@@ -94,10 +40,8 @@ func (self *Users) Exists(username string) (bool, error) {
 	var id int
 	err := db.QueryRow("SELECT id FROM users WHERE username = ?", username).Scan(&id)
 	if err == sql.ErrNoRows {
-		log.Error("User \"" + username + "\" does not exist in the database.")
 		return false, nil
 	} else if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else {
 		return true, nil
@@ -109,7 +53,6 @@ func (self *Users) CheckStaff(username string) (bool, error) {
 	var admin int
 	err := db.QueryRow("SELECT admin FROM users WHERE username = ?", username).Scan(&admin)
 	if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else if admin == 0 {
 		return false, nil
@@ -118,30 +61,28 @@ func (self *Users) CheckStaff(username string) (bool, error) {
 	}
 }
 
-func (self *Users) CheckSuperAdmin(username string) (bool, error) {
-	// Check if the user is an super administrator
-	var admin int
-	err := db.QueryRow("SELECT admin FROM users WHERE username = ?", username).Scan(&admin)
+func (self *Users) SetLogin(username string, lastIP string) error {
+	// Update the database with last_login and last_ip
+	stmt, err := db.Prepare("UPDATE users SET last_login = (strftime('%s', 'now')), last_ip = ? WHERE username = ?")
 	if err != nil {
-		log.Error("Database error:", err)
-		return false, err
-	} else if admin == 2 {
-		return true, nil
-	} else {
-		return false, nil
+		return err
 	}
+	_, err = stmt.Exec(lastIP, username)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (self *Users) SetUsername(userID int, username string) error {
 	// Set the new username
 	stmt, err := db.Prepare("UPDATE users SET username = ? WHERE user_id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(username, userID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -152,14 +93,31 @@ func (self *Users) SetAdmin(username string, admin int) error {
 	// Set the admin field for this user
 	stmt, err := db.Prepare("UPDATE users SET admin = ? WHERE username = ?)")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(admin, username)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
 	return nil
+}
+
+func (self *Users) Insert(auth0ID string, auth0Username string, ip string) (int, error) {
+	// Add them to the database
+	stmt, err := db.Prepare("INSERT INTO users (auth0_id, username, last_ip) VALUES (?, ?, ?)")
+	if err != nil {
+		return 0, err
+	}
+	result, err := stmt.Exec(auth0ID, auth0Username, ip)
+	if err != nil {
+		return 0, err
+	}
+	userID64, err := result.LastInsertId()
+	if err != nil {
+		return 0, err
+	}
+	userID := int(userID64)
+
+	return userID, nil
 }

@@ -18,6 +18,9 @@ func profileGet(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	profileUsername := data.Name
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
 	// Log the received command
 	log.Debug("User \""+username+"\" sent a", functionName, "command.")
 
@@ -26,11 +29,22 @@ func profileGet(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	// Validate that the requested profile is sane
+	if profileUsername == "" {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" tried to request an empty profile.")
+		connError(conn, functionName, "That is not a valid profile name.")
+		return
+	}
+
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(profileUsername); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if userExists == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That user does not exist.")
 		return
 	}
@@ -48,6 +62,9 @@ func profileGet(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send them the profile
 	conn.Connection.Emit("profile", profile)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -56,6 +73,9 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 	userID := conn.UserID
 	username := conn.Username
 	newUsername := data.Name
+
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
 
 	// Log the received command
 	log.Debug("User \""+username+"\" sent a", functionName, "command.")
@@ -66,19 +86,23 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 	}
 
 	// Validate that the submitted stylization
-	if username == newUsername {
+	if newUsername == username {
+		commandMutex.Unlock()
 		connError(conn, functionName, "Your username is already set to that stylization.")
 		return
 	}
 
-	// Validate the submitted stylization is not a different username
-	if strings.ToLower(username) != strings.ToLower(newUsername) {
+	// Validate the submitted stylization is not a different username (or an empty username)
+	if strings.ToLower(newUsername) != strings.ToLower(username) {
+		commandMutex.Unlock()
 		connError(conn, functionName, "You can only change the capitalization of your username, not change it entirely.")
 		return
 	}
 
 	// Set the new username in the database
 	if err := db.Users.SetUsername(userID, newUsername); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -125,4 +149,7 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 		}
 	}
 	chatRoomMap.Unlock()
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }

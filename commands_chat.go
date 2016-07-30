@@ -19,8 +19,11 @@ func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	room := data.Room
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for room \""+room+"\".")
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for room \""+room+"\").")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -29,6 +32,7 @@ func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested room is sane
 	if room == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to join an empty room.")
 		connError(conn, functionName, "That is not a valid room name.")
 		return
@@ -36,6 +40,7 @@ func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that they are not trying to join a system room
 	if strings.HasPrefix(room, "_") {
+		commandMutex.Unlock()
 		log.Warning("Access denied to system room.")
 		connError(conn, functionName, "You are not allowed to manually join system rooms.")
 		return
@@ -55,6 +60,7 @@ func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			}
 		}
 		if userInRoom == true {
+			commandMutex.Unlock()
 			log.Warning("User \"" + username + "\" tried to join a room they were already in.")
 			connError(conn, functionName, "You are already in that room.")
 			return
@@ -66,6 +72,9 @@ func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Let them join the room
 	roomJoinSub(conn, room)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -74,8 +83,11 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	username := conn.Username
 	room := data.Room
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for room \""+room+"\".")
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for room \""+room+"\").")
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -84,6 +96,7 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested room is sane
 	if room == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to leave an empty room.")
 		connError(conn, functionName, "That is not a valid room name.")
 		return
@@ -91,6 +104,7 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that they are not trying to leave a system room
 	if strings.HasPrefix(room, "_") {
+		commandMutex.Unlock()
 		log.Warning("Access denied to system room.")
 		connError(conn, functionName, "You are not allowed to manually leave system rooms.")
 		return
@@ -125,6 +139,9 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Let them leave the room
 	roomLeaveSub(conn, room)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -134,6 +151,12 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	room := data.Room
 	msg := data.Msg
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command (for room \""+room+"\").")
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
@@ -141,8 +164,27 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested room is sane
 	if room == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to message an empty room.")
 		connError(conn, functionName, "That is not a valid room name.")
+		return
+	}
+
+	// Strip leading and trailing whitespace from the message
+	msg = strings.TrimSpace(msg)
+
+	// Don't allow empty messages
+	if msg == "" {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" tried to send an empty message.")
+		connError(conn, functionName, "You cannot send an empty message.")
+		return
+	}
+
+	// Validate that the user is not squelched
+	if conn.Squelched == 1 {
+		commandMutex.Unlock()
+		connError(conn, functionName, "You have been squelched by an administrator, so you cannot chat with others.")
 		return
 	}
 
@@ -169,17 +211,6 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Don't allow empty messages
-	if msg == "" {
-		return
-	}
-
-	// Validate that the user is not squelched
-	if conn.Squelched == 1 {
-		connError(conn, functionName, "You have been squelched by an administrator, so you cannot chat with others.")
-		return
-	}
-
 	// Add the new message to the database
 	if err := db.ChatLog.Insert(room, username, msg); err != nil {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -194,6 +225,9 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send the message
 	roomManager.Emit(room, "roomMessage", &RoomMessageMessage{room, username, msg})
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -203,6 +237,9 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	recipient := data.Name
 	msg := data.Msg
 
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
 		return
@@ -210,8 +247,34 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to private message an empty string.")
 		connError(conn, functionName, "That is not a valid person.")
+		return
+	}
+
+	// Don't allow people to send PMs to themselves
+	if recipient == username {
+		commandMutex.Unlock()
+		connError(conn, functionName, "You cannot send a private message to yourself.")
+		return
+	}
+
+	// Strip leading and trailing whitespace from the message
+	msg = strings.TrimSpace(msg)
+
+	// Don't allow empty messages
+	if msg == "" {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" tried to send an empty message.")
+		connError(conn, functionName, "You cannot send an empty message.")
+		return
+	}
+
+	// Validate that the user is not squelched
+	if conn.Squelched == 1 {
+		commandMutex.Unlock()
+		connError(conn, functionName, "You have been squelched by an administrator, so you cannot chat with others.")
 		return
 	}
 
@@ -222,23 +285,6 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	if ok == false {
 		log.Warning("User \"" + username + "\" tried to private message \"" + recipient + "\", who is offline.")
 		connError(conn, functionName, "That user is not online.")
-		return
-	}
-
-	// Don't allow empty messages
-	if msg == "" {
-		return
-	}
-
-	// Validate that the user is not squelched
-	if conn.Squelched == 1 {
-		connError(conn, functionName, "You have been squelched by an administrator, so you cannot chat with others.")
-		return
-	}
-
-	// Don't allow people to send PMs to themselves
-	if recipient == username {
-		connError(conn, functionName, "You cannot send a private message to yourself.")
 		return
 	}
 
@@ -256,12 +302,18 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send the message
 	pmManager.Emit(recipient, "privateMessage", &PrivateMessageMessage{username, msg})
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 func roomListAll(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "roomListAll"
 	username := conn.Username
+
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
 
 	// Log the received command
 	log.Debug("User \""+username+"\" sent a", functionName, "command.")
@@ -288,6 +340,9 @@ func roomListAll(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send it to the user
 	conn.Connection.Emit("roomListAll", roomList)
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
 }
 
 /*

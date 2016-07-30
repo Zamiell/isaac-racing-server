@@ -18,19 +18,16 @@ func (self *Seeds) Get() (string, error) {
 	var seed string
 	err := db.QueryRow("SELECT id, seed FROM seeds LIMIT 1").Scan(&id, &seed)
 	if err != nil {
-		log.Error("Database error:", err)
 		return "", err
 	}
 
 	// Delete the seed from the database
 	stmt, err := db.Prepare("DELETE FROM seeds WHERE id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return "", err
 	}
 	_, err = stmt.Exec(id)
 	if err != nil {
-		log.Error("Database error:", err)
 		return "", err
 	}
 

@@ -16,12 +16,10 @@ func (self *UserAchievements) Insert(username string, achievementID int) error {
 	// Give the achievement to that user
 	stmt, err := db.Prepare("INSERT INTO user_achievements (user_id, achievement_id) VALUES ((SELECT id FROM users WHERE username = ?), ?)")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(username, achievementID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 

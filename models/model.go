@@ -29,13 +29,6 @@ type Model struct {
 	UserAchievements
 }
 
-// Used internally in the "Users.Login" function
-type LoginInformation struct {
-	UserID    int
-	Admin     int
-	Squelched int
-}
-
 // Sent in the "roomHistory" command (in the "roomJoinSub" function)
 type RoomHistory struct {
 	Name     string `json:"name"`

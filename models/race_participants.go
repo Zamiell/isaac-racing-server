@@ -28,7 +28,6 @@ func (self *RaceParticipants) GetCurrentRaces(userID int) ([]int, error) {
 		userID,
 	)
 	if err != nil {
-		log.Error("Database error:", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -39,7 +38,6 @@ func (self *RaceParticipants) GetCurrentRaces(userID int) ([]int, error) {
 		var raceID int
 		err := rows.Scan(&raceID)
 		if err != nil {
-			log.Error("Database error:", err)
 			return nil, err
 		}
 
@@ -58,7 +56,6 @@ func (self *RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
 		userID,
 	)
 	if err != nil {
-		log.Error("Database error:", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -69,7 +66,6 @@ func (self *RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
 		var raceID int
 		err := rows.Scan(&raceID)
 		if err != nil {
-			log.Error("Database error:", err)
 			return nil, err
 		}
 
@@ -89,7 +85,6 @@ func (self *RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 		raceID,
 	)
 	if err != nil {
-		log.Error("Database error:", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -100,7 +95,6 @@ func (self *RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 		var racer Racer
 		err := rows.Scan(&racer.Name, &racer.Status, &racer.DatetimeJoined, &racer.DatetimeFinished, &racer.Place, &racer.Comment, &racer.Floor)
 		if err != nil {
-			log.Error("Database error:", err)
 			return nil, err
 		}
 
@@ -122,7 +116,6 @@ func (self *RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 	// Get only the names of the people in this race
 	rows, err := db.Query("SELECT users.username FROM race_participants JOIN users ON users.id = race_participants.user_id WHERE race_participants.race_id = ?", raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -132,7 +125,6 @@ func (self *RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 		var name string
 		err := rows.Scan(&name)
 		if err != nil {
-			log.Error("Database error:", err)
 			return nil, err
 		}
 		racerNames = append(racerNames, name)
@@ -146,7 +138,6 @@ func (self *RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
 	var floor int
 	err := db.QueryRow("SELECT floor FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&floor)
 	if err != nil {
-		log.Error("Database error:", err)
 		return 0, err
 	} else {
 		return floor, nil
@@ -160,7 +151,6 @@ func (self *RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) 
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else {
 		return true, nil
@@ -172,7 +162,6 @@ func (self *RaceParticipants) CheckStatus(userID int, raceID int, correctStatus 
 	var status string
 	err := db.QueryRow("SELECT status FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&status)
 	if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else if status != correctStatus {
 		return false, nil
@@ -185,7 +174,6 @@ func (self *RaceParticipants) CheckAllStatus(raceID int, correctStatus string) (
 	// Check to see if everyone in the race has this status
 	rows, err := db.Query("SELECT status FROM race_participants WHERE race_id = ?", raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	}
 	defer rows.Close()
@@ -196,7 +184,6 @@ func (self *RaceParticipants) CheckAllStatus(raceID int, correctStatus string) (
 		var status string
 		err := rows.Scan(&status)
 		if err != nil {
-			log.Error("Database error:", err)
 			return false, err
 		} else if status != correctStatus {
 			sameStatus = false
@@ -212,7 +199,6 @@ func (self *RaceParticipants) CheckStillRacing(raceID int) (bool, error) {
 	var count int
 	err := db.QueryRow("SELECT COUNT(id) as count FROM race_participants WHERE race_id = ? AND status == 'racing'", raceID).Scan(&count)
 	if err != nil {
-		log.Error("Database error:", err)
 		return false, err
 	} else if count == 0 {
 		return false, nil
@@ -225,12 +211,10 @@ func (self *RaceParticipants) SetStatus(username string, raceID int, status stri
 	// Set the new status for the user
 	stmt, err := db.Prepare("UPDATE race_participants SET status = ? WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(status, username, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -241,12 +225,10 @@ func (self *RaceParticipants) SetAllStatus(raceID int, status string) error {
 	// Update the status for everyone in this race
 	stmt, err := db.Prepare("UPDATE race_participants SET status = ? WHERE race_id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(status, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -257,12 +239,10 @@ func (self *RaceParticipants) SetComment(userID int, raceID int, comment string)
 	// Set the comment for the user
 	stmt, err := db.Prepare("UPDATE race_participants SET comment = ? WHERE user_id = ? AND race_id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(comment, userID, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -273,12 +253,10 @@ func (self *RaceParticipants) SetFloor(userID int, raceID int, floor int) error 
 	// Set the floor for the user
 	stmt, err := db.Prepare("UPDATE race_participants SET floor = ? WHERE user_id = ? AND race_id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(floor, userID, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -289,12 +267,10 @@ func (self *RaceParticipants) SetAllFloor(raceID int, floor int) error {
 	// Update the floor for everyone in this race
 	stmt, err := db.Prepare("UPDATE race_participants SET floor = ? WHERE race_id = ?")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(floor, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -305,12 +281,10 @@ func (self *RaceParticipants) Insert(userID int, raceID int) error {
 	// Add the user to the participants list for that race
 	stmt, err := db.Prepare("INSERT INTO race_participants (user_id, race_id) VALUES (?, ?)")
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 	_, err = stmt.Exec(userID, raceID)
 	if err != nil {
-		log.Error("Database error:", err)
 		return err
 	}
 
@@ -320,12 +294,10 @@ func (self *RaceParticipants) Insert(userID int, raceID int) error {
 func (self *RaceParticipants) Delete(userID int, raceID int) error {
 	// Remove the user from the participants list for the respective race
 	if stmt, err := db.Prepare("DELETE FROM race_participants WHERE user_id = ? AND race_id = ?"); err != nil {
-		log.Error("Database error:", err)
 		return err
 	} else {
 		_, err := stmt.Exec(userID, raceID)
 		if err != nil {
-			log.Error("Database error:", err)
 			return err
 		}
 	}
@@ -337,12 +309,10 @@ func (self *RaceParticipants) Delete(userID int, raceID int) error {
 	} else if len(racerNames) == 0 {
 		// Automatically close the race
 		if stmt, err := db.Prepare("DELETE FROM races WHERE id = ?"); err != nil {
-			log.Error("Database error:", err)
 			return err
 		} else {
 			_, err := stmt.Exec(raceID)
 			if err != nil {
-				log.Error("Database error:", err)
 				return err
 			}
 		}
@@ -350,19 +320,16 @@ func (self *RaceParticipants) Delete(userID int, raceID int) error {
 		// Check to see if this user was the captain
 		var captain int
 		if err := db.QueryRow("SELECT captain FROM races WHERE id = ?", raceID).Scan(&captain); err != nil {
-			log.Error("Database error:", err)
 			return err
 		}
 		if userID == captain {
 			// Change the captain to someone else
 			stmt, err := db.Prepare("UPDATE races SET captain = (SELECT user_id from race_participants WHERE race_id = ? LIMIT 1) WHERE id = ?")
 			if err != nil {
-				log.Error("Database error:", err)
 				return err
 			}
 			_, err = stmt.Exec(raceID, raceID)
 			if err != nil {
-				log.Error("Database error:", err)
 				return err
 			}
 		}
