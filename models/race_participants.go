@@ -20,41 +20,45 @@ type RaceParticipants struct {
  *  race_participants table functions
  */
 
-func (self *RaceParticipants) GetCurrentRaces(userID int) ([]int, error) {
+func (*RaceParticipants) GetCurrentRaces(username string) ([]Race, error) {
 	// Get a list of the non-finished races that the user is currently in
-	rows, err := db.Query(
-		"SELECT races.id FROM race_participants JOIN races ON race_participants.race_id = races.id "+
-			"WHERE race_participants.user_id = ? AND races.status != 'finished'",
-		userID,
-	)
+	rows, err := db.Query(`
+		SELECT races.id, races.status
+		FROM race_participants
+			JOIN races ON race_participants.race_id = races.id
+		WHERE race_participants.user_id = (SELECT id FROM users WHERE username = ?) AND races.status != 'finished'
+		ORDER BY id
+	`, username)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	// Iterate over the races
-	var raceIDs []int
+	var raceList []Race
 	for rows.Next() {
-		var raceID int
-		err := rows.Scan(&raceID)
+		var race Race
+		err := rows.Scan(&race.ID, &race.Status)
 		if err != nil {
 			return nil, err
 		}
 
 		// Append this race to the slice
-		raceIDs = append(raceIDs, raceID)
+		raceList = append(raceList, race)
 	}
 
-	return raceIDs, nil
+	return raceList, nil
 }
 
-func (self *RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
+func (*RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
 	// Get a list of the non-finished and non-started races that the user is currently in
-	rows, err := db.Query(
-		"SELECT races.id FROM race_participants JOIN races ON race_participants.race_id = races.id "+
-			"WHERE race_participants.user_id = ? AND races.status != 'finished' AND races.status != 'in progress'",
-		userID,
-	)
+	rows, err := db.Query(`
+		SELECT races.id
+		FROM race_participants
+			JOIN races ON race_participants.race_id = races.id
+		WHERE race_participants.user_id = ? AND races.status != 'finished' AND races.status != 'in progress'
+		ORDER BY races.id
+	`, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,14 +80,17 @@ func (self *RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
 	return raceIDs, nil
 }
 
-func (self *RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
+func (*RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 	// Get the people in this race
-	rows, err := db.Query(
-		"SELECT users.username, race_participants.status, race_participants.datetime_joined, race_participants.datetime_finished, "+
-			"race_participants.place, race_participants.comment, race_participants.floor "+
-			"FROM race_participants JOIN users ON users.id = race_participants.user_id WHERE race_participants.race_id = ?",
-		raceID,
-	)
+	rows, err := db.Query(`
+		SELECT users.username, race_participants.status, race_participants.datetime_joined,
+			race_participants.datetime_finished, race_participants.place, race_participants.comment,
+			race_participants.floor
+		FROM race_participants
+			JOIN users ON users.id = race_participants.user_id
+		WHERE race_participants.race_id = ?
+		ORDER BY race_participants.id
+	`, raceID)
 	if err != nil {
 		return nil, err
 	}
@@ -98,23 +105,54 @@ func (self *RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 			return nil, err
 		}
 
-		// Add their item list to the object
-		if itemList, err := self.db.RaceParticipantItems.GetItemList(racer.Name, raceID); err != nil {
-			return nil, err
-		} else {
-			racer.Items = itemList
-		}
-
 		// Add it to the list
 		racerList = append(racerList, racer)
+	}
+
+	// Get the items for the people in this race
+	rows, err = db.Query(`
+		SELECT users.username, race_participant_items.item_id, race_participant_items.floor
+		FROM race_participants
+			JOIN users ON users.id = race_participants.user_id
+			JOIN race_participant_items ON race_participant_items.race_participant_id = race_participants.id
+		WHERE race_participants.race_id = ?
+		ORDER BY race_participants.id
+	`, raceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// For each item that we found, append it to the appropriate place in the racerList object
+	for rows.Next() {
+		var username string
+		var item Item
+		err := rows.Scan(&username, &item.ID, &item.Floor)
+		if err != nil {
+			return nil, err
+		}
+
+		// Find the racer in the racerList object
+		for i, racer := range racerList {
+			if racer.Name == username {
+				racerList[i].Items = append(racer.Items, item)
+				break
+			}
+		}
 	}
 
 	return racerList, nil
 }
 
-func (self *RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
+func (*RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 	// Get only the names of the people in this race
-	rows, err := db.Query("SELECT users.username FROM race_participants JOIN users ON users.id = race_participants.user_id WHERE race_participants.race_id = ?", raceID)
+	rows, err := db.Query(`
+		SELECT users.username
+		FROM race_participants
+			JOIN users ON users.id = race_participants.user_id
+		WHERE race_participants.race_id = ?
+		ORDER BY race_participants.id
+	`, raceID)
 	if err != nil {
 		return nil, err
 	}
@@ -133,7 +171,7 @@ func (self *RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 	return racerNames, nil
 }
 
-func (self *RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
+func (*RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
 	// Check to see what floor this user is currently on
 	var floor int
 	err := db.QueryRow("SELECT floor FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&floor)
@@ -144,7 +182,7 @@ func (self *RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
 	}
 }
 
-func (self *RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) {
+func (*RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) {
 	// Check to see if the user is in this race
 	var id int
 	err := db.QueryRow("SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&id)
@@ -157,7 +195,7 @@ func (self *RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) 
 	}
 }
 
-func (self *RaceParticipants) CheckStatus(userID int, raceID int, correctStatus string) (bool, error) {
+func (*RaceParticipants) CheckStatus(userID int, raceID int, correctStatus string) (bool, error) {
 	// Check to see if the user has this status
 	var status string
 	err := db.QueryRow("SELECT status FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&status)
@@ -170,7 +208,7 @@ func (self *RaceParticipants) CheckStatus(userID int, raceID int, correctStatus 
 	}
 }
 
-func (self *RaceParticipants) CheckAllStatus(raceID int, correctStatus string) (bool, error) {
+func (*RaceParticipants) CheckAllStatus(raceID int, correctStatus string) (bool, error) {
 	// Check to see if everyone in the race has this status
 	rows, err := db.Query("SELECT status FROM race_participants WHERE race_id = ?", raceID)
 	if err != nil {
@@ -194,7 +232,7 @@ func (self *RaceParticipants) CheckAllStatus(raceID int, correctStatus string) (
 	return sameStatus, nil
 }
 
-func (self *RaceParticipants) CheckStillRacing(raceID int) (bool, error) {
+func (*RaceParticipants) CheckStillRacing(raceID int) (bool, error) {
 	// Check if anyone in the race is still racing
 	var count int
 	err := db.QueryRow("SELECT COUNT(id) as count FROM race_participants WHERE race_id = ? AND status == 'racing'", raceID).Scan(&count)
@@ -207,7 +245,7 @@ func (self *RaceParticipants) CheckStillRacing(raceID int) (bool, error) {
 	}
 }
 
-func (self *RaceParticipants) SetStatus(username string, raceID int, status string) error {
+func (*RaceParticipants) SetStatus(username string, raceID int, status string) error {
 	// Set the new status for the user
 	stmt, err := db.Prepare("UPDATE race_participants SET status = ? WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?")
 	if err != nil {
@@ -221,7 +259,7 @@ func (self *RaceParticipants) SetStatus(username string, raceID int, status stri
 	return nil
 }
 
-func (self *RaceParticipants) SetAllStatus(raceID int, status string) error {
+func (*RaceParticipants) SetAllStatus(raceID int, status string) error {
 	// Update the status for everyone in this race
 	stmt, err := db.Prepare("UPDATE race_participants SET status = ? WHERE race_id = ?")
 	if err != nil {
@@ -235,7 +273,7 @@ func (self *RaceParticipants) SetAllStatus(raceID int, status string) error {
 	return nil
 }
 
-func (self *RaceParticipants) SetComment(userID int, raceID int, comment string) error {
+func (*RaceParticipants) SetComment(userID int, raceID int, comment string) error {
 	// Set the comment for the user
 	stmt, err := db.Prepare("UPDATE race_participants SET comment = ? WHERE user_id = ? AND race_id = ?")
 	if err != nil {
@@ -249,7 +287,7 @@ func (self *RaceParticipants) SetComment(userID int, raceID int, comment string)
 	return nil
 }
 
-func (self *RaceParticipants) SetFloor(userID int, raceID int, floor int) error {
+func (*RaceParticipants) SetFloor(userID int, raceID int, floor int) error {
 	// Set the floor for the user
 	stmt, err := db.Prepare("UPDATE race_participants SET floor = ? WHERE user_id = ? AND race_id = ?")
 	if err != nil {
@@ -263,21 +301,7 @@ func (self *RaceParticipants) SetFloor(userID int, raceID int, floor int) error 
 	return nil
 }
 
-func (self *RaceParticipants) SetAllFloor(raceID int, floor int) error {
-	// Update the floor for everyone in this race
-	stmt, err := db.Prepare("UPDATE race_participants SET floor = ? WHERE race_id = ?")
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(floor, raceID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (self *RaceParticipants) Insert(userID int, raceID int) error {
+func (*RaceParticipants) Insert(userID int, raceID int) error {
 	// Add the user to the participants list for that race
 	stmt, err := db.Prepare("INSERT INTO race_participants (user_id, race_id) VALUES (?, ?)")
 	if err != nil {
@@ -291,12 +315,12 @@ func (self *RaceParticipants) Insert(userID int, raceID int) error {
 	return nil
 }
 
-func (self *RaceParticipants) Delete(userID int, raceID int) error {
+func (self *RaceParticipants) Delete(username string, raceID int) error {
 	// Remove the user from the participants list for the respective race
-	if stmt, err := db.Prepare("DELETE FROM race_participants WHERE user_id = ? AND race_id = ?"); err != nil {
+	if stmt, err := db.Prepare("DELETE FROM race_participants WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?"); err != nil {
 		return err
 	} else {
-		_, err := stmt.Exec(userID, raceID)
+		_, err := stmt.Exec(username, raceID)
 		if err != nil {
 			return err
 		}
@@ -318,6 +342,10 @@ func (self *RaceParticipants) Delete(userID int, raceID int) error {
 		}
 	} else {
 		// Check to see if this user was the captain
+		var userID int
+		if err := db.QueryRow("SELECT id FROM users WHERE username = ?", username).Scan(&userID); err != nil {
+			return err
+		}
 		var captain int
 		if err := db.QueryRow("SELECT captain FROM races WHERE id = ?", raceID).Scan(&captain); err != nil {
 			return err

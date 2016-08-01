@@ -7,7 +7,6 @@ package model
 import (
 	"database/sql"                  // For connecting to the database (1/2)
 	_ "github.com/mattn/go-sqlite3" // For connecting to the database (2/2)
-	"github.com/op/go-logging"
 )
 
 /*
@@ -16,17 +15,18 @@ import (
 
 type Model struct {
 	// Database tables
-	Users
-	Races
-	RaceParticipants
-	RaceParticipantItems
-	BannedUsers
-	BannedIPs
-	SquelchedUsers
-	ChatLog
-	ChatLogPM
 	Achievements
+	BannedIPs
+	BannedUsers
+	ChatLogPM
+	ChatLog
+	RaceParticipantItems
+	RaceParticipants
+	Races
+	Seeds
+	SquelchedUsers
 	UserAchievements
+	Users
 }
 
 // Sent in the "roomHistory" command (in the "roomJoinSub" function)
@@ -50,7 +50,7 @@ type Race struct {
 }
 type Ruleset struct {
 	Type         string `json:"type"`
-	Character    int    `json:"character"`
+	Character    string `json:"character"`
 	Goal         string `json:"goal"`
 	Seed         string `json:"seed"`
 	InstantStart int    `json:"instantStart"`
@@ -78,38 +78,31 @@ type Item struct {
  */
 
 var (
-	db  *sql.DB
-	log *logging.Logger
+	db *sql.DB
 )
 
 /*
  *  Initialization function
  */
 
-func GetModel(dbFile string, logger *logging.Logger) *Model {
+func GetModel(dbFile string) (*Model, error) {
 	// Initialize the database
 	var err error
 	db, err = sql.Open("sqlite3", dbFile)
 	if err != nil {
-		logger.Fatal("Failed to open database:", err)
+		return nil, err
 	}
 
-	// Initialize the logger
-	log = logger
+	// Enable foreign key constraints (which are disabled by default in SQLite3)
+	_, err = db.Exec("PRAGMA foreign_keys = ON")
+	if err != nil {
+		return nil, err
+	}
 
 	// Create the model and fill it with helpful self-references
 	model := &Model{}
-	model.Users.db = model
 	model.Races.db = model
 	model.RaceParticipants.db = model
-	model.RaceParticipantItems.db = model
-	model.BannedUsers.db = model
-	model.BannedIPs.db = model
-	model.SquelchedUsers.db = model
-	model.ChatLog.db = model
-	model.ChatLogPM.db = model
-	model.Achievements.db = model
-	model.UserAchievements.db = model
 
-	return model
+	return model, nil
 }

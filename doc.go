@@ -196,6 +196,11 @@ raceLeft {"id":1,"name":"zamiel"}
 When the race ruleset changes:
 raceSetRuleset {"id":3,"ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0}}
 
+When the race changes status:
+raceSetStatus {"id":3,"status":"starting"}
+raceSetStatus {"id":3,"status":"in progress"}
+raceSetStatus {"id":3,"status":"finished"}
+
 When a race is starting (time is in UnixNano() format):
 raceStart {"id":10,"time":1469147515988023769}
 

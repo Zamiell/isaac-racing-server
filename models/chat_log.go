@@ -4,26 +4,22 @@ package model
  *  Data types
  */
 
-type ChatLog struct {
-	db *Model
-}
+type ChatLog struct{}
 
 /*
  *  chat_log table functions
  */
 
-func (self *ChatLog) Get(room string, count int) ([]RoomHistory, error) {
-	// Validate function arguments
-	if count == -1 {
-		// TODO ?
-	}
-
+func (*ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 	// Get the past messages sent in this room
-	rows, err := db.Query(
-		"SELECT users.username, chat_log.message, chat_log.datetime FROM chat_log JOIN users ON users.id = chat_log.user_id WHERE room = ? LIMIT ?",
-		room,
-		count,
-	)
+	rows, err := db.Query(`
+		SELECT users.username, chat_log.message, chat_log.datetime
+		FROM chat_log
+			JOIN users ON users.id = chat_log.user_id
+		WHERE room = ?
+		ORDER BY chat_log.datetime
+		LIMIT ?
+	`, room, count)
 	if err != nil {
 		return nil, err
 	}
@@ -43,7 +39,7 @@ func (self *ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 	return roomHistoryList, nil
 }
 
-func (self *ChatLog) Insert(room string, username string, msg string) error {
+func (*ChatLog) Insert(room string, username string, msg string) error {
 	// Add the message
 	stmt, err := db.Prepare("INSERT INTO chat_log (room, user_id, message) VALUES (?, (SELECT id FROM users WHERE username = ?), ?)")
 	if err != nil {

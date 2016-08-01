@@ -4,19 +4,17 @@ package model
  *  Data types
  */
 
-type Seeds struct {
-	db *Model
-}
+type Seeds struct{}
 
 /*
  *  seeds table functions
  */
 
-func (self *Seeds) Get() (string, error) {
+func (*Seeds) Get() (string, error) {
 	// Get the first seed from the database
 	var id int
 	var seed string
-	err := db.QueryRow("SELECT id, seed FROM seeds LIMIT 1").Scan(&id, &seed)
+	err := db.QueryRow("SELECT id, seed FROM seeds LIMIT 1 ORDER BY id").Scan(&id, &seed)
 	if err != nil {
 		return "", err
 	}

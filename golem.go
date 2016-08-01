@@ -53,6 +53,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if userIsBanned == true {
@@ -231,10 +232,11 @@ func validateSession(w http.ResponseWriter, r *http.Request) bool {
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
 		commandMutex.Unlock()
-		log.Info("IP \"" + ip + "\" tried to establish a WebSocket connection, but they are banned.")
+		log.Error("Database error:", err)
 		return false
 	} else if userIsBanned == true {
 		commandMutex.Unlock()
+		log.Info("IP \"" + ip + "\" tried to establish a WebSocket connection, but they are banned.")
 		return false
 	}
 
@@ -291,6 +293,7 @@ func validateSession(w http.ResponseWriter, r *http.Request) bool {
 	// Check to see if this user is banned
 	if userIsBanned, err := db.BannedUsers.Check(username); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return false
 	} else if userIsBanned == true {
 		commandMutex.Unlock()
@@ -402,6 +405,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	raceList, err := db.Races.GetCurrentRaces()
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -420,6 +424,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 				racerList, err := db.RaceParticipants.GetRacerList(race.ID)
 				if err != nil {
 					commandMutex.Unlock()
+					log.Error("Database error:", err)
 					return
 				}
 
@@ -482,14 +487,16 @@ func connClose(conn *ExtendedConnection) {
 	raceIDs, err := db.RaceParticipants.GetNotStartedRaces(userID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
 	// Iterate over the races that they are currently in
 	for _, raceID := range raceIDs {
 		// Remove this user from the participants list for that race
-		if err := db.RaceParticipants.Delete(userID, raceID); err != nil {
+		if err := db.RaceParticipants.Delete(username, raceID); err != nil {
 			commandMutex.Unlock()
+			log.Error("Database error:", err)
 			return
 		}
 

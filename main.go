@@ -93,10 +93,18 @@ func main() {
 	}
 
 	// Initialize the database model
-	db = model.GetModel(projectPath+"/database.sqlite", log)
+	if db, err = model.GetModel(projectPath + "/database.sqlite"); err != nil {
+		log.Fatal("Failed to open the database:", err)
+	}
 
 	// Clean up any non-started races before we start
-	db.Races.Cleanup()
+	if leftoverRaces, err := db.Races.Cleanup(); err != nil {
+		log.Fatal("Failed to cleanup the leftover races:", err)
+	} else {
+		for _, raceID := range leftoverRaces {
+			log.Info("Deleted race", raceID, "during starting cleanup.")
+		}
+	}
 
 	// Initialize the achievements
 	achievementsInit()

@@ -4,17 +4,18 @@ package model
  *  Data types
  */
 
-type ChatLogPM struct {
-	db *Model
-}
+type ChatLogPM struct{}
 
 /*
  *  chat_log_pm table functions
  */
 
-func (self *ChatLogPM) Insert(recipient string, username string, msg string) error {
+func (*ChatLogPM) Insert(recipient string, username string, msg string) error {
 	// Add the message
-	stmt, err := db.Prepare("INSERT INTO chat_log_pm (recipient_id, user_id, message) VALUES ((SELECT id FROM users WHERE username = ?), (SELECT id FROM users WHERE username = ?), ?)")
+	stmt, err := db.Prepare(`
+		INSERT INTO chat_log_pm (recipient_id, user_id, message)
+		VALUES ((SELECT id FROM users WHERE username = ?), (SELECT id FROM users WHERE username = ?), ?)
+	`)
 	if err != nil {
 		return err
 	}

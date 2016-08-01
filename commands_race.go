@@ -41,6 +41,20 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		name = "-"
 	}
 
+	// Validate that the ruleset options cannot be empty
+	if ruleset.Type == "" {
+		ruleset.Type = "unseeded"
+	}
+	if ruleset.Character == "" {
+		ruleset.Character = "judas"
+	}
+	if ruleset.Goal == "" {
+		ruleset.Goal = "chest"
+	}
+	if ruleset.Seed == "" {
+		ruleset.Seed = "-"
+	}
+
 	// Validate the submitted ruleset
 	if raceValidateRuleset(conn, data, functionName) == false {
 		return
@@ -49,6 +63,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Check if this user has started 2 races
 	if count, err := db.Races.CaptainCount(userID); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if count >= 2 {
@@ -61,6 +76,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Check if there are non-finished races with the same name
 	if raceWithSameName, err := db.Races.CheckName(name); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if raceWithSameName == true {
@@ -69,10 +85,35 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Create the race (and add this user to the participants list for that race)
+	// Get a seed if necessary
+	if (ruleset.Type == "seeded" && ruleset.Seed == "-") ||
+		(ruleset.Type == "diversity" && ruleset.Seed == "-") {
+
+		if seed, err := db.Seeds.Get(); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return
+		} else {
+			ruleset.Seed = seed
+		}
+	} else if ruleset.Type == "unseeded" || ruleset.Type == "normal" {
+		ruleset.Seed = "-"
+	}
+
+	// Create the race
 	raceID, err := db.Races.Insert(name, ruleset, userID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Add tis user to the participants list for that race
+	if err := db.RaceParticipants.Insert(userID, raceID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -138,6 +179,7 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Add this user to the participants list for that race
 	if err := db.RaceParticipants.Insert(userID, raceID); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -162,7 +204,6 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceLeave"
-	userID := conn.UserID
 	username := conn.Username
 	raceID := data.ID
 
@@ -193,8 +234,9 @@ func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Remove this user from the participants list for that race
-	if err := db.RaceParticipants.Delete(userID, raceID); err != nil {
+	if err := db.RaceParticipants.Delete(username, raceID); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -269,10 +311,11 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
-	// Send a notification to all the people in this particular race
+	// Send a notification to all the people in this particular race that the user is ready
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
@@ -339,10 +382,11 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
-	// Send a notification to all the people in this particular race
+	// Send a notification to all the people in this particular race that the user is not ready
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
@@ -375,6 +419,41 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	// Get the current ruleset
+	currentRuleset, err := db.Races.GetRuleset(raceID)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Check to see if anything has changed
+	if currentRuleset.Type == ruleset.Type &&
+		currentRuleset.Character == ruleset.Character &&
+		currentRuleset.Goal == ruleset.Goal &&
+		currentRuleset.Seed == ruleset.Seed &&
+		currentRuleset.InstantStart == ruleset.InstantStart {
+
+		commandMutex.Unlock()
+		connError(conn, functionName, "The race ruleset is already set to those values.")
+		return
+	}
+
+	// If they didn't specify something, set it to the existing value
+	if ruleset.Type == "" {
+		ruleset.Type = currentRuleset.Type
+	}
+	if ruleset.Character == "" {
+		ruleset.Character = currentRuleset.Character
+	}
+	if ruleset.Goal == "" {
+		ruleset.Goal = currentRuleset.Goal
+	}
+	if ruleset.Seed == "" {
+		ruleset.Seed = currentRuleset.Seed
+	}
+
 	// Validate the submitted ruleset
 	if raceValidateRuleset(conn, data, functionName) == false {
 		return
@@ -398,6 +477,7 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Validate that they are the race captain
 	if isCaptain, err := db.Races.CheckCaptain(raceID, userID); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	} else if isCaptain == false {
@@ -406,9 +486,26 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	// Get a seed if necessary
+	if (ruleset.Type == "seeded" && currentRuleset.Type != "seeded" && ruleset.Seed == "-") ||
+		(ruleset.Type == "diversity" && currentRuleset.Type != "diversity" && ruleset.Seed == "-") {
+
+		if seed, err := db.Seeds.Get(); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return
+		} else {
+			ruleset.Seed = seed
+		}
+	} else if ruleset.Type == "unseeded" || ruleset.Type == "normal" {
+		ruleset.Seed = "-"
+	}
+
 	// Change the ruleset
 	if err := db.Races.SetRuleset(raceID, ruleset); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -416,6 +513,7 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Set everyone's status to "not ready"
 	if err := db.RaceParticipants.SetAllStatus(raceID, "not ready"); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -484,10 +582,11 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
-	// Send a notification to all the people in this particular race
+	// Send a notification to all the people in this particular race that the user finished
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
@@ -554,10 +653,11 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
-	// Send a notification to all the people in this particular race
+	// Send a notification to all the people in this particular race that the user quit
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
@@ -628,6 +728,7 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Set their comment in the database
 	if err := db.RaceParticipants.SetComment(userID, raceID, comment); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -639,10 +740,11 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
-	// Send a notification to all the people in this particular race
+	// Send a notification to all the people in this particular race that the user added or changed their comment
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
@@ -727,10 +829,11 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
-	// Send a notification to all the people in this particular race
+	// Send a notification to all the people in this particular race that the user got an item
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
@@ -795,6 +898,7 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Set their floor in the database
 	if err := db.RaceParticipants.SetFloor(userID, raceID, floor); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -806,10 +910,11 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
-	// Send a notification to all the people in this particular race
+	// Send a notification to all the people in this particular race that the user got to a new floor
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
@@ -843,6 +948,7 @@ func raceValidate(conn *ExtendedConnection, data *IncomingCommandMessage, functi
 	// Validate that the requested race exists
 	if exists, err := db.Races.Exists(raceID); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if exists == false {
@@ -864,6 +970,7 @@ func raceValidateStatus(conn *ExtendedConnection, data *IncomingCommandMessage, 
 	// Validate that the race is set to the correct status
 	if correctStatus, err := db.Races.CheckStatus(raceID, status); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if correctStatus == false {
@@ -881,22 +988,6 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 	// Local variables
 	ruleset := data.Ruleset
 
-	// Validate that the ruleset options cannot be empty
-	if ruleset.Type == "" {
-		ruleset.Type = "unseeded"
-	}
-	if ruleset.Character == 0 {
-		ruleset.Character = 4 // Judas
-	}
-
-	if ruleset.Goal == "" {
-		ruleset.Goal = "chest"
-	}
-
-	if ruleset.Seed == "" {
-		ruleset.Seed = "-"
-	}
-
 	// Validate the ruleset type
 	if ruleset.Type != "unseeded" && ruleset.Type != "seeded" && ruleset.Type != "diversity" && ruleset.Type != "vanilla" {
 		commandMutex.Unlock()
@@ -905,9 +996,22 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 	}
 
 	// Validate the character
-	if ruleset.Character < 1 || ruleset.Character > 13 {
+	if ruleset.Character != "isaac" &&
+		ruleset.Character != "magdalene" &&
+		ruleset.Character != "cain" &&
+		ruleset.Character != "judas" &&
+		ruleset.Character != "blue baby" &&
+		ruleset.Character != "eve" &&
+		ruleset.Character != "samson" &&
+		ruleset.Character != "azazel" &&
+		ruleset.Character != "lazarus" &&
+		ruleset.Character != "eden" &&
+		ruleset.Character != "the lost" &&
+		ruleset.Character != "lilith" &&
+		ruleset.Character != "keeper" {
+
 		commandMutex.Unlock()
-		connError(conn, functionName, "That is not a valid instant start item.")
+		connError(conn, functionName, "That is not a valid character.")
 		return false
 	}
 
@@ -949,6 +1053,7 @@ func raceValidateIn(conn *ExtendedConnection, data *IncomingCommandMessage, func
 	// Validate that they are in the race
 	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if userInRace == false {
@@ -971,6 +1076,7 @@ func raceValidateOut(conn *ExtendedConnection, data *IncomingCommandMessage, fun
 	// Validate that they are not already in the race
 	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if userInRace == true {
@@ -991,6 +1097,7 @@ func racerValidateStatus(conn *ExtendedConnection, userID int, raceID int, statu
 	// Validate that the user is set to the correct status
 	if correctStatus, err := db.RaceParticipants.CheckStatus(userID, raceID, status); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	} else if correctStatus == false {
@@ -1008,6 +1115,7 @@ func racerSetStatus(conn *ExtendedConnection, username string, raceID int, statu
 	// Change the status in the database
 	if err := db.RaceParticipants.SetStatus(username, raceID, status); err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return false
 	}
@@ -1020,6 +1128,7 @@ func racerSetStatus(conn *ExtendedConnection, username string, raceID int, statu
 func raceCheckStartFinish(raceID int) {
 	// Get the status of the race
 	if status, err := db.Races.GetStatus(raceID); err != nil {
+		log.Error("Database error:", err)
 		return
 	} else if status == "open" {
 		raceCheckStart(raceID)
@@ -1032,6 +1141,7 @@ func raceCheckStartFinish(raceID int) {
 func raceCheckStart(raceID int) {
 	// Check if everyone is ready
 	if sameStatus, err := db.RaceParticipants.CheckAllStatus(raceID, "ready"); err != nil {
+		log.Error("Database error:", err)
 		return
 	} else if sameStatus == false {
 		return
@@ -1042,6 +1152,7 @@ func raceCheckStart(raceID int) {
 
 	// Change the status for this race to "starting"
 	if err := db.Races.SetStatus(raceID, "starting"); err != nil {
+		log.Error("Database error:", err)
 		return
 	}
 
@@ -1055,6 +1166,7 @@ func raceCheckStart(raceID int) {
 	// Get the list of people in this race
 	racers, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
+		log.Error("Database error:", err)
 		return
 	}
 
@@ -1084,8 +1196,15 @@ func raceCheckStart2(raceID int) {
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
 
-	// Start the race (which will set everyone's status to "racing" and everyone's floor to 1)
+	// Change the status for this race to "in progress" and set "datetime_started" equal to now
 	if err := db.Races.Start(raceID); err != nil {
+		log.Error("Database error:", err)
+		return
+	}
+
+	// Update the status for everyone in the race to "racing"
+	if err := db.RaceParticipants.SetAllStatus(raceID, "racing"); err != nil {
+		log.Error("Database error:", err)
 		return
 	}
 
@@ -1112,6 +1231,7 @@ func raceCheckStart3(raceID int) {
 
 	// Find out if the race is finished
 	if status, err := db.Races.GetStatus(raceID); err != nil {
+		log.Error("Database error:", err)
 		return
 	} else if status == "finished" {
 		return
@@ -1121,6 +1241,7 @@ func raceCheckStart3(raceID int) {
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		return
 	}
 
@@ -1128,6 +1249,7 @@ func raceCheckStart3(raceID int) {
 	for _, racer := range racerList {
 		if racer.Status == "racing" {
 			if err := db.RaceParticipants.SetStatus(racer.Name, raceID, "quit"); err != nil {
+				log.Error("Database error:", err)
 				return
 			}
 		}
@@ -1144,6 +1266,7 @@ func raceCheckStart3(raceID int) {
 func raceCheckFinish(raceID int) {
 	// Check if anyone is still racing
 	if stillRacing, err := db.RaceParticipants.CheckStillRacing(raceID); err != nil {
+		log.Error("Database error:", err)
 		return
 	} else if stillRacing == true {
 		return
@@ -1154,6 +1277,7 @@ func raceCheckFinish(raceID int) {
 
 	// Finish the race
 	if err := db.Races.Finish(raceID); err != nil {
+		log.Error("Database error:", err)
 		return
 	}
 

@@ -12,15 +12,13 @@ import (
  *  Data types
  */
 
-type Users struct {
-	db *Model
-}
+type Users struct{}
 
 /*
  *  users table functions
  */
 
-func (self *Users) Login(auth0ID string) (int, string, int, error) {
+func (*Users) Login(auth0ID string) (int, string, int, error) {
 	// Check to see if they are in the user database already
 	var userID int
 	var username string
@@ -35,7 +33,7 @@ func (self *Users) Login(auth0ID string) (int, string, int, error) {
 	}
 }
 
-func (self *Users) Exists(username string) (bool, error) {
+func (*Users) Exists(username string) (bool, error) {
 	// Check if the user exists in the database
 	var id int
 	err := db.QueryRow("SELECT id FROM users WHERE username = ?", username).Scan(&id)
@@ -48,7 +46,7 @@ func (self *Users) Exists(username string) (bool, error) {
 	}
 }
 
-func (self *Users) CheckStaff(username string) (bool, error) {
+func (*Users) CheckStaff(username string) (bool, error) {
 	// Check if the user is a staff member or an administrator
 	var admin int
 	err := db.QueryRow("SELECT admin FROM users WHERE username = ?", username).Scan(&admin)
@@ -61,7 +59,7 @@ func (self *Users) CheckStaff(username string) (bool, error) {
 	}
 }
 
-func (self *Users) SetLogin(username string, lastIP string) error {
+func (*Users) SetLogin(username string, lastIP string) error {
 	// Update the database with last_login and last_ip
 	stmt, err := db.Prepare("UPDATE users SET last_login = (strftime('%s', 'now')), last_ip = ? WHERE username = ?")
 	if err != nil {
@@ -75,7 +73,7 @@ func (self *Users) SetLogin(username string, lastIP string) error {
 	return nil
 }
 
-func (self *Users) SetUsername(userID int, username string) error {
+func (*Users) SetUsername(userID int, username string) error {
 	// Set the new username
 	stmt, err := db.Prepare("UPDATE users SET username = ? WHERE user_id = ?")
 	if err != nil {
@@ -89,7 +87,7 @@ func (self *Users) SetUsername(userID int, username string) error {
 	return nil
 }
 
-func (self *Users) SetAdmin(username string, admin int) error {
+func (*Users) SetAdmin(username string, admin int) error {
 	// Set the admin field for this user
 	stmt, err := db.Prepare("UPDATE users SET admin = ? WHERE username = ?)")
 	if err != nil {
@@ -103,7 +101,7 @@ func (self *Users) SetAdmin(username string, admin int) error {
 	return nil
 }
 
-func (self *Users) Insert(auth0ID string, auth0Username string, ip string) (int, error) {
+func (*Users) Insert(auth0ID string, auth0Username string, ip string) (int, error) {
 	// Add them to the database
 	stmt, err := db.Prepare("INSERT INTO users (auth0_id, username, last_ip) VALUES (?, ?, ?)")
 	if err != nil {

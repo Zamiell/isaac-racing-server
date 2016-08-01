@@ -1,4 +1,6 @@
-/* sqlite3 database.sqlite < install/seeds.sql */
+/*
+	sqlite3 database.sqlite < install/seeds.sql
+*/
 
 INSERT INTO seeds (seed) VALUES ("E1BH6QTX");
 INSERT INTO seeds (seed) VALUES ("DG0K7NHR");

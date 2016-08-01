@@ -92,8 +92,8 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Find out if the user is in any races that are currently going on
-	raceIDs, err := db.RaceParticipants.GetCurrentRaces(userID)
+	// Find out if the banned user is in any races that are currently going on
+	raceList, err := db.RaceParticipants.GetCurrentRaces(recipient)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -102,21 +102,52 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Iterate over the races that they are currently in
-	for _, raceID := range raceIDs {
-		// Remove this user from the participants list for that race
-		if err := db.RaceParticipants.Delete(userID, raceID); err != nil {
-			commandMutex.Unlock()
-			log.Error("Database error:", err)
-			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-			return
-		}
+	for _, race := range raceList {
+		raceID := race.ID
 
-		// Send everyone a notification that the user left
-		connectionMap.RLock()
-		for _, conn := range connectionMap.m {
-			conn.Connection.Emit("raceLeft", RaceMessage{raceID, recipient})
+		// Find out if the race is started
+		if race.Status == "open" {
+			// Remove this user from the participants list for that race
+			if err := db.RaceParticipants.Delete(recipient, raceID); err != nil {
+				commandMutex.Unlock()
+				log.Error("Database error:", err)
+				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+				return
+			}
+
+			// Send everyone a notification that the user left the race
+			connectionMap.RLock()
+			for _, conn := range connectionMap.m {
+				conn.Connection.Emit("raceLeft", RaceMessage{raceID, recipient})
+			}
+			connectionMap.RUnlock()
+		} else {
+			// Set this racer's status to disqualified
+			if err := db.RaceParticipants.SetStatus(recipient, raceID, "disqualified"); err != nil {
+				commandMutex.Unlock()
+				log.Error("Database error:", err)
+				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+				return
+			}
+
+			// Get the list of racers for this race
+			racerList, err := db.RaceParticipants.GetRacerList(raceID)
+			if err != nil {
+				commandMutex.Unlock()
+				log.Error("Database error:", err)
+				return
+			}
+
+			// Send a notification to all the people in this particular race that the user got disqualified
+			connectionMap.RLock()
+			for _, racer := range racerList {
+				conn, ok := connectionMap.m[racer.Name]
+				if ok == true { // Not all racers may be online during a race
+					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "disqualified"})
+				}
+			}
+			connectionMap.RUnlock()
 		}
-		connectionMap.RUnlock()
 
 		// Check to see if the race should start or finish
 		raceCheckStartFinish(raceID)

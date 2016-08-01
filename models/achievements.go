@@ -4,15 +4,13 @@ package model
  *  Data types
  */
 
-type Achievements struct {
-	db *Model
-}
+type Achievements struct{}
 
 /*
  *  achievements table functions
  */
 
-func (self *Achievements) Insert(id int, name string, description string) error {
+func (*Achievements) Insert(id int, name string, description string) error {
 	// Add the achievement
 	stmt, err := db.Prepare("INSERT INTO achievements (id, name, description) VALUES (?, ?, ?)")
 	if err != nil {
@@ -26,7 +24,7 @@ func (self *Achievements) Insert(id int, name string, description string) error 
 	return nil
 }
 
-func (self *Achievements) DeleteAll() error {
+func (*Achievements) DeleteAll() error {
 	// Delete every row in the database
 	_, err := db.Exec("DELETE FROM achievements")
 	if err != nil {

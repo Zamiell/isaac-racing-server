@@ -1,4 +1,7 @@
-/* sqlite3 database.sqlite < install/database_schema.sql */
+/*
+    sqlite3 database.sqlite < install/database_schema.sql
+    sqlite3 database.sqlite < install/seeds.sql
+*/
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
@@ -10,6 +13,8 @@ CREATE TABLE users (
     last_ip           TEXT       NOT NULL,
     admin             INTEGER    DEFAULT 0
 );
+CREATE UNIQUE INDEX users_index_auth0_id ON users (auth0_id);
+CREATE UNIQUE INDEX users_index_username ON users (username COLLATE NOCASE);
 
 DROP TABLE IF EXISTS races;
 CREATE TABLE races (
@@ -17,7 +22,7 @@ CREATE TABLE races (
     name                  TEXT                  DEFAULT "-",
     status                TEXT                  DEFAULT "open", /* starting, in progress, finished */
     ruleset               TEXT                  DEFAULT "unseeded", /* seeded, diversity, vanilla */
-    character             INTEGER               DEFAULT 4, /* Isaac, Magdalene, Cain, Judas, Blue Baby, Eve, Samson, Azazel, Lazarus, Eden, The Lost, Lilith, Keeper */
+    character             TEXT                  DEFAULT "isaac", /* isaac, magdalene, cain, judas, blue baby, eve, samson, azazel, lazarus, eden, the lost, lilith, keeper */
     goal                  TEXT                  DEFAULT "chest", /* dark room, mega satan */
     seed                  TEXT                  DEFAULT "-",
     instant_start         INTEGER               DEFAULT 0,
@@ -28,13 +33,14 @@ CREATE TABLE races (
     FOREIGN KEY(captain)  REFERENCES users(id)
 );
 CREATE INDEX races_index_status ON races (status);
+CREATE INDEX races_index_datetime_finished ON races (datetime_finished);
 
 DROP TABLE IF EXISTS race_participants;
 CREATE TABLE race_participants (
     id                    INTEGER               PRIMARY KEY  AUTOINCREMENT,
     user_id               INTEGER               NOT NULL,
     race_id               INTEGER               NOT NULL,
-    status                TEXT                  DEFAULT "not ready", /* ready, racing, finished, quit */
+    status                TEXT                  DEFAULT "not ready", /* ready, racing, finished, quit, disqualified */
     datetime_joined       INTEGER               DEFAULT (strftime('%s', 'now')),
     datetime_finished     INTEGER               DEFAULT 0,
     place                 INTEGER               DEFAULT 0,
@@ -42,7 +48,8 @@ CREATE TABLE race_participants (
     starting_item         INTEGER               DEFAULT 0,
     floor                 INTEGER               DEFAULT 1,
     FOREIGN KEY(user_id)  REFERENCES users(id),
-    FOREIGN KEY(race_id)  REFERENCES races(id)
+    FOREIGN KEY(race_id)  REFERENCES races(id),
+    UNIQUE(user_id, race_id)
 );
 CREATE INDEX race_participants_index_user_id ON race_participants (user_id);
 CREATE INDEX race_participants_index_race_id ON race_participants (race_id);
@@ -63,10 +70,10 @@ CREATE TABLE banned_users (
     user_id                         INTEGER               NOT NULL,
     admin_responsible               INTEGER               NOT NULL,
     datetime                        INTEGER               DEFAULT (strftime('%s', 'now')),
-    FOREIGN KEY(user_id)            REFERENCES users(id)
+    FOREIGN KEY(user_id)            REFERENCES users(id),
     FOREIGN KEY(admin_responsible)  REFERENCES users(id)
 );
-CREATE INDEX banned_users_index_user_id ON banned_users (user_id);
+CREATE UNIQUE INDEX banned_users_index_user_id ON banned_users (user_id);
 
 DROP TABLE IF EXISTS banned_ips;
 CREATE TABLE banned_ips (
@@ -76,7 +83,7 @@ CREATE TABLE banned_ips (
     datetime                        INTEGER               DEFAULT (strftime('%s', 'now')),
     FOREIGN KEY(admin_responsible)  REFERENCES users(id)
 );
-CREATE INDEX banned_ips_index_ip ON banned_ips (ip);
+CREATE UNIQUE INDEX banned_ips_index_ip ON banned_ips (ip);
 
 DROP TABLE IF EXISTS squelched_users;
 CREATE TABLE squelched_users (
@@ -84,10 +91,10 @@ CREATE TABLE squelched_users (
     user_id                         INTEGER               NOT NULL,
     admin_responsible               INTEGER               NOT NULL,
     datetime                        INTEGER               DEFAULT (strftime('%s', 'now')),
-    FOREIGN KEY(user_id)            REFERENCES users(id)
+    FOREIGN KEY(user_id)            REFERENCES users(id),
     FOREIGN KEY(admin_responsible)  REFERENCES users(id)
 );
-CREATE INDEX squelched_users_index_user_id ON squelched_users (user_id);
+CREATE UNIQUE INDEX squelched_users_index_user_id ON squelched_users (user_id);
 
 DROP TABLE IF EXISTS chat_log;
 CREATE TABLE chat_log (
@@ -99,6 +106,8 @@ CREATE TABLE chat_log (
     FOREIGN KEY(user_id)  REFERENCES users(id)
 );
 CREATE INDEX chat_log_index_room ON chat_log (room);
+CREATE INDEX chat_log_index_user_id ON chat_log (user_id);
+CREATE INDEX chat_log_index_datetime ON chat_log (datetime);
 
 DROP TABLE IF EXISTS chat_log_pm;
 CREATE TABLE chat_log_pm (
@@ -107,9 +116,12 @@ CREATE TABLE chat_log_pm (
     user_id                    INTEGER               NOT NULL,
     message                    TEXT                  NOT NULL,
     datetime                   INTEGER               DEFAULT (strftime('%s', 'now')),
-    FOREIGN KEY(user_id)       REFERENCES users(id)
+    FOREIGN KEY(user_id)       REFERENCES users(id),
     FOREIGN KEY(recipient_id)  REFERENCES users(id)
 );
+CREATE INDEX chat_log_pm_index_recipient_id ON chat_log_pm (recipient_id);
+CREATE INDEX chat_log_pm_index_user_id ON chat_log_pm (user_id);
+CREATE INDEX chat_log_pm_index_datetime ON chat_log_pm (datetime);
 
 DROP TABLE IF EXISTS achievements;
 CREATE TABLE achievements (
@@ -117,7 +129,7 @@ CREATE TABLE achievements (
     name                  TEXT                  NOT NULL,
     description           TEXT                  NOT NULL
 );
-CREATE INDEX achievements_index_name ON achievements (name);
+CREATE UNIQUE INDEX achievements_index_name ON achievements (name COLLATE NOCASE);
 
 DROP TABLE IF EXISTS user_achievements;
 CREATE TABLE user_achievements (
@@ -125,8 +137,9 @@ CREATE TABLE user_achievements (
     user_id                      INTEGER                     NOT NULL,
     achievement_id               INTEGER                     NOT NULL,
     datetime                     INTEGER                     DEFAULT (strftime('%s', 'now')),
-    FOREIGN KEY(user_id)         REFERENCES users(id)
-    FOREIGN KEY(achievement_id)  REFERENCES achievement(id)
+    FOREIGN KEY(user_id)         REFERENCES users(id),
+    FOREIGN KEY(achievement_id)  REFERENCES achievement(id),
+    UNIQUE(user_id, achievement_id)
 );
 CREATE INDEX user_achievements_index_user_id ON user_achievements (user_id);
 CREATE INDEX user_achievements_index_achievement_id ON user_achievements (achievement_id);
@@ -136,3 +149,4 @@ CREATE TABLE seeds (
     id    INTEGER  PRIMARY KEY  AUTOINCREMENT,
     seed  TEXT     NOT NULL
 );
+CREATE UNIQUE INDEX seeds_index_seed ON seeds (seed COLLATE NOCASE);

@@ -12,15 +12,13 @@ import (
  *  Data types
  */
 
-type BannedIPs struct {
-	db *Model
-}
+type BannedIPs struct{}
 
 /*
  *  banned_ips table functions
  */
 
-func (self *BannedIPs) Check(ip string) (bool, error) {
+func (*BannedIPs) Check(ip string) (bool, error) {
 	// Check if this IP is banned
 	var id int
 	err := db.QueryRow("SELECT id FROM banned_ips WHERE ip = ?", ip).Scan(&id)
@@ -33,7 +31,7 @@ func (self *BannedIPs) Check(ip string) (bool, error) {
 	}
 }
 
-func (self *BannedIPs) Insert(username string, adminResponsible int) error {
+func (*BannedIPs) Insert(username string, adminResponsible int) error {
 	// Add the IP address to the banned list in the database
 	stmt, err := db.Prepare("INSERT INTO banned_ips (ip, admin_responsible) VALUES ((SELECT last_ip FROM users WHERE username = ?), ?)")
 	if err != nil {
@@ -47,7 +45,7 @@ func (self *BannedIPs) Insert(username string, adminResponsible int) error {
 	return nil
 }
 
-func (self *BannedIPs) InsertIP(ip string, adminResponsible int) error {
+func (*BannedIPs) InsertIP(ip string, adminResponsible int) error {
 	// Add the IP address to the banned list in the database
 	stmt, err := db.Prepare("INSERT INTO banned_ips (ip, admin_responsible) VALUES (?, ?)")
 	if err != nil {
@@ -61,7 +59,7 @@ func (self *BannedIPs) InsertIP(ip string, adminResponsible int) error {
 	return nil
 }
 
-func (self *BannedIPs) Delete(username string) error {
+func (*BannedIPs) Delete(username string) error {
 	// Remove the IP address from the banned IP list in the database
 	stmt, err := db.Prepare("DELETE FROM banned_ips WHERE ip = (SELECT last_ip FROM users WHERE username = ?)")
 	if err != nil {
@@ -75,7 +73,7 @@ func (self *BannedIPs) Delete(username string) error {
 	return nil
 }
 
-func (self *BannedIPs) DeleteIP(ip string) error {
+func (*BannedIPs) DeleteIP(ip string) error {
 	// Remove the IP address from the banned IP list in the database
 	stmt, err := db.Prepare("DELETE FROM banned_ips WHERE ip = ?")
 	if err != nil {

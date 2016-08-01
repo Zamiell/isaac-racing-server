@@ -115,6 +115,7 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	users, ok := chatRoomMap.m[room]
 	chatRoomMap.RUnlock()
 	if ok == false {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to leave an invalid room.")
 		connError(conn, functionName, "That is not a valid room name.")
 		return
@@ -129,6 +130,7 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		}
 	}
 	if userInRoom == false {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to leave a room they were not in.")
 		connError(conn, functionName, "You are not in that room.")
 		return
@@ -193,6 +195,7 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	users, ok := chatRoomMap.m[room]
 	chatRoomMap.RUnlock()
 	if ok == false {
+		commandMutex.Unlock()
 		connError(conn, functionName, "That is not a valid room name.")
 		return
 	}
@@ -206,6 +209,7 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		}
 	}
 	if userInRoom == false {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to message a room they were not in.")
 		connError(conn, functionName, "You are not in that room.")
 		return
@@ -213,6 +217,8 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Add the new message to the database
 	if err := db.ChatLog.Insert(room, username, msg); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -283,6 +289,7 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	_, ok := connectionMap.m[recipient]
 	connectionMap.RUnlock()
 	if ok == false {
+		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to private message \"" + recipient + "\", who is offline.")
 		connError(conn, functionName, "That user is not online.")
 		return
@@ -290,6 +297,8 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Add the new message to the database
 	if err := db.ChatLogPM.Insert(recipient, username, msg); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
@@ -391,6 +400,7 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 		var err error
 		roomHistoryList, err = db.ChatLog.Get(room, -1) // In SQLite, LIMIT -1 returns all results
 		if err != nil {
+			log.Error("Database error:", err)
 			return
 		}
 	} else {
@@ -398,6 +408,7 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 		var err error
 		roomHistoryList, err = db.ChatLog.Get(room, 50)
 		if err != nil {
+			log.Error("Database error:", err)
 			return
 		}
 	}
