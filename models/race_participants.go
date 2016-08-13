@@ -1,4 +1,4 @@
-package model
+package models
 
 /*
  *  Imports
@@ -12,9 +12,7 @@ import (
  *  Data types
  */
 
-type RaceParticipants struct {
-	db *Model
-}
+type RaceParticipants struct{}
 
 /*
  *  race_participants table functions
@@ -78,6 +76,35 @@ func (*RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
 	}
 
 	return raceIDs, nil
+}
+
+func (*RaceParticipants) GetFinishedRaces(username string) ([]Race, error) {
+	// Get a list of the finished races for this user
+	rows, err := db.Query(`
+		SELECT race_id, ruleset
+		FROM race_participants
+		WHERE user_id = (SELECT id FROM users WHERE username = ?) AND status = 'finished'
+		ORDER BY datetime_finished
+	`, username)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate over the races
+	var raceList []Race
+	for rows.Next() {
+		var race Race
+		err := rows.Scan(&race.ID, &race.Ruleset)
+		if err != nil {
+			return nil, err
+		}
+
+		// Append this race to the slice
+		raceList = append(raceList, race)
+	}
+
+	return raceList, nil
 }
 
 func (*RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
@@ -174,7 +201,11 @@ func (*RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 func (*RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
 	// Check to see what floor this user is currently on
 	var floor int
-	err := db.QueryRow("SELECT floor FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&floor)
+	err := db.QueryRow(`
+		SELECT floor
+		FROM race_participants
+		WHERE user_id = ? AND race_id = ?
+	`, userID, raceID).Scan(&floor)
 	if err != nil {
 		return 0, err
 	} else {
@@ -185,7 +216,11 @@ func (*RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
 func (*RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) {
 	// Check to see if the user is in this race
 	var id int
-	err := db.QueryRow("SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&id)
+	err := db.QueryRow(`
+		SELECT id
+		FROM race_participants
+		WHERE user_id = ? AND race_id = ?
+	`, userID, raceID).Scan(&id)
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
@@ -198,7 +233,11 @@ func (*RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) {
 func (*RaceParticipants) CheckStatus(userID int, raceID int, correctStatus string) (bool, error) {
 	// Check to see if the user has this status
 	var status string
-	err := db.QueryRow("SELECT status FROM race_participants WHERE user_id = ? AND race_id = ?", userID, raceID).Scan(&status)
+	err := db.QueryRow(`
+		SELECT status
+		FROM race_participants
+		WHERE user_id = ? AND race_id = ?
+	`, userID, raceID).Scan(&status)
 	if err != nil {
 		return false, err
 	} else if status != correctStatus {
@@ -235,7 +274,11 @@ func (*RaceParticipants) CheckAllStatus(raceID int, correctStatus string) (bool,
 func (*RaceParticipants) CheckStillRacing(raceID int) (bool, error) {
 	// Check if anyone in the race is still racing
 	var count int
-	err := db.QueryRow("SELECT COUNT(id) as count FROM race_participants WHERE race_id = ? AND status == 'racing'", raceID).Scan(&count)
+	err := db.QueryRow(`
+		SELECT COUNT(id) as count
+		FROM race_participants
+		WHERE race_id = ? AND status == 'racing'
+	`, raceID).Scan(&count)
 	if err != nil {
 		return false, err
 	} else if count == 0 {
@@ -247,7 +290,11 @@ func (*RaceParticipants) CheckStillRacing(raceID int) (bool, error) {
 
 func (*RaceParticipants) SetStatus(username string, raceID int, status string) error {
 	// Set the new status for the user
-	stmt, err := db.Prepare("UPDATE race_participants SET status = ? WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE race_participants
+		SET status = ?
+		WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -315,9 +362,12 @@ func (*RaceParticipants) Insert(userID int, raceID int) error {
 	return nil
 }
 
-func (self *RaceParticipants) Delete(username string, raceID int) error {
+func (*RaceParticipants) Delete(username string, raceID int) error {
 	// Remove the user from the participants list for the respective race
-	if stmt, err := db.Prepare("DELETE FROM race_participants WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?"); err != nil {
+	if stmt, err := db.Prepare(`
+		DELETE FROM race_participants
+		WHERE user_id = (SELECT id FROM users WHERE username = ?) AND race_id = ?
+	`); err != nil {
 		return err
 	} else {
 		_, err := stmt.Exec(username, raceID)
@@ -326,11 +376,31 @@ func (self *RaceParticipants) Delete(username string, raceID int) error {
 		}
 	}
 
-	// Check to see if anyone is still in this race
-	racerNames, err := self.db.RaceParticipants.GetRacerNames(raceID)
+	// Get only the names of the people in this race (this is the same as the RaceParticipants.GetRacerNames function)
+	rows, err := db.Query(`
+		SELECT users.username
+		FROM race_participants
+			JOIN users ON users.id = race_participants.user_id
+		WHERE race_participants.race_id = ?
+		ORDER BY race_participants.id
+	`, raceID)
 	if err != nil {
 		return err
-	} else if len(racerNames) == 0 {
+	}
+	defer rows.Close()
+
+	var racerNames []string
+	for rows.Next() {
+		var name string
+		err := rows.Scan(&name)
+		if err != nil {
+			return err
+		}
+		racerNames = append(racerNames, name)
+	}
+
+	// Check to see if anyone is still in this race
+	if len(racerNames) == 0 {
 		// Automatically close the race
 		if stmt, err := db.Prepare("DELETE FROM races WHERE id = ?"); err != nil {
 			return err
@@ -352,7 +422,11 @@ func (self *RaceParticipants) Delete(username string, raceID int) error {
 		}
 		if userID == captain {
 			// Change the captain to someone else
-			stmt, err := db.Prepare("UPDATE races SET captain = (SELECT user_id from race_participants WHERE race_id = ? LIMIT 1) WHERE id = ?")
+			stmt, err := db.Prepare(`
+				UPDATE races
+				SET captain = (SELECT user_id from race_participants WHERE race_id = ? LIMIT 1)
+				WHERE id = ?
+			`)
 			if err != nil {
 				return err
 			}

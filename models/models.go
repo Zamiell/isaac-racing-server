@@ -1,4 +1,4 @@
-package model
+package models
 
 /*
  *  Imports
@@ -13,7 +13,7 @@ import (
  *  Data types
  */
 
-type Model struct {
+type Models struct {
 	// Database tables
 	Achievements
 	BannedIPs
@@ -85,7 +85,7 @@ var (
  *  Initialization function
  */
 
-func GetModel(dbFile string) (*Model, error) {
+func GetModels(dbFile string) (*Models, error) {
 	// Initialize the database
 	var err error
 	db, err = sql.Open("sqlite3", dbFile)
@@ -99,10 +99,6 @@ func GetModel(dbFile string) (*Model, error) {
 		return nil, err
 	}
 
-	// Create the model and fill it with helpful self-references
-	model := &Model{}
-	model.Races.db = model
-	model.RaceParticipants.db = model
-
-	return model, nil
+	// Create the model
+	return &Models{}, nil
 }

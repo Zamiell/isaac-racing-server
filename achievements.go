@@ -2,7 +2,7 @@ package main
 
 func achievementsInit() {
 	// Define all of the achievements
-	achievementList := map[int][]string{
+	achievementMap = map[int][]string{
 		// Complete X races
 		1: {"This Wasn't So Bad", "Complete your first race."},
 		2: {"I Think I Have the Hang of This", "Complete 10 races."},
@@ -10,32 +10,32 @@ func achievementsInit() {
 		4: {"Expert Racist", "Complete 100 races."},
 		5: {"Orange Juice", "Complete 500 races."}, // Reference to Ou_J
 
-		7: {"Dipping Your Toe in the Water", "Complete a race with every ruleset."},
-		8: {"Experimental Treatment", "Complete 10 races with every ruleset."},
-		9: {"Jack of All Trades", "Complete 100 races with every ruleset."},
+		6: {"Dipping Your Toe in the Water", "Complete a race with every ruleset (unseeded, seeded, and diversity)."},
+		7: {"Experimental Treatment", "Complete 10 races with every ruleset (unseeded, seeded, and diversity)."},
+		8: {"Jack of All Trades", "Complete 100 races with every ruleset (unseeded, seeded, and diversity)."},
 
 		// Get X average
-		10: {"Average Joe", "Have an unseeded average time of 16:30 or less (with at least 50 races played and under a 25% forfeit rate)."},
-		11: {"There's So Many Strats and So Little Time", "Have an unseeded average time of 16:00 or less (with at least 50 races played and under a 25% forfeit rate)."},
-		12: {"There's No Skill in an RNG Based Game", "Have an unseeded average time of 15:30 or less (with at least 50 races played and under a 25% forfeit rate)."},
-		13: {"Master of Consistency", "Have an unseeded average time of 15:00 or less (with at least 50 races played and under a 25% forfeit rate)."},
+		11: {"Average Joe", "Have an unseeded average time of 16:30 or less (with at least 50 races played and under a 25% forfeit rate)."},
+		12: {"There's So Many Strats and So Little Time", "Have an unseeded average time of 16:00 or less (with at least 50 races played and under a 25% forfeit rate)."},
+		13: {"There's No Skill in an RNG Based Game", "Have an unseeded average time of 15:30 or less (with at least 50 races played and under a 25% forfeit rate)."},
+		14: {"Master of Consistency", "Have an unseeded average time of 15:00 or less (with at least 50 races played and under a 25% forfeit rate)."},
 
 		// Every starting item
-		14: {"Well Rounded - Unseeded", "Complete an unseeded race with every starting item."},
-		15: {"Well Rounded - Seeded", "Complete a seeded race with every starting item."},
-		16: {"Well Rounded - Practice", "Complete a practice mode run with every starting item."},
+		21: {"Well Rounded - Unseeded", "Complete an unseeded race with every starting item."},
+		22: {"Well Rounded - Seeded", "Complete a seeded race with every starting item."},
+		23: {"Well Rounded - Practice", "Complete a practice mode run with every starting item."},
 
 		// Streaks
-		17: {"I'm Having a Good Day", "Finish 1st place in 3 races in a row with 5 people or more."},
-		18: {"A Literal God, Tasteless", "Finish 1st place in 5 races in a row with 5 people or more."}, // Reference to a Starcraft 2 meme
-		19: {"I'm Having a Bad Day", "Quit out of 3 races in a row with 5 people or more."},
+		31: {"I'm Having a Good Day", "Finish 1st place in 3 races in a row with 5 people or more."},
+		32: {"A Literal God, Tasteless", "Finish 1st place in 5 races in a row with 5 people or more."}, // Reference to a Starcraft 2 meme
+		33: {"I'm Having a Bad Day", "Quit out of 3 races in a row with 5 people or more."},
 
 		// Complete a race with X time
-		20: {"Pretty Darn Fast", "Complete an unseeded race in less than 13 minutes."},
-		21: {"Speeding Bullet", "Complete an unseeded race in less than 12 minutes."},
-		22: {"Fast Like Sanic", "Complete an unseeded race in less than 11 minutes."},
-		23: {"Dea1hly Fast", "Complete an unseeded race in less than 10 minutes."}, // Reference to Dea1h
-		24: {"Fizzy Giraffe", "Complete an unseeded race in less than 9 minutes."}, // Reference to giraffeFizzoid
+		41: {"Pretty Darn Fast", "Complete an unseeded race in less than 13 minutes."},
+		42: {"Speeding Bullet", "Complete an unseeded race in less than 12 minutes."},
+		43: {"Fast Like Sanic", "Complete an unseeded race in less than 11 minutes."},
+		44: {"Dea1hly Fast", "Complete an unseeded race in less than 10 minutes."}, // Reference to Dea1h
+		45: {"Fizzy Giraffe", "Complete an unseeded race in less than 9 minutes."}, // Reference to giraffeFizzoid
 
 		// Complete a race with X time with X item, unseeded
 		101: {"Unseeded Item Mastery - 20/20", "Complete an unseeded race in less than 12 minutes with a 20/20 start."},
@@ -88,7 +88,7 @@ func achievementsInit() {
 		// Item synergies (2 items)
 		301: {"My Bombs Don't Hurt Me", "Complete a race where you had Dr. Fetus and Ipecac."},
 		302: {"Green Lung Best Lung", "Complete a race where you had Monstro's Lung and Ipecac."},
-		303: {"Sometimes You Should Take Tiny Planet", "Complete a race with Brimstone and Tiny Planet."},
+		303: {"Sometimes You Should Take Tiny Planet", "Complete a race with Tiny Planet and either Brimstone or Technology."},
 		304: {"Sometimes You Should Take Dunce Cap", "Complete a race with Epic Fetus and Dunce Cap."},
 		305: {"This Build Takes Skill", "Complete a race with Ipecac and Toxic Shock."},
 		306: {"Missile Yourself Through the Door", "Complete a race with Epic Fetus and Holy Mantle."},
@@ -115,16 +115,17 @@ func achievementsInit() {
 		408: {"Winners Don't Use Drugs", "Finish 2nd place in a race where you used a Tears Down pill."},
 		410: {"Pretty Basic", "Complete a race without taking an item that gives damage up."},
 		411: {"Last Resort at Critical Health", "Complete a race after having used the D4 or the D100 at least once."},
-		412: {"I Deserved This Win", "Finish 1st place in a race with at least 2 people after having procced a Guppy's Collar or a Broken Ankh."},
+		412: {"Undeserved Win", "Finish 1st place in a race with at least 2 people after having procced a Guppy's Collar or a Broken Ankh."},
 		413: {"Never Guppy", "Finish two races in a row where you had the Guppy transformation."},
 		414: {"U Can't Touch This", "Finish a race without taking damage."},
 		415: {"Maybe I Shouldn't Have Min-Maxed So Hard", "Finish a race with 12 hearts."},
-		416: {"Beter Late Than Never", "Find an Emperor card on The Chest."},
+		416: {"Beter Late Than Never", "Complete a race where you found and used an Emperor card on The Chest."},
 		417: {"Collaborative Victory", "Finish a race where you tied for 1st place."},
-		418: {"Consolation Prize", "Only receive Devil/Angel rooms on floor 2, floor 5, and floor 8 without taking any red heart damage."},
-		419: {"Confident in Your Dodging Ability", "Take two devil deals that leave you with only one heart remaining."},
-		420: {"Not Very \"Difficult\"", "Spawn as Judas' Shadow with more than 2 hearts."}, // Reference to EladDifficult
-		421: {"Bomb of Kings", "Kill Pin with 1 bomb and no other forms of damage."},       // Reference to the Battle of Kings showmatch series
+		418: {"Consolation Prize", "Complete a race where you didn't take any red heart damage and only received a Devil/Angel room on floor 2, floor 5, and floor 8."},
+		419: {"Confident in Your Dodging Ability", "Complete a race where you took two devil deals that left you with only one heart remaining."},
+		420: {"Not Very \"Difficult\"", "Complete a race where you spawned as Judas' Shadow with more than 2 hearts."}, // Reference to EladDifficult
+		421: {"Bomb of Kings", "Complete a race where you killed Pin with 1 bomb and no other forms of damage."},       // Reference to the Battle of Kings showmatch series
+		422: {"Curse of the Full Clear", "Complete a race where you entered every room of The Chest."},
 	}
 
 	// Delete every row in the database
@@ -133,11 +134,142 @@ func achievementsInit() {
 	}
 
 	// Add the achievement list to the database
-	for id, achievement := range achievementList {
+	for id, achievement := range achievementMap {
 		if err := db.Achievements.Insert(id, achievement[0], achievement[1]); err != nil {
 			log.Fatal("Failed to insert the achievements:", err)
 		}
 
 	}
-	log.Info("Added", len(achievementList), "achievements.")
+	log.Info("Added", len(achievementMap), "achievements.")
+}
+
+func achievementsCheck(username string) {
+	// Get this racer's current achievements
+	userAchievements, err := db.UserAchievements.GetAll(username)
+	if err != nil {
+		log.Error("Database error:", err)
+		return
+	}
+
+	// Achievement 1-8
+	if intInSlice(1, userAchievements) == false ||
+		intInSlice(2, userAchievements) == false ||
+		intInSlice(3, userAchievements) == false ||
+		intInSlice(4, userAchievements) == false ||
+		intInSlice(5, userAchievements) == false ||
+		intInSlice(6, userAchievements) == false ||
+		intInSlice(7, userAchievements) == false ||
+		intInSlice(8, userAchievements) == false {
+
+		finishedList, err := db.RaceParticipants.GetFinishedRaces(username)
+		if err != nil {
+			log.Error("Database error:", err)
+			return
+		}
+
+		// Achievement 1
+		if intInSlice(1, userAchievements) == false {
+			if len(finishedList) >= 1 {
+				achievementsGive(username, 1)
+			}
+		}
+
+		// Achievement 2
+		if intInSlice(2, userAchievements) == false {
+			if len(finishedList) >= 10 {
+				achievementsGive(username, 2)
+			}
+		}
+
+		// Achievement 3
+		if intInSlice(3, userAchievements) == false {
+			if len(finishedList) >= 50 {
+				achievementsGive(username, 3)
+			}
+		}
+
+		// Achievement 4
+		if intInSlice(4, userAchievements) == false {
+			if len(finishedList) >= 100 {
+				achievementsGive(username, 4)
+			}
+		}
+
+		// Achievement 5
+		if intInSlice(5, userAchievements) == false {
+			if len(finishedList) >= 500 {
+				achievementsGive(username, 5)
+			}
+		}
+
+		// Achievement 6-8
+		if intInSlice(6, userAchievements) == false ||
+			intInSlice(7, userAchievements) == false ||
+			intInSlice(8, userAchievements) == false {
+
+			// Count the number of races in each ruleset
+			var countUnseeded int
+			var countSeeded int
+			var countDiversity int
+			for _, race := range finishedList {
+				if race.Ruleset.Type == "unseeded" {
+					countUnseeded++
+				} else if race.Ruleset.Type == "seeded" {
+					countSeeded++
+				} else if race.Ruleset.Type == "diversity" {
+					countDiversity++
+				}
+			}
+
+			// Achievement 6
+			if intInSlice(6, userAchievements) == false {
+				if countUnseeded >= 1 && countSeeded >= 1 && countDiversity >= 1 {
+					achievementsGive(username, 6)
+				}
+			}
+
+			// Achievement 7
+			if intInSlice(7, userAchievements) == false {
+				if countUnseeded >= 10 && countSeeded >= 10 && countDiversity >= 10 {
+					achievementsGive(username, 7)
+				}
+			}
+
+			// Achievement 8
+			if intInSlice(8, userAchievements) == false {
+				if countUnseeded >= 100 && countSeeded >= 100 && countDiversity >= 100 {
+					achievementsGive(username, 8)
+				}
+			}
+		}
+
+		// Achievement 11-14
+		if intInSlice(11, userAchievements) == false ||
+			intInSlice(12, userAchievements) == false ||
+			intInSlice(13, userAchievements) == false ||
+			intInSlice(14, userAchievements) == false {
+
+			// Get their average
+			// TODO
+		}
+	}
+}
+
+func achievementsGive(username string, achievementID int) {
+	// Give them the achivement in the database
+	db.UserAchievements.Insert(username, achievementID)
+
+	// Send them a notification that they got this achievement
+	connectionMap.RLock()
+	conn, ok := connectionMap.m[username]
+	if ok == true {
+		conn.Connection.Emit("achievement", &AchievementMessage{
+			achievementID,
+			achievementMap[achievementID][0],
+			achievementMap[achievementID][1],
+		})
+	} else {
+		log.Error("Failed to send achievement", achievementID, "notification for user", username, "because they are offline, which should be impossible.")
+	}
+	connectionMap.RUnlock()
 }

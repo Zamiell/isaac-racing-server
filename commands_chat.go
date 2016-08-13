@@ -394,7 +394,7 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 	connectionMap.RUnlock()
 
 	// Get the chat history for this channel
-	var roomHistoryList []model.RoomHistory
+	var roomHistoryList []models.RoomHistory
 	if strings.HasPrefix(room, "_race_") {
 		// Get all of the history
 		var err error

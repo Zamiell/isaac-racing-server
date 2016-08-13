@@ -45,7 +45,9 @@ const (
 var (
 	projectPath   = os.Getenv("GOPATH") + "/src/github.com/Zamiell/isaac-racing-server"
 	log           = logging.MustGetLogger("isaac")
+	db            *models.Models
 	sessionStore  *sessions.CookieStore
+	commandMutex  = &sync.Mutex{} // Used to prevent race conditions
 	roomManager   = golem.NewRoomManager()
 	pmManager     = golem.NewRoomManager()
 	connectionMap = struct {
@@ -58,8 +60,7 @@ var (
 		sync.RWMutex
 		m map[string][]User
 	}{m: make(map[string][]User)}
-	db           *model.Model
-	commandMutex = &sync.Mutex{} // Used to prevent race conditions
+	achievementMap map[int][]string
 )
 
 /*
@@ -93,7 +94,7 @@ func main() {
 	}
 
 	// Initialize the database model
-	if db, err = model.GetModel(projectPath + "/database.sqlite"); err != nil {
+	if db, err = models.GetModels(projectPath + "/database.sqlite"); err != nil {
 		log.Fatal("Failed to open the database:", err)
 	}
 

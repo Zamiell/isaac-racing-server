@@ -1,4 +1,4 @@
-package model
+package models
 
 /*
  *  Imports
@@ -13,9 +13,7 @@ import (
  *  Data types
  */
 
-type Races struct {
-	db *Model
-}
+type Races struct{}
 
 /*
  *  races table functions
@@ -75,7 +73,7 @@ func (*Races) GetCurrentRaces() ([]Race, error) {
 			JOIN race_participants ON race_participants.race_id = races.id
 			JOIN users ON users.id = race_participants.user_id
 		WHERE races.status != 'finished'
-		ORDER BY race_participants.id
+		ORDER BY race_participants.datetime_joined
 	`)
 	if err != nil {
 		return nil, err
@@ -179,7 +177,11 @@ func (*Races) CheckCaptain(raceID int, captain int) (bool, error) {
 func (*Races) CaptainCount(userID int) (int, error) {
 	// Get how many races this user is a captain of
 	var count int
-	err := db.QueryRow("SELECT COUNT(id) as count FROM races WHERE status != 'finished' AND captain = ?", userID).Scan(&count)
+	err := db.QueryRow(`
+		SELECT COUNT(id) as count
+		FROM races
+		WHERE status != 'finished' AND captain = ?
+	`, userID).Scan(&count)
 	if err != nil {
 		return 0, err
 	}
@@ -203,7 +205,11 @@ func (*Races) SetStatus(raceID int, status string) error {
 
 func (*Races) SetRuleset(raceID int, ruleset Ruleset) error {
 	// Set the new ruleset for this race
-	stmt, err := db.Prepare("UPDATE races SET ruleset = ?, character = ?, goal = ?, seed = ?, instant_start = ? WHERE id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE races
+		SET ruleset = ?, character = ?, goal = ?, seed = ?, instant_start = ?
+		WHERE id = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -217,7 +223,11 @@ func (*Races) SetRuleset(raceID int, ruleset Ruleset) error {
 
 func (*Races) Start(raceID int) error {
 	// Change the status for this race to "in progress" and set "datetime_started" equal to now
-	stmt, err := db.Prepare("UPDATE races SET status = 'in progress', datetime_started = (strftime('%s', 'now')) WHERE id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE races
+		SET status = 'in progress', datetime_started = (strftime('%s', 'now'))
+		WHERE id = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -231,7 +241,11 @@ func (*Races) Start(raceID int) error {
 
 func (*Races) Finish(raceID int) error {
 	// Change the status for this race to "finished" and set "datetime_finished" equal to now
-	stmt, err := db.Prepare("UPDATE races SET status = 'finished', datetime_finished = (strftime('%s', 'now')) WHERE id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE races
+		SET status = 'finished', datetime_finished = (strftime('%s', 'now'))
+		WHERE id = ?
+	`)
 	if err != nil {
 		return err
 	}

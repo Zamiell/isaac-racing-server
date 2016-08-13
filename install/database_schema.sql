@@ -1,17 +1,24 @@
 /*
     sqlite3 database.sqlite < install/database_schema.sql
-    sqlite3 database.sqlite < install/seeds.sql
 */
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
-    id                INTEGER    PRIMARY KEY  AUTOINCREMENT,
-    auth0_id          TEXT       NOT NULL,
-    username          TEXT       NOT NULL,
-    datetime_created  INTEGER    DEFAULT (strftime('%s', 'now')),
-    last_login        INTEGER    DEFAULT (strftime('%s', 'now')),
-    last_ip           TEXT       NOT NULL,
-    admin             INTEGER    DEFAULT 0
+    id                    INTEGER    PRIMARY KEY  AUTOINCREMENT,
+    auth0_id              TEXT       NOT NULL,
+    username              TEXT       NOT NULL,
+    datetime_created      INTEGER    DEFAULT (strftime('%s', 'now')),
+    last_login            INTEGER    DEFAULT (strftime('%s', 'now')),
+    last_ip               TEXT       NOT NULL,
+    admin                 INTEGER    DEFAULT 0,
+    unseeded_average      INTEGER    DEFAULT 0,
+    num_unseeded_races    INTEGER    DEFAULT 0,
+    lowest_unseeded_time  INTEGER    DEFAULT 0,
+    last_unseeded_race    INTEGER    DEFAULT 0,
+    elo                   INTEGER    DEFAULT 0,
+    last_elo_change       INTEGER    DEFAULT 0,
+    num_seeded_races      INTEGER    DEFAULT 0,
+    last_seeded_race      INTEGER    DEFAULT 0,
 );
 CREATE UNIQUE INDEX users_index_auth0_id ON users (auth0_id);
 CREATE UNIQUE INDEX users_index_username ON users (username COLLATE NOCASE);
@@ -53,6 +60,7 @@ CREATE TABLE race_participants (
 );
 CREATE INDEX race_participants_index_user_id ON race_participants (user_id);
 CREATE INDEX race_participants_index_race_id ON race_participants (race_id);
+CREATE INDEX race_participants_index_datetime_joined ON race_participants (datetime_joined);
 
 DROP TABLE IF EXISTS race_participant_items;
 CREATE TABLE race_participant_items (

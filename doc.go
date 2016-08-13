@@ -3,9 +3,9 @@
 TODO
 ----
 
-- ruleset check if different, auto apply seed from database
+- seeds: http://pastebin.com/raw/E1pTxVEd
+- assign seeds like keldon does on seeded race
 - race data commands: http://pastebin.com/PG8TpLqh
-
 - userprofile
 - leaderboard
 - achievement logic
@@ -221,6 +221,9 @@ racerAddItem {"id":1,"name":"zamiel","item":{"id":100,"floor":1}}
 
 When someone gets to a new floor:
 racerSetFloor {"id":1,"name":"zamiel","floor":2}
+
+When a new achievement is unlocked at the end of a race:
+achievement { TODO }
 
 
 

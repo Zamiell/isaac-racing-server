@@ -27,15 +27,15 @@ type ExtendedConnection struct {
 
 // Recieved in all commands
 type IncomingCommandMessage struct {
-	Room    string        `json:"room"`
-	Msg     string        `json:"msg"`
-	Name    string        `json:"name"`
-	Ruleset model.Ruleset `json:"ruleset"`
-	ID      int           `json:"id"`
-	Comment string        `json:"comment"`
-	ItemID  int           `json:"itemID"`
-	Floor   int           `json:"floor"`
-	IP      string        `json:"ip"`
+	Room    string         `json:"room"`
+	Msg     string         `json:"msg"`
+	Name    string         `json:"name"`
+	Ruleset models.Ruleset `json:"ruleset"`
+	ID      int            `json:"id"`
+	Comment string         `json:"comment"`
+	ItemID  int            `json:"itemID"`
+	Floor   int            `json:"floor"`
+	IP      string         `json:"ip"`
 }
 
 // Sent in an "success" command (in the "connSuccess" function)
@@ -67,8 +67,8 @@ type User struct {
 
 // Sent in the "roomHistory" command to the person that is joining the room (in the "roomJoinSub" function)
 type RoomHistoryMessage struct {
-	Room    string              `json:"room"`
-	History []model.RoomHistory `json:"history"`
+	Room    string               `json:"room"`
+	History []models.RoomHistory `json:"history"`
 }
 
 // Sent in the "roomJoined" command to everyone who is already in the room (in the "roomJoinSub" function)
@@ -129,8 +129,8 @@ type Room struct {
 
 // Sent in the "racerList" command (in the "connOpen" function)
 type RacerList struct {
-	ID     int           `json:"id"`
-	Racers []model.Racer `json:"racers"`
+	ID     int            `json:"id"`
+	Racers []models.Racer `json:"racers"`
 }
 
 // Sent in the "raceJoined" command (in the "raceJoin" function)
@@ -142,8 +142,8 @@ type RaceMessage struct {
 
 // Sent in the "raceSetRuleset" command (in the "raceRuleset" function)
 type RaceSetRulesetMessage struct {
-	ID      int           `json:"id"`
-	Ruleset model.Ruleset `json:"ruleset"`
+	ID      int            `json:"id"`
+	Ruleset models.Ruleset `json:"ruleset"`
 }
 
 // Sent in the "raceSetStatus" command (in the "raceCheckStart" functions)
@@ -168,9 +168,9 @@ type RacerSetCommentMessage struct {
 
 // Sent in the "racerAddItem" command (in the "raceItem" function)
 type RacerAddItemMessage struct {
-	ID   int        `json:"id"`
-	Name string     `json:"name"`
-	Item model.Item `json:"item"`
+	ID   int         `json:"id"`
+	Name string      `json:"name"`
+	Item models.Item `json:"item"`
 }
 
 // Sent in the "racerSetFloor" command (in the "raceFloor" functions)
@@ -184,6 +184,13 @@ type RacerSetFloorMessage struct {
 type RaceStartMessage struct {
 	ID   int   `json:"id"`
 	Time int64 `json:"time"`
+}
+
+// Sent to tell the client that they got a new achievement
+type AchievementMessage struct {
+	ID          int    `json:"id"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
 }
 
 /*

@@ -131,7 +131,7 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			}
 
 			// Get the list of racers for this race
-			racerList, err := db.RaceParticipants.GetRacerList(raceID)
+			racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 			if err != nil {
 				commandMutex.Unlock()
 				log.Error("Database error:", err)
@@ -140,8 +140,8 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 			// Send a notification to all the people in this particular race that the user got disqualified
 			connectionMap.RLock()
-			for _, racer := range racerList {
-				conn, ok := connectionMap.m[racer.Name]
+			for _, racer := range racerNames {
+				conn, ok := connectionMap.m[racer]
 				if ok == true { // Not all racers may be online during a race
 					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "disqualified"})
 				}

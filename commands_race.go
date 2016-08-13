@@ -124,7 +124,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Send everyone a notification that a new race has been started
 	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
-		conn.Connection.Emit("raceCreated", &model.Race{
+		conn.Connection.Emit("raceCreated", &models.Race{
 			ID:              raceID,
 			Name:            name,
 			Status:          "open",
@@ -308,7 +308,7 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -317,8 +317,8 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user is ready
 	connectionMap.RLock()
-	for _, racer := range racerList {
-		conn, ok := connectionMap.m[racer.Name]
+	for _, racer := range racerNames {
+		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "ready"})
 		}
@@ -379,7 +379,7 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -388,8 +388,8 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user is not ready
 	connectionMap.RLock()
-	for _, racer := range racerList {
-		conn, ok := connectionMap.m[racer.Name]
+	for _, racer := range racerNames {
+		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready"})
 		}
@@ -579,7 +579,7 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -588,8 +588,8 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user finished
 	connectionMap.RLock()
-	for _, racer := range racerList {
-		conn, ok := connectionMap.m[racer.Name]
+	for _, racer := range racerNames {
+		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "finished"})
 		}
@@ -598,6 +598,12 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Check to see if the race is ready to finish
 	raceCheckFinish(raceID)
+
+	// Update fields in the users table (e.g. average, ELO)
+	raceUpdateUnseededStats(raceID, username)
+
+	// Check to see if the user got any achievements
+	achievementsCheck(username)
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -650,7 +656,7 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -659,8 +665,8 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user quit
 	connectionMap.RLock()
-	for _, racer := range racerList {
-		conn, ok := connectionMap.m[racer.Name]
+	for _, racer := range racerNames {
+		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "quit"})
 		}
@@ -737,7 +743,7 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -746,8 +752,8 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user added or changed their comment
 	connectionMap.RLock()
-	for _, racer := range racerList {
-		conn, ok := connectionMap.m[racer.Name]
+	for _, racer := range racerNames {
+		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetComment", &RacerSetCommentMessage{raceID, username, comment})
 		}
@@ -826,7 +832,7 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -835,10 +841,10 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user got an item
 	connectionMap.RLock()
-	for _, racer := range racerList {
-		conn, ok := connectionMap.m[racer.Name]
+	for _, racer := range racerNames {
+		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
-			item := model.Item{itemID, floor}
+			item := models.Item{itemID, floor}
 			conn.Connection.Emit("racerAddItem", &RacerAddItemMessage{raceID, username, item})
 		}
 	}
@@ -907,7 +913,7 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	connSuccess(conn, functionName, data)
 
 	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -916,8 +922,8 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user got to a new floor
 	connectionMap.RLock()
-	for _, racer := range racerList {
-		conn, ok := connectionMap.m[racer.Name]
+	for _, racer := range racerNames {
+		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetFloor", &RacerSetFloorMessage{raceID, username, floor})
 		}
@@ -1275,7 +1281,7 @@ func raceCheckFinish(raceID int) {
 	// Log the race finishing
 	log.Info("Race " + strconv.Itoa(raceID) + " finished.")
 
-	// Finish the race
+	// Change the status for this race to "finished" and set "datetime_finished" equal to now
 	if err := db.Races.Finish(raceID); err != nil {
 		log.Error("Database error:", err)
 		return
@@ -1287,4 +1293,14 @@ func raceCheckFinish(raceID int) {
 		conn.Connection.Emit("raceSetStatus", &RaceSetStatusMessage{raceID, "finished"})
 	}
 	connectionMap.RUnlock()
+}
+
+// Now that a user has finished, quit, or been disqualified from a race, update fields in the users table for unseeded races
+func raceUpdateUnseededStats(raceID int, username string) {
+
+}
+
+// Now that the race has finished, update fields in the users table for seeded races
+func raceUpdateSeededStats(raceID int, username string) {
+
 }

@@ -1,4 +1,4 @@
-package model
+package models
 
 /*
  *  Data types
@@ -41,7 +41,10 @@ func (*ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 
 func (*ChatLog) Insert(room string, username string, msg string) error {
 	// Add the message
-	stmt, err := db.Prepare("INSERT INTO chat_log (room, user_id, message) VALUES (?, (SELECT id FROM users WHERE username = ?), ?)")
+	stmt, err := db.Prepare(`
+		INSERT INTO chat_log (room, user_id, message)
+		VALUES (?, (SELECT id FROM users WHERE username = ?), ?)
+	`)
 	if err != nil {
 		return err
 	}

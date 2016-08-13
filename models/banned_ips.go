@@ -1,4 +1,4 @@
-package model
+package models
 
 /*
  *  Imports
@@ -33,7 +33,10 @@ func (*BannedIPs) Check(ip string) (bool, error) {
 
 func (*BannedIPs) Insert(username string, adminResponsible int) error {
 	// Add the IP address to the banned list in the database
-	stmt, err := db.Prepare("INSERT INTO banned_ips (ip, admin_responsible) VALUES ((SELECT last_ip FROM users WHERE username = ?), ?)")
+	stmt, err := db.Prepare(`
+		INSERT INTO banned_ips (ip, admin_responsible)
+		VALUES ((SELECT last_ip FROM users WHERE username = ?), ?)
+	`)
 	if err != nil {
 		return err
 	}
