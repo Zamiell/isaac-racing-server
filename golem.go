@@ -380,6 +380,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 		existingConnection.Connection.Close()
 
 		// Wait until the existing connection is terminated
+		commandMutex.Unlock()
 		for {
 			connectionMap.RLock()
 			_, ok := connectionMap.m[username]
@@ -388,6 +389,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 				break
 			}
 		}
+		commandMutex.Lock()
 	}
 
 	// Add the connection to a connection map so that we can keep track of all of the connections
@@ -507,8 +509,8 @@ func connClose(conn *ExtendedConnection) {
 		}
 		connectionMap.RUnlock()
 
-		// Check to see if the race should start or finish
-		raceCheckStartFinish(raceID)
+		// Check to see if the race should start
+		raceCheckStart(raceID)
 	}
 
 	// Log the disconnection

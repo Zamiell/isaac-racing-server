@@ -68,12 +68,12 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	} else if count >= 2 {
 		commandMutex.Unlock()
-		log.Info("New race request denied; user is captain of ", count, "races.")
+		log.Info("New race request denied; \"" + username + "\" is captain of ", count, "races.")
 		connError(conn, functionName, "To prevent abuse, you are only allowed to create 2 new races at a time.")
 		return
 	}
 
-	// Check if there are non-finished races with the same name
+	// Check if there are any non-finished races with the same name
 	if raceWithSameName, err := db.Races.CheckName(name); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -1204,12 +1204,14 @@ func raceCheckStart2(raceID int) {
 
 	// Change the status for this race to "in progress" and set "datetime_started" equal to now
 	if err := db.Races.Start(raceID); err != nil {
+		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		return
 	}
 
 	// Update the status for everyone in the race to "racing"
 	if err := db.RaceParticipants.SetAllStatus(raceID, "racing"); err != nil {
+		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		return
 	}
@@ -1237,9 +1239,11 @@ func raceCheckStart3(raceID int) {
 
 	// Find out if the race is finished
 	if status, err := db.Races.GetStatus(raceID); err != nil {
+		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		return
 	} else if status == "finished" {
+		commandMutex.Unlock()
 		return
 	}
 
@@ -1255,6 +1259,7 @@ func raceCheckStart3(raceID int) {
 	for _, racer := range racerList {
 		if racer.Status == "racing" {
 			if err := db.RaceParticipants.SetStatus(racer.Name, raceID, "quit"); err != nil {
+				commandMutex.Unlock()
 				log.Error("Database error:", err)
 				return
 			}

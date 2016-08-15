@@ -29,7 +29,6 @@ import (
  */
 
 const (
-	port        = 443
 	sessionName = "isaac.sid"
 	domain      = "isaacitemtracker.com"
 	auth0Domain = "isaacserver.auth0.com"
@@ -85,12 +84,22 @@ func main() {
 	// Create a session store
 	sessionSecret := os.Getenv("SESSION_SECRET")
 	sessionStore = sessions.NewCookieStore([]byte(sessionSecret))
-	sessionStore.Options = &sessions.Options{
-		Domain:   domain,
-		Path:     "/",
-		MaxAge:   5,    // 5 seconds
-		Secure:   true, // Only send the cookie over HTTPS: https://www.owasp.org/index.php/Testing_for_cookies_attributes_(OTG-SESS-002)
-		HttpOnly: true, // Mitigate XSS attacks: https://www.owasp.org/index.php/HttpOnly
+	maxAge := 5 // 5 seconds
+	if useSSL == true {
+		sessionStore.Options = &sessions.Options{
+			Domain:   domain,
+			Path:     "/",
+			MaxAge:   maxAge,
+			Secure:   true, // Only send the cookie over HTTPS: https://www.owasp.org/index.php/Testing_for_cookies_attributes_(OTG-SESS-002)
+			HttpOnly: true, // Mitigate XSS attacks: https://www.owasp.org/index.php/HttpOnly
+		}
+	} else {
+		sessionStore.Options = &sessions.Options{
+			Domain:   domain,
+			Path:     "/",
+			MaxAge:   maxAge,
+			HttpOnly: true, // Mitigate XSS attacks: https://www.owasp.org/index.php/HttpOnly
+		}
 	}
 
 	// Initialize the database model
@@ -191,6 +200,14 @@ func main() {
 	/*
 	 *  Start the server
 	 */
+
+	// Figure out the port that we are using for the HTTP server
+	var port int
+	if useSSL == true {
+		port = 443
+	} else {
+		port = 80
+	}
 
 	// Welcome message
 	log.Info("Starting isaac-racing-server on port " + strconv.Itoa(port) + ".")

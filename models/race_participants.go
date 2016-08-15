@@ -25,7 +25,7 @@ func (*RaceParticipants) GetCurrentRaces(username string) ([]Race, error) {
 		FROM race_participants
 			JOIN races ON race_participants.race_id = races.id
 		WHERE race_participants.user_id = (SELECT id FROM users WHERE username = ?) AND races.status != 'finished'
-		ORDER BY id
+		ORDER BY races.id
 	`, username)
 	if err != nil {
 		return nil, err
@@ -424,7 +424,7 @@ func (*RaceParticipants) Delete(username string, raceID int) error {
 			// Change the captain to someone else
 			stmt, err := db.Prepare(`
 				UPDATE races
-				SET captain = (SELECT user_id from race_participants WHERE race_id = ? LIMIT 1)
+				SET captain = (SELECT user_id from race_participants WHERE race_id = ? ORDER BY id LIMIT 1)
 				WHERE id = ?
 			`)
 			if err != nil {
