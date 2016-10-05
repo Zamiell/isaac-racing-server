@@ -709,7 +709,7 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Validate that the comment is excessively long
+	// Validate that the comment is not excessively long
 	if len(comment) < 150 {
 		commandMutex.Unlock()
 		connError(conn, functionName, "Comments must not be longer than 150 characters.")
