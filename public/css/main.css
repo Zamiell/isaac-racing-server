@@ -2,15 +2,6 @@
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,300italic,400italic");
 
 /*
- *  Isaac Racing Server stuff
- */
-
-  .belt {
-    width: 70px;
-    height: auto;
- }
-
-/*
   Alpha by HTML5 UP
   html5up.net | @ajlkn
   Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
@@ -1800,11 +1791,6 @@
 
 /* Basic */
 
-  body {
-    background-color: #000000;
-    background-image: url("/public/img/fabric-of-squares.png");
-  }
-
   body, input, select, textarea {
     color: #777;
     font-family: "Source Sans Pro", sans-serif;
@@ -1820,7 +1806,8 @@
     -ms-transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
     transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
     border-bottom: dotted 1px;
-    color: #e89980;
+    /*color: #e89980;*/
+    color: #25b4c1; /* same as accent7 */
     text-decoration: none;
   }
 
@@ -2567,7 +2554,8 @@
       border-right: 0;
     }
 
-      table tbody tr:nth-child(2n + 1) {
+      /*table tbody tr:nth-child(2n + 1) {*/
+      table.alt tbody tr:nth-child(2n + 1) {
         background-color: #f8f8f8;
       }
 
@@ -2577,8 +2565,9 @@
 
     table th {
       color: #646464;
-      font-size: 0.9em;
-      font-weight: 300;
+      /*font-size: 0.9em;*/
+      /*font-weight: 300;*/
+      font-weight: 400;
       padding: 0 0.75em 0.75em 0.75em;
       text-align: left;
     }
@@ -3056,12 +3045,12 @@
 /* Banner */
 
   #banner {
-    background-attachment: scroll, fixed;
+    /*background-attachment: scroll, fixed;
     background-color: #666;
     background-image: url("/public/img/overlay.png"), url("/public/img/banner.jpg");
     background-position: top left, center center;
     background-repeat: repeat, no-repeat;
-    background-size: auto, cover;
+    background-size: auto, cover;*/
     color: #fff;
     padding: 12em 0 20em 0;
     text-align: center;
@@ -3115,16 +3104,15 @@
       #banner input[type="reset"].special,
       #banner input[type="button"].special,
       #banner .button.special {
-        /*background: #fff;
-        color: #666 !important;*/
-        background: #443022; /* brown of the belt is #724F38, this is 3 shades darker */
+        /*background: #fff; */
+        background: #304369; /* blue of the cross is #435D91, this is 3 shades darker */
       }
 
       #banner input[type="submit"].special:hover,
       #banner input[type="reset"].special:hover,
       #banner input[type="button"].special:hover,
       #banner .button.special:hover {
-        background: #332419; /* brown of the belt is #724F38, this is 4 shades darker */
+        background: #202d46; /* blue of the cross is #435D91, this is 5 shades darker */
       }
 
 /* Main */
@@ -3141,11 +3129,13 @@
       #main > header h2 {
         font-size: 2.75em;
         margin: 0;
+        color: white;
       }
 
       #main > header p {
         border-top: solid 2px #e5e5e5;
-        color: #777;
+        /*color: #777;*/
+        color: white;
         display: inline-block;
         font-style: normal;
         margin: 1em 0 0 0;
@@ -3795,3 +3785,66 @@
       }
 
   }
+
+  /*
+   *  Isaac Racing Server stuff
+   */
+
+    html {
+        background-image: url("/public/img/overlay.png"), url("/public/img/banner.jpg");
+        background-repeat: repeat, no-repeat;
+        background-position: top left, center center;
+        background-size: fixed, cover;
+        background-attachment: scroll, fixed;
+    }
+
+    .belt {
+      width: 70px;
+      height: auto;
+    }
+
+    #title-image {
+        max-width: 35%;
+        height: auto;
+        width: auto;
+    }
+
+    #race-listing-buttons .button {
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+        color: #fff;
+        min-width: 12em;
+        background-color: transparent;
+    }
+
+    #race-listing-buttons .button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #race-listing-buttons .button:active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    #race-listing-table .participants-list {
+
+    }
+
+    #leaderboard-buttons .button {
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+        color: #fff;
+        min-width: 12em;
+        background-color: #202d46; /* blue of the cross is #435D91, this is 5 shades darker */
+        cursor: default;
+    }
+
+    #leaderboard-buttons .inactive {
+        background-color: transparent;
+        cursor: pointer;
+    }
+
+    #leaderboard-buttons .inactive:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #leaderboard-buttons .inactive:active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }

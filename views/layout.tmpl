@@ -1,5 +1,5 @@
 {{define "layout"}}
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <!--
 	Alpha by HTML5 UP
 	html5up.net | @ajlkn
@@ -7,27 +7,31 @@
 -->
 <html>
 	<head>
-		<title>Racing+ - {{template "title"}}</title>
+		<title>Racing+ - {{.Title}}</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<!--[if lte IE 8]><script src="/public/js/ie/html5shiv.js"></script><![endif]-->
-		<link rel="stylesheet" href="/public/css/main.min.css" />
+		<link rel="stylesheet" href="/public/css/main.css" />
 		<!--[if lte IE 8]><link rel="stylesheet" href="/public/css/ie8.min.css" /><![endif]-->
 		<link rel="icon" type="image/png" href="/public/img/favicon.png">
 	</head>
-	<body class="{{template "body-class"}}">
+	<body{{if eq .Title "Home"}} class="landing"{{end}}>
 		<div id="page-wrapper">
 
 			<!-- Header -->
-			<header id="header" class="alt">
-				<h1><a href="index.html">Racing+</a></h1>
+			<header id="header"{{if eq .Title "Home"}} class="alt"{{end}}>
+				<h1>
+					{{if ne .Title "Home"}}<a href="/">{{end}}
+						Racing+
+					{{if ne .Title "Home"}}</a>{{end}}
+				</h1>
 				<nav id="nav">
 					<ul>
 						<li><a href="/news">News</a></li>
 						<li><a href="/races">Race Listing</a></li>
 						<li><a href="/profiles">Player Profiles</a></li>
-						<li><a href="/leaderboards">Leaderboard</a></li>
-						<li><a href="/help">Info &nbsp;& &nbsp;Contact</a></li>
+						<li><a href="/leaderboards">Leaderboards</a></li>
+						<li><a href="/info">Info &nbsp;& &nbsp;Contact</a></li>
 						<li><a href="/download" class="button special">Download</a></li>
 					</ul>
 				</nav>
@@ -44,7 +48,7 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/skel/3.0.1/skel.min.js"></script>
 		<script src="/public/js/util.min.js"></script>
 		<!--[if lte IE 8]><script src="/public/js/ie/respond.min.js"></script><![endif]-->
-		<script src="/public/js/main.min.js"></script>
+		<script src="/public/js/main.js"></script>
 	</body>
 </html>
 {{end}}

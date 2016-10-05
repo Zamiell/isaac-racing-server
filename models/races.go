@@ -119,7 +119,7 @@ func (*Races) GetRuleset(raceID int) (Ruleset, error) {
 		SELECT ruleset, character, goal, seed, instant_start FROM races WHERE id = ?
 	`, raceID).Scan(&ruleset.Type, &ruleset.Character, &ruleset.Goal, &ruleset.Seed, &ruleset.InstantStart)
 	if err != nil {
-		return "", err
+		return ruleset, err
 	}
 
 	return ruleset, nil

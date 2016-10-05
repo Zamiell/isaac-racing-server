@@ -4,21 +4,24 @@
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
-    id                    INTEGER    PRIMARY KEY  AUTOINCREMENT,
-    auth0_id              TEXT       NOT NULL,
-    username              TEXT       NOT NULL,
-    datetime_created      INTEGER    DEFAULT (strftime('%s', 'now')),
-    last_login            INTEGER    DEFAULT (strftime('%s', 'now')),
-    last_ip               TEXT       NOT NULL,
-    admin                 INTEGER    DEFAULT 0,
-    unseeded_average      INTEGER    DEFAULT 0,
-    num_unseeded_races    INTEGER    DEFAULT 0,
-    lowest_unseeded_time  INTEGER    DEFAULT 0,
-    last_unseeded_race    INTEGER    DEFAULT 0,
-    elo                   INTEGER    DEFAULT 0,
-    last_elo_change       INTEGER    DEFAULT 0,
-    num_seeded_races      INTEGER    DEFAULT 0,
-    last_seeded_race      INTEGER    DEFAULT 0,
+    id                         INTEGER    PRIMARY KEY  AUTOINCREMENT,
+    auth0_id                   TEXT       NOT NULL,
+    username                   TEXT       NOT NULL,
+    datetime_created           INTEGER    DEFAULT (strftime('%s', 'now')),
+    last_login                 INTEGER    DEFAULT (strftime('%s', 'now')),
+    last_ip                    TEXT       NOT NULL,
+    admin                      INTEGER    DEFAULT 0,
+    unseeded_adjusted_average  INTEGER    DEFAULT 0,
+    unseeded_real_average      INTEGER    DEFAULT 0,
+    num_unseeded_races         INTEGER    DEFAULT 0,
+    num_forfeits               INTEGER    DEFAULT 0,
+    forfeit_penalty            INTEGER    DEFAULT 0,
+    lowest_unseeded_time       INTEGER    DEFAULT 0,
+    last_unseeded_race         INTEGER    DEFAULT 0,
+    elo                        INTEGER    DEFAULT 0,
+    last_elo_change            INTEGER    DEFAULT 0,
+    num_seeded_races           INTEGER    DEFAULT 0,
+    last_seeded_race           INTEGER    DEFAULT 0
 );
 CREATE UNIQUE INDEX users_index_auth0_id ON users (auth0_id);
 CREATE UNIQUE INDEX users_index_username ON users (username COLLATE NOCASE);

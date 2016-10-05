@@ -14,5 +14,4 @@ if ($directory =~ /(.+)\/.+$/) {
 }
 
 # Install the database
-system "sqlite3 $directory/../database.sqlite < $directory/database_schema.sql";
-#system "sqlite3 $directory/../database.sqlite < $directory/seeds.sql";
+system "sqlite3 '$directory/../database.sqlite' < '$directory/database_schema.sql'";

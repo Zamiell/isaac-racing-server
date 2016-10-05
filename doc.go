@@ -46,7 +46,7 @@ Register
 --------
 
 Register:
-curl https://isaacserver.auth0.com/dbconnections/signup -H "Content-Type: application/json" --data '{"client_id":"tqY8tYlobY4hc16ph5B61dpMJ1YzDaAR","email":"zamiel@zamiel.com","username":"zamiel","password":"1","connection":"Username-Password-Authentication"}' --verbose
+curl https://isaacserver.auth0.com/dbconnections/signup -H "Content-Type: application/json" --data '{"client_id":"tqY8tYlobY4hc16ph5B61dpMJ1YzDaAR","email":"zamiel@zamiel.com","username":"zamiel","password":"asdf","connection":"Isaac-Server-DB-Connection"}' --verbose
 
 Register response:
 {"_id":"5770687c52fa77db5cea97ba","email_verified":false,"email":"zamiel@zamiel.com","username":"zamiel"}
@@ -57,7 +57,7 @@ Login
 -----
 
 Login (1/2):
-curl https://isaacserver.auth0.com/oauth/ro --data "grant_type=password&username=zamiel&password=1&client_id=tqY8tYlobY4hc16ph5B61dpMJ1YzDaAR&connection=Username-Password-Authentication" --verbose
+curl https://isaacserver.auth0.com/oauth/ro --data "grant_type=password&username=zamiel&password=1&client_id=tqY8tYlobY4hc16ph5B61dpMJ1YzDaAR&connection=Isaac-Server-DB-Connection" --verbose
 
 Login response (1/2):
 {"access_token":"bWEPnEwPCLOBLbAL","token_type":"bearer"}
@@ -77,10 +77,10 @@ Incoming WebSocket commands - chat
 ----------------------------------
 
 Join a new chat room:
-roomJoin {"room":"fartchannel"}
+roomJoin {"room":"global"}
 
 Leave a chat room:
-roomLeave {"room":"fartchannel"}
+roomLeave {"room":"global"}
 
 Send a message to a chat room:
 roomMessage {"room":"global","msg":"i poopd"}

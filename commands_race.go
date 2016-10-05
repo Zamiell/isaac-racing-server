@@ -68,7 +68,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	} else if count >= 2 {
 		commandMutex.Unlock()
-		log.Info("New race request denied; \"" + username + "\" is captain of ", count, "races.")
+		log.Info("New race request denied; \""+username+"\" is captain of ", count, "races.")
 		connError(conn, functionName, "To prevent abuse, you are only allowed to create 2 new races at a time.")
 		return
 	}
@@ -706,6 +706,20 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	if comment == "" {
 		commandMutex.Unlock()
 		connError(conn, functionName, "That is an invalid comment.")
+		return
+	}
+
+	// Validate that the comment is excessively long
+	if len(comment) < 150 {
+		commandMutex.Unlock()
+		connError(conn, functionName, "Comments must not be longer than 150 characters.")
+		return
+	}
+
+	// Validate that the comment does not contain special characters
+	if hasSymbol(comment) == true {
+		commandMutex.Unlock()
+		connError(conn, functionName, "Your comment cannot contain symbols.")
 		return
 	}
 

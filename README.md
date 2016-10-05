@@ -6,7 +6,7 @@ Description
 
 This is the server software for the Binding of Isaac: Afterbirth+ racing mod. Normally a single player game, the mod and server allow players to be able to race each other in real time.
 
-The server is written in Go and uses WebSockets to communicate with the client. It leverages Auth0 for authentication and uses a SQLite database to keep track of the races.
+The server is written in [Go](https://golang.org/) and uses WebSockets to communicate with the client. It leverages [Auth0](https://auth0.com/) for authentication and uses a [SQLite](https://sqlite.org/) database to keep track of the races.
 
 
 

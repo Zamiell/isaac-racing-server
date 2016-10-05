@@ -26,13 +26,13 @@ if ($ARGV[0] == 1) {
 }
 
 # Login (1/3)
-$command = "curl https://isaacserver.auth0.com/oauth/ro --data \"grant_type=password&username=$username&password=$password&client_id=$clientID&connection=Username-Password-Authentication\" --verbose 2>&1";
+$command = "curl https://isaacserver.auth0.com/oauth/ro --data 'grant_type=password&username=$username&password=$password&client_id=$clientID&connection=Isaac-Server-DB-Connection' --verbose 2>&1";
 $output = `$command`;
 if ($output =~ /{"access_token":"(.+)","token_type":"bearer"}/) {
 	$accessToken = $1;
 	print "access_token: $accessToken\n";
 } else {
-	die "Failed to parse the login response for step 1: $output\n";
+	die "\nFailed to parse the login response for step 1:\n\n$output\n";
 }
 
 # Login (2/3)

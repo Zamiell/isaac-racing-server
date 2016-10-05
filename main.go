@@ -13,6 +13,7 @@ import (
 	"sync"     // For locking and unlocking the connection map
 	"time"     // For dealing with timestamps
 
+	"github.com/bmizerany/pat"       // For HTTP routing
 	"github.com/didip/tollbooth"     // For rate-limiting login requests
 	"github.com/gorilla/context"     // For cookie sessions (1/2)
 	"github.com/gorilla/sessions"    // For cookie sessions (2/2)
@@ -61,6 +62,30 @@ var (
 	}{m: make(map[string][]User)}
 	achievementMap map[int][]string
 )
+
+/*
+ *  No directory listing stuff from: https://marc.ttias.be/golang-nuts/2016-03/msg00888.php
+ */
+
+type justFilesFilesystem struct {
+	fs http.FileSystem
+}
+
+func (fs justFilesFilesystem) Open(name string) (http.File, error) {
+	f, err := fs.fs.Open(name)
+	if err != nil {
+		return nil, err
+	}
+	return neuteredReaddirFile{f}, nil
+}
+
+type neuteredReaddirFile struct {
+	http.File
+}
+
+func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
+	return nil, nil
+}
 
 /*
  *  Program entry point
@@ -191,11 +216,21 @@ func main() {
 		}
 	}
 
+	// Set up the Pat HTTP router
+	p := pat.New()
+	p.Get("/", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpHome))
+	p.Get("/news", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpNews))
+	p.Get("/races", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpRaces))
+	p.Get("/profiles", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles))
+	p.Get("/leaderboards", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpLeaderboards))
+	p.Get("/info", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpInfo))
+	p.Get("/download", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpDownload))
+	p.Post("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler))
+
 	// Assign functions to URIs
-	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(http.Dir("public"))))            // Serve static files
-	http.HandleFunc("/", serveTemplate)                                                                   // Anything that is not a static file will match this
-	http.Handle("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler)) // Rate limit the login handler
-	http.HandleFunc("/ws", router.Handler())                                                              // The golem router handles websockets
+	http.Handle("/", p)
+	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(justFilesFilesystem{http.Dir("public")})))
+	http.HandleFunc("/ws", router.Handler())
 
 	/*
 	 *  Start the server

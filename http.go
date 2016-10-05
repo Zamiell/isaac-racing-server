@@ -8,27 +8,90 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"path"
 )
 
-func serveTemplate(w http.ResponseWriter, r *http.Request) {
-	lp := projectPath + "/views/layout.tmpl"
-	if r.URL.Path == "/" {
-		r.URL.Path = "/home"
+/*
+ *  Data types
+ */
+
+type TemplateData struct {
+	Title string
+}
+
+/*
+ *  Main page handlers
+ */
+
+func httpHome(w http.ResponseWriter, r *http.Request) {
+	data := TemplateData{
+		Title: "Home",
 	}
-	fp := projectPath + "/views/" + r.URL.Path + ".tmpl"
+	serveTemplate(w, "home", data)
+}
+
+func httpNews(w http.ResponseWriter, r *http.Request) {
+	data := TemplateData{
+		Title: "News",
+	}
+	serveTemplate(w, "news", data)
+}
+
+func httpRaces(w http.ResponseWriter, r *http.Request) {
+	data := TemplateData{
+		Title: "Races",
+	}
+	serveTemplate(w, "races", data)
+}
+
+func httpProfiles(w http.ResponseWriter, r *http.Request) {
+	data := TemplateData{
+		Title: "Profiles",
+	}
+	serveTemplate(w, "profiles", data)
+}
+
+func httpLeaderboards(w http.ResponseWriter, r *http.Request) {
+	data := TemplateData{
+		Title: "Leaderboards",
+	}
+	serveTemplate(w, "leaderboards", data)
+}
+
+func httpInfo(w http.ResponseWriter, r *http.Request) {
+	data := TemplateData{
+		Title: "Info",
+	}
+	serveTemplate(w, "info", data)
+}
+
+func httpDownload(w http.ResponseWriter, r *http.Request) {
+	data := TemplateData{
+		Title: "Download",
+	}
+	serveTemplate(w, "download", data)
+}
+
+/*
+ *  HTTP miscellaneous subroutines
+ */
+
+func serveTemplate(w http.ResponseWriter, templateName string, data interface{}) {
+	lp := path.Join("views", "layout.tmpl")
+	fp := path.Join("views", templateName+".tmpl")
 
 	// Return a 404 if the template doesn't exist
 	info, err := os.Stat(fp)
 	if err != nil {
 		if os.IsNotExist(err) {
-			http.NotFound(w, r)
+			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
 	}
 
 	// Return a 404 if the request is for a directory
 	if info.IsDir() {
-		http.NotFound(w, r)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -41,8 +104,12 @@ func serveTemplate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Execute the template and send it to the user
-	if err := tmpl.ExecuteTemplate(w, "layout", nil); err != nil {
+	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
 		log.Error("Failed to execute the template:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
+}
+
+func getPlayers() {
+
 }

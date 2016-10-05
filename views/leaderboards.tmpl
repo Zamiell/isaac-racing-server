@@ -1,0 +1,162 @@
+{{define "content"}}
+<!-- Main -->
+<section id="main" class="container">
+	<header>
+		<h2>Leaderboards</h2>
+		<p>The best amongst you</p>
+	</header>
+
+	<div id="leaderboard-buttons" class="row">
+		<div class="4u 12u">
+			<a id="leaderboard-seeded-button" class="button fit">Seeded</a>
+		</div>
+		<div class="4u 12u">
+			<a id="leaderboard-unseeded-button" class="button fit inactive">Unseeded</a>
+		</div>
+		<div class="4u 12u">
+			<a id="leaderboard-other-button" class="button fit inactive">Other</a>
+		</div>
+	</div>
+	<br />
+
+	<section id="leaderboard-seeded" class="box">
+		<div class="table-wrapper">
+			<table class="alt">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Player</th>
+						<th>MMR</th>
+						<th>Last MMR Change</th>
+						<th>Date of Last Race</th>
+						<th>Total Races Played</th>
+						<th>Verified</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td>Zamiel</td>
+						<td>500</td>
+						<td>-5</td>
+						<td>07/16/16</td>
+						<td>100</td>
+						<td><i class="fa fa-check" aria-hidden="true"></i></td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td>Dea1h</td>
+						<td>500</td>
+						<td>-5</td>
+						<td>07/16/16</td>
+						<td>100</td>
+						<td><i class="fa fa-times" aria-hidden="true"></i></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<section id="leaderboard-unseeded" class="box" style="display: none;">
+		<div class="table-wrapper">
+			<table class="alt">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Player</th>
+						<th>Average Time</th>
+						<th>Date of Last Race</th>
+						<th>Total Races Played</th>
+						<th>Verified</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>1</td>
+						<td>Zamiel</td>
+						<td>12:30</td>
+						<td>07/16/16</td>
+						<td>100</td>
+						<td><i class="fa fa-check" aria-hidden="true"></i></td>
+					</tr>
+					<tr>
+						<td>2</td>
+						<td>Dea1h</td>
+						<td>12:30</td>
+						<td>07/16/16</td>
+						<td>100</td>
+						<td><i class="fa fa-times" aria-hidden="true"></i></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+	<div id="leaderboard-other" style="display: none;">
+		<section class="box">
+			<h3>Top 10 Unseeded Times</h3>
+			<br />
+			<div class="table-wrapper">
+				<table class="alt">
+					<thead>
+						<tr>
+							<th>Place</th>
+							<th>Player</th>
+							<th>Time</th>
+							<th>Date</th>
+							<th>Verified</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td>Zamiel</td>
+							<td>12:30</td>
+							<td>07/16/16</td>
+							<td><i class="fa fa-check" aria-hidden="true"></i></td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>Dea1h</td>
+							<td>12:30</td>
+							<td>07/16/16</td>
+							<td><i class="fa fa-times" aria-hidden="true"></i></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+		<section class="box">
+			<h3>Most Races Played</h3>
+			<br />
+			<div class="table-wrapper">
+				<table class="alt">
+					<thead>
+						<tr>
+							<th>Place</th>
+							<th>Player</th>
+							<th>Total Races</th>
+							<th>Verified</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>1</td>
+							<td>Zamiel</td>
+							<td>500</td>
+							<td><i class="fa fa-check" aria-hidden="true"></i></td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>Dea1h</td>
+							<td>350</td>
+							<td><i class="fa fa-times" aria-hidden="true"></i></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</section>
+	</div>
+
+</section>
+{{end}}

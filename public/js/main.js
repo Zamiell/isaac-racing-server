@@ -2,10 +2,46 @@
  *  Isaac Race Server stuff
  */
 
+// Home - "Learn More" button
 $('#learn-more').click(function() {
     $('html, body').animate({
         scrollTop: $("#main").offset().top
     }, 1000);
+});
+
+// Leaderboards - Leaderboard buttons
+var activeLeaderboard = 'seeded';
+var transition = false;
+function showLeaderboard(type) {
+    // Header buttons
+    $('#leaderboard-seeded-button').addClass('inactive');
+    $('#leaderboard-unseeded-button').addClass('inactive');
+    $('#leaderboard-other-button').addClass('inactive');
+    $('#leaderboard-' + type + '-button').removeClass('inactive');
+
+    // Fade out the old leaderboard and fade in the new one
+    transition = true;
+    $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
+        $('#leaderboard-' + type).fadeIn(350, function() {
+            activeLeaderboard = type;
+            transition = false;
+        });
+    });
+}
+$('#leaderboard-seeded-button').click(function() {
+    if (activeLeaderboard !== 'seeded' && transition === false) {
+        showLeaderboard('seeded');
+    }
+});
+$('#leaderboard-unseeded-button').click(function() {
+    if (activeLeaderboard !== 'unseeded' && transition === false) {
+        showLeaderboard('unseeded');
+    }
+});
+$('#leaderboard-other-button').click(function() {
+    if (activeLeaderboard !== 'other' && transition === false) {
+        showLeaderboard('other');
+    }
 });
 
 /*
@@ -86,9 +122,9 @@ $('#learn-more').click(function() {
         // If the header is using "alt" styling and #banner is present, use scrollwatch
         // to revert it back to normal styling once the user scrolls past the banner.
         // Note: This is disabled on mobile devices.
-            if (!skel.vars.mobile
-            &&    $header.hasClass('alt')
-            &&    $banner.length > 0) {
+            if (!skel.vars.mobile &&
+                $header.hasClass('alt') &&
+                $banner.length > 0) {
 
                 $window.on('load', function() {
 
