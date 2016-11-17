@@ -1,14 +1,14 @@
 package models
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type UserAchievements struct{}
 
 /*
- *  user_achievements table functions
- */
+	"user_achievements" table functions
+*/
 
 func (*UserAchievements) GetAll(username string) ([]int, error) {
 	// Get all the achivements for this user
@@ -42,13 +42,13 @@ func (*UserAchievements) GetAll(username string) ([]int, error) {
 func (*UserAchievements) Insert(username string, achievementID int) error {
 	// Give the achievement to that user
 	stmt, err := db.Prepare(`
-		INSERT INTO user_achievements (user_id, achievement_id)
-		VALUES ((SELECT id FROM users WHERE username = ?), ?)
+		INSERT INTO user_achievements (user_id, achievement_id, datetime_achieved)
+		VALUES ((SELECT id FROM users WHERE username = ?), ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(username, achievementID)
+	_, err = stmt.Exec(username, achievementID, makeTimestamp())
 	if err != nil {
 		return err
 	}

@@ -1,14 +1,14 @@
 package models
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type Achievements struct{}
 
 /*
- *  achievements table functions
- */
+	"achievements" table functions
+*/
 
 func (*Achievements) Insert(id int, name string, description string) error {
 	// Add the achievement

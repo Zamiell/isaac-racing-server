@@ -3803,6 +3803,10 @@
       height: auto;
     }
 
+    .margin-half {
+        margin-bottom: 0.5em;
+    }
+
     #title-image {
         max-width: 35%;
         height: auto;

@@ -1,22 +1,22 @@
 package models
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"database/sql"
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type BannedUsers struct{}
 
 /*
- *  banned_users table functions
- */
+	"banned_users" table functions
+*/
 
 func (*BannedUsers) Check(username string) (bool, error) {
 	// Check if this user is banned
@@ -38,13 +38,13 @@ func (*BannedUsers) Check(username string) (bool, error) {
 func (*BannedUsers) Insert(username string, adminResponsible int) error {
 	// Add this user to the ban list in the database
 	stmt, err := db.Prepare(`
-		INSERT INTO banned_users (user_id, admin_responsible)
+		INSERT INTO banned_users (user_id, admin_responsible, datetime_banned)
 		VALUES ((SELECT id from users WHERE username = ?), ?)
 	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(username, adminResponsible)
+	_, err = stmt.Exec(username, adminResponsible, makeTimestamp())
 	if err != nil {
 		return err
 	}

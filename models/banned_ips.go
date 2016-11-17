@@ -1,22 +1,22 @@
 package models
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"database/sql"
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type BannedIPs struct{}
 
 /*
- *  banned_ips table functions
- */
+	"banned_ips" table functions
+*/
 
 func (*BannedIPs) Check(ip string) (bool, error) {
 	// Check if this IP is banned
@@ -34,13 +34,13 @@ func (*BannedIPs) Check(ip string) (bool, error) {
 func (*BannedIPs) Insert(username string, adminResponsible int) error {
 	// Add the IP address to the banned list in the database
 	stmt, err := db.Prepare(`
-		INSERT INTO banned_ips (ip, admin_responsible)
-		VALUES ((SELECT last_ip FROM users WHERE username = ?), ?)
+		INSERT INTO banned_ips (ip, admin_responsible, datetime_banned)
+		VALUES ((SELECT last_ip FROM users WHERE username = ?), ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(username, adminResponsible)
+	_, err = stmt.Exec(username, adminResponsible, makeTimestamp())
 	if err != nil {
 		return err
 	}

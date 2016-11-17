@@ -1,8 +1,8 @@
 package main
 
 /*
- *  WebSocket admin command functions
- */
+	WebSocket admin command functions
+*/
 
 func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
@@ -166,9 +166,6 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Log the ban
 	log.Info("User \"" + username + "\" banned user \"" + recipient + "\".")
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
@@ -263,9 +260,6 @@ func adminUnban(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Log the unban
 	log.Info("User \"" + username + "\" unbanned user \"" + recipient + "\".")
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
@@ -327,9 +321,6 @@ func adminBanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Log the ban
 	log.Info("User \"" + username + "\" banned IP \"" + ip + "\".")
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
@@ -389,9 +380,6 @@ func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Log the unban
 	log.Info("User \"" + username + "\" unbanned IP \"" + ip + "\".")
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -527,9 +515,6 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Log the squelch
 	log.Info("User \"" + username + "\" squelched user \"" + recipient + "\".")
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
@@ -663,9 +648,6 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Log the unsquelch
 	log.Info("User \"" + username + "\" unsquelched user \"" + recipient + "\".")
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
@@ -787,9 +769,6 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Log the promotion
 	log.Info("User \"" + username + "\" promoted \"" + recipient + "\" to be a staff member.")
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
@@ -910,9 +889,6 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Log the demotion
 	log.Info("User \"" + username + "\" demoted \"" + recipient + "\" to a normal user.")
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

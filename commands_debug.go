@@ -1,16 +1,16 @@
 package main
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 //"time"
 )
 
 /*
- *  WebSocket debug command functions
- */
+	WebSocket debug command functions
+*/
 
 func debug(conn *ExtendedConnection) {
 	// Local variables

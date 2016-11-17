@@ -1,22 +1,22 @@
 package models
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"database/sql"
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type SquelchedUsers struct{}
 
 /*
- *  squelched_users table functions
- */
+	"squelched_users" table functions
+*/
 
 func (*SquelchedUsers) Check(username string) (bool, error) {
 	// Check if this user is squelched
@@ -38,13 +38,13 @@ func (*SquelchedUsers) Check(username string) (bool, error) {
 func (*SquelchedUsers) Insert(username string, adminResponsible int) error {
 	// Add the user to the squelched list in the database
 	stmt, err := db.Prepare(`
-		INSERT INTO squelched_users (user_id, admin_responsible)
-		VALUES ((SELECT id from users WHERE username = ?), ?)
+		INSERT INTO squelched_users (user_id, admin_responsible, datetime_squelched)
+		VALUES ((SELECT id from users WHERE username = ?), ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(username, adminResponsible)
+	_, err = stmt.Exec(username, adminResponsible, makeTimestamp())
 	if err != nil {
 		return err
 	}

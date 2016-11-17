@@ -1,8 +1,8 @@
 package main
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
@@ -11,8 +11,8 @@ import (
 )
 
 /*
- *  Golem data types
- */
+	Golem data types
+*/
 
 // We must extend the default Golem connection so that it hold information about the user
 type ExtendedConnection struct {
@@ -28,7 +28,7 @@ type ExtendedConnection struct {
 // Recieved in all commands
 type IncomingCommandMessage struct {
 	Room    string         `json:"room"`
-	Msg     string         `json:"msg"`
+	Message string         `json:"message"`
 	Name    string         `json:"name"`
 	Ruleset models.Ruleset `json:"ruleset"`
 	ID      int            `json:"id"`
@@ -38,21 +38,15 @@ type IncomingCommandMessage struct {
 	IP      string         `json:"ip"`
 }
 
-// Sent in an "success" command (in the "connSuccess" function)
-type SuccessMessage struct {
-	Type  string      `json:"type"`
-	Input interface{} `json:"input"`
-}
-
 // Sent in an "error" command (in the "connError" function)
 type ErrorMessage struct {
-	Type string `json:"type"`
-	Msg  string `json:"msg"`
+	Type    string `json:"type"`
+	Message string `json:"message"`
 }
 
 /*
- *  Chat room data types
- */
+	Chat room data types
+*/
 
 // Sent in the "roomList" command to the person that is joining the room (in the "roomJoinSub" function)
 type RoomListMessage struct {
@@ -85,15 +79,15 @@ type RoomLeftMessage struct {
 
 // Sent in the "roomMessage" command (in the "roomMessage" function)
 type RoomMessageMessage struct {
-	Room string `json:"room"`
-	Name string `json:"name"`
-	Msg  string `json:"msg"`
+	Room    string `json:"room"`
+	Name    string `json:"name"`
+	Message string `json:"message"`
 }
 
 // Sent in the "privateMessage" command (in the "privateMessage" function)
 type PrivateMessageMessage struct {
-	Name string `json:"name"`
-	Msg  string `json:"msg"`
+	Name    string `json:"name"`
+	Message string `json:"message"`
 }
 
 // Sent in the "roomSetName" command (in the "profileSetUsername" function)
@@ -124,8 +118,8 @@ type Room struct {
 }
 
 /*
- *  Race data types
- */
+	Race data types
+*/
 
 // Sent in the "racerList" command (in the "connOpen" function)
 type RacerList struct {
@@ -194,8 +188,8 @@ type AchievementMessage struct {
 }
 
 /*
- *  Profile data types
- */
+	Profile data types
+*/
 
 // Sent in the "profile" command (in the "getProfile" function)
 type Profile struct {

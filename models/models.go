@@ -1,17 +1,18 @@
 package models
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"database/sql"                  // For connecting to the database (1/2)
 	_ "github.com/mattn/go-sqlite3" // For connecting to the database (2/2)
+	"time"
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type Models struct {
 	// Database tables
@@ -23,7 +24,6 @@ type Models struct {
 	RaceParticipantItems
 	RaceParticipants
 	Races
-	Seeds
 	SquelchedUsers
 	UserAchievements
 	Users
@@ -32,8 +32,8 @@ type Models struct {
 // Sent in the "roomHistory" command (in the "roomJoinSub" function)
 type RoomHistory struct {
 	Name     string `json:"name"`
-	Msg      string `json:"msg"`
-	Datetime int    `json:"datetime"`
+	Message  string `json:"message"`
+	Datetime int64  `json:"datetime"`
 }
 
 // Sent in the "raceList" command (in the "connOpen" function)
@@ -43,17 +43,17 @@ type Race struct {
 	Name            string   `json:"name"`
 	Status          string   `json:"status"`
 	Ruleset         Ruleset  `json:"ruleset"`
-	DatetimeCreated int      `json:"datetime_created"`
-	DatetimeStarted int      `json:"datetime_started"`
+	Seed            string   `json:"seed"`
+	DatetimeCreated int64    `json:"datetimeCreated"`
+	DatetimeStarted int64    `json:"datetimeStarted"`
 	Captain         string   `json:"captain"` // This is an integer in the database but we convert it to their name during the SELECT
 	Racers          []string `json:"racers"`
 }
 type Ruleset struct {
-	Type         string `json:"type"`
-	Character    string `json:"character"`
-	Goal         string `json:"goal"`
-	Seed         string `json:"seed"`
-	InstantStart int    `json:"instantStart"`
+	Format        string `json:"format"`
+	Character     string `json:"character"`
+	Goal          string `json:"goal"`
+	StartingBuild int    `json:"startingBuild"`
 }
 
 // Sent in the "racerList" command (in the "connOpen" function)
@@ -61,8 +61,8 @@ type Ruleset struct {
 type Racer struct {
 	Name             string `json:"name"`
 	Status           string `json:"status"`
-	DatetimeJoined   int    `json:"datetime_joined"`
-	DatetimeFinished int    `json:"datetime_finished"`
+	DatetimeJoined   int    `json:"datetimeJoined"`
+	DatetimeFinished int    `json:"datetimeFinished"`
 	Place            int    `json:"place"`
 	Comment          string `json:"comment"`
 	Items            []Item `json:"items"`
@@ -74,16 +74,16 @@ type Item struct {
 }
 
 /*
- *  Global variables
- */
+	Global variables
+*/
 
 var (
 	db *sql.DB
 )
 
 /*
- *  Initialization function
- */
+	Initialization function
+*/
 
 func GetModels(dbFile string) (*Models, error) {
 	// Initialize the database
@@ -101,4 +101,13 @@ func GetModels(dbFile string) (*Models, error) {
 
 	// Create the model
 	return &Models{}, nil
+}
+
+/*
+	Miscellaneous functions
+*/
+
+// From: https://stackoverflow.com/questions/24122821/go-golang-time-now-unixnano-convert-to-milliseconds
+func makeTimestamp() int64 {
+	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 }

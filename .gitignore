@@ -26,3 +26,6 @@ _testmain.go
 # isaac-racing-server specific stuff
 .env
 database.sqlite
+logs
+squirrel-updates-server/logs
+isaac-racing-server

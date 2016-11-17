@@ -77,19 +77,19 @@ Incoming WebSocket commands - chat
 ----------------------------------
 
 Join a new chat room:
-roomJoin {"room":"global"}
+roomJoin {"room":"lobby"}
 
 Leave a chat room:
-roomLeave {"room":"global"}
+roomLeave {"room":"lobby"}
 
 Send a message to a chat room:
-roomMessage {"room":"global","msg":"i poopd"}
+roomMessage {"room":"lobby","message":"i poopd"}
 
 Send a message to a chat room for a race:
-roomMessage {"room":"_race_1","msg":"gg"}
+roomMessage {"room":"_race_1","message":"gg"}
 
 Send a private message:
-privateMessage {"name":"zamiel","msg":"private message lol"}
+privateMessage {"name":"zamiel","message":"private message lol"}
 
 Get a list of all of the current rooms:
 roomListAll {}
@@ -100,37 +100,37 @@ Outgoing WebSocket commands - chat
 ----------------------------------
 
 When you join a new chat room, you get the list of people in it:
-roomList {"room":"global","users":[{"name":"zamiel","admin":0,"squelched":0},{"name":"zamiel2","admin":0,"squelched":0}]}
+roomList {"room":"lobby","users":[{"name":"zamiel","admin":0,"squelched":0},{"name":"zamiel2","admin":0,"squelched":0}]}
 
 When you join a new chat room, you get the chat history for the past 50 messages (or all the messages if its a "_race_#" channel):
-roomHistory {"room":"global","history":[{"name":"zamiel","msg":"MrDestructoid","datetime":1469662590}]}
+roomHistory {"room":"lobby","history":[{"name":"zamiel","message":"MrDestructoid","datetime":1469662590}]}
 
 Someone else joined a chat room that you are in:
-roomJoined {"room":"global","user":{"name":"zamiel2","admin":0,"squelched":0}}
+roomJoined {"room":"lobby","user":{"name":"zamiel2","admin":0,"squelched":0}}
 
 Someone else left a chat room that you are in:
-roomLeft {"room":"global","name":"chronometrics"}
+roomLeft {"room":"lobby","name":"chronometrics"}
 
 Someone sent a message to a chat room that you are in:
-roomMessage {"room":"global","name":"zamiel",msg":"i poopd"}
+roomMessage {"room":"lobby","name":"zamiel",message":"i poopd"}
 
 Someone sent you a private message:
-privateMessage {"name":"chronometrics","msg":"i lit the candle"}
+privateMessage {"name":"chronometrics","message":"i lit the candle"}
 
 When a list of all the chat rooms is requested:
-roomListAll [{"room":"global","numUsers":1}]
+roomListAll [{"room":"lobby","numUsers":1}]
 
 Someone got squelched:
-roomSetSquelched {"room":"global","username":"cmondinger","squelched":1}
+roomSetSquelched {"room":"lobby","username":"cmondinger","squelched":1}
 
 Someone got unsquelched:
-roomSetSquelched {"room":"global","username":"cmondinger","squelched":0}
+roomSetSquelched {"room":"lobby","username":"cmondinger","squelched":0}
 
 Someone got promoted:
-roomSetAdmin {"room":"global","username":"sillypears","admin":1}
+roomSetAdmin {"room":"lobby","username":"sillypears","admin":1}
 
 Someone got demoted:
-roomSetAdmin {"room":"global","username":"sillypears","admin":0}
+roomSetAdmin {"room":"lobby","username":"sillypears","admin":0}
 
 
 
@@ -141,7 +141,7 @@ Create a race:
 raceCreate {}
 
 Create a race with every single optional argument:
-raceCreate {"name":"dee's race","ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0}}
+raceCreate {"name":"dee's race","ruleset":{"type":"unseeded","character":"Judas","goal":"chest","seed":"-","instantStart":0}}
 
 Join a race:
 raceJoin {"id":1}
@@ -165,7 +165,7 @@ Quit a race:
 raceQuit {"id":1}
 
 Comment in a race:
-raceComment {"id":1,"msg":"died to mom"}
+raceComment {"id":1,"message":"died to mom"}
 
 Got a new item:
 raceItem {"id":1,"itemID":100}
@@ -201,8 +201,8 @@ raceSetStatus {"id":3,"status":"starting"}
 raceSetStatus {"id":3,"status":"in progress"}
 raceSetStatus {"id":3,"status":"finished"}
 
-When a race is starting (time is in UnixNano() format):
-raceStart {"id":10,"time":1469147515988023769}
+When a race is starting (time is Epoch milliseconds):
+raceStart {"id":10,"time":1469147515988023}
 
 When someone readies up:
 racerSetStatus {"id":1,"name":"zamiel","status":"ready"}
@@ -278,8 +278,14 @@ adminDemote {"name":"zamiel2"}
 Outgoing WebSocket commands - admin
 -----------------------------------
 
+Sent upon a successful connection since the client doesn't know the server-side stylization of the username:
+username zamiel
+
+Sent upon a successful connection so that the client can calculate the local time offset (in Epoch milliseconds):
+time 1469147515988023
+
 You got banned:
-error {"type":"adminBan","msg":"You have been banned. If you think this was a mistake, please contact the administration to appeal."}
+error {"type":"adminBan","message":"You have been banned. If you think this was a mistake, please contact the administration to appeal."}
 
 
 
@@ -294,11 +300,8 @@ logout {}
 Outgoing WebSocket commands - miscellaneous
 -------------------------------------------
 
-You did something right:
-success {"type":"raceCreate","input":{"room":"","msg":"","name":"","ruleset":{"type":"","character":0,"goal":"","seed":"","instantStart":0},"id":0,"comment":"","itemID":0,"floor":0,"ip":""}}
-
 An error occured:
-error {"type":"logout","msg":"You have logged on from somewhere else, so I'll disconnect you here."}
+error {"type":"logout","message":"You have logged on from somewhere else, so you have been disconnected here."}
 
 
 

@@ -15,17 +15,14 @@ Install
 
 * Install Go (you need to be able to run the `go` command).
 * Install SQLite3 (you need to be able to run the `sqlite3` command).
+   * On Ubuntu: `apt install sqlite3`
 * `go get github.com/Zamiell/isaac-racing-server`
 * `cd $GOPATH/Zamiell/isaac-racing-server`
 * `sqlite3 database.sqlite < install/database_schema.sql`
-* Open up the `main.go` file and change the constants near the top of the file to your liking.
-* Create a `.env` file in the current directory with the following contents:
-
-```
-SESSION_SECRET=some_long_random_string
-AUTH0_CLIENT_ID=the_client_id_from_auth0
-AUTH0_CLIENT_SECRET=the_client_secret_from_auth0
-```
+* `nano main.go`
+  * Change the constants near the top of the file to your liking.
+* `cp .env_template .env && nano .env`
+  * Fill in the 3 values.
 
 
 
@@ -34,3 +31,42 @@ Run
 
 * `cd $GOPATH/Zamiell/isaac-racing-server`
 * `go run *.go`
+
+
+
+Compile / Build
+---------------
+
+* `go install` (creates `$GOPATH/bin/isaac-racing-server`)
+
+
+
+Install HTTPS (optional)
+------------------------
+
+* `apt-install letsencrypt`
+* `letsencrypt certonly --standalone -d isaacracing.net -d www.isaacracing.net`
+
+
+
+Install as a service (optional)
+-------------------------------
+
+* Install Supervisor (for example, on Ubuntu 16.04):
+  * `apt install supervisor`
+  * `systemctl enable supervisor` (http://unix.stackexchange.com/questions/281774/ubuntu-server-16-04-cannot-get-supervisor-to-start-automatically)
+* Copy the configuration files:
+  * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf /etc/supervisord/supervisord.conf`
+  * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf /etc/supervisord/conf.d/isaac-racing-server.conf`
+* Start it: `systemctl start supervisor`
+
+
+
+Install Squirrel Updates Server (for automatic updates)
+-------------------------------------------------------
+
+* Install node/npm. (Using [nvm](https://github.com/creationix/nvm) to do this is recommended.)
+* Install [pm2](http://pm2.keymetrics.io/): `npm install pm2 -g`
+* Start the server: `pm2 start $GOPATH/Zamiell/isaac-racing-server/squirrel-updates-server/index.js --name squirrel-updates-server --merge-logs --log="$GOPATH/Zamiell/isaac-racing-server/squirrel-updates-server/logs/squirrel-updates-server.log"`
+* Save the list: `pm2 save`
+* Make sure pm2 starts on boot: `pm2 startup`

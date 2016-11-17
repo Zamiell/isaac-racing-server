@@ -1,8 +1,8 @@
 package main
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
@@ -10,8 +10,8 @@ import (
 )
 
 /*
- *  WebSocket room/chat command functions
- */
+	WebSocket room/chat command functions
+*/
 
 func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
@@ -66,9 +66,6 @@ func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			return
 		}
 	}
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
 
 	// Let them join the room
 	roomJoinSub(conn, room)
@@ -136,9 +133,6 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// Let them leave the room
 	roomLeaveSub(conn, room)
 
@@ -151,7 +145,7 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	functionName := "roomMessage"
 	username := conn.Username
 	room := data.Room
-	msg := data.Msg
+	message := data.Message
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
@@ -173,10 +167,10 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Strip leading and trailing whitespace from the message
-	msg = strings.TrimSpace(msg)
+	message = strings.TrimSpace(message)
 
 	// Don't allow empty messages
-	if msg == "" {
+	if message == "" {
 		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to send an empty message.")
 		connError(conn, functionName, "You cannot send an empty message.")
@@ -215,8 +209,15 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	// Validate that the message is not excessively long
+	if len(message) > 150 {
+		commandMutex.Unlock()
+		connError(conn, functionName, "Messages must not be longer than 150 characters.")
+		return
+	}
+
 	// Add the new message to the database
-	if err := db.ChatLog.Insert(room, username, msg); err != nil {
+	if err := db.ChatLog.Insert(room, username, message); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -224,13 +225,10 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Log the message
-	log.Info("#" + room + " <" + username + "> " + msg)
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
+	log.Info("#" + room + " <" + username + "> " + message)
 
 	// Send the message
-	roomManager.Emit(room, "roomMessage", &RoomMessageMessage{room, username, msg})
+	roomManager.Emit(room, "roomMessage", &RoomMessageMessage{room, username, message})
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -241,7 +239,7 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	functionName := "privateMessage"
 	username := conn.Username
 	recipient := data.Name
-	msg := data.Msg
+	message := data.Message
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
@@ -267,10 +265,10 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Strip leading and trailing whitespace from the message
-	msg = strings.TrimSpace(msg)
+	message = strings.TrimSpace(message)
 
 	// Don't allow empty messages
-	if msg == "" {
+	if message == "" {
 		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to send an empty message.")
 		connError(conn, functionName, "You cannot send an empty message.")
@@ -296,7 +294,7 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Add the new message to the database
-	if err := db.ChatLogPM.Insert(recipient, username, msg); err != nil {
+	if err := db.ChatLogPM.Insert(recipient, username, message); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -304,13 +302,10 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Log the message
-	log.Info("PM <" + username + "> <" + recipient + "> " + msg)
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
+	log.Info("PM <" + username + "> <" + recipient + "> " + message)
 
 	// Send the message
-	pmManager.Emit(recipient, "privateMessage", &PrivateMessageMessage{username, msg})
+	pmManager.Emit(recipient, "privateMessage", &PrivateMessageMessage{username, message})
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -344,9 +339,6 @@ func roomListAll(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 	chatRoomMap.RUnlock()
 
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
-
 	// Send it to the user
 	conn.Connection.Emit("roomListAll", roomList)
 
@@ -355,8 +347,8 @@ func roomListAll(conn *ExtendedConnection, data *IncomingCommandMessage) {
 }
 
 /*
- *  WebSocket room/chat subroutines
- */
+	WebSocket room/chat subroutines
+*/
 
 func roomJoinSub(conn *ExtendedConnection, room string) {
 	// Local variables
@@ -458,6 +450,7 @@ func roomLeaveSub(conn *ExtendedConnection, room string) {
 	for _, user := range users {
 		userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 		if ok == true {
+			log.Debug("Sending a \"roomLeft\" command to \"" + user.Name + "\".")
 			userConnection.Connection.Emit("roomLeft", &RoomLeftMessage{room, username})
 		} else {
 			log.Error("Failed to get the connection for user \"" + user.Name + "\" while disconnecting user \"" + username + "\" from room \"" + room + "\".")

@@ -1,8 +1,8 @@
 package main // In Go, executable commands must always use package main
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
@@ -26,21 +26,21 @@ import (
 )
 
 /*
- *  Constants
- */
+	Constants
+*/
 
 const (
 	sessionName = "isaac.sid"
-	domain      = "isaacitemtracker.com"
+	domain      = "isaacracing.net"
 	auth0Domain = "isaacserver.auth0.com"
 	useSSL      = true
-	sslCertFile = "/etc/letsencrypt/live/isaacitemtracker.com/fullchain.pem"
-	sslKeyFile  = "/etc/letsencrypt/live/isaacitemtracker.com/privkey.pem"
+	sslCertFile = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
+	sslKeyFile  = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
 )
 
 /*
- *  Global variables
- */
+	Global variables
+*/
 
 var (
 	projectPath   = os.Getenv("GOPATH") + "/src/github.com/Zamiell/isaac-racing-server"
@@ -64,8 +64,8 @@ var (
 )
 
 /*
- *  No directory listing stuff from: https://marc.ttias.be/golang-nuts/2016-03/msg00888.php
- */
+	No directory listing stuff from: https://marc.ttias.be/golang-nuts/2016-03/msg00888.php
+*/
 
 type justFilesFilesystem struct {
 	fs http.FileSystem
@@ -88,8 +88,8 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 }
 
 /*
- *  Program entry point
- */
+	Program entry point
+*/
 
 func main() {
 	// Configure logging: http://godoc.org/github.com/op/go-logging#Formatter
@@ -99,6 +99,11 @@ func main() {
 	)
 	loggingBackendFormatted := logging.NewBackendFormatter(loggingBackend, logFormat)
 	logging.SetBackend(loggingBackendFormatted)
+
+	// Welcome message
+	log.Info("-----------------------------")
+	log.Info("Starting isaac-racing-server.")
+	log.Info("-----------------------------")
 
 	// Load the .env file which contains environment variables with secret values
 	err := godotenv.Load(projectPath + "/.env")
@@ -152,8 +157,8 @@ func main() {
 	router.OnClose(connClose)
 
 	/*
-	 *  The websocket commands
-	 */
+		The websocket commands
+	*/
 
 	// Chat commands
 	router.On("roomJoin", roomJoin)
@@ -194,8 +199,8 @@ func main() {
 	router.On("debug", debug)
 
 	/*
-	 *  HTTP stuff
-	 */
+		HTTP stuff
+	*/
 
 	// Minify CSS and JS
 	m := minify.New()
@@ -233,8 +238,8 @@ func main() {
 	http.HandleFunc("/ws", router.Handler())
 
 	/*
-	 *  Start the server
-	 */
+		Start the server
+	*/
 
 	// Figure out the port that we are using for the HTTP server
 	var port int
@@ -244,10 +249,8 @@ func main() {
 		port = 80
 	}
 
-	// Welcome message
-	log.Info("Starting isaac-racing-server on port " + strconv.Itoa(port) + ".")
-
 	// Listen and serve
+	log.Info("Listening on port " + strconv.Itoa(port) + ".")
 	if useSSL == true {
 		if err := http.ListenAndServeTLS(
 			":"+strconv.Itoa(port), // Nothing before the colon implies 0.0.0.0

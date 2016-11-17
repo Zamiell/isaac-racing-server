@@ -1,16 +1,16 @@
 package main
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"strings"
 )
 
 /*
- *  WebSocket room/chat command functions
- */
+	WebSocket profile command functions
+*/
 
 func profileGet(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
@@ -50,15 +50,12 @@ func profileGet(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	/*
-	 *   Build the profile
-	 */
+		Build the profile
+	*/
 
 	// Get the number of races
 	// TODO
 	var profile Profile
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
 
 	// Send them the profile
 	conn.Connection.Emit("profile", profile)
@@ -109,9 +106,6 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 
 	// Set the new username in the connection
 	conn.Username = newUsername
-
-	// Send success confirmation
-	connSuccess(conn, functionName, data)
 
 	// Look for this user in all chat rooms
 	chatRoomMap.Lock()

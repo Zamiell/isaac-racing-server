@@ -212,11 +212,11 @@ func achievementsCheck(username string) {
 			var countSeeded int
 			var countDiversity int
 			for _, race := range finishedList {
-				if race.Ruleset.Type == "unseeded" {
+				if race.Ruleset.Format == "unseeded" {
 					countUnseeded++
-				} else if race.Ruleset.Type == "seeded" {
+				} else if race.Ruleset.Format == "seeded" {
 					countSeeded++
-				} else if race.Ruleset.Type == "diversity" {
+				} else if race.Ruleset.Format == "diversity" {
 					countDiversity++
 				}
 			}

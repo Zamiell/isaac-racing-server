@@ -1,22 +1,22 @@
 package models
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"database/sql"
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type Users struct{}
 
 /*
- *  users table functions
- */
+	"users" table functions
+*/
 
 func (*Users) Login(auth0ID string) (int, string, int, error) {
 	// Check to see if they are in the user database already
@@ -61,11 +61,11 @@ func (*Users) CheckStaff(username string) (bool, error) {
 
 func (*Users) SetLogin(username string, lastIP string) error {
 	// Update the database with last_login and last_ip
-	stmt, err := db.Prepare("UPDATE users SET last_login = (strftime('%s', 'now')), last_ip = ? WHERE username = ?")
+	stmt, err := db.Prepare("UPDATE users SET last_login = ?, last_ip = ? WHERE username = ?")
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(lastIP, username)
+	_, err = stmt.Exec(makeTimestamp(), lastIP, username)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (*Users) SetLogin(username string, lastIP string) error {
 
 func (*Users) SetUsername(userID int, username string) error {
 	// Set the new username
-	stmt, err := db.Prepare("UPDATE users SET username = ? WHERE user_id = ?")
+	stmt, err := db.Prepare("UPDATE users SET username = ? WHERE id = ?")
 	if err != nil {
 		return err
 	}
@@ -102,12 +102,15 @@ func (*Users) SetAdmin(username string, admin int) error {
 }
 
 func (*Users) Insert(auth0ID string, auth0Username string, ip string) (int, error) {
+	// Get the current time
+	currentTime := makeTimestamp()
+
 	// Add them to the database
-	stmt, err := db.Prepare("INSERT INTO users (auth0_id, username, last_ip) VALUES (?, ?, ?)")
+	stmt, err := db.Prepare("INSERT INTO users (auth0_id, username, last_ip, datetime_created, last_login) VALUES (?, ?, ?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
-	result, err := stmt.Exec(auth0ID, auth0Username, ip)
+	result, err := stmt.Exec(auth0ID, auth0Username, ip, currentTime, currentTime)
 	if err != nil {
 		return 0, err
 	}

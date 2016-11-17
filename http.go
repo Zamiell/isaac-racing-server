@@ -1,8 +1,8 @@
 package main
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"html/template"
@@ -12,16 +12,16 @@ import (
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type TemplateData struct {
 	Title string
 }
 
 /*
- *  Main page handlers
- */
+	Main page handlers
+*/
 
 func httpHome(w http.ResponseWriter, r *http.Request) {
 	data := TemplateData{
@@ -73,8 +73,8 @@ func httpDownload(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
- *  HTTP miscellaneous subroutines
- */
+	HTTP miscellaneous subroutines
+*/
 
 func serveTemplate(w http.ResponseWriter, templateName string, data interface{}) {
 	lp := path.Join("views", "layout.tmpl")

@@ -1,8 +1,8 @@
 package main
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"encoding/json"           // For Auth0 authentication (1/3)
@@ -17,8 +17,8 @@ import (
 )
 
 /*
- *  Constants
- */
+	Constants
+*/
 
 const (
 	rateLimitRate = 30 // In commands sent
@@ -26,8 +26,8 @@ const (
 )
 
 /*
- *  Custom Golem connection constructor
- */
+	Custom Golem connection constructor
+*/
 
 func NewExtendedConnection(conn *golem.Connection) *ExtendedConnection {
 	return &ExtendedConnection{
@@ -39,8 +39,8 @@ func NewExtendedConnection(conn *golem.Connection) *ExtendedConnection {
 }
 
 /*
- *  Login users using Auth0 access tokens
- */
+	Login users using Auth0 access tokens
+*/
 
 func loginHandler(w http.ResponseWriter, r *http.Request) {
 	// Local variables
@@ -76,7 +76,7 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 	if _, ok := session.Values["userID"]; ok == true {
 		commandMutex.Unlock()
 		log.Warning("User from IP \"" + ip + "\" tried to get a session cookie, but they are already logged in.")
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		http.Error(w, "You are already logged in. Please wait 5 seconds, then try again.", http.StatusUnauthorized)
 		return
 	}
 
@@ -218,8 +218,8 @@ func loginHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 /*
- *  Validate WebSocket connection
- */
+	Validate WebSocket connection
+*/
 
 func validateSession(w http.ResponseWriter, r *http.Request) bool {
 	// Local variables
@@ -309,8 +309,8 @@ func validateSession(w http.ResponseWriter, r *http.Request) bool {
 }
 
 /*
- * Router connection functions
- */
+	Router connection functions
+*/
 
 func connOpen(conn *ExtendedConnection, r *http.Request) {
 	// Local variables
@@ -376,7 +376,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	connectionMap.RUnlock()
 	if ok == true {
 		log.Info("Closing existing connection for user \"" + username + "\".")
-		connError(existingConnection, "logout", "You have logged on from somewhere else, so I'll disconnect you here.")
+		connError(existingConnection, "logout", "You have logged on from somewhere else, so you have been disconnected here.")
 		existingConnection.Connection.Close()
 
 		// Wait until the existing connection is terminated
@@ -399,6 +399,13 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 
 	// Log the connection
 	log.Info("User \""+username+"\" connected;", len(connectionMap.m), "user(s) now connected.")
+
+	// Send them their username
+	// (the client already knows their username, but it may not be the same as the server-side stylization)
+	conn.Connection.Emit("username", username)
+
+	// Send them the current time so that they can calculate the local offset
+	conn.Connection.Emit("time", makeTimestamp())
 
 	// Join the user to the PMManager room corresponding to their username for private messages
 	pmManager.Join(username, conn.Connection)
@@ -435,10 +442,14 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 
 				// If the race is currently in the 10 second countdown
 				if race.Status == "starting" {
+					// Get the time 10 seconds in the future
+					startTime := time.Now().Add(10*time.Second).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+					// This will technically put them behind the other racers by some amount of seconds, but it gives them 10 seconds to get ready after a disconnect
+
 					// Send them a message describing exactly when it will start
 					conn.Connection.Emit("raceStart", &RaceStartMessage{
 						race.ID,
-						time.Now().Add(10 * time.Second).UnixNano(), // 10 seconds in the future
+						startTime,
 					})
 				}
 
@@ -501,7 +512,6 @@ func connClose(conn *ExtendedConnection) {
 			log.Error("Database error:", err)
 			return
 		}
-
 		// Send everyone a notification that the user left the race
 		connectionMap.RLock()
 		for _, conn := range connectionMap.m {
@@ -521,8 +531,8 @@ func connClose(conn *ExtendedConnection) {
 }
 
 /*
- *  WebSocket logout function
- */
+	WebSocket logout function
+*/
 
 func logout(conn *ExtendedConnection) {
 	log.Debug("User \"" + conn.Username + "\" sent a logout command.")
@@ -530,17 +540,12 @@ func logout(conn *ExtendedConnection) {
 }
 
 /*
- *  WebSocket miscellaneous subroutines
- */
-
-// Sent to the client after a successful command
-func connSuccess(conn *ExtendedConnection, functionName string, msg interface{}) {
-	conn.Connection.Emit("success", &SuccessMessage{functionName, msg})
-}
+	WebSocket miscellaneous subroutines
+*/
 
 // Sent to the client if either their command was unsuccessful or something else went wrong
-func connError(conn *ExtendedConnection, functionName string, msg string) {
-	conn.Connection.Emit("error", &ErrorMessage{functionName, msg})
+func connError(conn *ExtendedConnection, functionName string, message string) {
+	conn.Connection.Emit("error", &ErrorMessage{functionName, message})
 }
 
 // Called at the beginning of every command handler

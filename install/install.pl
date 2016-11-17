@@ -15,3 +15,7 @@ if ($directory =~ /(.+)\/.+$/) {
 
 # Install the database
 system "sqlite3 '$directory/../database.sqlite' < '$directory/database_schema.sql'";
+
+# Rebuild Go dependencies
+#system "rm -rf \$GOPATH/pkg";
+#system "go build -i";

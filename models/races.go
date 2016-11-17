@@ -1,8 +1,8 @@
 package models
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"database/sql"
@@ -10,14 +10,14 @@ import (
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type Races struct{}
 
 /*
- *  races table functions
- */
+	"races" table functions
+*/
 
 func (*Races) Exists(raceID int) (bool, error) {
 	// Find out if the requested race exists
@@ -36,8 +36,8 @@ func (*Races) GetCurrentRaces() ([]Race, error) {
 	// Get the current races
 	rows, err := db.Query(`
 		SELECT id, name, status,
-			ruleset, character, goal,
-			seed, instant_start, datetime_created,
+			format, character, goal,
+			starting_build, seed, datetime_created,
 			datetime_started, (SELECT username FROM users WHERE id = captain) as captain
 		FROM races
 		WHERE status != 'finished'
@@ -54,8 +54,8 @@ func (*Races) GetCurrentRaces() ([]Race, error) {
 		var race Race
 		err := rows.Scan(
 			&race.ID, &race.Name, &race.Status,
-			&race.Ruleset.Type, &race.Ruleset.Character, &race.Ruleset.Goal,
-			&race.Ruleset.Seed, &race.Ruleset.InstantStart, &race.DatetimeCreated,
+			&race.Ruleset.Format, &race.Ruleset.Character, &race.Ruleset.Goal,
+			&race.Ruleset.StartingBuild, &race.Seed, &race.DatetimeCreated,
 			&race.DatetimeStarted, &race.Captain,
 		)
 		if err != nil {
@@ -116,8 +116,8 @@ func (*Races) GetRuleset(raceID int) (Ruleset, error) {
 	// Get the ruleset of the race
 	var ruleset Ruleset
 	err := db.QueryRow(`
-		SELECT ruleset, character, goal, seed, instant_start FROM races WHERE id = ?
-	`, raceID).Scan(&ruleset.Type, &ruleset.Character, &ruleset.Goal, &ruleset.Seed, &ruleset.InstantStart)
+		SELECT format, character, goal, starting_build FROM races WHERE id = ?
+	`, raceID).Scan(&ruleset.Format, &ruleset.Character, &ruleset.Goal, &ruleset.StartingBuild)
 	if err != nil {
 		return ruleset, err
 	}
@@ -207,13 +207,31 @@ func (*Races) SetRuleset(raceID int, ruleset Ruleset) error {
 	// Set the new ruleset for this race
 	stmt, err := db.Prepare(`
 		UPDATE races
-		SET ruleset = ?, character = ?, goal = ?, seed = ?, instant_start = ?
+		SET ruleset = ?, character = ?, goal = ?, starting_build = ?
 		WHERE id = ?
 	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(ruleset.Type, ruleset.Character, ruleset.Goal, ruleset.Seed, ruleset.InstantStart, raceID)
+	_, err = stmt.Exec(ruleset.Format, ruleset.Character, ruleset.Goal, ruleset.StartingBuild, raceID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*Races) SetSeed(raceID int, seed string) error {
+	// Set a seed for this race
+	stmt, err := db.Prepare(`
+		UPDATE races
+		SET seed = ?
+		WHERE id = ?
+	`)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(seed, raceID)
 	if err != nil {
 		return err
 	}
@@ -225,13 +243,13 @@ func (*Races) Start(raceID int) error {
 	// Change the status for this race to "in progress" and set "datetime_started" equal to now
 	stmt, err := db.Prepare(`
 		UPDATE races
-		SET status = 'in progress', datetime_started = (strftime('%s', 'now'))
+		SET status = 'in progress', datetime_started = ?
 		WHERE id = ?
 	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(raceID)
+	_, err = stmt.Exec(makeTimestamp(), raceID)
 	if err != nil {
 		return err
 	}
@@ -261,12 +279,12 @@ func (*Races) Insert(name string, ruleset Ruleset, userID int) (int, error) {
 	// Add the race to the database
 	var raceID int
 	if stmt, err := db.Prepare(`
-		INSERT INTO races (name, ruleset, character, goal, seed, instant_start, captain)
+		INSERT INTO races (name, format, character, goal, starting_build, captain, datetime_created)
 		VALUES (?, ?, ?, ?, ?, ?, ?)
 	`); err != nil {
 		return 0, err
 	} else {
-		result, err := stmt.Exec(name, ruleset.Type, ruleset.Character, ruleset.Goal, ruleset.Seed, ruleset.InstantStart, userID)
+		result, err := stmt.Exec(name, ruleset.Format, ruleset.Character, ruleset.Goal, ruleset.StartingBuild, userID, makeTimestamp())
 		if err != nil {
 			return 0, err
 		}

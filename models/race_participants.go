@@ -1,22 +1,22 @@
 package models
 
 /*
- *  Imports
- */
+	Imports
+*/
 
 import (
 	"database/sql"
 )
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type RaceParticipants struct{}
 
 /*
- *  race_participants table functions
- */
+	"race_participants" table functions
+*/
 
 func (*RaceParticipants) GetCurrentRaces(username string) ([]Race, error) {
 	// Get a list of the non-finished races that the user is currently in
@@ -207,7 +207,7 @@ func (*RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
 		WHERE user_id = ? AND race_id = ?
 	`, userID, raceID).Scan(&floor)
 	if err != nil {
-		return 0, err
+		return floor, err
 	} else {
 		return floor, nil
 	}
@@ -350,11 +350,11 @@ func (*RaceParticipants) SetFloor(userID int, raceID int, floor int) error {
 
 func (*RaceParticipants) Insert(userID int, raceID int) error {
 	// Add the user to the participants list for that race
-	stmt, err := db.Prepare("INSERT INTO race_participants (user_id, race_id) VALUES (?, ?)")
+	stmt, err := db.Prepare("INSERT INTO race_participants (user_id, race_id, datetime_joined) VALUES (?, ?, ?)")
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(userID, raceID)
+	_, err = stmt.Exec(userID, raceID, makeTimestamp())
 	if err != nil {
 		return err
 	}

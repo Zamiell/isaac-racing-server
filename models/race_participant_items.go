@@ -1,14 +1,14 @@
 package models
 
 /*
- *  Data types
- */
+	Data types
+*/
 
 type RaceParticipantItems struct{}
 
 /*
- *  race_participant_items table functions
- */
+	"race_participant_items" table functions
+*/
 
 func (*RaceParticipantItems) Insert(userID int, raceID int, itemID int, floor int) error {
 	// Add the user to the participants list for that race
