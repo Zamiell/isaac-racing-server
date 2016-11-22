@@ -59,14 +59,3 @@ Install as a service (optional)
   * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf /etc/supervisord/supervisord.conf`
   * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf /etc/supervisord/conf.d/isaac-racing-server.conf`
 * Start it: `systemctl start supervisor`
-
-
-
-Install Squirrel Updates Server (for automatic updates)
--------------------------------------------------------
-
-* Install node/npm. (Using [nvm](https://github.com/creationix/nvm) to do this is recommended.)
-* Install [pm2](http://pm2.keymetrics.io/): `npm install pm2 -g`
-* Start the server: `pm2 start $GOPATH/Zamiell/isaac-racing-server/squirrel-updates-server/index.js --name squirrel-updates-server --merge-logs --log="$GOPATH/Zamiell/isaac-racing-server/squirrel-updates-server/logs/squirrel-updates-server.log"`
-* Save the list: `pm2 save`
-* Make sure pm2 starts on boot: `pm2 startup`

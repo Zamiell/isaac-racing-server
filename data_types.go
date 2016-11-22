@@ -90,13 +90,6 @@ type PrivateMessageMessage struct {
 	Message string `json:"message"`
 }
 
-// Sent in the "roomSetName" command (in the "profileSetUsername" function)
-type RoomSetNameMessage struct {
-	Room    string `json:"room"`
-	Name    string `json:"name"`
-	NewName string `json:"newName"`
-}
-
 // Sent in the "roomSetSquelched" command (in the "adminSquelch" and "adminUnsquelch" functions)
 type RoomSetSquelchedMessage struct {
 	Room      string `json:"room"`
@@ -194,4 +187,10 @@ type AchievementMessage struct {
 // Sent in the "profile" command (in the "getProfile" function)
 type Profile struct {
 	// TODO
+}
+
+// Sent in the "profileSetUsername" command (in the "profileSetUsername" function)
+type ProfileSetNameMessage struct {
+	Name    string `json:"name"`
+	NewName string `json:"newName"`
 }

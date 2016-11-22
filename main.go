@@ -88,6 +88,14 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 }
 
 /*
+	HTTP to HTTPS redirect
+*/
+
+func HTTPRedirect(w http.ResponseWriter, req *http.Request) {
+	http.Redirect(w, req, "https://"+req.Host+req.URL.String(), http.StatusMovedPermanently)
+}
+
+/*
 	Program entry point
 */
 
@@ -244,6 +252,7 @@ func main() {
 	// Figure out the port that we are using for the HTTP server
 	var port int
 	if useSSL == true {
+		go http.ListenAndServe(":80", http.HandlerFunc(HTTPRedirect))
 		port = 443
 	} else {
 		port = 80

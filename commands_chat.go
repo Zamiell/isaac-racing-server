@@ -7,6 +7,7 @@ package main
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
 	"strings"
+	"unicode/utf8"
 )
 
 /*
@@ -210,7 +211,7 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the message is not excessively long
-	if len(message) > 150 {
+	if utf8.RuneCountInString(message) > 150 {
 		commandMutex.Unlock()
 		connError(conn, functionName, "Messages must not be longer than 150 characters.")
 		return

@@ -82,17 +82,31 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 		return
 	}
 
-	// Validate that the submitted stylization
+	// Validate that the submitted stylization is different than before
 	if newUsername == username {
 		commandMutex.Unlock()
 		connError(conn, functionName, "Your username is already set to that stylization.")
 		return
 	}
 
-	// Validate the submitted stylization is not a different username (or an empty username)
+	// Validate that the submitted stylization is not a different username (or an empty username)
 	if strings.ToLower(newUsername) != strings.ToLower(username) {
 		commandMutex.Unlock()
 		connError(conn, functionName, "You can only change the capitalization of your username, not change it entirely.")
+		return
+	}
+
+	// Validate that the user is not in any races that are currently going on
+	raceList, err := db.RaceParticipants.GetCurrentRaces(username)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+	if len(raceList) > 1 {
+		commandMutex.Unlock()
+		connError(conn, functionName, "You cannot change your name if you are currently in a race.")
 		return
 	}
 
@@ -103,9 +117,6 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
-
-	// Set the new username in the connection
-	conn.Username = newUsername
 
 	// Look for this user in all chat rooms
 	chatRoomMap.Lock()
@@ -121,28 +132,28 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 		if index != -1 {
 			// Update their username
 			chatRoomMap.m[room][index].Name = newUsername
-
-			// Send everyone an room update
-			users, ok := chatRoomMap.m[room]
-			if ok == false {
-				log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
-				continue
-			}
-
-			connectionMap.RLock()
-			for _, user := range users {
-				userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
-				if ok == true {
-					userConnection.Connection.Emit("roomSetName", &RoomSetNameMessage{room, username, newUsername})
-				} else {
-					log.Error("Failed to get the connection for user \"" + user.Name + "\" while setting a new username for user \"" + username + "\".")
-					continue
-				}
-			}
-			connectionMap.RUnlock()
 		}
 	}
 	chatRoomMap.Unlock()
+
+	// Send everyone a notification that the user changed their name
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("profileSetName", &ProfileSetNameMessage{
+			Name:    username,
+			NewName: newUsername,
+		})
+	}
+	connectionMap.RUnlock()
+
+	// Change their username in the connection map
+	// (Connections are indexed by username, so we have to delete the old entry and add a new one)
+	connectionMap.Lock()
+	tempConn := connectionMap.m[username]
+	tempConn.Username = newUsername
+	delete(connectionMap.m, username) // This will do nothing if the entry doesn't exist
+	connectionMap.m[newUsername] = tempConn
+	connectionMap.Unlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

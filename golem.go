@@ -395,10 +395,8 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	// Add the connection to a connection map so that we can keep track of all of the connections
 	connectionMap.Lock()
 	connectionMap.m[username] = conn
+	log.Info("User \""+username+"\" connected;", len(connectionMap.m), "user(s) now connected.") // Log the connection
 	connectionMap.Unlock()
-
-	// Log the connection
-	log.Info("User \""+username+"\" connected;", len(connectionMap.m), "user(s) now connected.")
 
 	// Send them their username
 	// (the client already knows their username, but it may not be the same as the server-side stylization)
@@ -524,7 +522,9 @@ func connClose(conn *ExtendedConnection) {
 	}
 
 	// Log the disconnection
+	connectionMap.RLock()
 	log.Info("User \""+username+"\" disconnected;", len(connectionMap.m), "user(s) now connected.")
+	connectionMap.RUnlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
