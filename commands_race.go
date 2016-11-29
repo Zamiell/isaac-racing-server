@@ -8,9 +8,11 @@ import (
 	"github.com/Zamiell/isaac-racing-server/models"
 
 	"os/exec"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 /*
@@ -39,6 +41,14 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Validate that the race name cannot be empty
 	if name == "" {
 		name = "-"
+	}
+
+	// Validate that the race name is not longer than 100 characters
+	if utf8.RuneCountInString(name) > 150 {
+		log.Warning("User \"" + username + "\" sent a race name longer than 100 characters.")
+		commandMutex.Unlock()
+		connError(conn, functionName, "Race names must not be longer than 150 characters.")
+		return
 	}
 
 	// Validate that the ruleset options cannot be empty
@@ -901,14 +911,6 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Validate that the floor is sane
-	if floor < 1 || floor > 11 {
-		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(floor) + "\" is a bogus floor.")
-		connError(conn, functionName, "That is not a valid floor.")
-		return
-	}
-
 	// Validate basic things about the race ID
 	if raceValidate(conn, data, functionName) == false {
 		return
@@ -926,6 +928,48 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that their status is set to "racing" status
 	if racerValidateStatus(conn, userID, raceID, "racing", functionName) == false {
+		return
+	}
+
+	// Validate that the floor is sane
+	re, err := regexp.Compile(`(\d+)-(\d+)`)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Failed to compile the floor regular expression.")
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+	floorArray := re.FindStringSubmatch(floor)
+	if floorArray == nil {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + floor + "\" is a bogus floor.")
+		connError(conn, functionName, "That is not a valid floor.")
+		return
+	}
+	floorNum, err := strconv.Atoi(floorArray[1])
+	if err != nil {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + floorArray[1] + "\" is a bogus floor number.")
+		connError(conn, functionName, "That is not a valid floor.")
+		return
+	}
+	stageType, err := strconv.Atoi(floorArray[2])
+	if err != nil {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + floorArray[2] + "\" is a bogus stage type.")
+		connError(conn, functionName, "That is not a valid floor.")
+		return
+	}
+
+	if floorNum < 1 || floorNum > 11 {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(floorNum) + "\" is a bogus floor number.")
+		connError(conn, functionName, "That is not a valid floor.")
+		return
+	} else if stageType < 0 || stageType > 2 {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(stageType) + "\" is a bogus stage type.")
+		connError(conn, functionName, "That is not a valid floor.")
 		return
 	}
 
@@ -1324,6 +1368,16 @@ func raceCheckStart3(raceID int) {
 				log.Error("Database error:", err)
 				return
 			}
+
+			// Send a notification to all the people in this particular race that the user quit
+			connectionMap.RLock()
+			for _, racer2 := range racerList {
+				conn, ok := connectionMap.m[racer2.Name]
+				if ok == true { // Not all racers may be online during a race
+					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, racer.Name, "quit"})
+				}
+			}
+			connectionMap.RUnlock()
 		}
 	}
 

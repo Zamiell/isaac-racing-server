@@ -10,7 +10,7 @@ type RaceParticipantItems struct{}
 	"race_participant_items" table functions
 */
 
-func (*RaceParticipantItems) Insert(userID int, raceID int, itemID int, floor int) error {
+func (*RaceParticipantItems) Insert(userID int, raceID int, itemID int, floor string) error {
 	// Add the user to the participants list for that race
 	stmt, err := db.Prepare(`
 		INSERT INTO race_participant_items (race_participant_id, item_id, floor)

@@ -17,15 +17,6 @@ import (
 )
 
 /*
-	Constants
-*/
-
-const (
-	rateLimitRate = 30 // In commands sent
-	rateLimitPer  = 60 // In seconds
-)
-
-/*
 	Custom Golem connection constructor
 */
 

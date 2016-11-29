@@ -30,12 +30,14 @@ import (
 */
 
 const (
-	sessionName = "isaac.sid"
-	domain      = "isaacracing.net"
-	auth0Domain = "isaacserver.auth0.com"
-	useSSL      = true
-	sslCertFile = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
-	sslKeyFile  = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
+	sessionName   = "isaac.sid"
+	domain        = "isaacracing.net"
+	auth0Domain   = "isaacserver.auth0.com"
+	useSSL        = true
+	sslCertFile   = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
+	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
+	rateLimitRate = 120 // In commands sent
+	rateLimitPer  = 60  // In seconds
 )
 
 /*

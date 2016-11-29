@@ -198,9 +198,9 @@ func (*RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 	return racerNames, nil
 }
 
-func (*RaceParticipants) GetFloor(raceID int, userID int) (int, error) {
+func (*RaceParticipants) GetFloor(raceID int, userID int) (string, error) {
 	// Check to see what floor this user is currently on
-	var floor int
+	var floor string
 	err := db.QueryRow(`
 		SELECT floor
 		FROM race_participants
@@ -334,7 +334,7 @@ func (*RaceParticipants) SetComment(userID int, raceID int, comment string) erro
 	return nil
 }
 
-func (*RaceParticipants) SetFloor(userID int, raceID int, floor int) error {
+func (*RaceParticipants) SetFloor(userID int, raceID int, floor string) error {
 	// Set the floor for the user
 	stmt, err := db.Prepare("UPDATE race_participants SET floor = ? WHERE user_id = ? AND race_id = ?")
 	if err != nil {

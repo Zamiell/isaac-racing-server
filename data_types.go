@@ -34,7 +34,7 @@ type IncomingCommandMessage struct {
 	ID      int            `json:"id"`
 	Comment string         `json:"comment"`
 	ItemID  int            `json:"itemID"`
-	Floor   int            `json:"floor"`
+	Floor   string         `json:"floor"`
 	IP      string         `json:"ip"`
 }
 
@@ -164,7 +164,7 @@ type RacerAddItemMessage struct {
 type RacerSetFloorMessage struct {
 	ID    int    `json:"id"`
 	Name  string `json:"name"`
-	Floor int    `json:"floor"`
+	Floor string `json:"floor"`
 }
 
 // Sent to tell the client exactly when the race is starting

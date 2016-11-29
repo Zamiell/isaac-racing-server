@@ -57,7 +57,7 @@ CREATE TABLE race_participants (
     comment               TEXT                  DEFAULT "-",
     seed                  TEXT                  DEFAULT "-",
     starting_item         INTEGER               DEFAULT 0,
-    floor                 INTEGER               DEFAULT 1,
+    floor                 TEXT                  DEFAULT "1-0",
     FOREIGN KEY(user_id)  REFERENCES users(id),
     FOREIGN KEY(race_id)  REFERENCES races(id),
     UNIQUE(user_id, race_id)

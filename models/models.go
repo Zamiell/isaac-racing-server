@@ -66,11 +66,11 @@ type Racer struct {
 	Place            int    `json:"place"`
 	Comment          string `json:"comment"`
 	Items            []Item `json:"items"`
-	Floor            int    `json:"floor"`
+	Floor            string `json:"floor"`
 }
 type Item struct {
-	ID    int `json:"id"`
-	Floor int `json:"floor"`
+	ID    int    `json:"id"`
+	Floor string `json:"floor"`
 }
 
 /*
