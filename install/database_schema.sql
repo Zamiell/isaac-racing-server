@@ -50,7 +50,7 @@ CREATE TABLE race_participants (
     id                    INTEGER               PRIMARY KEY  AUTOINCREMENT,
     user_id               INTEGER               NOT NULL,
     race_id               INTEGER               NOT NULL,
-    status                TEXT                  DEFAULT "not ready", /* ready, racing, finished, quit, disqualified */
+    status                TEXT                  DEFAULT "not ready", /* ready, racing, finished, quit, disqualified, observing */
     datetime_joined       INTEGER               NOT NULL,
     datetime_finished     INTEGER               DEFAULT 0,
     place                 INTEGER               DEFAULT 0,

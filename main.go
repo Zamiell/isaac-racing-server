@@ -6,6 +6,7 @@ package main // In Go, executable commands must always use package main
 
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
+	"github.com/Zamiell/isaac-racing-server/twitch-bot"
 
 	"net/http" // For establishing an HTTP server
 	"os"       // For logging and reading environment variables
@@ -158,6 +159,9 @@ func main() {
 
 	// Initialize the achievements
 	achievementsInit()
+
+	// Start the Twitch bot
+	go twitchBot.Init()
 
 	// Create a WebSocket router using the Golem framework
 	router := golem.NewRouter()

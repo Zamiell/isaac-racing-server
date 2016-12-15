@@ -59,3 +59,9 @@ Install as a service (optional)
   * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf /etc/supervisord/supervisord.conf`
   * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf /etc/supervisord/conf.d/isaac-racing-server.conf`
 * Start it: `systemctl start supervisor`
+
+Later, to manage the service:
+
+* Start it: `supervisorctl start isaac-racing-server`
+* Stop it: `supervisorctl stop isaac-racing-server`
+* Restart it: `supervisorctl restart isaac-racing-server`

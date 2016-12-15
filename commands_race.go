@@ -238,6 +238,67 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Unlock()
 }
 
+func raceJoinSpectate(conn *ExtendedConnection, data *IncomingCommandMessage) {
+	// Local variables
+	functionName := "raceJoinSpectate"
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+
+	// Rate limit all commands
+	if commandRateLimit(conn) == true {
+		return
+	}
+
+	// Validate basic things about the race ID
+	if raceValidate(conn, data, functionName) == false {
+		return
+	}
+
+	// Validate that they are not in the race
+	if raceValidateOut(conn, data, functionName) == false {
+		return
+	}
+
+	// Add this user to the participants list for that race
+	if err := db.RaceParticipants.Insert(userID, raceID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Send everyone a notification that the user joined
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("raceJoined", RaceMessage{raceID, username})
+	}
+	connectionMap.RUnlock()
+
+	// Get all the information about the racers in this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		return
+	}
+
+	// Send it to the user
+	conn.Connection.Emit("racerList", &RacerList{raceID, racerList})
+
+	// Join the user to the channel for that race
+	roomJoinSub(conn, "_race_"+strconv.Itoa(raceID))
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
+}
+
 func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceLeave"
@@ -1114,14 +1175,15 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 	return true
 }
 
-func raceValidateIn(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
+// Playing or observing
+func raceValidateIn1(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
 	// Local variables
 	userID := conn.UserID
 	username := conn.Username
 	raceID := data.ID
 
 	// Validate that they are in the race
-	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
+	if userInRace, err := db.RaceParticipants.CheckInRacePlaying(userID, raceID); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")

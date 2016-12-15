@@ -213,8 +213,25 @@ func (*RaceParticipants) GetFloor(raceID int, userID int) (string, error) {
 	}
 }
 
-func (*RaceParticipants) CheckInRace(userID int, raceID int) (bool, error) {
-	// Check to see if the user is in this race
+func (*RaceParticipants) CheckInRace1(userID int, raceID int) (bool, error) {
+	// ONLY playing (not observing)
+	var id int
+	err := db.QueryRow(`
+		SELECT id
+		FROM race_participants
+		WHERE user_id = ? AND race_id = ? AND status != 'observing'
+	`, userID, raceID).Scan(&id)
+	if err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	} else {
+		return true, nil
+	}
+}
+
+func (*RaceParticipants) CheckInRace2(userID int, raceID int) (bool, error) {
+	// Playing or observing
 	var id int
 	err := db.QueryRow(`
 		SELECT id

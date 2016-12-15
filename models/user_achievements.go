@@ -16,7 +16,7 @@ func (*UserAchievements) GetAll(username string) ([]int, error) {
  		SELECT achievement_id
  		FROM user_achievements
  		WHERE user_id = (SELECT id FROM users WHERE username = ?)
- 		ORDER BY datetime
+ 		ORDER BY datetime_achieved
  	`, username)
 	if err != nil {
 		return nil, err
