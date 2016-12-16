@@ -21,7 +21,10 @@ CREATE TABLE users (
     elo                        INTEGER    DEFAULT 0,
     last_elo_change            INTEGER    DEFAULT 0,
     num_seeded_races           INTEGER    DEFAULT 0,
-    last_seeded_race           INTEGER    DEFAULT 0
+    last_seeded_race           INTEGER    DEFAULT 0,
+    stream                     TEXT       DEFAULT "-", /* Their stream URL */
+    twitch_bot_enabled         INTEGER    DEFAULT 0, /* Either 0 or 1 */
+    twitch_bot_delay           INTEGER    DEFAULT 0 /* Between 0 and 60 */
 );
 CREATE UNIQUE INDEX users_index_auth0_id ON users (auth0_id);
 CREATE UNIQUE INDEX users_index_username ON users (username COLLATE NOCASE);
@@ -53,7 +56,7 @@ CREATE TABLE race_participants (
     status                TEXT                  DEFAULT "not ready", /* ready, racing, finished, quit, disqualified, observing */
     datetime_joined       INTEGER               NOT NULL,
     datetime_finished     INTEGER               DEFAULT 0,
-    place                 INTEGER               DEFAULT 0,
+    place                 INTEGER               DEFAULT 0, /* -1 is quit, -2 is disqualified */
     comment               TEXT                  DEFAULT "-",
     seed                  TEXT                  DEFAULT "-",
     starting_item         INTEGER               DEFAULT 0,

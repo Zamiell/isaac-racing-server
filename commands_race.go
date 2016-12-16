@@ -201,7 +201,7 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are not in the race
-	if raceValidateOut(conn, data, functionName) == false {
+	if raceValidateOut2(conn, data, functionName) == false {
 		return
 	}
 
@@ -262,7 +262,7 @@ func raceJoinSpectate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are not in the race
-	if raceValidateOut(conn, data, functionName) == false {
+	if raceValidateOut2(conn, data, functionName) == false {
 		return
 	}
 
@@ -327,7 +327,7 @@ func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -385,7 +385,7 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -453,7 +453,7 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -558,7 +558,7 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -658,7 +658,7 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -672,23 +672,91 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Get the list of racers for this race
-	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
+	// Set their finish time
+	if err := db.RaceParticipants.SetDatetimeFinished(username, raceID, int(makeTimestamp())); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Get the place of the last person that finished so far
+	currentPlace, err := db.RaceParticipants.GetCurrentPlace(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Set their place
+	if err := db.RaceParticipants.SetPlace(username, raceID, currentPlace+1); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Get the list of racers for this race
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
 	// Send a notification to all the people in this particular race that the user finished
 	connectionMap.RLock()
-	for _, racer := range racerNames {
-		conn, ok := connectionMap.m[racer]
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "finished"})
 		}
 	}
 	connectionMap.RUnlock()
+
+	// Calculate their run time
+	started, err := db.Races.GetDatetimeStarted(raceID)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		return
+	}
+	var runTime int
+	var place int
+	for _, racer := range racerList {
+		if racer.Name == username {
+			log.Debug("started:", started)
+			log.Debug("finished:", racer.DatetimeFinished)
+			runTime = racer.DatetimeFinished - started
+			place = racer.Place
+			break
+		}
+	}
+	log.Debug("runtime:", runTime)
+	minutes := strconv.Itoa(runTime / 1000 / 60)
+	log.Debug("minutes:", minutes)
+	seconds := strconv.Itoa(runTime / 1000 % 60)
+	if len(seconds) == 1 {
+		seconds = "0" + seconds
+	}
+	timeString := "(" + minutes + ":" + seconds + ")"
+	placeString := getOrdinal(place)
+
+	// Get the number of people left in the race
+	peopleLeft, err := db.RaceParticipants.GetPeopleLeft(raceID)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Make the Twitch bot announce that the person finished
+	for _, racer := range racerList {
+		twitchRacerSend(racer, "/me - "+placeString+" - "+username+" "+timeString+" - "+strconv.Itoa(peopleLeft)+" left")
+	}
 
 	// Check to see if the race is ready to finish
 	raceCheckFinish(raceID)
@@ -732,7 +800,7 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -746,8 +814,24 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	// Set their finish time
+	if err := db.RaceParticipants.SetDatetimeFinished(username, raceID, int(makeTimestamp())); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Set their place to -1 (which indicates a quit status)
+	if err := db.RaceParticipants.SetPlace(username, raceID, -1); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
 	// Get the list of racers for this race
-	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -756,13 +840,27 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send a notification to all the people in this particular race that the user quit
 	connectionMap.RLock()
-	for _, racer := range racerNames {
-		conn, ok := connectionMap.m[racer]
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "quit"})
 		}
 	}
 	connectionMap.RUnlock()
+
+	// Get the number of people left in the race
+	peopleLeft, err := db.RaceParticipants.GetPeopleLeft(raceID)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Make the Twitch bot announce that the person quit
+	for _, racer := range racerList {
+		twitchRacerSend(racer, "/me - "+username+" quit - "+strconv.Itoa(peopleLeft)+" left")
+	}
 
 	// Check to see if the race is ready to finish
 	raceCheckFinish(raceID)
@@ -832,7 +930,7 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -904,7 +1002,7 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -983,7 +1081,7 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are in the race
-	if raceValidateIn(conn, data, functionName) == false {
+	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
@@ -1183,7 +1281,7 @@ func raceValidateIn1(conn *ExtendedConnection, data *IncomingCommandMessage, fun
 	raceID := data.ID
 
 	// Validate that they are in the race
-	if userInRace, err := db.RaceParticipants.CheckInRacePlaying(userID, raceID); err != nil {
+	if userInRace, err := db.RaceParticipants.CheckInRace1(userID, raceID); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -1191,7 +1289,7 @@ func raceValidateIn1(conn *ExtendedConnection, data *IncomingCommandMessage, fun
 	} else if userInRace == false {
 		commandMutex.Unlock()
 		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are not in that race.")
-		connError(conn, functionName, "You are not in race ID "+strconv.Itoa(raceID)+".")
+		connError(conn, functionName, "You are not playing in or observing race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
 
@@ -1199,14 +1297,38 @@ func raceValidateIn1(conn *ExtendedConnection, data *IncomingCommandMessage, fun
 	return true
 }
 
-func raceValidateOut(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
+// ONLY playing (not observing)
+func raceValidateIn2(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
+	// Local variables
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+
+	// Validate that they are in the race
+	if userInRace, err := db.RaceParticipants.CheckInRace2(userID, raceID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return false
+	} else if userInRace == false {
+		commandMutex.Unlock()
+		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are not in that race.")
+		connError(conn, functionName, "You are not playing in race ID "+strconv.Itoa(raceID)+".")
+		return false
+	}
+
+	// The user is in the race
+	return true
+}
+
+func raceValidateOut1(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
 	// Local variables
 	userID := conn.UserID
 	username := conn.Username
 	raceID := data.ID
 
 	// Validate that they are not already in the race
-	if userInRace, err := db.RaceParticipants.CheckInRace(userID, raceID); err != nil {
+	if userInRace, err := db.RaceParticipants.CheckInRace1(userID, raceID); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -1214,7 +1336,30 @@ func raceValidateOut(conn *ExtendedConnection, data *IncomingCommandMessage, fun
 	} else if userInRace == true {
 		commandMutex.Unlock()
 		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are already in that race.")
-		connError(conn, functionName, "You are already in race ID "+strconv.Itoa(raceID)+".")
+		connError(conn, functionName, "You are already playing or observing race ID "+strconv.Itoa(raceID)+".")
+		return false
+	}
+
+	// The user is not in the race
+	return true
+}
+
+func raceValidateOut2(conn *ExtendedConnection, data *IncomingCommandMessage, functionName string) bool {
+	// Local variables
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+
+	// Validate that they are not already in the race
+	if userInRace, err := db.RaceParticipants.CheckInRace2(userID, raceID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return false
+	} else if userInRace == true {
+		commandMutex.Unlock()
+		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are already in that race.")
+		connError(conn, functionName, "You are already playing in race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
 
@@ -1313,7 +1458,7 @@ func raceCheckStart(raceID int) {
 	connectionMap.RUnlock()
 
 	// Get the list of people in this race
-	racers, err := db.RaceParticipants.GetRacerNames(raceID)
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		log.Error("Database error:", err)
 		return
@@ -1324,18 +1469,23 @@ func raceCheckStart(raceID int) {
 
 	// Send everyone in the race a message describing exactly when it will start
 	connectionMap.RLock()
-	for _, username := range racers {
-		conn, ok := connectionMap.m[username]
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
 		if ok == true {
 			conn.Connection.Emit("raceStart", &RaceStartMessage{
 				raceID,
 				startTime,
 			})
 		} else {
-			log.Warning("Failed to send a raceStart message to user \"" + username + "\". This should never happen.")
+			log.Warning("Failed to send a raceStart message to user \"" + racer.Name + "\". This should never happen.")
 		}
 	}
 	connectionMap.RUnlock()
+
+	// Make the Twitch bot announce that the race is starting in 10 seconds
+	for _, racer := range racerList {
+		twitchRacerSend(racer, "/me - The race is staring in 10 seconds!")
+	}
 
 	// Return for now and do more things in 10 seconds
 	go raceCheckStart2(raceID)

@@ -6,7 +6,6 @@ package main // In Go, executable commands must always use package main
 
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
-	"github.com/Zamiell/isaac-racing-server/twitch-bot"
 
 	"net/http" // For establishing an HTTP server
 	"os"       // For logging and reading environment variables
@@ -149,11 +148,21 @@ func main() {
 	}
 
 	// Clean up any non-started races before we start
-	if leftoverRaces, err := db.Races.Cleanup(); err != nil {
+	if nonStartedRaces, err := db.Races.Cleanup(); err != nil {
 		log.Fatal("Failed to cleanup the leftover races:", err)
 	} else {
-		for _, raceID := range leftoverRaces {
+		for _, raceID := range nonStartedRaces {
 			log.Info("Deleted race", raceID, "during starting cleanup.")
+		}
+	}
+
+	// Initiate the "end of race" function for each of the non-finished races in 30 minutes
+	// (this is normally initiated on race start)
+	if startedRaces, err := db.Races.GetCurrentRaces(); err != nil {
+		log.Fatal("Failed to start  the leftover races:", err)
+	} else {
+		for _, race := range startedRaces {
+			go raceCheckStart3(race.ID)
 		}
 	}
 
@@ -161,7 +170,7 @@ func main() {
 	achievementsInit()
 
 	// Start the Twitch bot
-	go twitchBot.Init()
+	go twitchInit()
 
 	// Create a WebSocket router using the Golem framework
 	router := golem.NewRouter()
@@ -197,6 +206,9 @@ func main() {
 	// Profile commands
 	router.On("profileGet", profileGet)
 	router.On("profileSetUsername", profileSetUsername)
+	router.On("profileSetStream", profileSetStream)
+	router.On("profileSetTwitchBotEnabled", profileSetTwitchBotEnabled)
+	router.On("profileSetTwitchBotDelay", profileSetTwitchBotDelay)
 
 	// Admin commands
 	router.On("adminBan", adminBan)

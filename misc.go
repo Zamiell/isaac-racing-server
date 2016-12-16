@@ -6,6 +6,7 @@ package main
 
 import (
 	"math/rand"
+	"strconv"
 	"time"
 	"unicode"
 )
@@ -48,4 +49,19 @@ func getRandomString(length int) string {
 // From: https://stackoverflow.com/questions/24122821/go-golang-time-now-unixnano-convert-to-milliseconds
 func makeTimestamp() int64 {
 	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+}
+
+func getOrdinal(n int) string {
+	s := []string{"th", "st", "nd", "rd"}
+	v := n % 100
+	test := (v - 20) % 10
+	var ord string
+	if test >= 0 && test <= 3 {
+		ord = s[test]
+	} else if v >= 0 && v <= 3 {
+		ord = s[v]
+	} else {
+		ord = s[0]
+	}
+	return strconv.Itoa(n) + ord
 }

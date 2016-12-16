@@ -112,6 +112,17 @@ func (*Races) GetStatus(raceID int) (string, error) {
 	return status, nil
 }
 
+func (*Races) GetDatetimeStarted(raceID int) (int, error) {
+	// Get the time that the race started
+	var datetimeStarted int
+	err := db.QueryRow("SELECT datetime_started FROM races WHERE id = ?", raceID).Scan(&datetimeStarted)
+	if err != nil {
+		return 0, err
+	}
+
+	return datetimeStarted, nil
+}
+
 func (*Races) GetRuleset(raceID int) (Ruleset, error) {
 	// Get the ruleset of the race
 	var ruleset Ruleset

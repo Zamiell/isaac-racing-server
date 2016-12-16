@@ -81,10 +81,12 @@ func (*RaceParticipants) GetNotStartedRaces(userID int) ([]int, error) {
 func (*RaceParticipants) GetFinishedRaces(username string) ([]Race, error) {
 	// Get a list of the finished races for this user
 	rows, err := db.Query(`
-		SELECT race_id, ruleset
+		SELECT races.id, races.format
 		FROM race_participants
-		WHERE user_id = (SELECT id FROM users WHERE username = ?) AND status = 'finished'
-		ORDER BY datetime_finished
+			JOIN races ON race_participants.race_id = races.id
+		WHERE race_participants.user_id = (SELECT id FROM users WHERE username = ?)
+		AND race_participants.status = 'finished'
+		ORDER BY race_participants.datetime_finished
 	`, username)
 	if err != nil {
 		return nil, err
@@ -95,7 +97,7 @@ func (*RaceParticipants) GetFinishedRaces(username string) ([]Race, error) {
 	var raceList []Race
 	for rows.Next() {
 		var race Race
-		err := rows.Scan(&race.ID, &race.Ruleset)
+		err := rows.Scan(&race.ID, &race.Ruleset.Format)
 		if err != nil {
 			return nil, err
 		}
@@ -112,7 +114,8 @@ func (*RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 	rows, err := db.Query(`
 		SELECT users.username, race_participants.status, race_participants.datetime_joined,
 			race_participants.datetime_finished, race_participants.place, race_participants.comment,
-			race_participants.floor
+			race_participants.floor, users.stream, users.twitch_bot_enabled,
+			users.twitch_bot_delay
 		FROM race_participants
 			JOIN users ON users.id = race_participants.user_id
 		WHERE race_participants.race_id = ?
@@ -127,7 +130,12 @@ func (*RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 	racerList := make([]Racer, 0)
 	for rows.Next() {
 		var racer Racer
-		err := rows.Scan(&racer.Name, &racer.Status, &racer.DatetimeJoined, &racer.DatetimeFinished, &racer.Place, &racer.Comment, &racer.Floor)
+		err := rows.Scan(
+			&racer.Name, &racer.Status, &racer.DatetimeJoined,
+			&racer.DatetimeFinished, &racer.Place, &racer.Comment,
+			&racer.Floor, &racer.Stream, &racer.TwitchBotEnabled,
+			&racer.TwitchBotDelay,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -198,6 +206,21 @@ func (*RaceParticipants) GetRacerNames(raceID int) ([]string, error) {
 	return racerNames, nil
 }
 
+func (*RaceParticipants) GetCurrentPlace(raceID int) (int, error) {
+	// Get the place of the last person that finished so far
+	var place int
+	err := db.QueryRow(`
+		SELECT MAX(place)
+		FROM race_participants
+		WHERE race_id = ?
+	`, raceID).Scan(&place)
+	if err != nil {
+		return place, err
+	} else {
+		return place, nil
+	}
+}
+
 func (*RaceParticipants) GetFloor(raceID int, userID int) (string, error) {
 	// Check to see what floor this user is currently on
 	var floor string
@@ -213,13 +236,28 @@ func (*RaceParticipants) GetFloor(raceID int, userID int) (string, error) {
 	}
 }
 
+func (*RaceParticipants) GetPeopleLeft(raceID int) (int, error) {
+	// Get the number of people left in the race
+	var peopleLeft int
+	err := db.QueryRow(`
+		SELECT COUNT(id)
+		FROM race_participants
+		WHERE race_id = ? AND status = 'racing'
+	`, raceID).Scan(&peopleLeft)
+	if err != nil {
+		return peopleLeft, err
+	} else {
+		return peopleLeft, nil
+	}
+}
+
 func (*RaceParticipants) CheckInRace1(userID int, raceID int) (bool, error) {
-	// ONLY playing (not observing)
+	// Playing or observing
 	var id int
 	err := db.QueryRow(`
 		SELECT id
 		FROM race_participants
-		WHERE user_id = ? AND race_id = ? AND status != 'observing'
+		WHERE user_id = ? AND race_id = ?
 	`, userID, raceID).Scan(&id)
 	if err == sql.ErrNoRows {
 		return false, nil
@@ -231,12 +269,12 @@ func (*RaceParticipants) CheckInRace1(userID int, raceID int) (bool, error) {
 }
 
 func (*RaceParticipants) CheckInRace2(userID int, raceID int) (bool, error) {
-	// Playing or observing
+	// ONLY playing (not observing)
 	var id int
 	err := db.QueryRow(`
 		SELECT id
 		FROM race_participants
-		WHERE user_id = ? AND race_id = ?
+		WHERE user_id = ? AND race_id = ? AND status != 'observing'
 	`, userID, raceID).Scan(&id)
 	if err == sql.ErrNoRows {
 		return false, nil
@@ -337,9 +375,52 @@ func (*RaceParticipants) SetAllStatus(raceID int, status string) error {
 	return nil
 }
 
+func (*RaceParticipants) SetDatetimeFinished(username string, raceID int, datetime int) error {
+	// Set the finish time for the user
+	stmt, err := db.Prepare(`
+		UPDATE race_participants
+		SET datetime_finished = ?
+		WHERE user_id = (SELECT id FROM users WHERE username = ?)
+		AND race_id = ?
+	`)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(datetime, username, raceID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*RaceParticipants) SetPlace(username string, raceID int, place int) error {
+	// Set the place for the user
+	stmt, err := db.Prepare(`
+		UPDATE race_participants
+		SET place = ?
+		WHERE user_id = (SELECT id FROM users WHERE username = ?)
+		AND race_id = ?
+	`)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(place, username, raceID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (*RaceParticipants) SetComment(userID int, raceID int, comment string) error {
 	// Set the comment for the user
-	stmt, err := db.Prepare("UPDATE race_participants SET comment = ? WHERE user_id = ? AND race_id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE race_participants
+		SET comment = ?
+		WHERE user_id = ?
+		AND race_id = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -353,7 +434,12 @@ func (*RaceParticipants) SetComment(userID int, raceID int, comment string) erro
 
 func (*RaceParticipants) SetFloor(userID int, raceID int, floor string) error {
 	// Set the floor for the user
-	stmt, err := db.Prepare("UPDATE race_participants SET floor = ? WHERE user_id = ? AND race_id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE race_participants
+		SET floor = ?
+		WHERE user_id = ?
+		AND race_id = ?
+	`)
 	if err != nil {
 		return err
 	}

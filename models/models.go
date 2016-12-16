@@ -67,6 +67,9 @@ type Racer struct {
 	Comment          string `json:"comment"`
 	Items            []Item `json:"items"`
 	Floor            string `json:"floor"`
+	Stream           string
+	TwitchBotEnabled int
+	TwitchBotDelay   int
 }
 type Item struct {
 	ID    int    `json:"id"`

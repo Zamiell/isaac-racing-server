@@ -389,12 +389,36 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	log.Info("User \""+username+"\" connected;", len(connectionMap.m), "user(s) now connected.") // Log the connection
 	connectionMap.Unlock()
 
-	// Send them their username
-	// (the client already knows their username, but it may not be the same as the server-side stylization)
-	conn.Connection.Emit("username", username)
+	// Get their stream URL
+	stream, err := db.Users.GetStream(userID)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		return
+	}
 
-	// Send them the current time so that they can calculate the local offset
-	conn.Connection.Emit("time", makeTimestamp())
+	// Get their Twitch bot settings
+	twitchBotEnabled, err := db.Users.GetTwitchBotEnabled(username)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		return
+	}
+	twitchBotDelay, err := db.Users.GetTwitchBotDelay(username)
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		return
+	}
+
+	// Send them various settings tied to their account
+	conn.Connection.Emit("settings", &SettingsMessage{
+		Username:         username, // The client already knows their username, but it may not be the same as the server-side stylization
+		Stream:           stream,
+		TwitchBotEnabled: twitchBotEnabled,
+		TwitchBotDelay:   twitchBotDelay,
+		Time:             makeTimestamp(), // Send them the current time so that they can calculate the local offset
+	})
 
 	// Join the user to the PMManager room corresponding to their username for private messages
 	pmManager.Join(username, conn.Connection)

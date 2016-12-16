@@ -36,6 +36,17 @@ type IncomingCommandMessage struct {
 	ItemID  int            `json:"itemID"`
 	Floor   string         `json:"floor"`
 	IP      string         `json:"ip"`
+	Enabled bool           `json:"enabled"`
+	Value   int            `json:"value"`
+}
+
+// Sent upon a successful WebSocket connection
+type SettingsMessage struct {
+	Username         string `json:"username"`
+	Stream           string `json:"stream"`
+	TwitchBotEnabled bool   `json:"twitchBotEnabled"`
+	TwitchBotDelay   int    `json:"twitchBotDelay"`
+	Time             int64  `json:"time"`
 }
 
 // Sent in an "error" command (in the "connError" function)

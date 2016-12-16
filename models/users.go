@@ -6,6 +6,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 )
 
 /*
@@ -57,6 +58,128 @@ func (*Users) CheckStaff(username string) (bool, error) {
 	} else {
 		return true, nil
 	}
+}
+
+func (*Users) GetStream(userID int) (string, error) {
+	// Get the user's stream URL
+	var stream string
+	err := db.QueryRow("SELECT stream FROM users WHERE id = ?", userID).Scan(&stream)
+	if err != nil {
+		return "", err
+	} else {
+		return stream, nil
+	}
+}
+
+func (*Users) GetAllStreams() ([]string, error) {
+	// Get a list of all the stream URLs
+	rows, err := db.Query(`
+		SELECT stream
+		FROM users
+		WHERE stream != '-'
+		AND twitch_bot_enabled = 1
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate over the stream URLs
+	var streams []string
+	for rows.Next() {
+		var stream string
+		err := rows.Scan(&stream)
+		if err != nil {
+			return nil, err
+		}
+
+		// Append this stream to the slice
+		streams = append(streams, stream)
+	}
+
+	return streams, nil
+}
+
+func (*Users) GetTwitchBotEnabled(username string) (bool, error) {
+	// Get the user's Twitch bot setting
+	var enabled int
+	err := db.QueryRow(`
+		SELECT twitch_bot_enabled
+		FROM users
+		WHERE username = ?
+	`, username).Scan(&enabled)
+	if err != nil {
+		return false, err
+	} else if enabled == 0 {
+		return false, nil
+	} else if enabled == 1 {
+		return true, nil
+	} else {
+		return false, errors.New("The \"twitch_bot_enabled\" field for user \"" + username + "\" was not set to 0 or 1.")
+	}
+}
+
+func (*Users) GetTwitchBotDelay(username string) (int, error) {
+	// Get the user's Twitch bot setting
+	var delay int
+	err := db.QueryRow(`
+		SELECT twitch_bot_delay
+		FROM users
+		WHERE username = ?
+	`, username).Scan(&delay)
+	if err != nil {
+		return delay, err
+	} else {
+		return delay, nil
+	}
+}
+
+func (*Users) SetStream(userID int, stream string) error {
+	// Set the new stream URL
+	stmt, err := db.Prepare("UPDATE users SET stream = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(stream, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*Users) SetTwitchBotEnabled(userID int, enabled bool) error {
+	// Set the new Twitch bot setting
+	var twitchBotEnabled int
+	if enabled == true {
+		twitchBotEnabled = 1
+	} else {
+		twitchBotEnabled = 0
+	}
+	stmt, err := db.Prepare("UPDATE users SET twitch_bot_enabled = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(twitchBotEnabled, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*Users) SetTwitchBotDelay(userID int, delay int) error {
+	// Set the new Twitch bot setting
+	stmt, err := db.Prepare("UPDATE users SET twitch_bot_delay = ? WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(delay, userID)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (*Users) SetLogin(username string, lastIP string) error {
