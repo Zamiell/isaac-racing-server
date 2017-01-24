@@ -24,7 +24,7 @@ type Models struct {
 	RaceParticipantItems
 	RaceParticipants
 	Races
-	SquelchedUsers
+	MutedUsers
 	UserAchievements
 	Users
 }
@@ -50,6 +50,7 @@ type Race struct {
 	Racers          []string `json:"racers"`
 }
 type Ruleset struct {
+	Type          string `json:"type"`
 	Format        string `json:"format"`
 	Character     string `json:"character"`
 	Goal          string `json:"goal"`
@@ -64,16 +65,52 @@ type Racer struct {
 	DatetimeJoined   int    `json:"datetimeJoined"`
 	DatetimeFinished int    `json:"datetimeFinished"`
 	Place            int    `json:"place"`
+	PlaceMid         int    `json:"placeMid"`
 	Comment          string `json:"comment"`
 	Items            []Item `json:"items"`
-	Floor            string `json:"floor"`
-	Stream           string
-	TwitchBotEnabled int
-	TwitchBotDelay   int
+	FloorNum         int    `json:"floorNum"`
+	StageType        int    `json:"stageType"`
+	FloorArrived     int    `json:"floorArrived"`
+	StreamURL        string `json:"streamURL"`        // Only used internally, but still sent to clients, TODO REMOVE
+	TwitchBotEnabled int    `json:"twitchBotEnabled"` // Only used internally, but still sent to clients, TODO REMOVE
+	TwitchBotDelay   int    `json:"twitchBotDelay"`   // Only used internally, but still sent to clients, TODO REMOVE
 }
 type Item struct {
-	ID    int    `json:"id"`
-	Floor string `json:"floor"`
+	ID        int `json:"id"`
+	FloorNum  int `json:"floorNum"`
+	StageType int `json:"stageType"`
+}
+
+// Used in the leaderboards (HTTP)
+type LeaderboardRowSeeded struct {
+	Name           string
+	ELO            int
+	LastELOChange  int
+	NumSeededRaces int
+	LastSeededRace int
+	Verified       int
+}
+type LeaderboardRowUnseeded struct {
+	Name                    string
+	UnseededAdjustedAverage int
+	UnseededRealAverage     int
+	NumUnseededRaces        int
+	NumForfeits             int
+	ForfeitPenalty          int
+	LowestUnseededTime      int
+	LastUnseededRace        int
+	Verified                int
+}
+type LeaderboardRowTopTimes struct {
+	Name     string
+	Time     int
+	Date     int
+	Verified int
+}
+type LeaderboardRowMostPlayed struct {
+	Name     string
+	Total    int
+	Verified int
 }
 
 /*

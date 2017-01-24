@@ -8,7 +8,6 @@ import (
 	"github.com/Zamiell/isaac-racing-server/models"
 
 	"os/exec"
-	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -31,7 +30,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command.") // There is no race ID yet because they are creating a race
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -52,6 +51,9 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the ruleset options cannot be empty
+	if ruleset.Type == "" {
+		ruleset.Type = "unranked"
+	}
 	if ruleset.Format == "" {
 		ruleset.Format = "unseeded"
 	}
@@ -67,7 +69,8 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Check if this user has started 2 races
+	// Check if this user has started 2 races (they shouldn't normally be able to do this)
+	// TODO remove this?
 	if count, err := db.Races.CaptainCount(userID); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -116,7 +119,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			seed = string(outputByteArray)
 		} else if ruleset.Format == "diversity" {
 			// Create a random 5 character Diversity seed
-			seed = getRandomString(5)
+			seed = strings.ToUpper(getRandomString(5))
 		}
 
 		// Set the new seed
@@ -183,7 +186,7 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -249,7 +252,7 @@ func raceJoinSpectate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -309,7 +312,7 @@ func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -349,6 +352,37 @@ func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 	connectionMap.RUnlock()
 
+	// If the race went from 2 people to 1, automatically unready the last person so that they don't start the race by themsevles
+	if racerNames, err := db.RaceParticipants.GetRacerNames(raceID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	} else if len(racerNames) == 1 {
+		if currentStatus, err := db.RaceParticipants.GetStatus(racerNames[0], raceID); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return
+		} else if currentStatus == "ready" {
+			// Set them from "ready" to "not ready"
+			if err := db.RaceParticipants.SetStatus(racerNames[0], raceID, "not ready"); err != nil {
+				commandMutex.Unlock()
+				log.Error("Database error:", err)
+				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+				return
+			}
+
+			// Tell them
+			connectionMap.RLock()
+			conn, ok := connectionMap.m[racerNames[0]]
+			if ok == true { // They should definately be online, but check anyway just in case
+				conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready", 0})
+			}
+			connectionMap.RUnlock()
+		}
+	}
+
 	// Check to see if the race is ready to start
 	raceCheckStart(raceID)
 
@@ -367,7 +401,7 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -412,7 +446,7 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	for _, racer := range racerNames {
 		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
-			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "ready"})
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "ready", 0})
 		}
 	}
 	connectionMap.RUnlock()
@@ -435,7 +469,7 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -480,7 +514,7 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	for _, racer := range racerNames {
 		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
-			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready"})
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready", 0})
 		}
 	}
 	connectionMap.RUnlock()
@@ -501,7 +535,7 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -640,7 +674,7 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -689,7 +723,7 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Set their place
+	// Set their (final) place
 	if err := db.RaceParticipants.SetPlace(username, raceID, currentPlace+1); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -706,12 +740,17 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	// Recalculate everyones mid-race places
+	if racerSetAllPlaceMid(conn, raceID, racerList, functionName) == false {
+		return
+	}
+
 	// Send a notification to all the people in this particular race that the user finished
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
-			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "finished"})
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "finished", currentPlace + 1})
 		}
 	}
 	connectionMap.RUnlock()
@@ -727,16 +766,12 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	var place int
 	for _, racer := range racerList {
 		if racer.Name == username {
-			log.Debug("started:", started)
-			log.Debug("finished:", racer.DatetimeFinished)
 			runTime = racer.DatetimeFinished - started
 			place = racer.Place
 			break
 		}
 	}
-	log.Debug("runtime:", runTime)
 	minutes := strconv.Itoa(runTime / 1000 / 60)
-	log.Debug("minutes:", minutes)
 	seconds := strconv.Itoa(runTime / 1000 % 60)
 	if len(seconds) == 1 {
 		seconds = "0" + seconds
@@ -754,8 +789,14 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Make the Twitch bot announce that the person finished
+	twitchString := "/me - " + placeString + " - " + username + " " + timeString + " - "
+	if peopleLeft == 0 {
+		twitchString += "Race completed."
+	} else {
+		twitchString += strconv.Itoa(peopleLeft) + " left"
+	}
 	for _, racer := range racerList {
-		twitchRacerSend(racer, "/me - "+placeString+" - "+username+" "+timeString+" - "+strconv.Itoa(peopleLeft)+" left")
+		twitchRacerSend(racer, twitchString)
 	}
 
 	// Check to see if the race is ready to finish
@@ -782,7 +823,7 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -822,7 +863,7 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Set their place to -1 (which indicates a quit status)
+	// Set their (final) place to -1 (which indicates a quit status)
 	if err := db.RaceParticipants.SetPlace(username, raceID, -1); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -838,12 +879,17 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	// Recalculate everyones mid-race places
+	if racerSetAllPlaceMid(conn, raceID, racerList, functionName) == false {
+		return
+	}
+
 	// Send a notification to all the people in this particular race that the user quit
 	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
-			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "quit"})
+			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "quit", -1})
 		}
 	}
 	connectionMap.RUnlock()
@@ -858,8 +904,14 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Make the Twitch bot announce that the person quit
+	twitchString := "/me - " + username + " quit - "
+	if peopleLeft == 0 {
+		twitchString += "Race completed."
+	} else {
+		twitchString += strconv.Itoa(peopleLeft) + " left"
+	}
 	for _, racer := range racerList {
-		twitchRacerSend(racer, "/me - "+username+" quit - "+strconv.Itoa(peopleLeft)+" left")
+		twitchRacerSend(racer, twitchString)
 	}
 
 	// Check to see if the race is ready to finish
@@ -881,7 +933,7 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -906,16 +958,16 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the comment does not contain special characters
-	if hasSymbol(comment) == true {
+	if isAlphaNumericUnderscore(comment) == false {
 		commandMutex.Unlock()
-		connError(conn, functionName, "Your comment cannot contain symbols.")
+		connError(conn, functionName, "Your comment must contain only letters, numbers, and underscores.")
 		return
 	}
 
-	// Validate that the user is not squelched
-	if conn.Squelched == 1 {
+	// Validate that the user is not muted
+	if conn.Muted == 1 {
 		commandMutex.Unlock()
-		connError(conn, functionName, "You have been squelched by an administrator, so you cannot submit comments.")
+		connError(conn, functionName, "You have been muted by an administrator, so you cannot submit comments.")
 		return
 	}
 
@@ -976,7 +1028,7 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -1012,7 +1064,7 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Get their current floor
-	floor, err := db.RaceParticipants.GetFloor(userID, raceID)
+	floorNum, stageType, err := db.RaceParticipants.GetFloor(userID, raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -1021,7 +1073,7 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Add this item to their build
-	if err := db.RaceParticipantItems.Insert(userID, raceID, itemID, floor); err != nil {
+	if err := db.RaceParticipantItems.Insert(userID, raceID, itemID, floorNum, stageType); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -1041,7 +1093,7 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	for _, racer := range racerNames {
 		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
-			item := models.Item{itemID, floor}
+			item := models.Item{itemID, floorNum, stageType}
 			conn.Connection.Emit("racerAddItem", &RacerAddItemMessage{raceID, username, item})
 		}
 	}
@@ -1057,13 +1109,14 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	userID := conn.UserID
 	username := conn.Username
 	raceID := data.ID
-	floor := data.Floor
+	floorNum := data.FloorNum
+	stageType := data.StageType
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -1091,69 +1144,57 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the floor is sane
-	re, err := regexp.Compile(`(\d+)-(\d+)`)
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Failed to compile the floor regular expression.")
-		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-		return
-	}
-	floorArray := re.FindStringSubmatch(floor)
-	if floorArray == nil {
-		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + floor + "\" is a bogus floor.")
-		connError(conn, functionName, "That is not a valid floor.")
-		return
-	}
-	floorNum, err := strconv.Atoi(floorArray[1])
-	if err != nil {
-		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + floorArray[1] + "\" is a bogus floor number.")
-		connError(conn, functionName, "That is not a valid floor.")
-		return
-	}
-	stageType, err := strconv.Atoi(floorArray[2])
-	if err != nil {
-		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + floorArray[2] + "\" is a bogus stage type.")
-		connError(conn, functionName, "That is not a valid floor.")
-		return
-	}
-
 	if floorNum < 1 || floorNum > 11 {
 		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(floorNum) + "\" is a bogus floor number.")
-		connError(conn, functionName, "That is not a valid floor.")
+		connError(conn, functionName, "That is not a valid floor number.")
 		return
-	} else if stageType < 0 || stageType > 2 {
+	} else if stageType < 0 || stageType > 3 {
 		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(stageType) + "\" is a bogus stage type.")
-		connError(conn, functionName, "That is not a valid floor.")
+		connError(conn, functionName, "That is not a valid stage type.")
 		return
 	}
 
 	// Set their floor in the database
-	if err := db.RaceParticipants.SetFloor(userID, raceID, floor); err != nil {
+	floorArrived, err := db.RaceParticipants.SetFloor(userID, raceID, floorNum, stageType)
+	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
 
+	// The floor gets sent as 1 when a reset occurs
+	if floorNum == 1 {
+		// Reset all of their accumulated items
+		if err := db.RaceParticipantItems.Reset(userID, raceID); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return
+		}
+	}
+
 	// Get the list of racers for this race
-	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
+	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
+		return
+	}
+
+	// Recalculate everyones mid-race places
+	if racerSetAllPlaceMid(conn, raceID, racerList, functionName) == false {
 		return
 	}
 
 	// Send a notification to all the people in this particular race that the user got to a new floor
 	connectionMap.RLock()
-	for _, racer := range racerNames {
-		conn, ok := connectionMap.m[racer]
+	for _, racer := range racerList {
+		conn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
-			conn.Connection.Emit("racerSetFloor", &RacerSetFloorMessage{raceID, username, floor})
+			conn.Connection.Emit("racerSetFloor", &RacerSetFloorMessage{raceID, username, floorNum, stageType, floorArrived})
 		}
 	}
 	connectionMap.RUnlock()
@@ -1187,8 +1228,13 @@ func raceValidate(conn *ExtendedConnection, data *IncomingCommandMessage, functi
 		return false
 	} else if exists == false {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but it doesn't exist.")
-		connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" does not exist.")
+		if functionName == "raceJoin" {
+			log.Info("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but it doesn't exist. (The race was deleted as they were trying to join it, which can happen sometimes.)")
+			// Don't send them a warning because nothing will happen and the race will just disappear
+		} else {
+			log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but it doesn't exist.")
+			connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" does not exist.")
+		}
 		return false
 	}
 
@@ -1209,7 +1255,7 @@ func raceValidateStatus(conn *ExtendedConnection, data *IncomingCommandMessage, 
 		return false
 	} else if correctStatus == false {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but race is not set to status \""+status+"\".")
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but race is not set to status \"" + status + "\".")
 		connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" is not set to status \""+status+"\".")
 		return false
 	}
@@ -1222,10 +1268,20 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 	// Local variables
 	ruleset := data.Ruleset
 
+	// Validate the ruleset type
+	if ruleset.Type != "ranked" &&
+		ruleset.Type != "unranked" {
+
+		commandMutex.Unlock()
+		connError(conn, functionName, "That is not a valid type.")
+		return false
+	}
+
 	// Validate the ruleset format
 	if ruleset.Format != "unseeded" &&
 		ruleset.Format != "seeded" &&
-		ruleset.Format != "diversity" {
+		ruleset.Format != "diversity" &&
+		ruleset.Format != "custom" {
 
 		commandMutex.Unlock()
 		connError(conn, functionName, "That is not a valid ruleset.")
@@ -1245,7 +1301,8 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 		ruleset.Character != "Eden" &&
 		ruleset.Character != "The Lost" &&
 		ruleset.Character != "Lilith" &&
-		ruleset.Character != "Keeper" {
+		ruleset.Character != "Keeper" &&
+		ruleset.Character != "Apollyon" {
 
 		commandMutex.Unlock()
 		connError(conn, functionName, "That is not a valid character.")
@@ -1270,6 +1327,18 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 		return false
 	}
 
+	// Validate unseeded ranked games
+	if ruleset.Type == "ranked" && ruleset.Format == "unseeded" && ruleset.Character != "Judas" {
+		commandMutex.Unlock()
+		connError(conn, functionName, "Ranked unseeded races must have a character of Judas.")
+		return false
+	}
+	if ruleset.Type == "ranked" && ruleset.Format == "unseeded" && ruleset.Goal != "Blue Baby" {
+		commandMutex.Unlock()
+		connError(conn, functionName, "Ranked unseeded races must have a goal of Blue Baby.")
+		return false
+	}
+
 	return true
 }
 
@@ -1288,7 +1357,7 @@ func raceValidateIn1(conn *ExtendedConnection, data *IncomingCommandMessage, fun
 		return false
 	} else if userInRace == false {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are not in that race.")
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but they are not in that race.")
 		connError(conn, functionName, "You are not playing in or observing race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
@@ -1312,7 +1381,7 @@ func raceValidateIn2(conn *ExtendedConnection, data *IncomingCommandMessage, fun
 		return false
 	} else if userInRace == false {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are not in that race.")
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but they are not in that race.")
 		connError(conn, functionName, "You are not playing in race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
@@ -1335,7 +1404,7 @@ func raceValidateOut1(conn *ExtendedConnection, data *IncomingCommandMessage, fu
 		return false
 	} else if userInRace == true {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are already in that race.")
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but they are already in that race.")
 		connError(conn, functionName, "You are already playing or observing race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
@@ -1358,7 +1427,7 @@ func raceValidateOut2(conn *ExtendedConnection, data *IncomingCommandMessage, fu
 		return false
 	} else if userInRace == true {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are already in that race.")
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but they are already in that race.")
 		connError(conn, functionName, "You are already playing in race ID "+strconv.Itoa(raceID)+".")
 		return false
 	}
@@ -1379,7 +1448,7 @@ func racerValidateStatus(conn *ExtendedConnection, userID int, raceID int, statu
 		return false
 	} else if correctStatus == false {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "on race ID "+strconv.Itoa(raceID)+", but they are not set to status \""+status+"\".")
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but they are not set to status \"" + status + "\".")
 		connError(conn, functionName, "You can only do that if your status is set to \""+status+"\".")
 		return false
 	}
@@ -1398,6 +1467,44 @@ func racerSetStatus(conn *ExtendedConnection, username string, raceID int, statu
 	}
 
 	// The change was successful
+	return true
+}
+
+// Recalculate everyones mid-race places
+func racerSetAllPlaceMid(conn *ExtendedConnection, raceID int, racerList []models.Racer, functionName string) bool {
+	// Get the current (final) place
+	var currentPlace int
+	for _, racer := range racerList {
+		if racer.Place > currentPlace {
+			currentPlace = racer.Place
+		}
+	}
+
+	// Recalculate everyones mid-race places
+	for _, racer := range racerList {
+		if racer.Status != "racing" {
+			continue // We don't need to calculate the mid-race place of someone who already finished or quit
+		}
+		racer.PlaceMid = currentPlace + 1
+		for _, racer2 := range racerList {
+			if racer.Status != "racing" {
+				continue // We don't count people who finished or quit since our starting point was on the currentPlace
+			}
+			if racer2.FloorNum > racer.FloorNum {
+				racer.PlaceMid++
+			} else if racer2.FloorNum == racer.FloorNum && racer2.FloorArrived < racer.FloorArrived {
+				racer.PlaceMid++
+			}
+		}
+		if err := db.RaceParticipants.SetPlaceMid(racer.Name, raceID, racer.PlaceMid); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return false
+		}
+	}
+
+	// Everything was set successfully
 	return true
 }
 
@@ -1484,7 +1591,7 @@ func raceCheckStart(raceID int) {
 
 	// Make the Twitch bot announce that the race is starting in 10 seconds
 	for _, racer := range racerList {
-		twitchRacerSend(racer, "/me - The race is staring in 10 seconds!")
+		twitchRacerSend(racer, "/me - The race is starting in 10 seconds!")
 	}
 
 	// Return for now and do more things in 10 seconds
@@ -1586,7 +1693,7 @@ func raceCheckStart3(raceID int) {
 			for _, racer2 := range racerList {
 				conn, ok := connectionMap.m[racer2.Name]
 				if ok == true { // Not all racers may be online during a race
-					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, racer.Name, "quit"})
+					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, racer.Name, "quit", -1})
 				}
 			}
 			connectionMap.RUnlock()

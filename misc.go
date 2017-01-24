@@ -24,14 +24,35 @@ func intInSlice(a int, slice []int) bool {
 	return false
 }
 
-// From: https://stackoverflow.com/questions/31961882/how-to-check-if-there-is-a-special-character-in-string-or-if-a-character-is-a-sp
-func hasSymbol(str string) bool {
-	for _, letter := range str {
-		if unicode.IsSymbol(letter) {
+func stringInSlice(a string, slice []string) bool {
+	for _, b := range slice {
+		if b == a {
 			return true
 		}
 	}
 	return false
+}
+
+func isAlphaNumericUnderscore(str string) bool {
+	isValid := true
+	for _, character := range str {
+		if unicode.IsLetter(character) {
+			continue
+		}
+
+		if character >= '0' && character <= '9' {
+			continue
+		}
+
+		if character == '_' {
+			continue
+		}
+
+		isValid = false
+		break
+	}
+
+	return isValid
 }
 
 // From: https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang

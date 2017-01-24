@@ -5,10 +5,49 @@ package main
 */
 
 import (
+	"errors"
+	"fmt"
 	"github.com/Zamiell/isaac-racing-server/models"
+	"github.com/getsentry/raven-go"
+	"github.com/op/go-logging"
 	"github.com/trevex/golem"
 	"time"
 )
+
+/*
+	Log struct extension
+*/
+
+type CustomLogger struct {
+	Logger *logging.Logger
+}
+
+func (l *CustomLogger) Fatal(message string, err error) {
+	raven.CaptureError(err, map[string]string{
+		"message": message,
+	})
+	l.Logger.Fatal(message, err)
+}
+
+func (l *CustomLogger) Debug(args ...interface{}) {
+	l.Logger.Debug(args...)
+}
+
+func (l *CustomLogger) Info(args ...interface{}) {
+	l.Logger.Info(args...)
+}
+
+func (l *CustomLogger) Warning(args ...interface{}) {
+	l.Logger.Warning(args...)
+	err := errors.New(fmt.Sprint(args...))
+	raven.CaptureError(err, nil)
+}
+
+func (l *CustomLogger) Error(args ...interface{}) {
+	l.Logger.Error(args...)
+	err := errors.New(fmt.Sprint(args...))
+	raven.CaptureError(err, nil)
+}
 
 /*
 	Golem data types
@@ -20,36 +59,37 @@ type ExtendedConnection struct {
 	UserID             int
 	Username           string
 	Admin              int
-	Squelched          int
+	Muted              int
 	RateLimitAllowance float64
 	RateLimitLastCheck time.Time
 }
 
 // Recieved in all commands
 type IncomingCommandMessage struct {
-	Room    string         `json:"room"`
-	Message string         `json:"message"`
-	Name    string         `json:"name"`
-	Ruleset models.Ruleset `json:"ruleset"`
-	ID      int            `json:"id"`
-	Comment string         `json:"comment"`
-	ItemID  int            `json:"itemID"`
-	Floor   string         `json:"floor"`
-	IP      string         `json:"ip"`
-	Enabled bool           `json:"enabled"`
-	Value   int            `json:"value"`
+	Room      string         `json:"room"`
+	Message   string         `json:"message"`
+	Name      string         `json:"name"`
+	Ruleset   models.Ruleset `json:"ruleset"`
+	ID        int            `json:"id"`
+	Comment   string         `json:"comment"`
+	ItemID    int            `json:"itemID"`
+	FloorNum  int            `json:"floorNum"`
+	StageType int            `json:"stageType"`
+	IP        string         `json:"ip"`
+	Enabled   bool           `json:"enabled"`
+	Value     int            `json:"value"`
 }
 
 // Sent upon a successful WebSocket connection
 type SettingsMessage struct {
 	Username         string `json:"username"`
-	Stream           string `json:"stream"`
+	StreamURL        string `json:"streamURL"`
 	TwitchBotEnabled bool   `json:"twitchBotEnabled"`
 	TwitchBotDelay   int    `json:"twitchBotDelay"`
 	Time             int64  `json:"time"`
 }
 
-// Sent in an "error" command (in the "connError" function)
+// Sent in the "error" and "warning" commands (in the "connError" and "connWarning" functions)
 type ErrorMessage struct {
 	Type    string `json:"type"`
 	Message string `json:"message"`
@@ -65,9 +105,9 @@ type RoomListMessage struct {
 	Users []User `json:"users"`
 }
 type User struct {
-	Name      string `json:"name"`
-	Admin     int    `json:"admin"`
-	Squelched int    `json:"squelched"`
+	Name  string `json:"name"`
+	Admin int    `json:"admin"`
+	Muted int    `json:"muted"`
 }
 
 // Sent in the "roomHistory" command to the person that is joining the room (in the "roomJoinSub" function)
@@ -101,11 +141,11 @@ type PrivateMessageMessage struct {
 	Message string `json:"message"`
 }
 
-// Sent in the "roomSetSquelched" command (in the "adminSquelch" and "adminUnsquelch" functions)
-type RoomSetSquelchedMessage struct {
-	Room      string `json:"room"`
-	Name      string `json:"name"`
-	Squelched int    `json:"squelched"`
+// Sent in the "roomSetMuted" command (in the "adminMute" and "adminUnmute" functions)
+type RoomSetMutedMessage struct {
+	Room  string `json:"room"`
+	Name  string `json:"name"`
+	Muted int    `json:"muted"`
 }
 
 // Sent in the "roomSetAdmin" command (in the "adminPromote" and "adminDemote" functions)
@@ -150,11 +190,12 @@ type RaceSetStatusMessage struct {
 	Status string `json:"status"`
 }
 
-// Sent in the "racerSetStatus" command (in the "raceReady", "raceUnready", "raceFinish", and "raceQuit" functions)
+// Sent in the "racerSetStatus" command (in the "raceReady", "raceUnready", "raceFinish", "raceQuit", and "adminBan" functions)
 type RacerSetStatusMessage struct {
 	ID     int    `json:"id"`
 	Name   string `json:"name"`
 	Status string `json:"status"`
+	Place  int    `json:"place"`
 }
 
 // Sent in the "racerSetComment" command (in the "raceComment" functions)
@@ -173,9 +214,11 @@ type RacerAddItemMessage struct {
 
 // Sent in the "racerSetFloor" command (in the "raceFloor" functions)
 type RacerSetFloorMessage struct {
-	ID    int    `json:"id"`
-	Name  string `json:"name"`
-	Floor string `json:"floor"`
+	ID           int    `json:"id"`
+	Name         string `json:"name"`
+	FloorNum     int    `json:"floorNum"`
+	StageType    int    `json:"stageType"`
+	FloorArrived int    `json:"floorArrived"`
 }
 
 // Sent to tell the client exactly when the race is starting
@@ -205,3 +248,21 @@ type ProfileSetNameMessage struct {
 	Name    string `json:"name"`
 	NewName string `json:"newName"`
 }
+
+/*
+	HTTP data types
+*/
+
+type LeaderboardSeeded []models.LeaderboardRowSeeded
+
+/*func (l LeaderboardSeeded) Len() int {
+	return len(s)
+}
+func (l LeaderboardSeeded) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (l LeaderboardSeeded) Less(i, j int) bool {
+	return len(s[i]) < len(s[j])
+}*/
+
+type LeaderboardUnseeded []models.LeaderboardRowUnseeded

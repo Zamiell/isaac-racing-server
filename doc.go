@@ -73,6 +73,15 @@ COOKIE="isaac.sid=MTQ2ODEyMzIyN3xEdi1CQkFFQ180SUFBUkFCRUFBQVh2LUNBQU1HYzNSeWFXNW
 
 
 
+Auth0
+-----
+
+Search for a specific user (much select "Search by Lucene Syntax" in the dropdown):
+username:"zamiel"
+identities.user_id:"57e94aca9d47c7d36c1c4832"
+
+
+
 Incoming WebSocket commands - chat
 ----------------------------------
 
@@ -100,13 +109,13 @@ Outgoing WebSocket commands - chat
 ----------------------------------
 
 When you join a new chat room, you get the list of people in it:
-roomList {"room":"lobby","users":[{"name":"zamiel","admin":0,"squelched":0},{"name":"zamiel2","admin":0,"squelched":0}]}
+roomList {"room":"lobby","users":[{"name":"zamiel","admin":0,"muted":0},{"name":"zamiel2","admin":0,"muted":0}]}
 
 When you join a new chat room, you get the chat history for the past 50 messages (or all the messages if its a "_race_#" channel):
 roomHistory {"room":"lobby","history":[{"name":"zamiel","message":"MrDestructoid","datetime":1469662590}]}
 
 Someone else joined a chat room that you are in:
-roomJoined {"room":"lobby","user":{"name":"zamiel2","admin":0,"squelched":0}}
+roomJoined {"room":"lobby","user":{"name":"zamiel2","admin":0,"muted":0}}
 
 Someone else left a chat room that you are in:
 roomLeft {"room":"lobby","name":"chronometrics"}
@@ -120,11 +129,11 @@ privateMessage {"name":"chronometrics","message":"i lit the candle"}
 When a list of all the chat rooms is requested:
 roomListAll [{"room":"lobby","numUsers":1}]
 
-Someone got squelched:
-roomSetSquelched {"room":"lobby","username":"cmondinger","squelched":1}
+Someone got muted:
+roomSetMuted {"room":"lobby","username":"cmondinger","muted":1}
 
-Someone got unsquelched:
-roomSetSquelched {"room":"lobby","username":"cmondinger","squelched":0}
+Someone got unmuted:
+roomSetMuted {"room":"lobby","username":"cmondinger","muted":0}
 
 Someone got promoted:
 roomSetAdmin {"room":"lobby","username":"sillypears","admin":1}
@@ -261,11 +270,11 @@ adminBanIP {"ip":"1.2.3.4"}
 Unban an IP:
 adminUnbanIP {"ip":"1.2.3.4"}
 
-Squelch a user:
-adminSquelch {"name":"zamiel2"}
+Mute a user:
+adminMute {"name":"zamiel2"}
 
-Unsquelch a user:
-adminUnsquelch {"name":"zamiel2"}
+Unmute a user:
+adminUnmute {"name":"zamiel2"}
 
 Promote a user:
 adminPromote {"name":"zamiel2"}

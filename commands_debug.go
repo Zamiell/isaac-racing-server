@@ -5,7 +5,7 @@ package main
 */
 
 import (
-	"fmt"
+//"fmt"
 )
 
 /*
@@ -28,18 +28,23 @@ func debug(conn *ExtendedConnection) {
 	// Validate that the user is an admin
 	if conn.Admin == 0 {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to do a debug command, but they are not staff/admin.")
+		log.Info("User \"" + username + "\" tried to do a debug command, but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members or administrators can do that.")
 		return
 	}
 
 	// Print out the connection map
-	connectionMap.RLock()
-	fmt.Println(connectionMap.m)
-	for _, conn := range connectionMap.m {
-		fmt.Println("on connection:", conn.Username)
-	}
-	connectionMap.RUnlock()
+	/*
+		connectionMap.RLock()
+		fmt.Println(connectionMap.m)
+		for _, conn := range connectionMap.m {
+			fmt.Println("on connection:", conn.Username)
+		}
+		connectionMap.RUnlock()
+	*/
+
+	// Test IRC stuff
+	//ircSend("JOIN #zamiell")
 
 	// The command is over, so unlock the command mutex
 	//commandMutex.Unlock()

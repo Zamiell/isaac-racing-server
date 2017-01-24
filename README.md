@@ -1,10 +1,17 @@
 isaac-racing-server
 =================
 
+Additional Information
+----------------------
+
+If you are not a developer, please visit [the website for Racing+](https://isaacracing.net/).
+
+
+
 Description
 -----------
 
-This is the server software for the Binding of Isaac: Afterbirth+ racing mod. Normally a single player game, the mod and server allow players to be able to race each other in real time.
+This is the server software for Racing+, a Binding of Isaac: Afterbirth+ racing mod. Normally a single player game, the mod and server allow players to be able to race each other in real time.
 
 The server is written in [Go](https://golang.org/) and uses WebSockets to communicate with the client. It leverages [Auth0](https://auth0.com/) for authentication and uses a [SQLite](https://sqlite.org/) database to keep track of the races.
 
@@ -22,7 +29,7 @@ Install
 * `nano main.go`
   * Change the constants near the top of the file to your liking.
 * `cp .env_template .env && nano .env`
-  * Fill in the 3 values.
+  * Fill in the values.
 
 
 
@@ -37,7 +44,7 @@ Run
 Compile / Build
 ---------------
 
-* `go install` (creates `$GOPATH/bin/isaac-racing-server`)
+* `go install` (this creates `$GOPATH/bin/isaac-racing-server`)
 
 
 
@@ -45,7 +52,11 @@ Install HTTPS (optional)
 ------------------------
 
 * `apt-install letsencrypt`
-* `letsencrypt certonly --standalone -d isaacracing.net -d www.isaacracing.net`
+* `letsencrypt certonly --standalone -d isaacracing.net -d www.isaacracing.net` (this creates `/etc/letsencrypt/live/isaacracing.net`)
+
+Later, to renew the certificate:
+
+* `RENEW_DIR=/root/isaac-racing-server/letsencrypt && mkdir -p $RENEW_DIR && letsencrypt renew --webroot --webroot-path $RENEW_DIR && rm -rf $RENEW_DIR`
 
 
 

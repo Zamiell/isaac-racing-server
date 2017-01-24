@@ -12,18 +12,18 @@ import (
 	Data types
 */
 
-type SquelchedUsers struct{}
+type MutedUsers struct{}
 
 /*
-	"squelched_users" table functions
+	"muted_users" table functions
 */
 
-func (*SquelchedUsers) Check(username string) (bool, error) {
-	// Check if this user is squelched
+func (*MutedUsers) Check(username string) (bool, error) {
+	// Check if this user is muted
 	var id int
 	err := db.QueryRow(`
 		SELECT id
-		FROM squelched_users
+		FROM muted_users
 		WHERE user_id = (SELECT id FROM users WHERE username = ?)
 	`, username).Scan(&id)
 	if err == sql.ErrNoRows {
@@ -35,10 +35,10 @@ func (*SquelchedUsers) Check(username string) (bool, error) {
 	}
 }
 
-func (*SquelchedUsers) Insert(username string, adminResponsible int) error {
-	// Add the user to the squelched list in the database
+func (*MutedUsers) Insert(username string, adminResponsible int) error {
+	// Add the user to the muted list in the database
 	stmt, err := db.Prepare(`
-		INSERT INTO squelched_users (user_id, admin_responsible, datetime_squelched)
+		INSERT INTO muted_users (user_id, admin_responsible, datetime_muted)
 		VALUES ((SELECT id from users WHERE username = ?), ?, ?)
 	`)
 	if err != nil {
@@ -52,10 +52,10 @@ func (*SquelchedUsers) Insert(username string, adminResponsible int) error {
 	return nil
 }
 
-func (*SquelchedUsers) Delete(username string) error {
-	// Remove the user from the squelched list in the database
+func (*MutedUsers) Delete(username string) error {
+	// Remove the user from the muted list in the database
 	stmt, err := db.Prepare(`
-		DELETE FROM squelched_users
+		DELETE FROM muted_users
 		WHERE user_id = (SELECT id from users WHERE username = ?)
 	`)
 	if err != nil {

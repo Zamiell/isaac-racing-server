@@ -3,19 +3,20 @@
 # Imports
 use strict;
 use warnings;
-use Cwd 'abs_path';
 
-# Global variables
-my $directory = abs_path($0);
-if ($directory =~ /(.+)\/.+$/) {
-	$directory = $1;
-} else {
-	die "Can't parse the script directory.\n";
-}
+# Configuration
+my $directory = "/root/isaac-racing-server";
+my $databaseName = "database.sqlite";
+my $schemaName = "database_schema.sql";
+
+# Remove the old database, if present
+system "touch $directory/$databaseName";
+system "rm -f $directory/$databaseName";
 
 # Install the database
-system "sqlite3 '$directory/../database.sqlite' < '$directory/database_schema.sql'";
+system "sqlite3 $directory/$databaseName < $directory/install/$schemaName";
 
 # Rebuild Go dependencies
+# (shouldn't be necessary)
 #system "rm -rf \$GOPATH/pkg";
 #system "go build -i";

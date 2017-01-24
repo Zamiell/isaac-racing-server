@@ -19,12 +19,16 @@ type Users struct{}
 	"users" table functions
 */
 
-func (*Users) Login(auth0ID string) (int, string, int, error) {
+func (*Users) Login(steamID string) (int, string, int, error) {
 	// Check to see if they are in the user database already
 	var userID int
 	var username string
 	var admin int
-	err := db.QueryRow("SELECT id, username, admin FROM users WHERE auth0_id = ?", auth0ID).Scan(&userID, &username, &admin)
+	err := db.QueryRow(`
+		SELECT id, username, admin
+		FROM users
+		WHERE steam_id = ?
+	`, steamID).Scan(&userID, &username, &admin)
 	if err == sql.ErrNoRows {
 		return 0, "", 0, nil
 	} else if err != nil {
@@ -35,9 +39,14 @@ func (*Users) Login(auth0ID string) (int, string, int, error) {
 }
 
 func (*Users) Exists(username string) (bool, error) {
-	// Check if the user exists in the database
+	// Check if the user exists in the database (and do a case-insensitive search)
 	var id int
-	err := db.QueryRow("SELECT id FROM users WHERE username = ?", username).Scan(&id)
+	err := db.QueryRow(`
+		SELECT id
+		FROM users
+		WHERE username = ?
+		COLLATE NOCASE
+	`, username).Scan(&id)
 	if err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
@@ -50,7 +59,11 @@ func (*Users) Exists(username string) (bool, error) {
 func (*Users) CheckStaff(username string) (bool, error) {
 	// Check if the user is a staff member or an administrator
 	var admin int
-	err := db.QueryRow("SELECT admin FROM users WHERE username = ?", username).Scan(&admin)
+	err := db.QueryRow(`
+		SELECT admin
+		FROM users
+		WHERE username = ?
+	`, username).Scan(&admin)
 	if err != nil {
 		return false, err
 	} else if admin == 0 {
@@ -60,23 +73,58 @@ func (*Users) CheckStaff(username string) (bool, error) {
 	}
 }
 
-func (*Users) GetStream(userID int) (string, error) {
+func (*Users) CheckStreamURLUsed(streamURL string) (bool, error) {
+	// Get a list of all the stream URLs
+	rows, err := db.Query(`
+		SELECT stream_url
+		FROM users
+		WHERE stream_url != '-'
+	`)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	// Iterate over the stream URLs
+	var stream_urls []string
+	for rows.Next() {
+		var stream_url string
+		err := rows.Scan(&stream_url)
+		if err != nil {
+			return false, err
+		}
+
+		// Append this stream to the slice
+		stream_urls = append(stream_urls, stream_url)
+	}
+
+	// Find out if it exists
+	// TODO
+
+	return false, nil
+}
+
+func (*Users) GetStreamURL(userID int) (string, error) {
 	// Get the user's stream URL
-	var stream string
-	err := db.QueryRow("SELECT stream FROM users WHERE id = ?", userID).Scan(&stream)
+	var streamURL string
+	err := db.QueryRow(`
+		SELECT stream_url
+		FROM users
+		WHERE id = ?
+	`, userID).Scan(&streamURL)
 	if err != nil {
 		return "", err
 	} else {
-		return stream, nil
+		return streamURL, nil
 	}
 }
 
-func (*Users) GetAllStreams() ([]string, error) {
+func (*Users) GetAllStreamURLs() ([]string, error) {
 	// Get a list of all the stream URLs
 	rows, err := db.Query(`
-		SELECT stream
+		SELECT stream_url
 		FROM users
-		WHERE stream != '-'
+		WHERE stream_url != '-'
 		AND twitch_bot_enabled = 1
 	`)
 	if err != nil {
@@ -85,19 +133,19 @@ func (*Users) GetAllStreams() ([]string, error) {
 	defer rows.Close()
 
 	// Iterate over the stream URLs
-	var streams []string
+	var stream_urls []string
 	for rows.Next() {
-		var stream string
-		err := rows.Scan(&stream)
+		var stream_url string
+		err := rows.Scan(&stream_url)
 		if err != nil {
 			return nil, err
 		}
 
 		// Append this stream to the slice
-		streams = append(streams, stream)
+		stream_urls = append(stream_urls, stream_url)
 	}
 
-	return streams, nil
+	return stream_urls, nil
 }
 
 func (*Users) GetTwitchBotEnabled(username string) (bool, error) {
@@ -134,13 +182,101 @@ func (*Users) GetTwitchBotDelay(username string) (int, error) {
 	}
 }
 
-func (*Users) SetStream(userID int, stream string) error {
+func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
+	// Make a leaderboard for the seeded format based on all of the users
+	rows, err := db.Query(`
+		SELECT
+			username,
+			elo,
+			last_elo_change,
+			num_seeded_races,
+			last_seeded_race
+		FROM users
+	`)
+	// WHERE num_seeded_races > 1
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowSeeded, 0)
+	for rows.Next() {
+		var row LeaderboardRowSeeded
+		err := rows.Scan(
+			&row.Name,
+			&row.ELO,
+			&row.LastELOChange,
+			&row.NumSeededRaces,
+			&row.LastSeededRace,
+		)
+		if err != nil {
+			return leaderboard, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
+
+	return leaderboard, nil
+}
+
+func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
+	// Make a leaderboard for the unseeded format based on all of the users
+	rows, err := db.Query(`
+		SELECT
+			username,
+			unseeded_adjusted_average,
+			unseeded_real_average,
+			num_unseeded_races,
+			num_forfeits,
+			forfeit_penalty,
+			lowest_unseeded_time,
+			last_unseeded_race
+		FROM users
+	`)
+	// WHERE num_unseeded_races > 15
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowUnseeded, 0)
+	for rows.Next() {
+		var row LeaderboardRowUnseeded
+		err := rows.Scan(
+			&row.Name,
+			&row.UnseededAdjustedAverage,
+			&row.UnseededRealAverage,
+			&row.NumUnseededRaces,
+			&row.NumForfeits,
+			&row.ForfeitPenalty,
+			&row.LowestUnseededTime,
+			&row.LastUnseededRace,
+		)
+		if err != nil {
+			return leaderboard, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
+
+	return leaderboard, nil
+}
+
+func (*Users) SetStreamURL(userID int, streamURL string) error {
 	// Set the new stream URL
-	stmt, err := db.Prepare("UPDATE users SET stream = ? WHERE id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE users
+		SET stream_url = ?
+		WHERE id = ?
+	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(stream, userID)
+	_, err = stmt.Exec(streamURL, userID)
 	if err != nil {
 		return err
 	}
@@ -156,7 +292,11 @@ func (*Users) SetTwitchBotEnabled(userID int, enabled bool) error {
 	} else {
 		twitchBotEnabled = 0
 	}
-	stmt, err := db.Prepare("UPDATE users SET twitch_bot_enabled = ? WHERE id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE users
+		SET twitch_bot_enabled = ?
+		WHERE id = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -170,7 +310,11 @@ func (*Users) SetTwitchBotEnabled(userID int, enabled bool) error {
 
 func (*Users) SetTwitchBotDelay(userID int, delay int) error {
 	// Set the new Twitch bot setting
-	stmt, err := db.Prepare("UPDATE users SET twitch_bot_delay = ? WHERE id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE users
+		SET twitch_bot_delay = ?
+		WHERE id = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -183,8 +327,12 @@ func (*Users) SetTwitchBotDelay(userID int, delay int) error {
 }
 
 func (*Users) SetLogin(username string, lastIP string) error {
-	// Update the database with last_login and last_ip
-	stmt, err := db.Prepare("UPDATE users SET last_login = ?, last_ip = ? WHERE username = ?")
+	// Update the database with datetime_last_login and last_ip
+	stmt, err := db.Prepare(`
+		UPDATE users
+		SET datetime_last_login = ?, last_ip = ?
+		WHERE username = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -198,7 +346,11 @@ func (*Users) SetLogin(username string, lastIP string) error {
 
 func (*Users) SetUsername(userID int, username string) error {
 	// Set the new username
-	stmt, err := db.Prepare("UPDATE users SET username = ? WHERE id = ?")
+	stmt, err := db.Prepare(`
+		UPDATE users
+		SET username = ?
+		WHERE id = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -212,7 +364,11 @@ func (*Users) SetUsername(userID int, username string) error {
 
 func (*Users) SetAdmin(username string, admin int) error {
 	// Set the admin field for this user
-	stmt, err := db.Prepare("UPDATE users SET admin = ? WHERE username = ?)")
+	stmt, err := db.Prepare(`
+		UPDATE users
+		SET admin = ?
+		WHERE username = ?
+	`)
 	if err != nil {
 		return err
 	}
@@ -224,16 +380,19 @@ func (*Users) SetAdmin(username string, admin int) error {
 	return nil
 }
 
-func (*Users) Insert(auth0ID string, auth0Username string, ip string) (int, error) {
+func (*Users) Insert(steamID string, username string, ip string) (int, error) {
 	// Get the current time
 	currentTime := makeTimestamp()
 
 	// Add them to the database
-	stmt, err := db.Prepare("INSERT INTO users (auth0_id, username, last_ip, datetime_created, last_login) VALUES (?, ?, ?, ?, ?)")
+	stmt, err := db.Prepare(`
+		INSERT INTO users (steam_id, username, last_ip, datetime_created, datetime_last_login)
+		VALUES (?, ?, ?, ?, ?)
+	`)
 	if err != nil {
 		return 0, err
 	}
-	result, err := stmt.Exec(auth0ID, auth0Username, ip, currentTime, currentTime)
+	result, err := stmt.Exec(steamID, username, ip, currentTime, currentTime)
 	if err != nil {
 		return 0, err
 	}

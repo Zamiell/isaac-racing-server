@@ -15,6 +15,7 @@ import (
 
 	"github.com/bmizerany/pat"       // For HTTP routing
 	"github.com/didip/tollbooth"     // For rate-limiting login requests
+	"github.com/getsentry/raven-go"  // For error reporting
 	"github.com/gorilla/context"     // For cookie sessions (1/2)
 	"github.com/gorilla/sessions"    // For cookie sessions (2/2)
 	"github.com/joho/godotenv"       // For reading environment variables that contain secrets
@@ -32,11 +33,10 @@ import (
 const (
 	sessionName   = "isaac.sid"
 	domain        = "isaacracing.net"
-	auth0Domain   = "isaacserver.auth0.com"
 	useSSL        = true
 	sslCertFile   = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
 	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
-	rateLimitRate = 120 // In commands sent
+	rateLimitRate = 480 // In commands sent
 	rateLimitPer  = 60  // In seconds
 )
 
@@ -46,7 +46,7 @@ const (
 
 var (
 	projectPath   = os.Getenv("GOPATH") + "/src/github.com/Zamiell/isaac-racing-server"
-	log           = logging.MustGetLogger("isaac")
+	log           *CustomLogger
 	db            *models.Models
 	sessionStore  *sessions.CookieStore
 	commandMutex  = &sync.Mutex{} // Used to prevent race conditions
@@ -63,6 +63,9 @@ var (
 		m map[string][]User
 	}{m: make(map[string][]User)}
 	achievementMap map[int][]string
+	myHTTPClient   = &http.Client{ // We don't want to use the default http.Client structure because it has no default timeout set
+		Timeout: 10 * time.Second,
+	}
 )
 
 /*
@@ -94,6 +97,7 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 */
 
 func HTTPRedirect(w http.ResponseWriter, req *http.Request) {
+	// They are trying to access a site via HTTP, so redirect them to HTTPS
 	http.Redirect(w, req, "https://"+req.Host+req.URL.String(), http.StatusMovedPermanently)
 }
 
@@ -103,23 +107,31 @@ func HTTPRedirect(w http.ResponseWriter, req *http.Request) {
 
 func main() {
 	// Configure logging: http://godoc.org/github.com/op/go-logging#Formatter
+	log = &CustomLogger{
+		Logger: logging.MustGetLogger("isaac"),
+	}
 	loggingBackend := logging.NewLogBackend(os.Stdout, "", 0)
 	logFormat := logging.MustStringFormatter( // https://golang.org/pkg/time/#Time.Format
-		`%{time:Mon Jan 2 15:04:05 MST 2006} - %{level:.4s} - %{shortfile} - %{message}`,
+		//`%{time:Mon Jan 2 15:04:05 MST 2006} - %{level:.4s} - %{shortfile} - %{message}`, // We no longer use the line number since the log struct extension breaks it
+		`%{time:Mon Jan 2 15:04:05 MST 2006} - %{level:.4s} - %{message}`,
 	)
 	loggingBackendFormatted := logging.NewBackendFormatter(loggingBackend, logFormat)
 	logging.SetBackend(loggingBackendFormatted)
-
-	// Welcome message
-	log.Info("-----------------------------")
-	log.Info("Starting isaac-racing-server.")
-	log.Info("-----------------------------")
 
 	// Load the .env file which contains environment variables with secret values
 	err := godotenv.Load(projectPath + "/.env")
 	if err != nil {
 		log.Fatal("Failed to load .env file:", err)
 	}
+
+	// Configure error reporting to Sentry
+	sentrySecret := os.Getenv("SENTRY_SECRET")
+	raven.SetDSN("https://0d0a2118a3354f07ae98d485571e60be:" + sentrySecret + "@sentry.io/124813")
+
+	// Welcome message
+	log.Info("-----------------------------")
+	log.Info("Starting isaac-racing-server.")
+	log.Info("-----------------------------")
 
 	// Create a session store
 	sessionSecret := os.Getenv("SESSION_SECRET")
@@ -206,7 +218,7 @@ func main() {
 	// Profile commands
 	router.On("profileGet", profileGet)
 	router.On("profileSetUsername", profileSetUsername)
-	router.On("profileSetStream", profileSetStream)
+	router.On("profileSetStreamURL", profileSetStreamURL)
 	router.On("profileSetTwitchBotEnabled", profileSetTwitchBotEnabled)
 	router.On("profileSetTwitchBotDelay", profileSetTwitchBotDelay)
 
@@ -215,8 +227,8 @@ func main() {
 	router.On("adminUnban", adminUnban)
 	router.On("adminBanIP", adminBanIP)
 	router.On("adminUnbanIP", adminUnbanIP)
-	router.On("adminSquelch", adminSquelch)
-	router.On("adminUnsquelch", adminUnsquelch)
+	router.On("adminMute", adminMute)
+	router.On("adminUnmute", adminUnmute)
 	router.On("adminPromote", adminPromote)
 	router.On("adminDemote", adminDemote)
 
@@ -257,10 +269,19 @@ func main() {
 	p.Get("/info", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpInfo))
 	p.Get("/download", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpDownload))
 	p.Post("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler))
+	p.Post("/register", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), registerHandler))
 
-	// Assign functions to URIs
+	/*
+		Assign functions to URIs
+	*/
+
+	// Normal requests get assigned to the Pat HTTP router
 	http.Handle("/", p)
+
+	// Files in the "public" subdirectory are just images/css/javascript files
 	http.Handle("/public/", http.StripPrefix("/public/", http.FileServer(justFilesFilesystem{http.Dir("public")})))
+
+	// Websockets are handled by the Golem websocket router
 	http.HandleFunc("/ws", router.Handler())
 
 	/*
@@ -270,9 +291,20 @@ func main() {
 	// Figure out the port that we are using for the HTTP server
 	var port int
 	if useSSL == true {
-		go http.ListenAndServe(":80", http.HandlerFunc(HTTPRedirect))
+		// We want all HTTP requests to be redirected, but we need to make an exception for Let's Encrypt
+		// The previous "Handle" and "HandleFunc" were being added to the default serve mux
+		// We need to create a new fresh one for the HTTP handler
+		HTTPServeMux := http.NewServeMux()
+		HTTPServeMux.Handle("/.well-known/acme-challenge/", http.FileServer(http.FileSystem(http.Dir("letsencrypt"))))
+		HTTPServeMux.Handle("/", http.HandlerFunc(HTTPRedirect))
+
+		// ListenAndServe is blocking, so start listening on a new goroutine
+		go http.ListenAndServe(":80", HTTPServeMux) // Nothing before the colon implies 0.0.0.0
+
+		// 443 is the default port for HTTPS
 		port = 443
 	} else {
+		// 80 is the defeault port for HTTP
 		port = 80
 	}
 

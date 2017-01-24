@@ -1,20 +1,33 @@
 package main
 
+/*
+	Imports
+*/
+
+import (
+	"strconv"
+)
+
+/*
+	Achievement functions
+*/
+
 func achievementsInit() {
 	// Define all of the achievements
 	achievementMap = map[int][]string{
-		// Complete X races
+		// Complete x races
 		1: {"This Wasn't So Bad", "Complete your first race."},
 		2: {"I Think I Have the Hang of This", "Complete 10 races."},
 		3: {"Intermediate Racist", "Complete 50 races."},
 		4: {"Expert Racist", "Complete 100 races."},
 		5: {"Orange Juice", "Complete 500 races."}, // Reference to Ou_J
 
+		// Complete x races with every ruleset
 		6: {"Dipping Your Toe in the Water", "Complete a race with every ruleset (unseeded, seeded, and diversity)."},
 		7: {"Experimental Treatment", "Complete 10 races with every ruleset (unseeded, seeded, and diversity)."},
 		8: {"Jack of All Trades", "Complete 100 races with every ruleset (unseeded, seeded, and diversity)."},
 
-		// Get X average
+		// Get x average
 		11: {"Average Joe", "Have an unseeded average time of 16:30 or less (with at least 50 races played and under a 25% forfeit rate)."},
 		12: {"There's So Many Strats and So Little Time", "Have an unseeded average time of 16:00 or less (with at least 50 races played and under a 25% forfeit rate)."},
 		13: {"There's No Skill in an RNG Based Game", "Have an unseeded average time of 15:30 or less (with at least 50 races played and under a 25% forfeit rate)."},
@@ -30,14 +43,14 @@ func achievementsInit() {
 		32: {"A Literal God, Tasteless", "Finish 1st place in 5 races in a row with 5 people or more."}, // Reference to a Starcraft 2 meme
 		33: {"I'm Having a Bad Day", "Quit out of 3 races in a row with 5 people or more."},
 
-		// Complete a race with X time
+		// Complete a race with x time
 		41: {"Pretty Darn Fast", "Complete an unseeded race in less than 13 minutes."},
 		42: {"Speeding Bullet", "Complete an unseeded race in less than 12 minutes."},
 		43: {"Fast Like Sanic", "Complete an unseeded race in less than 11 minutes."},
 		44: {"Dea1hly Fast", "Complete an unseeded race in less than 10 minutes."}, // Reference to Dea1h
 		45: {"Fizzy Giraffe", "Complete an unseeded race in less than 9 minutes."}, // Reference to giraffeFizzoid
 
-		// Complete a race with X time with X item, unseeded
+		// Complete a race with x time with y item, unseeded
 		101: {"Unseeded Item Mastery - 20/20", "Complete an unseeded race in less than 12 minutes with a 20/20 start."},
 		102: {"Unseeded Item Mastery - Chocolate Milk", "Complete an unseeded race in less than 12 minutes with a Chocolate Milk start."},
 		103: {"Unseeded Item Mastery - Cricket's Body", "Complete an unseeded race in less than 12 minutes with a Cricket's Body start."},
@@ -58,7 +71,7 @@ func achievementsInit() {
 		118: {"Unseeded Item Mastery - Tech.5", "Complete an unseeded race in less than 12 minutes with a Tech.5 start."},
 		119: {"Unseeded Item Mastery - Tech X", "Complete an unseeded race in less than 12 minutes with a Tech X start."},
 
-		// Complete a race with X time with X item, seeded
+		// Complete a race with x time with y item, seeded
 		201: {"Seeded Item Mastery - 20/20", "Complete a seeded race in less than 11 minutes with a 20/20 start."},
 		202: {"Seeded Item Mastery - Chocolate Milk", "Complete a seeded race in less than 11 minutes with a Chocolate Milk start."},
 		203: {"Seeded Item Mastery - Cricket's Body", "Complete a seeded race in less than 11 minutes with a Cricket's Body start."},
@@ -151,7 +164,7 @@ func achievementsCheck(username string) {
 		return
 	}
 
-	// Achievement 1-8
+	// Achievement 1-8 (complete x races)
 	if intInSlice(1, userAchievements) == false ||
 		intInSlice(2, userAchievements) == false ||
 		intInSlice(3, userAchievements) == false ||
@@ -167,42 +180,42 @@ func achievementsCheck(username string) {
 			return
 		}
 
-		// Achievement 1
+		// Achievement 1 - This Wasn't So Bad - Complete your first race.
 		if intInSlice(1, userAchievements) == false {
 			if len(finishedList) >= 1 {
 				achievementsGive(username, 1)
 			}
 		}
 
-		// Achievement 2
+		// Achievement 2 - I Think I Have the Hang of This - Complete 10 races.
 		if intInSlice(2, userAchievements) == false {
 			if len(finishedList) >= 10 {
 				achievementsGive(username, 2)
 			}
 		}
 
-		// Achievement 3
+		// Achievement 3 - Intermediate Racist - Complete 50 races.
 		if intInSlice(3, userAchievements) == false {
 			if len(finishedList) >= 50 {
 				achievementsGive(username, 3)
 			}
 		}
 
-		// Achievement 4
+		// Achievement 4 - Expert Racist - Complete 100 races.
 		if intInSlice(4, userAchievements) == false {
 			if len(finishedList) >= 100 {
 				achievementsGive(username, 4)
 			}
 		}
 
-		// Achievement 5
+		// Achievement 5 - Orange Juice - Complete 500 races.
 		if intInSlice(5, userAchievements) == false {
 			if len(finishedList) >= 500 {
 				achievementsGive(username, 5)
 			}
 		}
 
-		// Achievement 6-8
+		// Achievement 6-8 (complete x races with every ruleset)
 		if intInSlice(6, userAchievements) == false ||
 			intInSlice(7, userAchievements) == false ||
 			intInSlice(8, userAchievements) == false {
@@ -221,21 +234,21 @@ func achievementsCheck(username string) {
 				}
 			}
 
-			// Achievement 6
+			// Achievement 6 - Dipping Your Toe in the Water - Complete a race with every ruleset (unseeded, seeded, and diversity).
 			if intInSlice(6, userAchievements) == false {
 				if countUnseeded >= 1 && countSeeded >= 1 && countDiversity >= 1 {
 					achievementsGive(username, 6)
 				}
 			}
 
-			// Achievement 7
+			// Achievement 7 - Experimental Treatment - Complete 10 races with every ruleset (unseeded, seeded, and diversity).
 			if intInSlice(7, userAchievements) == false {
 				if countUnseeded >= 10 && countSeeded >= 10 && countDiversity >= 10 {
 					achievementsGive(username, 7)
 				}
 			}
 
-			// Achievement 8
+			// Achievement 8 - Jack of All Trades - Complete 100 races with every ruleset (unseeded, seeded, and diversity).
 			if intInSlice(8, userAchievements) == false {
 				if countUnseeded >= 100 && countSeeded >= 100 && countDiversity >= 100 {
 					achievementsGive(username, 8)
@@ -243,7 +256,7 @@ func achievementsCheck(username string) {
 			}
 		}
 
-		// Achievement 11-14
+		// Achievement 11-14 (get x average)
 		if intInSlice(11, userAchievements) == false ||
 			intInSlice(12, userAchievements) == false ||
 			intInSlice(13, userAchievements) == false ||
@@ -269,7 +282,7 @@ func achievementsGive(username string, achievementID int) {
 			achievementMap[achievementID][1],
 		})
 	} else {
-		log.Error("Failed to send achievement", achievementID, "notification for user", username, "because they are offline, which should be impossible.")
+		log.Error("Failed to send achievement " + strconv.Itoa(achievementID) + " notification for user " + username + " because they are offline, which should be impossible.")
 	}
 	connectionMap.RUnlock()
 }

@@ -10,16 +10,33 @@ type RaceParticipantItems struct{}
 	"race_participant_items" table functions
 */
 
-func (*RaceParticipantItems) Insert(userID int, raceID int, itemID int, floor string) error {
+func (*RaceParticipantItems) Insert(userID int, raceID int, itemID int, floorNum int, stageType int) error {
 	// Add the user to the participants list for that race
 	stmt, err := db.Prepare(`
-		INSERT INTO race_participant_items (race_participant_id, item_id, floor)
-		VALUES ((SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?), ?, ?)
+		INSERT INTO race_participant_items (race_participant_id, item_id, floor_num, stage_type)
+		VALUES ((SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?), ?, ?, ?)
 	`)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(userID, raceID, itemID, floor)
+	_, err = stmt.Exec(userID, raceID, itemID, floorNum, stageType)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*RaceParticipantItems) Reset(userID int, raceID int) error {
+	// The racer reset, so remove all of their items for this race
+	stmt, err := db.Prepare(`
+		DELETE FROM race_participant_items
+		WHERE race_participant_id = (SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?)
+	`)
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(userID, raceID)
 	if err != nil {
 		return err
 	}

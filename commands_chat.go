@@ -178,10 +178,10 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Validate that the user is not squelched
-	if conn.Squelched == 1 {
+	// Validate that the user is not muted
+	if conn.Muted == 1 {
 		commandMutex.Unlock()
-		connError(conn, functionName, "You have been squelched by an administrator, so you cannot chat with others.")
+		connError(conn, functionName, "You have been muted by an administrator, so you cannot chat with others.")
 		return
 	}
 
@@ -276,10 +276,10 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Validate that the user is not squelched
-	if conn.Squelched == 1 {
+	// Validate that the user is not muted
+	if conn.Muted == 1 {
 		commandMutex.Unlock()
-		connError(conn, functionName, "You have been squelched by an administrator, so you cannot chat with others.")
+		connError(conn, functionName, "You have been muted by an administrator, so you cannot chat with others.")
 		return
 	}
 
@@ -355,14 +355,14 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 	// Local variables
 	username := conn.Username
 	admin := conn.Admin
-	squelched := conn.Squelched
+	muted := conn.Muted
 
 	// Join the room
 	roomManager.Join(room, conn.Connection)
 
 	// Add the user to the chat room mapping
 	chatRoomMap.Lock()
-	userObject := User{username, admin, squelched}
+	userObject := User{username, admin, muted}
 	chatRoomMap.m[room] = append(chatRoomMap.m[room], userObject)
 	users := chatRoomMap.m[room] // Save the list of users in the room for later
 	chatRoomMap.Unlock()

@@ -54,7 +54,10 @@ func (*BannedUsers) Insert(username string, adminResponsible int) error {
 
 func (*BannedUsers) Delete(username string) error {
 	// Remove the user from the banned users list in the database
-	stmt, err := db.Prepare("DELETE FROM banned_users WHERE user_id = (SELECT id from users WHERE username = ?)")
+	stmt, err := db.Prepare(`
+		DELETE FROM banned_users
+		WHERE user_id = (SELECT id from users WHERE username = ?)
+	`)
 	if err != nil {
 		return err
 	}

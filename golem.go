@@ -5,15 +5,11 @@ package main
 */
 
 import (
-	"encoding/json"           // For Auth0 authentication (1/3)
-	"github.com/trevex/golem" // The Golem WebSocket framework
-	"golang.org/x/oauth2"     // For Auth0 authentication (2/3)
-	"io/ioutil"               // For Auth0 authentication (3/3)
-	"net"                     // For splitting the IP address from the port
-	"net/http"                // For establishing an HTTP server
-	"os"                      // For logging and reading environment variables
-	"strconv"                 // For converting integers to strings
-	"time"                    // For rate limiting
+	"github.com/trevex/golem"
+	"net"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 /*
@@ -27,185 +23,6 @@ func NewExtendedConnection(conn *golem.Connection) *ExtendedConnection {
 		Username:   "",
 		Admin:      0,
 	}
-}
-
-/*
-	Login users using Auth0 access tokens
-*/
-
-func loginHandler(w http.ResponseWriter, r *http.Request) {
-	// Local variables
-	functionName := "loginHandler"
-	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-
-	// Lock the command mutex for the duration of the function to ensure synchronous execution
-	commandMutex.Lock()
-
-	// Check to see if their IP is banned
-	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
-		commandMutex.Unlock()
-		log.Error("Database error:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	} else if userIsBanned == true {
-		commandMutex.Unlock()
-		log.Info("IP \"" + ip + "\" tried to log in, but they are banned.")
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		return
-	}
-
-	// Get the session (this may be an empty session)
-	session, err := sessionStore.Get(r, sessionName)
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Unable to get the session during the", functionName, "function:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	// Check to see if they are already logged in (which should probably never happen since the cookie lasts 5 seconds)
-	if _, ok := session.Values["userID"]; ok == true {
-		commandMutex.Unlock()
-		log.Warning("User from IP \"" + ip + "\" tried to get a session cookie, but they are already logged in.")
-		http.Error(w, "You are already logged in. Please wait 5 seconds, then try again.", http.StatusUnauthorized)
-		return
-	}
-
-	// Instantiate the OAuth2 package
-	conf := &oauth2.Config{
-		ClientID:     os.Getenv("AUTH0_CLIENT_ID"),
-		ClientSecret: os.Getenv("AUTH0_CLIENT_SECRET"),
-		Scopes:       []string{"openid", "name", "email", "nickname"},
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  "https://" + auth0Domain + "/authorize",
-			TokenURL: "https://" + auth0Domain + "/oauth/token",
-		},
-	}
-
-	// Get the POST JSON of the access token (that the client got from https://isaacserver.auth0.com/oauth/ro)
-	decoder := json.NewDecoder(r.Body)
-	var token oauth2.Token
-	err = decoder.Decode(&token)
-	if err != nil {
-		commandMutex.Unlock()
-		log.Warning("Failed to receive access token from user:", err)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		return
-	}
-
-	// Get information about the user
-	client := conf.Client(oauth2.NoContext, &token)
-	resp, err := client.Get("https://" + auth0Domain + "/userinfo")
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Failed to login with Auth0 token \""+token.AccessToken+"\":", err)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		return
-	}
-
-	// Reading the body
-	raw, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Failed to read the body of the profile for Auth0 token \""+token.AccessToken+"\":", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	// Unmarshall the JSON of the profile
-	var profile map[string]interface{}
-	if err := json.Unmarshal(raw, &profile); err != nil {
-		commandMutex.Unlock()
-		log.Error("Failed to unmarshall the profile:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	// Get the Auth0 user ID and username from the profile
-	auth0ID := profile["user_id"].(string)
-	auth0Username := profile["username"].(string)
-
-	// Check to see if the requested person exists in the database
-	var squelched int
-	userID, username, admin, err := db.Users.Login(auth0ID)
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Database error:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	} else if userID == 0 {
-		// This is a new user, so add them to the database
-		if userID, err = db.Users.Insert(auth0ID, auth0Username, ip); err != nil {
-			commandMutex.Unlock()
-			log.Error("Database error:", err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-
-		// By default, new users have the same stylizaition as their Auth0 username (all lowercase)
-		username = auth0Username
-
-		// By default, new users are not administrators
-		admin = 0
-
-		// By default, new users are not squelched
-		squelched = 0
-
-		// Log the user creation
-		log.Info("Added \"" + username + "\" to the database (first login).")
-	} else {
-		// Check to see if this user is banned
-		if userIsBanned, err := db.BannedUsers.Check(username); err != nil {
-			commandMutex.Unlock()
-			log.Error("Database error:", err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		} else if userIsBanned == true {
-			commandMutex.Unlock()
-			log.Info("User \"" + username + "\" tried to log in, but they are banned.")
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-			return
-		}
-
-		// Check to see if this user is squelched
-		if userIsSquelched, err := db.SquelchedUsers.Check(username); err != nil {
-			commandMutex.Unlock()
-			log.Error("Database error:", err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		} else if userIsSquelched == true {
-			squelched = 1
-		} else {
-			squelched = 0
-		}
-
-		// Update the database with last_login and last_ip
-		if err := db.Users.SetLogin(username, ip); err != nil {
-			commandMutex.Unlock()
-			log.Error("Database error:", err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-	}
-
-	// Save the information to the session
-	session.Values["userID"] = userID
-	session.Values["username"] = username
-	session.Values["admin"] = admin
-	session.Values["squelched"] = squelched
-	if err := session.Save(r, w); err != nil {
-		commandMutex.Unlock()
-		log.Error("Failed to save the session cookie:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	// Log the login request
-	log.Info("User \""+username+"\" logged in from:", ip)
-
-	// The command is over, so unlock the command mutex
-	commandMutex.Unlock()
 }
 
 /*
@@ -239,7 +56,7 @@ func validateSession(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 
-	// If they have logged in, their cookie should have a "userID", "username", "admin", and "squelched" value
+	// If they have logged in, their cookie should have a "userID", "username", "admin", and "muted" value
 	if v, ok := session.Values["userID"]; ok == true && v.(int) > 0 {
 		// Do nothing
 	} else {
@@ -262,11 +79,11 @@ func validateSession(w http.ResponseWriter, r *http.Request) bool {
 		log.Debug("Unauthorized WebSocket handshake detected from:", ip, "(failed admin check)")
 		return false
 	}
-	if _, ok := session.Values["squelched"]; ok == true {
+	if _, ok := session.Values["muted"]; ok == true {
 		// Do nothing
 	} else {
 		commandMutex.Unlock()
-		log.Debug("Unauthorized WebSocket handshake detected from:", ip, "(failed squelched check)")
+		log.Debug("Unauthorized WebSocket handshake detected from:", ip, "(failed muted check)")
 		return false
 	}
 
@@ -344,12 +161,12 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 		log.Error("Failed to retrieve \"admin\" from the session during the", functionName, "function.")
 		return
 	}
-	var squelched int
-	if v, ok := session.Values["squelched"]; ok == true {
-		squelched = v.(int)
+	var muted int
+	if v, ok := session.Values["muted"]; ok == true {
+		muted = v.(int)
 	} else {
 		commandMutex.Unlock()
-		log.Error("Failed to retrieve \"squelched\" from the cookie during the", functionName, "function.")
+		log.Error("Failed to retrieve \"muted\" from the cookie during the", functionName, "function.")
 		return
 	}
 
@@ -357,7 +174,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	conn.UserID = userID
 	conn.Username = username
 	conn.Admin = admin
-	conn.Squelched = squelched
+	conn.Muted = muted
 	conn.RateLimitAllowance = rateLimitRate
 	conn.RateLimitLastCheck = time.Now()
 
@@ -390,7 +207,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	connectionMap.Unlock()
 
 	// Get their stream URL
-	stream, err := db.Users.GetStream(userID)
+	streamURL, err := db.Users.GetStreamURL(userID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -414,7 +231,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	// Send them various settings tied to their account
 	conn.Connection.Emit("settings", &SettingsMessage{
 		Username:         username, // The client already knows their username, but it may not be the same as the server-side stylization
-		Stream:           stream,
+		StreamURL:        streamURL,
 		TwitchBotEnabled: twitchBotEnabled,
 		TwitchBotDelay:   twitchBotDelay,
 		Time:             makeTimestamp(), // Send them the current time so that they can calculate the local offset
@@ -559,8 +376,15 @@ func logout(conn *ExtendedConnection) {
 */
 
 // Sent to the client if either their command was unsuccessful or something else went wrong
+// (this will cause a WebSocket disconnect and their client to completely restart)
 func connError(conn *ExtendedConnection, functionName string, message string) {
 	conn.Connection.Emit("error", &ErrorMessage{functionName, message})
+}
+
+// Sent to the client if something unexpected happened
+// (this will cause a popup on the client but still allow them to continue what they were doing)
+func connWarning(conn *ExtendedConnection, functionName string, message string) {
+	conn.Connection.Emit("warning", &ErrorMessage{functionName, message})
 }
 
 // Called at the beginning of every command handler

@@ -13,6 +13,7 @@ import (
 	WebSocket profile command functions
 */
 
+// Currently unimplemented
 func profileGet(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "profileSetUsername"
@@ -107,7 +108,7 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 	}
 	if len(raceList) > 1 {
 		commandMutex.Unlock()
-		connError(conn, functionName, "You cannot change your name if you are currently in a race.")
+		connError(conn, functionName, "You cannot change the capitalization of your name if you are currently in a race.")
 		return
 	}
 
@@ -160,12 +161,12 @@ func profileSetUsername(conn *ExtendedConnection, data *IncomingCommandMessage) 
 	commandMutex.Unlock()
 }
 
-func profileSetStream(conn *ExtendedConnection, data *IncomingCommandMessage) {
+func profileSetStreamURL(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
-	functionName := "profileSetStream"
+	functionName := "profileSetStreamURL"
 	userID := conn.UserID
 	username := conn.Username
-	newStream := data.Name
+	newStreamURL := data.Name
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
@@ -178,8 +179,8 @@ func profileSetStream(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Get the user's current stream
-	oldStream, err := db.Users.GetStream(userID)
+	// Get the user's current stream URL
+	oldStreamURL, err := db.Users.GetStreamURL(userID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -187,17 +188,17 @@ func profileSetStream(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Validate that the submitted stream is different than the current one
-	if newStream == oldStream {
+	// Validate that the submitted stream URL is different than the current one
+	if newStreamURL == oldStreamURL {
 		commandMutex.Unlock()
-		connError(conn, functionName, "Your stream is already set to that.")
+		connError(conn, functionName, "Your stream URL is already set to that.")
 		return
 	}
 
-	// Validate that the submitted stream is not a nasty URL
-	if newStream == "-" {
+	// Validate that the submitted stream URL is not malicious
+	if newStreamURL == "-" {
 		// Do nothing
-	} else if strings.HasPrefix(newStream, "https://www.twitch.tv/") {
+	} else if strings.HasPrefix(newStreamURL, "https://www.twitch.tv/") {
 		// Do nothing
 	} else {
 		commandMutex.Unlock()
@@ -207,7 +208,7 @@ func profileSetStream(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// TODO Add Hitbox/Youtube?
 
 	// If this is a Twitch stream, validate that the Twitch username is valid
-	if strings.HasPrefix(newStream, "https://www.twitch.tv/") {
+	if strings.HasPrefix(newStreamURL, "https://www.twitch.tv/") {
 		// Parse the for username
 		re, err := regexp.Compile(`https://www.twitch.tv/(.+)`)
 		if err != nil {
@@ -216,7 +217,7 @@ func profileSetStream(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 			return
 		}
-		user := re.FindStringSubmatch(newStream)[1]
+		newTwitchUser := re.FindStringSubmatch(newStreamURL)[1]
 
 		// Validate the username (from https://www.reddit.com/r/Twitch/comments/32w5b2/username_requirements/)
 		re, err = regexp.Compile(`^[a-zA-Z0-9_]{4,25}$`)
@@ -226,10 +227,42 @@ func profileSetStream(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 			return
 		}
-		if re.FindString(user) == "" {
+		if re.FindString(newTwitchUser) == "" {
 			commandMutex.Unlock()
 			connError(conn, functionName, "The stream URL submitted does not have a valid Twitch username.")
 			return
+		}
+
+		// Get the user's current Twitch bot setting
+		twitchBotEnabled, err := db.Users.GetTwitchBotEnabled(username)
+		if err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return
+		}
+
+		if twitchBotEnabled {
+			// Disable the Twitch bot setting in the database
+			if err := db.Users.SetTwitchBotEnabled(userID, false); err != nil {
+				commandMutex.Unlock()
+				log.Error("Database error:", err)
+				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+				return
+			}
+
+			// Get the old Twitch username
+			re, err := regexp.Compile(`https://www.twitch.tv/(.+)`)
+			if err != nil {
+				commandMutex.Unlock()
+				log.Error("Failed to compile the Twitch stream regular expression.")
+				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+				return
+			}
+			oldTwitchUser := re.FindStringSubmatch(oldStreamURL)[1]
+
+			// Leave the Twitch channel
+			ircSend("PART #" + oldTwitchUser)
 		}
 	}
 
@@ -248,7 +281,7 @@ func profileSetStream(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Set the new stream URL in the database
-	if err := db.Users.SetStream(userID, newStream); err != nil {
+	if err := db.Users.SetStreamURL(userID, newStreamURL); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -277,38 +310,14 @@ func profileSetTwitchBotEnabled(conn *ExtendedConnection, data *IncomingCommandM
 		return
 	}
 
-	// Get the user's current Twitch bot setting
-	twitchBotEnabled, err := db.Users.GetTwitchBotEnabled(username)
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Database error:", err)
-		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-		return
-	}
+	/*
+		We don't check to see if the submitted setting is different than before.
+		This is because the client sends it every time the settings are updated.
+		(Twitch bots are always disabled on a stream change, so it works this way for simplicity.)
+	*/
 
-	// Validate that the setting is different than the current one
-	if newValue == twitchBotEnabled {
-		commandMutex.Unlock()
-		connError(conn, functionName, "Your Twitch bot setting is already set to that.")
-		return
-	}
-
-	// If they are turning it off, then we can do that and our work is finished
-	if newValue == false {
-		// Set the new Twitch bot setting in the database
-		if err := db.Users.SetTwitchBotEnabled(userID, newValue); err != nil {
-			commandMutex.Unlock()
-			log.Error("Database error:", err)
-			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-			return
-		} else {
-			commandMutex.Unlock()
-			return
-		}
-	}
-
-	// Get the user's current stream
-	stream, err := db.Users.GetStream(userID)
+	// Get the user's current stream URL
+	streamURL, err := db.Users.GetStreamURL(userID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -317,8 +326,8 @@ func profileSetTwitchBotEnabled(conn *ExtendedConnection, data *IncomingCommandM
 	}
 
 	// Parse their Twitch username from their stream URL
-	var user string
-	if strings.HasPrefix(stream, "https://www.twitch.tv/") {
+	var twitchUser string
+	if strings.HasPrefix(streamURL, "https://www.twitch.tv/") {
 		// Parse for the username
 		re, err := regexp.Compile(`https://www.twitch.tv/(.+)`)
 		if err != nil {
@@ -327,12 +336,33 @@ func profileSetTwitchBotEnabled(conn *ExtendedConnection, data *IncomingCommandM
 			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 			return
 		}
-		user = re.FindStringSubmatch(stream)[1]
-		user = strings.ToLower(user)
-	} else {
+		twitchUser = re.FindStringSubmatch(streamURL)[1]
+		twitchUser = strings.ToLower(twitchUser)
+	}
+
+	// If they are turning it off
+	if newValue == false {
+		// Set the new Twitch bot setting in the database
+		if err := db.Users.SetTwitchBotEnabled(userID, newValue); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return
+		}
+
+		// Leave the channel
+		ircSend("PART #" + twitchUser)
+
+		// Our work is finished
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to enable the Twitch bot without having a Twitch stream set.")
-		connError(conn, functionName, "You must have a Twitch stream set in order to use the Twitch chat bot.")
+		return
+	}
+
+	// If they are turning it on, validate that they have a Twitch stream URL set
+	if twitchUser == "" {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" tried to enable the Twitch bot without having a Twitch stream URL set.")
+		connError(conn, functionName, "You must have a Twitch stream URL set in order to use the Twitch chat bot.")
 		return
 	}
 
@@ -345,7 +375,7 @@ func profileSetTwitchBotEnabled(conn *ExtendedConnection, data *IncomingCommandM
 	}
 
 	// If it is a Twitch stream, make the Twitch IRC bot join their channel
-	ircSend("JOIN #" + user)
+	ircSend("JOIN #" + twitchUser)
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

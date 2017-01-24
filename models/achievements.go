@@ -12,7 +12,10 @@ type Achievements struct{}
 
 func (*Achievements) Insert(id int, name string, description string) error {
 	// Add the achievement
-	stmt, err := db.Prepare("INSERT INTO achievements (id, name, description) VALUES (?, ?, ?)")
+	stmt, err := db.Prepare(`
+		INSERT INTO achievements (id, name, description)
+		VALUES (?, ?, ?)
+	`)
 	if err != nil {
 		return err
 	}

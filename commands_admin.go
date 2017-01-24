@@ -130,6 +130,22 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 				return
 			}
 
+			// Set their finish time
+			if err := db.RaceParticipants.SetDatetimeFinished(recipient, raceID, int(makeTimestamp())); err != nil {
+				commandMutex.Unlock()
+				log.Error("Database error:", err)
+				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+				return
+			}
+
+			// Set their (final) place to -2 (which indicates a disqualified status)
+			if err := db.RaceParticipants.SetPlace(username, raceID, -2); err != nil {
+				commandMutex.Unlock()
+				log.Error("Database error:", err)
+				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+				return
+			}
+
 			// Get the list of racers for this race
 			racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 			if err != nil {
@@ -143,7 +159,7 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			for _, racer := range racerNames {
 				conn, ok := connectionMap.m[racer]
 				if ok == true { // Not all racers may be online during a race
-					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "disqualified"})
+					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "disqualified", -2})
 				}
 			}
 			connectionMap.RUnlock()
@@ -385,9 +401,9 @@ func adminUnbanIP(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Unlock()
 }
 
-func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
+func adminMute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
-	functionName := "adminSquelch"
+	functionName := "adminMute"
 	userID := conn.UserID
 	username := conn.Username
 	recipient := data.Name
@@ -406,7 +422,7 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to squelch \"" + recipient + "\", but they are not staff/admin.")
+		log.Warning("User \"" + username + "\" tried to mute \"" + recipient + "\", but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members and administrators can do that.")
 		return
 	}
@@ -414,7 +430,7 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Validate that the requested person is sane
 	if recipient == "" {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to squelch a blank person.")
+		log.Warning("User \"" + username + "\" tried to mute a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
 	}
@@ -439,25 +455,25 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	} else if userIsStaff == true {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to squelch \"" + recipient + "\", but staff/admins cannot be squelched.")
-		connError(conn, functionName, "You cannot squelch a staff member or an administrator.")
+		log.Warning("User \"" + username + "\" tried to mute \"" + recipient + "\", but staff/admins cannot be muted.")
+		connError(conn, functionName, "You cannot mute a staff member or an administrator.")
 		return
 	}
 
-	// Validate that they are not already squelched
-	if userIsSquelched, err := db.SquelchedUsers.Check(recipient); err != nil {
+	// Validate that they are not already muted
+	if userIsMuted, err := db.MutedUsers.Check(recipient); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
-	} else if userIsSquelched == true {
+	} else if userIsMuted == true {
 		commandMutex.Unlock()
-		connError(conn, functionName, "That user is already squelched.")
+		connError(conn, functionName, "That user is already muted.")
 		return
 	}
 
-	// Add this username to the squelched list in the database
-	if err := db.SquelchedUsers.Insert(recipient, userID); err != nil {
+	// Add this username to the muted list in the database
+	if err := db.MutedUsers.Insert(recipient, userID); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -469,9 +485,9 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	_, ok := connectionMap.m[recipient]
 	connectionMap.RUnlock()
 	if ok == true {
-		// Update their connection map setting to be squelched
+		// Update their connection map setting to be muted
 		connectionMap.Lock()
-		connectionMap.m[recipient].Squelched = 1
+		connectionMap.m[recipient].Muted = 1
 		connectionMap.Unlock()
 
 		// Look for this user in all chat rooms
@@ -486,8 +502,8 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 				}
 			}
 			if index != -1 {
-				// Update them to be squelched
-				chatRoomMap.m[room][index].Squelched = 1
+				// Update them to be muted
+				chatRoomMap.m[room][index].Muted = 1
 
 				// Send everyone an room update
 				users, ok := chatRoomMap.m[room]
@@ -500,9 +516,9 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 				for _, user := range users {
 					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 					if ok == true {
-						userConnection.Connection.Emit("roomSetSquelched", &RoomSetSquelchedMessage{room, recipient, 1})
+						userConnection.Connection.Emit("roomSetMuted", &RoomSetMutedMessage{room, recipient, 1})
 					} else {
-						log.Error("Failed to get the connection for user \"" + user.Name + "\" while squelching user \"" + recipient + "\".")
+						log.Error("Failed to get the connection for user \"" + user.Name + "\" while muting user \"" + recipient + "\".")
 						continue
 					}
 				}
@@ -512,16 +528,16 @@ func adminSquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		chatRoomMap.Unlock()
 	}
 
-	// Log the squelch
-	log.Info("User \"" + username + "\" squelched user \"" + recipient + "\".")
+	// Log the mute
+	log.Info("User \"" + username + "\" muted user \"" + recipient + "\".")
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
 
-func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
+func adminUnmute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
-	functionName := "adminUnsquelch"
+	functionName := "adminUnmute"
 	username := conn.Username
 	recipient := data.Name
 
@@ -539,7 +555,7 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to squelch someone, but they are not staff/admin.")
+		log.Warning("User \"" + username + "\" tried to mute someone, but they are not staff/admin.")
 		connError(conn, functionName, "Only staff members and administrators can do that.")
 		return
 	}
@@ -547,7 +563,7 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Validate that the requested person is sane
 	if recipient == "" {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to squelch a blank person.")
+		log.Warning("User \"" + username + "\" tried to unmute a blank person.")
 		connError(conn, functionName, "That person is not valid.")
 		return
 	}
@@ -572,25 +588,25 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	} else if userIsStaff == true {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" tried to unsquelch \"" + recipient + "\", but staff/admins cannot be unsquelched.")
-		connError(conn, functionName, "You cannot unsquelch a staff member or an administrator.")
+		log.Warning("User \"" + username + "\" tried to unmute \"" + recipient + "\", but staff/admins cannot be unmuted.")
+		connError(conn, functionName, "You cannot unmute a staff member or an administrator.")
 		return
 	}
 
-	// Validate that they are not already unsquelched
-	if userIsSquelched, err := db.SquelchedUsers.Check(recipient); err != nil {
+	// Validate that they are muted
+	if userIsMuted, err := db.MutedUsers.Check(recipient); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
-	} else if userIsSquelched == false {
+	} else if userIsMuted == false {
 		commandMutex.Unlock()
-		connError(conn, functionName, "That user is not squelched.")
+		connError(conn, functionName, "That user is not muted.")
 		return
 	}
 
-	// Remove this username from the squelched list in the database
-	if err := db.SquelchedUsers.Delete(recipient); err != nil {
+	// Remove this username from the muted list in the database
+	if err := db.MutedUsers.Delete(recipient); err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
@@ -602,9 +618,9 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	_, ok := connectionMap.m[recipient]
 	connectionMap.RUnlock()
 	if ok == true {
-		// Update their connection map setting to be unsquelched
+		// Update their connection map setting to be unmuted
 		connectionMap.Lock()
-		connectionMap.m[recipient].Squelched = 0
+		connectionMap.m[recipient].Muted = 0
 		connectionMap.Unlock()
 
 		// Look for this user in all chat rooms
@@ -619,8 +635,8 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 				}
 			}
 			if index != -1 {
-				// Update them to be squelched
-				chatRoomMap.m[room][index].Squelched = 0
+				// Update them to be unmuted
+				chatRoomMap.m[room][index].Muted = 0
 
 				// Send everyone an room update
 				users, ok := chatRoomMap.m[room]
@@ -633,9 +649,9 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 				for _, user := range users {
 					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 					if ok == true {
-						userConnection.Connection.Emit("roomSetSquelched", &RoomSetSquelchedMessage{room, recipient, 0})
+						userConnection.Connection.Emit("roomSetMuted", &RoomSetMutedMessage{room, recipient, 0})
 					} else {
-						log.Error("Failed to get the connection for user \"" + user.Name + "\" while unsquelching user \"" + recipient + "\".")
+						log.Error("Failed to get the connection for user \"" + user.Name + "\" while unmuting user \"" + recipient + "\".")
 						continue
 					}
 				}
@@ -645,8 +661,8 @@ func adminUnsquelch(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		chatRoomMap.Unlock()
 	}
 
-	// Log the unsquelch
-	log.Info("User \"" + username + "\" unsquelched user \"" + recipient + "\".")
+	// Log the unmute
+	log.Info("User \"" + username + "\" unmuted user \"" + recipient + "\".")
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

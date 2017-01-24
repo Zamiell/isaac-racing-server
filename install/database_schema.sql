@@ -5,12 +5,21 @@
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
     id                         INTEGER    PRIMARY KEY  AUTOINCREMENT,
-    auth0_id                   TEXT       NOT NULL,
-    username                   TEXT       NOT NULL,
+    steam_id                   INTEGER    NOT NULL  UNIQUE,
+    username                   TEXT       NOT NULL  UNIQUE COLLATE NOCASE, /* Usernames must be case insensitive unique */
     datetime_created           INTEGER    NOT NULL,
-    last_login                 INTEGER    NOT NULL,
+    datetime_last_login        INTEGER    NOT NULL,
     last_ip                    TEXT       NOT NULL,
     admin                      INTEGER    DEFAULT 0,
+    verified                   INTEGER    DEFAULT 0,
+
+    /* Seeded leaderboard stuff */
+    elo                        INTEGER    DEFAULT 0,
+    last_elo_change            INTEGER    DEFAULT 0,
+    num_seeded_races           INTEGER    DEFAULT 0,
+    last_seeded_race           INTEGER    DEFAULT 0,
+
+    /* Unseeded leaderboard stuff */
     unseeded_adjusted_average  INTEGER    DEFAULT 0,
     unseeded_real_average      INTEGER    DEFAULT 0,
     num_unseeded_races         INTEGER    DEFAULT 0,
@@ -18,23 +27,22 @@ CREATE TABLE users (
     forfeit_penalty            INTEGER    DEFAULT 0,
     lowest_unseeded_time       INTEGER    DEFAULT 0,
     last_unseeded_race         INTEGER    DEFAULT 0,
-    elo                        INTEGER    DEFAULT 0,
-    last_elo_change            INTEGER    DEFAULT 0,
-    num_seeded_races           INTEGER    DEFAULT 0,
-    last_seeded_race           INTEGER    DEFAULT 0,
-    stream                     TEXT       DEFAULT "-", /* Their stream URL */
+
+    /* Twitch bot stuff */
+    stream_url                 TEXT       DEFAULT "-", /* Their stream URL */
     twitch_bot_enabled         INTEGER    DEFAULT 0, /* Either 0 or 1 */
     twitch_bot_delay           INTEGER    DEFAULT 0 /* Between 0 and 60 */
 );
-CREATE UNIQUE INDEX users_index_auth0_id ON users (auth0_id);
-CREATE UNIQUE INDEX users_index_username ON users (username COLLATE NOCASE);
+CREATE UNIQUE INDEX users_index_steam_id ON users (steam_id);
+CREATE UNIQUE INDEX users_index_username ON users (username);
 
 DROP TABLE IF EXISTS races;
 CREATE TABLE races (
     id                    INTEGER               PRIMARY KEY  AUTOINCREMENT,
     name                  TEXT                  DEFAULT "-",
     status                TEXT                  DEFAULT "open", /* starting, in progress, finished */
-    format                TEXT                  DEFAULT "unseeded", /* seeded, diversity */
+    type                  INTEGER               DEFAULT 0, /* 0 for unranked, 1 for ranked */
+    format                TEXT                  DEFAULT "unseeded", /* seeded, diversity, custom */
     character             TEXT                  DEFAULT "Isaac", /* Isaac, Magdalene, Cain, Judas, Blue Baby, Eve, Samson, Azazel, Lazarus, Eden, The Lost, Lilith, Keeper */
     goal                  TEXT                  DEFAULT "Blue Baby", /* The Lamb, Mega Satan */
     starting_build        INTEGER               DEFAULT -1, /* -1 for unseeded/diversity races, setting it to 0 means "keep it as it is" */
@@ -57,10 +65,13 @@ CREATE TABLE race_participants (
     datetime_joined       INTEGER               NOT NULL,
     datetime_finished     INTEGER               DEFAULT 0,
     place                 INTEGER               DEFAULT 0, /* -1 is quit, -2 is disqualified */
+    place_mid             INTEGER               DEFAULT 1, /* All racers should start tied for 1st place */
     comment               TEXT                  DEFAULT "-",
     seed                  TEXT                  DEFAULT "-",
     starting_item         INTEGER               DEFAULT 0,
-    floor                 TEXT                  DEFAULT "1-0",
+    floor_num             INTEGER               DEFAULT 0,
+    stage_type            INTEGER               DEFAULT 0,
+    floor_arrived         INTEGER               DEFAULT 0,
     FOREIGN KEY(user_id)  REFERENCES users(id),
     FOREIGN KEY(race_id)  REFERENCES races(id),
     UNIQUE(user_id, race_id)
@@ -74,7 +85,8 @@ CREATE TABLE race_participant_items (
     id                                INTEGER                           PRIMARY KEY  AUTOINCREMENT,
     race_participant_id               INTEGER                           NOT NULL,
     item_id                           INTEGER                           NOT NULL,
-    floor                             TEXT                              NOT NULL,
+    floor_num                         INTEGER                           NOT NULL,
+    stage_type                        INTEGER                           NOT NULL,
     FOREIGN KEY(race_participant_id)  REFERENCES race_participants(id)
 );
 CREATE INDEX race_participant_items_index_race_participant_id ON race_participant_items (race_participant_id);
@@ -100,16 +112,16 @@ CREATE TABLE banned_ips (
 );
 CREATE UNIQUE INDEX banned_ips_index_ip ON banned_ips (ip);
 
-DROP TABLE IF EXISTS squelched_users;
-CREATE TABLE squelched_users (
+DROP TABLE IF EXISTS muted_users;
+CREATE TABLE muted_users (
     id                              INTEGER               PRIMARY KEY  AUTOINCREMENT,
     user_id                         INTEGER               NOT NULL,
     admin_responsible               INTEGER               NOT NULL,
-    datetime_squelched              INTEGER               NOT NULL,
+    datetime_muted                  INTEGER               NOT NULL,
     FOREIGN KEY(user_id)            REFERENCES users(id),
     FOREIGN KEY(admin_responsible)  REFERENCES users(id)
 );
-CREATE UNIQUE INDEX squelched_users_index_user_id ON squelched_users (user_id);
+CREATE UNIQUE INDEX muted_users_index_user_id ON muted_users (user_id);
 
 DROP TABLE IF EXISTS chat_log;
 CREATE TABLE chat_log (
@@ -159,9 +171,28 @@ CREATE TABLE user_achievements (
 CREATE INDEX user_achievements_index_user_id ON user_achievements (user_id);
 CREATE INDEX user_achievements_index_achievement_id ON user_achievements (achievement_id);
 
-DROP TABLE IF EXISTS seeds;
-CREATE TABLE seeds (
-    id    INTEGER  PRIMARY KEY  AUTOINCREMENT,
-    seed  TEXT     NOT NULL
+DROP TABLE IF EXISTS user_season_stats;
+CREATE TABLE user_season_stats (
+    id                         INTEGER   PRIMARY KEY  AUTOINCREMENT,
+    user_id                    INTEGER   NOT NULL,
+    season                     INTEGER   NOT NULL,
+
+    /* Seeded leaderboard stuff */
+    elo                        INTEGER    DEFAULT 0,
+    last_elo_change            INTEGER    DEFAULT 0,
+    num_seeded_races           INTEGER    DEFAULT 0,
+    last_seeded_race           INTEGER    DEFAULT 0,
+
+    /* Unseeded leaderboard stuff */
+    unseeded_adjusted_average  INTEGER    DEFAULT 0,
+    unseeded_real_average      INTEGER    DEFAULT 0,
+    num_unseeded_races         INTEGER    DEFAULT 0,
+    num_forfeits               INTEGER    DEFAULT 0,
+    forfeit_penalty            INTEGER    DEFAULT 0,
+    lowest_unseeded_time       INTEGER    DEFAULT 0,
+    last_unseeded_race         INTEGER    DEFAULT 0,
+
+    FOREIGN KEY(user_id)       REFERENCES users(id),
+    UNIQUE(user_id, season)
 );
-CREATE UNIQUE INDEX seeds_index_seed ON seeds (seed COLLATE NOCASE);
+CREATE INDEX user_season_stats_index_user_id ON user_season_stats (user_id);
