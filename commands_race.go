@@ -30,7 +30,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command.") // There is no race ID yet because they are creating a race
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command.") // There is no race ID yet because they are creating a race
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -69,20 +69,6 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Check if this user has started 2 races (they shouldn't normally be able to do this)
-	// TODO remove this?
-	if count, err := db.Races.CaptainCount(userID); err != nil {
-		commandMutex.Unlock()
-		log.Error("Database error:", err)
-		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
-		return
-	} else if count >= 2 {
-		commandMutex.Unlock()
-		log.Info("New race request denied; \""+username+"\" is captain of ", count, "races.")
-		connError(conn, functionName, "To prevent abuse, you are only allowed to create 2 new races at a time.")
-		return
-	}
-
 	// Check if there are any non-finished races with the same name
 	if raceWithSameName, err := db.Races.CheckName(name); err != nil {
 		commandMutex.Unlock()
@@ -116,7 +102,7 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 				connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 				return
 			}
-			seed = string(outputByteArray)
+			seed = strings.TrimSpace(string(outputByteArray)) // There is a newline at the end, so we have to remove it
 		} else if ruleset.Format == "diversity" {
 			// Create a random 5 character Diversity seed
 			seed = strings.ToUpper(getRandomString(5))
@@ -186,7 +172,7 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -205,6 +191,19 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Validate that they are not in the race
 	if raceValidateOut2(conn, data, functionName) == false {
+		return
+	}
+
+	// Validate that this is not a solo race
+	if solo, err := db.Races.CheckSolo(raceID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	} else if solo {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but it is a solo race.")
+		connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" is a solo race, so you cannot join it.")
 		return
 	}
 
@@ -252,7 +251,7 @@ func raceJoinSpectate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -312,7 +311,7 @@ func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -401,7 +400,7 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -469,7 +468,7 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -523,6 +522,7 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Unlock()
 }
 
+// Currently not implemented client-side
 func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// Local variables
 	functionName := "raceUnready"
@@ -535,7 +535,7 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -674,7 +674,7 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -823,7 +823,7 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -933,7 +933,7 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -1028,7 +1028,7 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -1036,9 +1036,9 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the item number is sane
-	if itemID < 1 || itemID > 441 { // This will need to be updated once we know the highest item ID in Afterbirth+
+	if itemID < 1 || itemID > 510 { // The highest item ID is 510 (Delirious)
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to add an item", itemID, "to their build, but that is a bogus number.")
+		log.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
 		connError(conn, functionName, "That is not a valid item ID.")
 		return
 	}
@@ -1116,7 +1116,7 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Lock()
 
 	// Log the received command
-	log.Debug("User \""+username+"\" sent a", functionName, "command for race ID:", raceID)
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -1144,7 +1144,7 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the floor is sane
-	if floorNum < 1 || floorNum > 11 {
+	if floorNum < 1 || floorNum > 12 {
 		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(floorNum) + "\" is a bogus floor number.")
 		connError(conn, functionName, "That is not a valid floor number.")
@@ -1168,6 +1168,14 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// The floor gets sent as 1 when a reset occurs
 	if floorNum == 1 {
 		// Reset all of their accumulated items
+		if err := db.RaceParticipantItems.Reset(userID, raceID); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+			return
+		}
+
+		// Reset all of their visited rooms
 		if err := db.RaceParticipantItems.Reset(userID, raceID); err != nil {
 			commandMutex.Unlock()
 			log.Error("Database error:", err)
@@ -1203,6 +1211,57 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	commandMutex.Unlock()
 }
 
+func raceRoom(conn *ExtendedConnection, data *IncomingCommandMessage) {
+	// Local variables
+	functionName := "raceRoom"
+	userID := conn.UserID
+	username := conn.Username
+	raceID := data.ID
+	roomID := data.RoomID
+
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \"" + username + "\" sent a " + functionName + " command for race ID: " + strconv.Itoa(raceID))
+
+	// Rate limit all commands
+	if commandRateLimit(conn) == true {
+		return
+	}
+
+	// Validate basic things about the race ID
+	if raceValidate(conn, data, functionName) == false {
+		return
+	}
+
+	// Validate that the race has started
+	if raceValidateStatus(conn, data, "in progress", functionName) == false {
+		return
+	}
+
+	// Validate that they are in the race
+	if raceValidateIn2(conn, data, functionName) == false {
+		return
+	}
+
+	// Validate that their status is set to "racing" status
+	if racerValidateStatus(conn, userID, raceID, "racing", functionName) == false {
+		return
+	}
+
+	// Add the room to their list of visited rooms
+	if err := db.RaceParticipantRooms.Insert(userID, raceID, roomID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
+}
+
 /*
 	Race subroutines
 */
@@ -1215,7 +1274,7 @@ func raceValidate(conn *ExtendedConnection, data *IncomingCommandMessage, functi
 	// Validate that the requested race is sane
 	if raceID <= 0 {
 		commandMutex.Unlock()
-		log.Warning("User \""+username+"\" attempted to call", functionName, "with a bogus ID of "+strconv.Itoa(raceID)+".")
+		log.Warning("User \"" + username + "\" attempted to call " + functionName + " with a bogus ID of " + strconv.Itoa(raceID) + ".")
 		connError(conn, functionName, "You must provide a valid race number.")
 		return false
 	}
@@ -1228,13 +1287,8 @@ func raceValidate(conn *ExtendedConnection, data *IncomingCommandMessage, functi
 		return false
 	} else if exists == false {
 		commandMutex.Unlock()
-		if functionName == "raceJoin" {
-			log.Info("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but it doesn't exist. (The race was deleted as they were trying to join it, which can happen sometimes.)")
-			// Don't send them a warning because nothing will happen and the race will just disappear
-		} else {
-			log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but it doesn't exist.")
-			connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" does not exist.")
-		}
+		log.Info("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but it doesn't exist.")
+		// Don't send an error to the user; this kind of thing can happen if their internet is lagging
 		return false
 	}
 
@@ -1255,8 +1309,8 @@ func raceValidateStatus(conn *ExtendedConnection, data *IncomingCommandMessage, 
 		return false
 	} else if correctStatus == false {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but race is not set to status \"" + status + "\".")
-		connError(conn, functionName, "Race ID "+strconv.Itoa(raceID)+" is not set to status \""+status+"\".")
+		log.Info("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but race is not set to status \"" + status + "\".")
+		// Don't send an error to the user; this kind of thing can happen if their internet is lagging
 		return false
 	}
 
@@ -1321,7 +1375,7 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 		commandMutex.Unlock()
 		connError(conn, functionName, "You cannot set a starting build for a non-seeded race.")
 		return false
-	} else if ruleset.Format == "seeded" && (ruleset.StartingBuild < 1 || ruleset.StartingBuild > 31) { // There are 31 builds in the Instant Start Mod
+	} else if ruleset.Format == "seeded" && (ruleset.StartingBuild < 1 || ruleset.StartingBuild > 32) { // There are 32 builds currently
 		commandMutex.Unlock()
 		connError(conn, functionName, "That is not a valid starting build.")
 		return false
@@ -1448,8 +1502,9 @@ func racerValidateStatus(conn *ExtendedConnection, userID int, raceID int, statu
 		return false
 	} else if correctStatus == false {
 		commandMutex.Unlock()
-		log.Warning("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but they are not set to status \"" + status + "\".")
-		connError(conn, functionName, "You can only do that if your status is set to \""+status+"\".")
+		log.Info("User \"" + username + "\" attempted to call " + functionName + " on race ID " + strconv.Itoa(raceID) + ", but they are not set to status \"" + status + "\".")
+		// Don't send an error to the user; just silently fail
+		// This type of thing can occur if, for example, they try to unready immediately before the race begins
 		return false
 	}
 
@@ -1531,14 +1586,20 @@ func raceCheckStart(raceID int) {
 		return
 	}
 
-	// Check to see if there is only 1 person in the race
-	// (commented out because we allow 1 person races)
-	/*if racerNames, err := db.RaceParticipants.GetRacerNames(raceID); err != nil {
+	// Check to see if this is a solo race
+	solo, err := db.Races.CheckSolo(raceID)
+	if err != nil {
 		log.Error("Database error:", err)
 		return
-	} else if len(racerNames) == 1 {
+	}
+
+	// Check to see if there is only 1 person in the race
+	if racerNames, err := db.RaceParticipants.GetRacerNames(raceID); err != nil {
+		log.Error("Database error:", err)
 		return
-	}*/
+	} else if len(racerNames) == 1 && solo == false {
+		return
+	}
 
 	// Check if everyone is ready
 	if sameStatus, err := db.RaceParticipants.CheckAllStatus(raceID, "ready"); err != nil {

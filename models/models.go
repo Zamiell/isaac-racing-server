@@ -22,6 +22,7 @@ type Models struct {
 	ChatLogPM
 	ChatLog
 	RaceParticipantItems
+	RaceParticipantRooms
 	RaceParticipants
 	Races
 	MutedUsers
@@ -51,6 +52,7 @@ type Race struct {
 }
 type Ruleset struct {
 	Type          string `json:"type"`
+	Solo          bool   `json:"solo"`
 	Format        string `json:"format"`
 	Character     string `json:"character"`
 	Goal          string `json:"goal"`

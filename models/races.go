@@ -44,6 +44,7 @@ func (*Races) GetCurrentRaces() ([]Race, error) {
 			name,
 			status,
 			type,
+			solo,
 			format,
 			character,
 			goal,
@@ -70,6 +71,7 @@ func (*Races) GetCurrentRaces() ([]Race, error) {
 			&race.Name,
 			&race.Status,
 			&race.Ruleset.Type,
+			&race.Ruleset.Solo,
 			&race.Ruleset.Format,
 			&race.Ruleset.Character,
 			&race.Ruleset.Goal,
@@ -156,10 +158,10 @@ func (*Races) GetRuleset(raceID int) (Ruleset, error) {
 	// Get the ruleset of the race
 	var ruleset Ruleset
 	err := db.QueryRow(`
-		SELECT format, character, goal, starting_build
+		SELECT solo, format, character, goal, starting_build
 		FROM races
 		WHERE id = ?
-	`, raceID).Scan(&ruleset.Format, &ruleset.Character, &ruleset.Goal, &ruleset.StartingBuild)
+	`, raceID).Scan(&ruleset.Solo, &ruleset.Format, &ruleset.Character, &ruleset.Goal, &ruleset.StartingBuild)
 	if err != nil {
 		return ruleset, err
 	}
@@ -228,19 +230,22 @@ func (*Races) CheckCaptain(raceID int, captain int) (bool, error) {
 	}
 }
 
-func (*Races) CaptainCount(userID int) (int, error) {
-	// Get how many races this user is a captain of
-	var count int
+func (*Races) CheckSolo(raceID int) (bool, error) {
+	// Check to see if this is a solo race
+	// (only 1 person is able to join)
+	var id int
 	err := db.QueryRow(`
-		SELECT COUNT(id) as count
+		SELECT solo
 		FROM races
-		WHERE status != 'finished' AND captain = ?
-	`, userID).Scan(&count)
+		WHERE id = ?
+	`, raceID).Scan(&id)
 	if err != nil {
-		return 0, err
+		return false, err
+	} else if id == 0 {
+		return false, nil
+	} else {
+		return true, nil
 	}
-
-	return count, nil
 }
 
 func (*Races) SetStatus(raceID int, status string) error {
@@ -340,6 +345,7 @@ func (*Races) Insert(name string, ruleset Ruleset, userID int) (int, error) {
 		INSERT INTO races (
 			name,
 			type,
+			solo,
 			format,
 			character,
 			goal,
@@ -347,13 +353,14 @@ func (*Races) Insert(name string, ruleset Ruleset, userID int) (int, error) {
 			captain,
 			datetime_created
 		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`); err != nil {
 		return 0, err
 	} else {
 		result, err := stmt.Exec(
 			name,
 			ruleset.Type,
+			ruleset.Solo,
 			ruleset.Format,
 			ruleset.Character,
 			ruleset.Goal,

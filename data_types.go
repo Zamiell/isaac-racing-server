@@ -75,6 +75,7 @@ type IncomingCommandMessage struct {
 	ItemID    int            `json:"itemID"`
 	FloorNum  int            `json:"floorNum"`
 	StageType int            `json:"stageType"`
+	RoomID    string         `json:"roomID"`
 	IP        string         `json:"ip"`
 	Enabled   bool           `json:"enabled"`
 	Value     int            `json:"value"`
@@ -128,7 +129,7 @@ type RoomLeftMessage struct {
 	Name string `json:"name"`
 }
 
-// Sent in the "roomMessage" command (in the "roomMessage" function)
+// Sent in the "roomMessage" and "serverMessage" command (in the "roomMessage" and "serverMessage" functions)
 type RoomMessageMessage struct {
 	Room    string `json:"room"`
 	Name    string `json:"name"`

@@ -214,13 +214,10 @@ func main() {
 	router.On("raceComment", raceComment)
 	router.On("raceItem", raceItem)
 	router.On("raceFloor", raceFloor)
+	router.On("raceRoom", raceRoom)
 
 	// Profile commands
-	router.On("profileGet", profileGet)
-	router.On("profileSetUsername", profileSetUsername)
-	router.On("profileSetStreamURL", profileSetStreamURL)
-	router.On("profileSetTwitchBotEnabled", profileSetTwitchBotEnabled)
-	router.On("profileSetTwitchBotDelay", profileSetTwitchBotDelay)
+	router.On("profileSetStream", profileSetStream)
 
 	// Admin commands
 	router.On("adminBan", adminBan)
@@ -231,6 +228,7 @@ func main() {
 	router.On("adminUnmute", adminUnmute)
 	router.On("adminPromote", adminPromote)
 	router.On("adminDemote", adminDemote)
+	router.On("adminMessage", adminMessage)
 
 	// Miscellaneous
 	router.On("logout", logout)
@@ -243,7 +241,7 @@ func main() {
 	// Minify CSS and JS
 	m := minify.New()
 	m.AddFunc("text/css", css.Minify)
-	for _, fileName := range []string{"main", "ie8"} {
+	for _, fileName := range []string{"main"} {
 		inputFile, _ := os.Open("public/css/" + fileName + ".css")
 		outputFile, _ := os.Create("public/css/" + fileName + ".min.css")
 		if err := m.Minify("text/css", outputFile, inputFile); err != nil {

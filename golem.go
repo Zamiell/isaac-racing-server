@@ -6,6 +6,7 @@ package main
 
 import (
 	"github.com/trevex/golem"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
@@ -215,13 +216,13 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	}
 
 	// Get their Twitch bot settings
-	twitchBotEnabled, err := db.Users.GetTwitchBotEnabled(username)
+	twitchBotEnabled, err := db.Users.GetTwitchBotEnabled(userID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
 		return
 	}
-	twitchBotDelay, err := db.Users.GetTwitchBotDelay(username)
+	twitchBotDelay, err := db.Users.GetTwitchBotDelay(userID)
 	if err != nil {
 		commandMutex.Unlock()
 		log.Error("Database error:", err)
@@ -287,6 +288,17 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 			}
 		}
 	}
+
+	// Send them the message of the day
+	messageRaw, err := ioutil.ReadFile("message_of_the_day.txt")
+	if err != nil {
+		commandMutex.Unlock()
+		log.Error("Failed to read the \"message_of_the_day.txt\" file:", err)
+		return
+	}
+	conn.Connection.Emit("adminMessage", &RoomMessageMessage{
+		Message: string(messageRaw),
+	})
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

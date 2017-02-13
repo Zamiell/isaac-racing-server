@@ -94,7 +94,8 @@ func twitchInit() {
 		// Block until we get a message
 		msg, err := tp.ReadLine()
 		if err != nil {
-			log.Error("Failed to read from the Twitch IRC connection:", err)
+			// Ocassionally the connection is reset, so don't log this as an error
+			log.Info("Failed to read from the Twitch IRC connection:", err)
 			go twitchInit() // Reconnect
 			return
 		}

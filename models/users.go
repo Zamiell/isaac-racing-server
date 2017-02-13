@@ -7,6 +7,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"strconv"
 )
 
 /*
@@ -148,14 +149,14 @@ func (*Users) GetAllStreamURLs() ([]string, error) {
 	return stream_urls, nil
 }
 
-func (*Users) GetTwitchBotEnabled(username string) (bool, error) {
+func (*Users) GetTwitchBotEnabled(userID int) (bool, error) {
 	// Get the user's Twitch bot setting
 	var enabled int
 	err := db.QueryRow(`
 		SELECT twitch_bot_enabled
 		FROM users
-		WHERE username = ?
-	`, username).Scan(&enabled)
+		WHERE id = ?
+	`, userID).Scan(&enabled)
 	if err != nil {
 		return false, err
 	} else if enabled == 0 {
@@ -163,18 +164,18 @@ func (*Users) GetTwitchBotEnabled(username string) (bool, error) {
 	} else if enabled == 1 {
 		return true, nil
 	} else {
-		return false, errors.New("The \"twitch_bot_enabled\" field for user \"" + username + "\" was not set to 0 or 1.")
+		return false, errors.New("The \"twitch_bot_enabled\" field for user ID \"" + strconv.Itoa(userID) + "\" was not set to 0 or 1.")
 	}
 }
 
-func (*Users) GetTwitchBotDelay(username string) (int, error) {
+func (*Users) GetTwitchBotDelay(userID int) (int, error) {
 	// Get the user's Twitch bot setting
 	var delay int
 	err := db.QueryRow(`
 		SELECT twitch_bot_delay
 		FROM users
-		WHERE username = ?
-	`, username).Scan(&delay)
+		WHERE id = ?
+	`, userID).Scan(&delay)
 	if err != nil {
 		return delay, err
 	} else {

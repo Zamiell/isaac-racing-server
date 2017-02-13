@@ -909,3 +909,41 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
 }
+
+func adminMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
+	// Local variables
+	functionName := "adminMessage"
+	username := conn.Username
+	message := data.Message
+
+	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	commandMutex.Lock()
+
+	// Log the received command
+	log.Debug("User \""+username+"\" sent a", functionName, "command.")
+
+	// Validate that the user is an admin
+	if conn.Admin != 2 {
+		commandMutex.Unlock()
+		log.Warning("User \"" + username + "\" tried to send a server broadcast, but they are not an administrator.")
+		connError(conn, functionName, "Only administrators can do that.")
+		return
+	}
+
+	// Rate limit all commands
+	if commandRateLimit(conn) == true {
+		return
+	}
+
+	// Send everyone the server broadcast notification
+	connectionMap.RLock()
+	for _, conn := range connectionMap.m {
+		conn.Connection.Emit("adminMessage", &RoomMessageMessage{
+			Message: message,
+		})
+	}
+	connectionMap.RUnlock()
+
+	// The command is over, so unlock the command mutex
+	commandMutex.Unlock()
+}

@@ -42,12 +42,14 @@ CREATE TABLE races (
     name                  TEXT                  DEFAULT "-",
     status                TEXT                  DEFAULT "open", /* starting, in progress, finished */
     type                  INTEGER               DEFAULT 0, /* 0 for unranked, 1 for ranked */
+    solo                  INTEGER               DEFAULT 0, /* 0 for solo, 1 for multiplayer */
     format                TEXT                  DEFAULT "unseeded", /* seeded, diversity, custom */
     character             TEXT                  DEFAULT "Isaac", /* Isaac, Magdalene, Cain, Judas, Blue Baby, Eve, Samson, Azazel, Lazarus, Eden, The Lost, Lilith, Keeper */
     goal                  TEXT                  DEFAULT "Blue Baby", /* The Lamb, Mega Satan */
     starting_build        INTEGER               DEFAULT -1, /* -1 for unseeded/diversity races, setting it to 0 means "keep it as it is" */
     seed                  TEXT                  DEFAULT "-",
     captain               INTEGER               NOT NULL,
+    sound_effect          INTEGER               DEFAULT 0, /* 0 for not played yet, 1 for played (only one sound effect can be played per race) */
     datetime_created      INTEGER               NOT NULL,
     datetime_started      INTEGER               DEFAULT 0,
     datetime_finished     INTEGER               DEFAULT 0,
@@ -90,6 +92,15 @@ CREATE TABLE race_participant_items (
     FOREIGN KEY(race_participant_id)  REFERENCES race_participants(id)
 );
 CREATE INDEX race_participant_items_index_race_participant_id ON race_participant_items (race_participant_id);
+
+DROP TABLE IF EXISTS race_participant_rooms;
+CREATE TABLE race_participant_rooms (
+    id                                INTEGER                           PRIMARY KEY  AUTOINCREMENT,
+    race_participant_id               INTEGER                           NOT NULL,
+    room_id                           TEXT                              NOT NULL,
+    FOREIGN KEY(race_participant_id)  REFERENCES race_participants(id)
+);
+CREATE INDEX race_participant_rooms_index_race_participant_id ON race_participant_rooms (race_participant_id);
 
 DROP TABLE IF EXISTS banned_users;
 CREATE TABLE banned_users (

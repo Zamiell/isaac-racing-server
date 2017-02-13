@@ -7,12 +7,10 @@
 -->
 <html>
 	<head>
-		<title>Racing+ - {{.Title}}</title>
+		<title>Racing+{{if ne .Title "Home"}} - {{.Title}}{{end}}</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<!--[if lte IE 8]><script src="/public/js/ie/html5shiv.js"></script><![endif]-->
 		<link rel="stylesheet" href="/public/css/main.css" />
-		<!--[if lte IE 8]><link rel="stylesheet" href="/public/css/ie8.min.css" /><![endif]-->
 		<link rel="icon" type="image/png" href="/public/img/favicon.png">
 	</head>
 	<body{{if eq .Title "Home"}} class="landing"{{end}}>
@@ -22,7 +20,7 @@
 			<header id="header"{{if eq .Title "Home"}} class="alt"{{end}}>
 				<h1>
 					{{if ne .Title "Home"}}<a href="/">{{end}}
-						Racing+
+					Racing+
 					{{if ne .Title "Home"}}</a>{{end}}
 				</h1>
 				<nav id="nav">
@@ -31,7 +29,7 @@
 						<li><a href="/races">Race Listing</a></li>
 						<li><a href="/profiles">Player Profiles</a></li>
 						<li><a href="/leaderboards">Leaderboards</a></li>
-						<li><a href="/info">Info &nbsp;& &nbsp;Contact</a></li>
+						<li><a href="/info">Info &nbsp;&amp;&nbsp; Contact</a></li>
 						<li><a href="/download" class="button special">Download</a></li>
 					</ul>
 				</nav>
@@ -47,8 +45,8 @@
 		<script src="/public/js/jquery.scrollgress.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/skel/3.0.1/skel.min.js"></script>
 		<script src="/public/js/util.min.js"></script>
-		<!--[if lte IE 8]><script src="/public/js/ie/respond.min.js"></script><![endif]-->
 		<script src="/public/js/main.js"></script>
+		{{if eq .Title "Download"}}<script src="/public/js/download.js"></script>{{end}}
 	</body>
 </html>
 {{end}}

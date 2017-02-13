@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 /*
@@ -153,13 +154,25 @@ type SteamAPIError struct {
 
 /*
 	Validate that the ticket is valid using the Steam web API
-	E.g. https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1?key=secret&appid=113200&ticket=longhex
+	E.g. https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1?key=secret&appid=250900&ticket=longhex
 */
 
 func validateSteamTicket(steamID string, ticket string, ip string, w http.ResponseWriter) bool {
+	// Automatically validate test accounts
+	if (steamID == "101" || steamID == "102" || steamID == "103") && ticket == "debug" {
+		IPWhitelist := os.Getenv("DEV_IP_WHITELIST")
+		IPs := strings.Split(IPWhitelist, ",")
+		for _, validIP := range IPs {
+			if ip == validIP {
+				return true
+			}
+		}
+		return false
+	}
+
 	// Make the request
 	apiKey := os.Getenv("STEAM_WEB_API_KEY")
-	appID := "113200" // This is the vanilla Binding of Isaac game ID on Steam
+	appID := "250900" // This is the app ID on Steam for The Binding of Isaac: Rebirth
 	resp, err := myHTTPClient.Get("https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1?key=" + apiKey + "&appid=" + appID + "&ticket=" + ticket)
 	if err != nil {
 		log.Error("Failed to query the Steam web API for IP \""+ip+"\": ", err)
@@ -187,7 +200,7 @@ func validateSteamTicket(steamID string, ticket string, ip string, w http.Respon
 	// Check to see if we got an error
 	steamError := steamAPIReply.Response.Error
 	if steamError.Code != 0 {
-		log.Error("The Steam web API returned error code " + strconv.Itoa(steamError.Code) + ": " + steamError.Desc)
+		log.Error("The Steam web API returned error code " + strconv.Itoa(steamError.Code) + " for IP " + ip + " and Steam ID \"" + steamID + "\" and ticket \"" + ticket + "\": " + steamError.Desc)
 		http.Error(w, "Your Steam account appears to be invalid. Please make sure you have the latest version of Steam installed and are correctly logged in.", http.StatusUnauthorized)
 		return false
 	}

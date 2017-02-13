@@ -100,14 +100,6 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Validate that they are not trying to leave a system room
-	if strings.HasPrefix(room, "_") {
-		commandMutex.Unlock()
-		log.Warning("Access denied to system room.")
-		connError(conn, functionName, "You are not allowed to manually leave system rooms.")
-		return
-	}
-
 	// Validate that the room exists
 	chatRoomMap.RLock()
 	users, ok := chatRoomMap.m[room]
