@@ -66,7 +66,7 @@ func (*Races) GetCurrentRaces() ([]Race, error) {
 	raceList := make([]Race, 0)
 	for rows.Next() {
 		var race Race
-		err := rows.Scan(
+		err2 := rows.Scan(
 			&race.ID,
 			&race.Name,
 			&race.Status,
@@ -81,7 +81,7 @@ func (*Races) GetCurrentRaces() ([]Race, error) {
 			&race.DatetimeStarted,
 			&race.Captain,
 		)
-		if err != nil {
+		if err2 != nil {
 			return nil, err
 		}
 

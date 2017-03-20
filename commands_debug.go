@@ -1,14 +1,6 @@
 package main
 
 /*
-	Imports
-*/
-
-import (
-//"fmt"
-)
-
-/*
 	WebSocket debug command functions
 */
 

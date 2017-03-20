@@ -5,9 +5,10 @@ package models
 */
 
 import (
-	"database/sql"                  // For connecting to the database (1/2)
-	_ "github.com/mattn/go-sqlite3" // For connecting to the database (2/2)
+	"database/sql" // For connecting to the database (1/2)
 	"time"
+
+	_ "github.com/mattn/go-sqlite3" // For connecting to the database (2/2)
 )
 
 /*

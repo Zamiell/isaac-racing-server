@@ -5,9 +5,10 @@ package main
 */
 
 import (
-	"github.com/Zamiell/isaac-racing-server/models"
 	"strings"
 	"unicode/utf8"
+
+	"github.com/Zamiell/isaac-racing-server/models"
 )
 
 /*
@@ -222,6 +223,11 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Send the message
 	roomManager.Emit(room, "roomMessage", &RoomMessageMessage{room, username, message})
+
+	// Also send lobby messages to Discord
+	if room == "lobby" {
+		discordSend(discordLobbyChannelID, "<"+username+"> "+message)
+	}
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

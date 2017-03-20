@@ -159,7 +159,18 @@ type SteamAPIError struct {
 
 func validateSteamTicket(steamID string, ticket string, ip string, w http.ResponseWriter) bool {
 	// Automatically validate test accounts
-	if (steamID == "101" || steamID == "102" || steamID == "103") && ticket == "debug" {
+	if ticket == "debug" &&
+		(steamID == "101" || // These 10 fake steam IDs allow for 10 test accounts
+			steamID == "102" ||
+			steamID == "103" ||
+			steamID == "104" ||
+			steamID == "105" ||
+			steamID == "106" ||
+			steamID == "107" ||
+			steamID == "108" ||
+			steamID == "109" ||
+			steamID == "110") {
+
 		IPWhitelist := os.Getenv("DEV_IP_WHITELIST")
 		IPs := strings.Split(IPWhitelist, ",")
 		for _, validIP := range IPs {

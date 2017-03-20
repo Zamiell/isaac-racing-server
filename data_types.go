@@ -7,11 +7,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/Zamiell/isaac-racing-server/models"
 	"github.com/getsentry/raven-go"
 	"github.com/op/go-logging"
 	"github.com/trevex/golem"
-	"time"
 )
 
 /*

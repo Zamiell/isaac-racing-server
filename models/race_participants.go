@@ -142,7 +142,7 @@ func (*RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 	racerList := make([]Racer, 0)
 	for rows.Next() {
 		var racer Racer
-		err := rows.Scan(
+		err2 := rows.Scan(
 			&racer.Name,
 			&racer.Status,
 			&racer.DatetimeJoined,
@@ -156,7 +156,7 @@ func (*RaceParticipants) GetRacerList(raceID int) ([]Racer, error) {
 			&racer.TwitchBotEnabled,
 			&racer.TwitchBotDelay,
 		)
-		if err != nil {
+		if err2 != nil {
 			return nil, err
 		}
 

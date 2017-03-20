@@ -5,12 +5,12 @@ package main
 */
 
 import (
-	"github.com/trevex/golem"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/trevex/golem"
 )
 
 /*
@@ -290,15 +290,23 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	}
 
 	// Send them the message of the day
-	messageRaw, err := ioutil.ReadFile("message_of_the_day.txt")
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Failed to read the \"message_of_the_day.txt\" file:", err)
-		return
-	}
 	conn.Connection.Emit("adminMessage", &RoomMessageMessage{
-		Message: string(messageRaw),
+		Message: "[Server Notice] Racing+ is in alpha and is NOT finished - lots of features are still missing or bugged.",
 	})
+	conn.Connection.Emit("adminMessage", &RoomMessageMessage{
+		Message: "[Server Notice] Most racers hang out in the Isaac Discord chat: https://discord.gg/JzbhWQb",
+	})
+	/*
+		messageRaw, err := ioutil.ReadFile("message_of_the_day.txt")
+		if err != nil {
+			commandMutex.Unlock()
+			log.Error("Failed to read the \"message_of_the_day.txt\" file:", err)
+			return
+		}
+		conn.Connection.Emit("adminMessage", &RoomMessageMessage{
+			Message: string(messageRaw),
+		})
+	*/
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

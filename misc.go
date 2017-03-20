@@ -5,7 +5,6 @@ package main
 */
 
 import (
-	"math/rand"
 	"strconv"
 	"time"
 	"unicode"
@@ -53,18 +52,6 @@ func isAlphaNumericUnderscore(str string) bool {
 	}
 
 	return isValid
-}
-
-// From: https://stackoverflow.com/questions/22892120/how-to-generate-a-random-string-of-a-fixed-length-in-golang
-func getRandomString(length int) string {
-	rand.Seed(time.Now().UnixNano())
-	var allowedCharacters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
-
-	randomString := make([]rune, length)
-	for i := range randomString {
-		randomString[i] = allowedCharacters[rand.Intn(len(allowedCharacters))]
-	}
-	return string(randomString)
 }
 
 // From: https://stackoverflow.com/questions/24122821/go-golang-time-now-unixnano-convert-to-milliseconds

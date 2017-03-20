@@ -31,7 +31,7 @@ CREATE TABLE users (
     /* Twitch bot stuff */
     stream_url                 TEXT       DEFAULT "-", /* Their stream URL */
     twitch_bot_enabled         INTEGER    DEFAULT 0, /* Either 0 or 1 */
-    twitch_bot_delay           INTEGER    DEFAULT 0 /* Between 0 and 60 */
+    twitch_bot_delay           INTEGER    DEFAULT 15 /* Between 0 and 60 */
 );
 CREATE UNIQUE INDEX users_index_steam_id ON users (steam_id);
 CREATE UNIQUE INDEX users_index_username ON users (username);
@@ -45,7 +45,7 @@ CREATE TABLE races (
     solo                  INTEGER               DEFAULT 0, /* 0 for solo, 1 for multiplayer */
     format                TEXT                  DEFAULT "unseeded", /* seeded, diversity, custom */
     character             TEXT                  DEFAULT "Isaac", /* Isaac, Magdalene, Cain, Judas, Blue Baby, Eve, Samson, Azazel, Lazarus, Eden, The Lost, Lilith, Keeper */
-    goal                  TEXT                  DEFAULT "Blue Baby", /* The Lamb, Mega Satan */
+    goal                  TEXT                  DEFAULT "Blue Baby", /* The Lamb, Mega Satan, custom */
     starting_build        INTEGER               DEFAULT -1, /* -1 for unseeded/diversity races, setting it to 0 means "keep it as it is" */
     seed                  TEXT                  DEFAULT "-",
     captain               INTEGER               NOT NULL,

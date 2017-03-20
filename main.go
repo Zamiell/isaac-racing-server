@@ -6,8 +6,12 @@ package main // In Go, executable commands must always use package main
 
 import (
 	"github.com/Zamiell/isaac-racing-server/models"
+	raven "github.com/getsentry/raven-go"
+	logging "github.com/op/go-logging"
 
+	"net"      // For parsing the IP address
 	"net/http" // For establishing an HTTP server
+	"net/url"  // For POSTing to Google Analytics
 	"os"       // For logging and reading environment variables
 	"strconv"  // For converting the port number
 	"sync"     // For locking and unlocking the connection map
@@ -15,11 +19,10 @@ import (
 
 	"github.com/bmizerany/pat"       // For HTTP routing
 	"github.com/didip/tollbooth"     // For rate-limiting login requests
-	"github.com/getsentry/raven-go"  // For error reporting
 	"github.com/gorilla/context"     // For cookie sessions (1/2)
 	"github.com/gorilla/sessions"    // For cookie sessions (2/2)
 	"github.com/joho/godotenv"       // For reading environment variables that contain secrets
-	"github.com/op/go-logging"       // For logging
+	"github.com/satori/go.uuid"      // For generating UUIDs for Google Analytics
 	"github.com/tdewolff/minify"     // For minification (1/3)
 	"github.com/tdewolff/minify/css" // For minification (2/3)
 	"github.com/tdewolff/minify/js"  // For minification (3/3)
@@ -31,11 +34,12 @@ import (
 */
 
 const (
-	sessionName   = "isaac.sid"
 	domain        = "isaacracing.net"
 	useSSL        = true
 	sslCertFile   = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
 	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
+	GATrackingID  = "UA-91999156-1"
+	sessionName   = "isaac.sid"
 	rateLimitRate = 480 // In commands sent
 	rateLimitPer  = 60  // In seconds
 )
@@ -99,6 +103,58 @@ func (f neuteredReaddirFile) Readdir(count int) ([]os.FileInfo, error) {
 func HTTPRedirect(w http.ResponseWriter, req *http.Request) {
 	// They are trying to access a site via HTTP, so redirect them to HTTPS
 	http.Redirect(w, req, "https://"+req.Host+req.URL.String(), http.StatusMovedPermanently)
+}
+
+/*
+	Middleware for rate limiting + Google Analytics
+*/
+
+// Limit each user to 1 request per second
+func TollboothMiddleware(nextFunc func(w http.ResponseWriter, r *http.Request)) http.Handler {
+	return tollbooth.LimitHandler(tollbooth.NewLimiter(1, time.Second), GAMiddleware(nextFunc))
+}
+
+// Send this page view to Google Analytics
+// (we do this on the server because client-side blocking is common via uBlock Origin, etc.)
+func GAMiddleware(nextFunc func(w http.ResponseWriter, r *http.Request)) http.Handler {
+	sendGA := func(w http.ResponseWriter, r *http.Request) {
+		cookie, err := r.Cookie("_ga")
+		var clientID string
+		if err != nil {
+			// They don't already have a Google Analytics cookie set, so make one for them
+			clientID = uuid.NewV4().String()
+			http.SetCookie(w, &http.Cookie{
+				Name:    "_ga", // This is the standard cookie name used by the Google Analytics JavaScript library
+				Value:   clientID,
+				Expires: time.Now().Add(2 * 365 * 24 * time.Hour), // 2 years
+				// The standard library does not have definitions for units of day or larger to avoid confusion across daylight savings
+				// We use 2 years because it is recommended by Google: https://developers.google.com/analytics/devguides/collection/analyticsjs/cookie-usage
+			})
+		} else {
+			clientID = cookie.Value
+		}
+
+		go func(r *http.Request) {
+			ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+			data := url.Values{
+				"v":   {"1"},           // API version
+				"tid": {GATrackingID},  // Tracking ID
+				"cid": {clientID},      // Anonymous client ID
+				"t":   {"pageview"},    // Hit type
+				"dh":  {r.Host},        // Document hostname
+				"dp":  {r.URL.Path},    // Document page/path
+				"uip": {ip},            // IP address override
+				"ua":  {r.UserAgent()}, // User agent override
+			}
+			resp, err := myHTTPClient.PostForm("https://www.google-analytics.com/collect", data)
+			if err != nil {
+				log.Error("Failed to send a page hit to Google Analytics:", err)
+			}
+			defer resp.Body.Close()
+		}(r)
+		nextFunc(w, r)
+	}
+	return http.HandlerFunc(sendGA)
 }
 
 /*
@@ -184,6 +240,9 @@ func main() {
 	// Start the Twitch bot
 	go twitchInit()
 
+	// Start the Discord bot
+	go discordInit()
+
 	// Create a WebSocket router using the Golem framework
 	router := golem.NewRouter()
 	router.SetConnectionExtension(NewExtendedConnection)
@@ -208,7 +267,7 @@ func main() {
 	router.On("raceLeave", raceLeave)
 	router.On("raceReady", raceReady)
 	router.On("raceUnready", raceUnready)
-	router.On("raceRuleset", raceRuleset)
+	//router.On("raceRuleset", raceRuleset)
 	router.On("raceFinish", raceFinish)
 	router.On("raceQuit", raceQuit)
 	router.On("raceComment", raceComment)
@@ -239,6 +298,7 @@ func main() {
 	*/
 
 	// Minify CSS and JS
+	// (currently unsued while website dev is underway)
 	m := minify.New()
 	m.AddFunc("text/css", css.Minify)
 	for _, fileName := range []string{"main"} {
@@ -259,7 +319,7 @@ func main() {
 
 	// Set up the Pat HTTP router
 	p := pat.New()
-	p.Get("/", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpHome))
+	p.Get("/", TollboothMiddleware(httpHome))
 	p.Get("/news", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpNews))
 	p.Get("/races", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpRaces))
 	p.Get("/profiles", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles))
