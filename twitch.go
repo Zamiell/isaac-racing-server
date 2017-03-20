@@ -37,6 +37,10 @@ var (
 )
 
 func twitchInit() {
+	if useTwitch == false {
+		return
+	}
+
 	// Read the OAuth secret from the environment variable (it was loaded from the .env file in main.go)
 	oauthToken := os.Getenv("TWITCH_OAUTH")
 
@@ -179,6 +183,10 @@ func ircSend(command string) {
 }
 
 func twitchRacerSend(racer models.Racer, message string) {
+	if useTwitch == false {
+		return
+	}
+
 	// We don't have to worry about the command mutex in this function because the parent is looping through multiple racers
 	if racer.TwitchBotEnabled == 1 {
 		if strings.HasPrefix(racer.StreamURL, "https://www.twitch.tv/") {

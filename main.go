@@ -40,6 +40,8 @@ const (
 	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
 	GATrackingID  = "UA-91999156-1"
 	sessionName   = "isaac.sid"
+	useTwitch     = true
+	useDiscord    = true
 	rateLimitRate = 480 // In commands sent
 	rateLimitPer  = 60  // In seconds
 )

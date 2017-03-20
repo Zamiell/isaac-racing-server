@@ -30,6 +30,10 @@ var (
 )
 
 func discordInit() {
+	if useDiscord == false {
+		return
+	}
+
 	// Local variables
 	var err error
 
@@ -101,6 +105,10 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func discordSend(channelID string, message string) {
+	if useDiscord == false {
+		return
+	}
+
 	_, err := discord.ChannelMessageSend(channelID, message)
 	if err != nil {
 		errorMessage := "Failed to send message to \""
