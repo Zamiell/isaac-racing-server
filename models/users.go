@@ -266,7 +266,45 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 
 	return leaderboard, nil
 }
-
+func (*Users) GetUserProfiles() ([]UserProfilesRow, error) {
+	// Get user's data to populate the profiles page.
+	rows, err := db.Query(`
+		SELECT 
+		u.username, 
+		u.datetime_created, 
+		u.stream_url,
+		count(ua.achievement_id) 
+		FROM 
+			users u 
+		LEFT JOIN 
+			user_achievements ua 
+			ON
+				u.id = ua.user_id 
+		GROUP BY
+			u.username
+	`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	// Iterate over the users
+	profiles := make([]UserProfilesRow, 0)
+	for rows.Next() {
+    	var row UserProfilesRow
+		err := rows.Scan(
+			&row.Username,
+			&row.DateCreated,
+			&row.StreamUrl,
+			&row.Achievements,
+		)
+		if err != nil {
+			return profiles, err
+		}
+		// Append this row to the leaderboard
+		profiles = append(profiles, row)
+	}
+	return profiles, nil
+}
 func (*Users) SetStreamURL(userID int, streamURL string) error {
 	// Set the new stream URL
 	stmt, err := db.Prepare(`

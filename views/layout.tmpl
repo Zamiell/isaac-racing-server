@@ -35,7 +35,11 @@
 				</nav>
 			</header>
 
-			{{template "content"}}
+			{{if eq .Title "Profiles" -}}
+				{{ template "content" .}}
+			{{- else}}
+				{{ template "content" }}
+			{{- end}}
 
 		</div>
 
@@ -47,6 +51,7 @@
 		<script src="/public/js/util.min.js"></script>
 		<script src="/public/js/main.js"></script>
 		{{if eq .Title "Download"}}<script src="/public/js/download.js"></script>{{end}}
+		// {{if eq .Title "Profiles"}}<script src="/public/js/profiles.js"></script>{{end}}
 	</body>
 </html>
 {{end}}

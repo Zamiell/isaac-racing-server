@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"github.com/Zamiell/isaac-racing-server/models"
 )
 
 /*
@@ -19,6 +20,10 @@ type TemplateData struct {
 	Title string
 }
 
+type TemplateDataProfiles struct {
+	Title string
+	Results []models.UserProfilesRow
+}
 /*
 	Main page handlers
 */
@@ -45,8 +50,17 @@ func httpRaces(w http.ResponseWriter, r *http.Request) {
 }
 
 func httpProfiles(w http.ResponseWriter, r *http.Request) {
-	data := TemplateData{
+	userProfiles, err := db.Users.GetUserProfiles()
+	
+	if err != nil {
+		log.Error("Failed to get the user profile data: ", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),  http.StatusInternalServerError)
+		return
+	}
+
+	data := TemplateDataProfiles{
 		Title: "Profiles",
+		Results: userProfiles,
 	}
 	serveTemplate(w, "profiles", data)
 }
@@ -129,8 +143,4 @@ func serveTemplate(w http.ResponseWriter, templateName string, data interface{})
 		log.Error("Failed to execute the template:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
-}
-
-func getPlayers() {
-
 }

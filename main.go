@@ -35,13 +35,13 @@ import (
 
 const (
 	domain        = "isaacracing.net"
-	useSSL        = true
+	useSSL        = false
 	sslCertFile   = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
 	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
 	GATrackingID  = "UA-91999156-1"
 	sessionName   = "isaac.sid"
-	useTwitch     = true
-	useDiscord    = true
+	useTwitch     = false
+	useDiscord    = false
 	rateLimitRate = 480 // In commands sent
 	rateLimitPer  = 60  // In seconds
 )

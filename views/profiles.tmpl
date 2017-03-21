@@ -6,10 +6,8 @@
 		<p>Your fellow racers</p>
 	</header>
 	<section class="box">
-		<p>(This page is just a placeholder for now.)</p>
-
 		<div class="table-wrapper">
-			<table class="alt">
+			<table class="alt" id="profiles">
 				<thead>
 					<tr>
 						<th>Name</th>
@@ -18,16 +16,13 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>Zamiel</td>
-						<td>07/16/16</td>
-						<td>5</td>
-					</tr>
-					<tr>
-						<td>Dea1h</td>
-						<td>07/16/16</td>
-						<td>7</td>
-					</tr>
+					{{ range .Results }}
+						<tr>
+							<td><a href="profile\{{.Username}}"> {{ .Username }} </a></td>
+							<td id="date"> {{ .DateCreated }}</td>
+							<td> {{ .Achievements }} </td>
+						</tr>
+					{{ end }}
 				</tbody>
 			</table>
 		</div>
