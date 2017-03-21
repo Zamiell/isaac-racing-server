@@ -41,3 +41,6 @@ test
 
 # The compiled binary
 isaac-racing-server
+
+#The dumb minified CSS file
+public/css/main.min.css

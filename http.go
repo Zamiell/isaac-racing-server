@@ -19,17 +19,22 @@ import (
 */
 
 type TemplateData struct {
-	Title string
+	Title 		string
 }
 
 type TemplateDataProfiles struct {
-	Title string
-	Results []models.UserProfilesRow
-	TotalProfileCount int
-	TotalPages int
-	PreviousPage int
-	NextPage int
-	UsersPerPage int
+	Title 				string
+	Results			 	[]models.UserProfilesRow
+	TotalProfileCount	int
+	TotalPages 			int
+	PreviousPage 		int
+	NextPage 			int
+	UsersPerPage 		int
+}
+
+type TemplateDataProfile struct {
+	Title 		string
+	Results		models.UserProfileData
 }
 
 /*
@@ -57,9 +62,30 @@ func httpRaces(w http.ResponseWriter, r *http.Request) {
 	serveTemplate(w, "races", data)
 }
 
+func httpProfile (w http.ResponseWriter, r *http.Request) {
+	// Get player from url
+	var player string
+	player = r.URL.Query().Get(":player")
+	if player == "" {
+		player = "Zamiell"
+		log.Error("Failed to a parse the player data: ", player)
+	
+	}
+	// Get the data from the database
+	playerData, err := db.Users.GetProfileData(player)
+	if err != nil {
+		log.Error("Failed to get player data from the database: ", err)
+	}
+	// Create the title with player's name
+	data := TemplateDataProfile{
+		Title: "Profile",
+		Results: playerData,
+	}
+	serveTemplate(w, "profile", data)
+}
 func httpProfiles(w http.ResponseWriter, r *http.Request) {
 	var currentPage int
-	//Hard-coded for now, maybe will change this in the future allowing # of results per page
+	// Hard-coded for now, maybe will change this in the future allowing # of results per page
 	usersPerPage := 20
 	// Find what page we're currently on and then set it accordingly (always set to 1 otherwise)
 	i, err := strconv.ParseInt(r.URL.Query().Get(":page"), 10, 32)

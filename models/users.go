@@ -267,8 +267,43 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 
 	return leaderboard, nil
 }
+
+func (*Users) GetProfileData(player string) (UserProfileData, error) {
+	// Get player data to populate player profile page.
+	var profileData UserProfileData
+	err := db.QueryRow(`
+		SELECT
+			username,
+			datetime_created,
+			verified,
+			elo,
+			last_elo_change,
+			num_seeded_races,
+			num_unseeded_races,
+			stream_url
+		FROM
+			users
+		WHERE
+			steam_id > 0 and
+			username = ?
+	`, player).Scan(
+			&profileData.Username,
+			&profileData.DateCreated,
+			&profileData.Verified,
+			&profileData.ELO,
+			&profileData.LastELOChange,
+			&profileData.SeededRaces,
+			&profileData.UnseededRaces,
+			&profileData.StreamUrl,
+		)
+	if err != nil {
+		return profileData, err
+	} else {
+		return profileData, nil
+	}
+}
 func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfilesRow, int, error) {
-	// Get user's data to populate the profiles page.
+	// Get players data to populate the profiles page.
 	usersOffset := (currentPage - 1) * usersPerPage
 	rows, err := db.Query(`
 		SELECT 
@@ -282,6 +317,8 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfiles
 			user_achievements ua 
 			ON
 				u.id = ua.user_id 
+		WHERE 
+			u.steam_id > 0
 		GROUP BY
 			u.username
 		ORDER BY
@@ -317,6 +354,8 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfiles
 			count(id) 
 		FROM 
 			users
+		WHERE
+			steam_id > 0
 	`)
 	if err != nil {
 		return profiles, 0, err

@@ -35,7 +35,7 @@
 				</nav>
 			</header>
 			<!-- Push the extra vars through to the next template, might not need to do this later on -->
-			{{if eq .Title "Profiles" -}}
+			{{if or (eq .Title "Profiles") (eq .Title "Profile") -}}
 				{{ template "content" .}}
 			{{- else}}
 				{{ template "content" }}
@@ -51,7 +51,8 @@
 		<script src="/public/js/util.min.js"></script>
 		<script src="/public/js/main.js"></script>
 		{{if eq .Title "Download"}}<script src="/public/js/download.js"></script>{{end}}
-		{{if eq .Title "Profiles"}}<script src="/public/js/profiles.js"></script>{{end}}
+		{{if eq .Title "Profile" }}<script src="/public/js/profile.js"></script>{{end}}
+		{{if eq .Title "Profiles" }}<script src="/public/js/profiles.js"></script>{{end}}
 	</body>
 </html>
 {{end}}
