@@ -19,21 +19,21 @@ import (
 */
 
 type TemplateData struct {
-	Title 		string
+	Title	string
 }
 
 type TemplateDataProfiles struct {
-	Title 				string
-	Results			 	[]models.UserProfilesRow
+	Title				string
+	Results				[]models.UserProfilesRow
 	TotalProfileCount	int
-	TotalPages 			int
-	PreviousPage 		int
-	NextPage 			int
-	UsersPerPage 		int
+	TotalPages			int
+	PreviousPage		int
+	NextPage			int
+	UsersPerPage		int
 }
 
 type TemplateDataProfile struct {
-	Title 		string
+	Title		string
 	Results		models.UserProfileData
 }
 
