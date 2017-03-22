@@ -1814,6 +1814,22 @@
     a:hover {
       border-bottom-color: transparent;
     }
+    
+    a#twitchUrl:link {
+      border-bottom-color: transparent;
+    }
+
+    a#twitchUrl:visited {
+      border-bottom-color: transparent;
+    }
+
+    a#twitchUrl:hover {
+      border-bottom-color: transparent;
+    }
+
+    a#twitchUrl:active {
+      border-bottom-color: transparent;
+    }
 
   strong, b {
     color: #646464;
