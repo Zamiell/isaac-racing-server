@@ -65,7 +65,7 @@ func httpNews(w http.ResponseWriter, r *http.Request) {
 
 func httpRaces(w http.ResponseWriter, r *http.Request) {
 	var currentPage int
-	usersPerPage := 20
+	racesPerPage := 20
 
 	i, err := strconv.ParseInt(r.URL.Query().Get(":page"), 10, 32)
 	if err == nil && int(i) > 1 {
@@ -73,14 +73,13 @@ func httpRaces(w http.ResponseWriter, r *http.Request) {
 	} else {
 		currentPage = 1
 	}	
-
-	raceData, totalRaces, err := db.Races.GetRaceHistory(currentPage, usersPerPage)
+	raceData, totalRaces, err := db.Races.GetRaceHistory(currentPage, racesPerPage)
 	if err != nil {
 		log.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError),  http.StatusInternalServerError)
 		return
 	}
-	totalPages := math.Ceil(float64(totalRaces) / float64(usersPerPage))
+	totalPages := math.Floor(float64(totalRaces) / float64(racesPerPage))
 	data := TemplateDataRaces{
 		Title: "Races",
 		Results: raceData,
@@ -89,6 +88,7 @@ func httpRaces(w http.ResponseWriter, r *http.Request) {
 		PreviousPage: currentPage - 1,
 		NextPage: currentPage + 1,	
 	}
+
 	serveTemplate(w, "races", data)
 }
 
@@ -129,7 +129,7 @@ func httpProfiles(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError),  http.StatusInternalServerError)
 		return
 	}
-	totalPages := math.Ceil(float64(totalProfileCount) / float64(usersPerPage))
+	totalPages := math.Floor(float64(totalProfileCount) / float64(usersPerPage))
 	// Data to pass to the template, some of it may not be used due to changes
 	data := TemplateDataProfiles{
 		Title: "Profiles",

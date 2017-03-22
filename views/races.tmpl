@@ -52,27 +52,51 @@
 						<th>Format</th>
 						<th>Character</th>
 						<th>Goal</th>
+						<th>Racer</th>
+						<th>Place</th>
+						<th>Time</th>
+						<th>Comment</th>
 					</tr>
 				</thead>
 				<tfoot>
 					<tr>
-						<td>
+						<td colspan="100%">
 							Total Races: {{ .TotalRaceCount }}
 						</td>
 					</tr>
 				</tfoot>
-
 				<tbody>
 				{{ range .Results }}
 					<tr>
-						<td>{{ .RaceID }}</td>
-						<td id="date"> {{ .RaceDate }}</td>
-						<td>{{ .RaceType }}</td>
-						<td>{{ .RaceFormat }}</td>
-						<td>{{ .RaceChar }}</td>
-						<td>{{ .RaceGoal }}</td>
+						{{ $racers := len .RaceParticipants }}
+							<td rowspan="{{ $racers }}">{{ .RaceID }}</td>
+							<td id="date" rowspan="{{ $racers }}"> {{ .RaceDate }}</td>
+							<td rowspan="{{ $racers }}">{{ .RaceType }}</td>
+							<td rowspan="{{ $racers }}">{{ .RaceFormat }}</td>
+							<td rowspan="{{ $racers }}">{{ .RaceChar }}</td>
+							<td rowspan="{{ $racers }}">{{ .RaceGoal }}</td>
+						{{ range $index, $results := .RaceParticipants }}
+							<td>
+								<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
+							</td>
+							{{ if eq .RacerPlace -1 -}}
+							<td>Forfeit<td>
+							<td>&nbsp;</td>
+							{{- else}}
+							<td>{{ .RacerPlace }}</td>
+							<td>{{ .RacerTime }}</td>
+							{{- end }}
+							{{ if ne .RacerComment "-" -}}
+							<td	title="{{ .RacerComment }}">
+							Comment
+							{{- else}}
+							<td>&nbsp;
+							{{ end }}
+							</td>
+						{{ end }}
 					</tr>
-				{{ end }}
+					{{ end }}
+
 				</tbody>
 			</table>
 		</div>
