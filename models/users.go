@@ -311,7 +311,7 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfiles
 		// Append this row to the leaderboard
 		profiles = append(profiles, row)
 	}
-	//Find total amount of users
+	// Find total amount of users
 	rows, err = db.Query(`
 		SELECT 
 			count(id) 
