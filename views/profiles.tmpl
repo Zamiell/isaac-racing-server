@@ -5,6 +5,38 @@
 		<h2>Player Profiles</h2>
 		<p>Your fellow racers</p>
 	</header>
+	<div id="race-listing-buttons" class="row">
+		{{ if ge .PreviousPage 1 -}}						
+			<div class="3u 12u">
+				<a href="../profiles" class="button fit">&lt;&lt;</a>
+			</div>
+			<div class="3u 12u">
+				<a href="../profiles/{{ .PreviousPage }}" class="button fit">&lt;</a>
+			</div>
+		{{- else }}
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+		{{- end }}
+		{{ if le .NextPage .TotalPages }}
+			<div class="3u 12u">
+				<a href="../profiles/{{ .NextPage }}" class="button fit">&gt;</a>
+			</div>
+			<div class="3u 12u">
+				<a href="../profiles/{{ .TotalPages }}" class="button fit">&gt;&gt;</a>
+			</div>
+		{{- else }}
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+			<div class="3u 12u">
+				&nbsp;
+			</div>				
+		{{- end }}
+	</div>	
 	<section class="box">
 		<div class="table-wrapper">
 			<table class="alt" id="profiles">
@@ -15,6 +47,13 @@
 						<th>Achievements</th>
 					</tr>
 				</thead>
+				<tfoot>
+					<tr>
+						<td>
+							Total Players: {{ .TotalProfileCount }}
+						</td>
+					</tr>
+				</tfoot>
 				<tbody>
 					{{ range .Results }}
 						<tr>

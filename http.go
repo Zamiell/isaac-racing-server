@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"math"
+	"strconv"
 	"github.com/Zamiell/isaac-racing-server/models"
 )
 
@@ -23,7 +25,14 @@ type TemplateData struct {
 type TemplateDataProfiles struct {
 	Title string
 	Results []models.UserProfilesRow
+	TotalProfileCount int
+	TotalPages int
+	CurrentPage int
+	PreviousPage int
+	NextPage int
+	UsersPerPage int
 }
+
 /*
 	Main page handlers
 */
@@ -50,17 +59,36 @@ func httpRaces(w http.ResponseWriter, r *http.Request) {
 }
 
 func httpProfiles(w http.ResponseWriter, r *http.Request) {
-	userProfiles, err := db.Users.GetUserProfiles()
+	var currentPage int
+	usersPerPage := 20
+	
+	i, err := strconv.ParseInt(r.URL.Query().Get(":page"), 10, 32)
+
+	if err == nil && int(i) > 1 {
+		currentPage = int(i)
+	} else {
+		currentPage = 1
+	}
+	
+	userProfiles, totalProfileCount, err := db.Users.GetUserProfiles(currentPage, usersPerPage)
 	
 	if err != nil {
 		log.Error("Failed to get the user profile data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError),  http.StatusInternalServerError)
 		return
 	}
-
+	
+	totalPages := math.Ceil(float64(totalProfileCount) / float64(usersPerPage))
+	
 	data := TemplateDataProfiles{
 		Title: "Profiles",
 		Results: userProfiles,
+		TotalProfileCount: totalProfileCount,
+		TotalPages: int(totalPages),
+		CurrentPage: currentPage,
+		PreviousPage: currentPage - 1,
+		NextPage: currentPage + 1,
+		UsersPerPage: usersPerPage,
 	}
 	serveTemplate(w, "profiles", data)
 }

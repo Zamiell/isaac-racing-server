@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"errors"
 	"strconv"
+	
 )
 
 /*
@@ -266,14 +267,15 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 
 	return leaderboard, nil
 }
-func (*Users) GetUserProfiles() ([]UserProfilesRow, error) {
+func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfilesRow, int, error) {
 	// Get user's data to populate the profiles page.
+	usersOffset := (currentPage - 1) * usersPerPage
 	rows, err := db.Query(`
 		SELECT 
-		u.username, 
-		u.datetime_created, 
-		u.stream_url,
-		count(ua.achievement_id) 
+			u.username, 
+			u.datetime_created, 
+			u.stream_url,
+			count(ua.achievement_id) 
 		FROM 
 			users u 
 		LEFT JOIN 
@@ -282,12 +284,18 @@ func (*Users) GetUserProfiles() ([]UserProfilesRow, error) {
 				u.id = ua.user_id 
 		GROUP BY
 			u.username
-	`)
+		ORDER BY
+			u.username ASC
+		LIMIT
+			?
+		OFFSET
+			? 
+	`, strconv.Itoa(usersPerPage), strconv.Itoa(usersOffset))
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 	defer rows.Close()
-	// Iterate over the users
+	// Iterate over the user profile results
 	profiles := make([]UserProfilesRow, 0)
 	for rows.Next() {
     	var row UserProfilesRow
@@ -298,12 +306,30 @@ func (*Users) GetUserProfiles() ([]UserProfilesRow, error) {
 			&row.Achievements,
 		)
 		if err != nil {
-			return profiles, err
+			return profiles, 0, err
 		}
 		// Append this row to the leaderboard
 		profiles = append(profiles, row)
 	}
-	return profiles, nil
+	//Find total amount of users
+	rows, err = db.Query(`
+		SELECT 
+			count(id) 
+		FROM 
+			users
+	`)
+	if err != nil {
+		return profiles, 0, err
+	}
+	defer rows.Close()
+	var allProfilesCount int
+	for rows.Next() {
+		err = rows.Scan(&allProfilesCount)
+		if err != nil {
+			return profiles, allProfilesCount, err
+		}
+	}
+	return profiles, allProfilesCount, nil
 }
 func (*Users) SetStreamURL(userID int, streamURL string) error {
 	// Set the new stream URL
