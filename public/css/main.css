@@ -3854,3 +3854,10 @@
     #leaderboard-buttons .inactive:active {
         background-color: rgba(255, 255, 255, 0.2);
     }
+
+span#lastEloChange.red {
+  color: tomato;
+}
+span#lastEloChange.green {
+  color: chartreuse;
+}

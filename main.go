@@ -35,13 +35,13 @@ import (
 
 const (
 	domain        = "isaacracing.net"
-	useSSL        = true
+	useSSL        = false
 	sslCertFile   = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
 	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
 	GATrackingID  = "UA-91999156-1"
 	sessionName   = "isaac.sid"
-	useTwitch     = true
-	useDiscord    = true
+	useTwitch     = false
+	useDiscord    = false
 	rateLimitRate = 480 // In commands sent
 	rateLimitPer  = 60  // In seconds
 )
@@ -324,7 +324,10 @@ func main() {
 	p.Get("/", TollboothMiddleware(httpHome))
 	p.Get("/news", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpNews))
 	p.Get("/races", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpRaces))
-	p.Get("/profiles", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles))
+	p.Get("/profile", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile))
+	p.Get("/profile/:player", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile)) // Handles profile username
+	p.Get("/profiles", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles)) 
+	p.Get("/profiles/:page", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles)) // Handles extra pages for profiles
 	p.Get("/leaderboards", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpLeaderboards))
 	p.Get("/info", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpInfo))
 	p.Get("/download", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpDownload))

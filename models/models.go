@@ -104,6 +104,22 @@ type LeaderboardRowUnseeded struct {
 	LastUnseededRace        int
 	Verified                int
 }
+type UserProfilesRow struct {
+	Username		string
+	DateCreated		int
+	StreamUrl		string
+	Achievements	int
+}
+type UserProfileData struct {
+	Username		string
+	DateCreated		int
+	Verified		int
+	ELO				int
+	LastELOChange	int
+	SeededRaces		int
+	UnseededRaces	int
+	StreamUrl		string
+}
 type LeaderboardRowTopTimes struct {
 	Name     string
 	Time     int

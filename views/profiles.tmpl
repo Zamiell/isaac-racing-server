@@ -5,11 +5,42 @@
 		<h2>Player Profiles</h2>
 		<p>Your fellow racers</p>
 	</header>
+	<div id="race-listing-buttons" class="row">
+		<!-- if statement checks to see where we currently are and only serves the buttons we need to see -->
+		{{ if ge .PreviousPage 1 -}}						
+			<div class="3u 12u">
+				<a href="../profiles" class="button fit">&lt;&lt;</a>
+			</div>
+			<div class="3u 12u">
+				<a href="../profiles/{{ .PreviousPage }}" class="button fit">&lt;</a>
+			</div>
+		{{- else }}
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+		{{- end }}
+		{{ if le .NextPage .TotalPages }}
+			<div class="3u 12u">
+				<a href="../profiles/{{ .NextPage }}" class="button fit">&gt;</a>
+			</div>
+			<div class="3u 12u">
+				<a href="../profiles/{{ .TotalPages }}" class="button fit">&gt;&gt;</a>
+			</div>
+		{{- else }}
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+			<div class="3u 12u">
+				&nbsp;
+			</div>				
+		{{- end }}
+	</div>	
 	<section class="box">
-		<p>(This page is just a placeholder for now.)</p>
-
 		<div class="table-wrapper">
-			<table class="alt">
+			<table class="alt" id="profiles">
 				<thead>
 					<tr>
 						<th>Name</th>
@@ -17,17 +48,21 @@
 						<th>Achievements</th>
 					</tr>
 				</thead>
+				<tfoot>
+					<tr>
+						<td>
+							Total Players: {{ .TotalProfileCount }}
+						</td>
+					</tr>
+				</tfoot>
 				<tbody>
-					<tr>
-						<td>Zamiel</td>
-						<td>07/16/16</td>
-						<td>5</td>
-					</tr>
-					<tr>
-						<td>Dea1h</td>
-						<td>07/16/16</td>
-						<td>7</td>
-					</tr>
+					{{ range .Results }}
+						<tr>
+							<td><a href="../profile/{{.Username}}"> {{ .Username }} </a></td>
+							<td id="date"> {{ .DateCreated }}</td>
+							<td> {{ .Achievements }} </td>
+						</tr>
+					{{ end }}
 				</tbody>
 			</table>
 		</div>

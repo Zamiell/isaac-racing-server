@@ -1,0 +1,34 @@
+{{define "content"}}
+<!-- Main -->
+<section id="main" class="container">
+	<header>
+		<!-- This checks for the username and populates it along with the verification badge if verified -->
+		<h2>{{ if ne .Results.Username "" }} {{ .Results.Username }}'s {{ end }} Profile {{if eq .Results.Verified 1 }} <img height="16px" width="16px" src="../public/img/verified.png" /> {{ end }}</h2>
+		<!-- This checks for the players Twitch stream and places the Glitch icon with a link to a new window/tab -->
+		{{ if ne .Results.StreamUrl "-" }} <h1><a href="{{ .Results.StreamUrl }}" target="_blank"><img height="32px" width="32px" src="../public/img/Glitch_Purple_RGB.png" /></a></h1> {{ end }}
+		<p>Joined on  <span id="date">{{ .Results.DateCreated }}</span></p>
+	</header>
+	<section class="box">
+		<div class="table-wrapper">
+			<table class="alt" id="profiles">
+				<thead>
+					<tr>
+						<th>TrueSkill</th>
+						<th>Seeded Races</th>
+						<th>Unseeded Races</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<!-- Sets ELO & ELO change with color for +/- -->
+						<td>{{ .Results.ELO }} <span id="lastEloChange" class="{{ if lt .Results.LastELOChange 0 -}} red {{- else if gt .Results.LastELOChange 0}} green {{- end}}">{{if ge .Results.LastELOChange 0}}+{{end}}{{ .Results.LastELOChange }}</span></td>
+						<td>{{ .Results.SeededRaces }}</td>
+						<td>{{ .Results.UnseededRaces }}</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</section>
+
+</section>
+{{end}}

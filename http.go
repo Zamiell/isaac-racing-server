@@ -9,6 +9,9 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"math"
+	"strconv"
+	"github.com/Zamiell/isaac-racing-server/models"
 )
 
 /*
@@ -16,7 +19,22 @@ import (
 */
 
 type TemplateData struct {
-	Title string
+	Title	string
+}
+
+type TemplateDataProfiles struct {
+	Title				string
+	Results				[]models.UserProfilesRow
+	TotalProfileCount	int
+	TotalPages			int
+	PreviousPage		int
+	NextPage			int
+	UsersPerPage		int
+}
+
+type TemplateDataProfile struct {
+	Title		string
+	Results		models.UserProfileData
 }
 
 /*
@@ -44,9 +62,55 @@ func httpRaces(w http.ResponseWriter, r *http.Request) {
 	serveTemplate(w, "races", data)
 }
 
+func httpProfile (w http.ResponseWriter, r *http.Request) {
+	// Get player from url
+	var player string
+	player = r.URL.Query().Get(":player")
+	if player == "" {
+		player = "Zamiell"
+		log.Error("Failed to a parse the player data: ", player)
+	
+	}
+	// Get the data from the database
+	playerData, err := db.Users.GetProfileData(player)
+	if err != nil {
+		log.Error("Failed to get player data from the database: ", err)
+	}
+	// Create the title with player's name
+	data := TemplateDataProfile{
+		Title: "Profile",
+		Results: playerData,
+	}
+	serveTemplate(w, "profile", data)
+}
 func httpProfiles(w http.ResponseWriter, r *http.Request) {
-	data := TemplateData{
+	var currentPage int
+	// Hard-coded for now, maybe will change this in the future allowing # of results per page
+	usersPerPage := 20
+	// Find what page we're currently on and then set it accordingly (always set to 1 otherwise)
+	i, err := strconv.ParseInt(r.URL.Query().Get(":page"), 10, 32)
+	if err == nil && int(i) > 1 {
+		currentPage = int(i)
+	} else {
+		currentPage = 1
+	}
+	// Get profile data from the database
+	userProfiles, totalProfileCount, err := db.Users.GetUserProfiles(currentPage, usersPerPage)
+	if err != nil {
+		log.Error("Failed to get the user profile data: ", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError),  http.StatusInternalServerError)
+		return
+	}
+	totalPages := math.Ceil(float64(totalProfileCount) / float64(usersPerPage))
+	// Data to pass to the template, some of it may not be used due to changes
+	data := TemplateDataProfiles{
 		Title: "Profiles",
+		Results: userProfiles,
+		TotalProfileCount: totalProfileCount,
+		TotalPages: int(totalPages),
+		PreviousPage: currentPage - 1,
+		NextPage: currentPage + 1,
+		UsersPerPage: usersPerPage,
 	}
 	serveTemplate(w, "profiles", data)
 }
@@ -129,8 +193,4 @@ func serveTemplate(w http.ResponseWriter, templateName string, data interface{})
 		log.Error("Failed to execute the template:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	}
-}
-
-func getPlayers() {
-
 }
