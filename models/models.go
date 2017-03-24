@@ -84,6 +84,23 @@ type Item struct {
 	StageType int `json:"stageType"`
 }
 
+type StatsSeeded struct {
+	ELO            int
+	LastELOChange  int
+	NumSeededRaces int
+	LastSeededRace int
+}
+
+type StatsUnseeded struct {
+	UnseededAdjustedAverage int
+	UnseededRealAverage     int
+	NumUnseededRaces        int
+	NumForfeits             int
+	ForfeitPenalty          int
+	LowestUnseededTime      int
+	LastUnseededRace        int
+}
+
 // Used in the leaderboards (HTTP)
 type LeaderboardRowSeeded struct {
 	Name           string

@@ -184,6 +184,60 @@ func (*Users) GetTwitchBotDelay(userID int) (int, error) {
 	}
 }
 
+func (*Users) GetStatsSeeded(username string) (StatsSeeded, error) {
+	// Get the user's Twitch bot setting
+	var stats StatsSeeded
+	err := db.QueryRow(`
+		SELECT
+			elo,
+			last_elo_change,
+			num_seeded_races,
+			last_seeded_race
+		FROM users
+		WHERE username = ?
+	`, username).Scan(
+		&stats.ELO,
+		&stats.LastELOChange,
+		&stats.NumSeededRaces,
+		&stats.LastSeededRace,
+	)
+	if err != nil {
+		return stats, err
+	} else {
+		return stats, nil
+	}
+}
+
+func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
+	// Get the user's Twitch bot setting
+	var stats StatsUnseeded
+	err := db.QueryRow(`
+		SELECT
+			unseeded_adjusted_average,
+			unseeded_real_average,
+			num_unseeded_races,
+			num_forfeits,
+			forfeit_penalty,
+			lowest_unseeded_time,
+			last_unseeded_race
+		FROM users
+		WHERE username = ?
+	`, username).Scan(
+		&stats.UnseededAdjustedAverage,
+		&stats.UnseededRealAverage,
+		&stats.NumUnseededRaces,
+		&stats.NumForfeits,
+		&stats.ForfeitPenalty,
+		&stats.LowestUnseededTime,
+		&stats.LastUnseededRace,
+	)
+	if err != nil {
+		return stats, err
+	} else {
+		return stats, nil
+	}
+}
+
 func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
 	// Make a leaderboard for the seeded format based on all of the users
 	rows, err := db.Query(`

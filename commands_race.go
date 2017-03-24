@@ -70,7 +70,7 @@ var validDiversityPassiveItems = [...]int{
 	350, 353, 354, 356, 358, 359, 360, 361, 362, 363, // Mom's Pearls (355) is banned
 	364, 365, 366, 367, 368, 369, 370, 371, 372, 373,
 	374, 375, 376, 377, 378, 379, 380, 381, 384, 385,
-	387, 388, 389, 390, 521, 392, 393, 394, 395, 397, // Replacing Betrayal (391) with 521
+	387, 388, 389, 390, 513, 392, 393, 394, 395, 397, // Replacing Betrayal (391) with 513
 	398, 399, 400, 401, 402, 403, 404, 405, 407, 408,
 	409, 410, 411, 412, 413, 414, 415, 416, 417, 418,
 	420, 423, 424, 425, 426, 429, 430, 431, 432, 433, // PJs (428) is banned
@@ -944,6 +944,7 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	raceCheckFinish(raceID)
 
 	// Update fields in the users table (e.g. average, ELO)
+	// (we calculate stats for seeded races only when the race is completed)
 	raceUpdateUnseededStats(raceID, username)
 
 	// Check to see if the user got any achievements
@@ -1057,6 +1058,10 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Check to see if the race is ready to finish
 	raceCheckFinish(raceID)
+
+	// Update fields in the users table (e.g. average, ELO)
+	// (we calculate stats for seeded races only when the race is completed)
+	raceUpdateUnseededStats(raceID, username)
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -1973,6 +1978,25 @@ func raceCheckFinish(raceID int) {
 
 // Now that a user has finished, quit, or been disqualified from a race, update fields in the users table for unseeded races
 func raceUpdateUnseededStats(raceID int, username string) {
+	// Don't do anything if this is not an unseeded race (or an unranked race)
+	if unseededAndRanked, err := db.Races.CheckUnseededRanked(raceID); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	} else if unseededAndRanked == false {
+		return
+	}
+
+	// Get their unseeded stats
+	if statsUnseeded, err := db.Users.GetStatsUnseeded(username); err != nil {
+		commandMutex.Unlock()
+		log.Error("Database error:", err)
+		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
+		return
+	}
+
+	// Update all the stats
 
 }
 

@@ -6,6 +6,8 @@ Additional Information
 
 If you are not a developer, please visit [the website for Racing+](https://isaacracing.net/).
 
+<br />
+
 
 
 Description
@@ -15,7 +17,9 @@ This is the server software for Racing+, a Binding of Isaac: Afterbirth+ racing 
 
 The server is written in [Go](https://golang.org/) and uses WebSockets to communicate with the client. It leverages [Auth0](https://auth0.com/) for authentication and uses a [SQLite](https://sqlite.org/) database to keep track of the races.
 
-You may also be interested in [the Lua mod repository](https://github.com/Zamiell/isaac-racing-mod) or [the client repository](https://github.com/Zamiell/isaac-racing-client).
+You may also be interested in [the client repository](https://github.com/Zamiell/isaac-racing-client) or [the Lua mod](https://github.com/Zamiell/isaac-racing-client/tree/master/mod).
+
+<br />
 
 
 
@@ -33,6 +37,8 @@ Install
 * `cp .env_template .env && nano .env`
   * Fill in the values.
 
+<br />
+
 
 
 Run
@@ -41,12 +47,17 @@ Run
 * `cd $GOPATH/Zamiell/isaac-racing-server`
 * `go run *.go`
 
+<br />
+
+
 
 
 Compile / Build
 ---------------
 
 * `go install` (this creates `$GOPATH/bin/isaac-racing-server`)
+
+<br />
 
 
 
@@ -59,6 +70,8 @@ Install HTTPS (optional)
 Later, to renew the certificate:
 
 * `RENEW_DIR=/root/isaac-racing-server/letsencrypt && mkdir -p $RENEW_DIR && letsencrypt renew --webroot --webroot-path $RENEW_DIR && rm -rf $RENEW_DIR`
+
+<br />
 
 
 
@@ -78,3 +91,5 @@ Later, to manage the service:
 * Start it: `supervisorctl start isaac-racing-server`
 * Stop it: `supervisorctl stop isaac-racing-server`
 * Restart it: `supervisorctl restart isaac-racing-server`
+
+<br />

@@ -248,6 +248,42 @@ func (*Races) CheckSolo(raceID int) (bool, error) {
 	}
 }
 
+func (*Races) CheckSeededRanked(raceID int) (bool, error) {
+	// Check to see if this is a seeded and ranked race
+	var raceType int
+	var raceFormat string
+	err := db.QueryRow(`
+		SELECT type, format
+		FROM races
+		WHERE id = ?
+	`, raceID).Scan(&raceType, &raceFormat)
+	if err != nil {
+		return false, err
+	} else if raceType == 1 && raceFormat == "seeded" {
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
+func (*Races) CheckUnseededRanked(raceID int) (bool, error) {
+	// Check to see if this is an unseeded and ranked race
+	var raceType int
+	var raceFormat string
+	err := db.QueryRow(`
+		SELECT type, format
+		FROM races
+		WHERE id = ?
+	`, raceID).Scan(&raceType, &raceFormat)
+	if err != nil {
+		return false, err
+	} else if raceType == 1 && raceFormat == "unseeded" {
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
 func (*Races) SetStatus(raceID int, status string) error {
 	// Set the new status for this race
 	stmt, err := db.Prepare(`
