@@ -7,6 +7,6 @@ function ConvertTimeStamps() {
 		dt = $(this).find("td").eq(1).html()/1000;
 		var d = new Date(0);
 		d.setUTCSeconds(dt);
-		$(this).find("td").eq(1).html(d.getMonth() + '/' + d.getDate() + '/' + d.getFullYear());
+		$(this).find("td").eq(1).html((d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear());
 	});
 };
