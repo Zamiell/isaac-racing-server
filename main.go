@@ -17,16 +17,18 @@ import (
 	"sync"     // For locking and unlocking the connection map
 	"time"     // For dealing with timestamps
 
-	"github.com/bmizerany/pat"       // For HTTP routing
-	"github.com/didip/tollbooth"     // For rate-limiting login requests
-	"github.com/gorilla/context"     // For cookie sessions (1/2)
-	"github.com/gorilla/sessions"    // For cookie sessions (2/2)
-	"github.com/joho/godotenv"       // For reading environment variables that contain secrets
-	"github.com/satori/go.uuid"      // For generating UUIDs for Google Analytics
-	"github.com/tdewolff/minify"     // For minification (1/3)
-	"github.com/tdewolff/minify/css" // For minification (2/3)
-	"github.com/tdewolff/minify/js"  // For minification (3/3)
-	"github.com/trevex/golem"        // The Golem WebSocket framework
+	"github.com/bmizerany/pat"    // For HTTP routing
+	"github.com/didip/tollbooth"  // For rate-limiting login requests
+	"github.com/gorilla/context"  // For cookie sessions (1/2)
+	"github.com/gorilla/sessions" // For cookie sessions (2/2)
+	"github.com/joho/godotenv"    // For reading environment variables that contain secrets
+	"github.com/satori/go.uuid"   // For generating UUIDs for Google Analytics
+	/*
+		"github.com/tdewolff/minify"     // For minification (1/3)
+		"github.com/tdewolff/minify/css" // For minification (2/3)
+		"github.com/tdewolff/minify/js"  // For minification (3/3)
+	*/
+	"github.com/trevex/golem" // The Golem WebSocket framework
 )
 
 /*
@@ -40,8 +42,8 @@ const (
 	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
 	GATrackingID  = "UA-91999156-1"
 	sessionName   = "isaac.sid"
-	useTwitch     = false
-	useDiscord    = false
+	useTwitch     = true
+	useDiscord    = true
 	rateLimitRate = 480 // In commands sent
 	rateLimitPer  = 60  // In seconds
 )
@@ -301,23 +303,25 @@ func main() {
 
 	// Minify CSS and JS
 	// (currently unsued while website dev is underway)
-	m := minify.New()
-	m.AddFunc("text/css", css.Minify)
-	for _, fileName := range []string{"main"} {
-		inputFile, _ := os.Open("public/css/" + fileName + ".css")
-		outputFile, _ := os.Create("public/css/" + fileName + ".min.css")
-		if err := m.Minify("text/css", outputFile, inputFile); err != nil {
-			log.Error("Failed to minify \""+fileName+".css\":", err)
+	/*
+		m := minify.New()
+		m.AddFunc("text/css", css.Minify)
+		for _, fileName := range []string{"main"} {
+			inputFile, _ := os.Open("public/css/" + fileName + ".css")
+			outputFile, _ := os.Create("public/css/" + fileName + ".min.css")
+			if err := m.Minify("text/css", outputFile, inputFile); err != nil {
+				log.Error("Failed to minify \""+fileName+".css\":", err)
+			}
 		}
-	}
-	m.AddFunc("text/javascript", js.Minify)
-	for _, fileName := range []string{"main", "util"} {
-		inputFile, _ := os.Open("public/js/" + fileName + ".js")
-		outputFile, _ := os.Create("public/js/" + fileName + ".min.js")
-		if err := m.Minify("text/javascript", outputFile, inputFile); err != nil {
-			log.Error("Failed to minify \""+fileName+".js\":", err)
+		m.AddFunc("text/javascript", js.Minify)
+		for _, fileName := range []string{"main", "util"} {
+			inputFile, _ := os.Open("public/js/" + fileName + ".js")
+			outputFile, _ := os.Create("public/js/" + fileName + ".min.js")
+			if err := m.Minify("text/javascript", outputFile, inputFile); err != nil {
+				log.Error("Failed to minify \""+fileName+".js\":", err)
+			}
 		}
-	}
+	*/
 
 	// Set up the Pat HTTP router
 	p := pat.New()

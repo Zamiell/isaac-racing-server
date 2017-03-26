@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"errors"
 	"strconv"
-	
 )
 
 /*
@@ -341,37 +340,40 @@ func (*Users) GetProfileData(player string) (UserProfileData, error) {
 			steam_id > 0 and
 			username = ?
 	`, player).Scan(
-			&profileData.Username,
-			&profileData.DateCreated,
-			&profileData.Verified,
-			&profileData.ELO,
-			&profileData.LastELOChange,
-			&profileData.SeededRaces,
-			&profileData.UnseededRaces,
-			&profileData.StreamUrl,
-		)
-	if err != nil {
+		&profileData.Username,
+		&profileData.DateCreated,
+		&profileData.Verified,
+		&profileData.ELO,
+		&profileData.LastELOChange,
+		&profileData.SeededRaces,
+		&profileData.UnseededRaces,
+		&profileData.StreamUrl,
+	)
+	if err == sql.ErrNoRows {
+		return profileData, nil
+	} else if err != nil {
 		return profileData, err
 	} else {
 		return profileData, nil
 	}
 }
+
 func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfilesRow, int, error) {
 	// Get players data to populate the profiles page.
 	usersOffset := (currentPage - 1) * usersPerPage
 	rows, err := db.Query(`
-		SELECT 
-			u.username, 
-			u.datetime_created, 
+		SELECT
+			u.username,
+			u.datetime_created,
 			u.stream_url,
-			count(ua.achievement_id) 
-		FROM 
-			users u 
-		LEFT JOIN 
-			user_achievements ua 
+			count(ua.achievement_id)
+		FROM
+			users u
+		LEFT JOIN
+			user_achievements ua
 			ON
-				u.id = ua.user_id 
-		WHERE 
+				u.id = ua.user_id
+		WHERE
 			u.steam_id > 0
 		GROUP BY
 			u.username
@@ -380,17 +382,20 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfiles
 		LIMIT
 			?
 		OFFSET
-			? 
+			?
 	`, strconv.Itoa(usersPerPage), strconv.Itoa(usersOffset))
-	if err != nil {
+	if err == sql.ErrNoRows {
+		return nil, 0, nil
+	} else if err != nil {
 		return nil, 0, err
 	}
 	defer rows.Close()
+
 	// Iterate over the user profile results
 	profiles := make([]UserProfilesRow, 0)
 	for rows.Next() {
-    	var row UserProfilesRow
-		err := rows.Scan(
+		var row UserProfilesRow
+		err = rows.Scan(
 			&row.Username,
 			&row.DateCreated,
 			&row.StreamUrl,
@@ -399,14 +404,16 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfiles
 		if err != nil {
 			return profiles, 0, err
 		}
+
 		// Append this row to the leaderboard
 		profiles = append(profiles, row)
 	}
+
 	// Find total amount of users
 	rows, err = db.Query(`
-		SELECT 
-			count(id) 
-		FROM 
+		SELECT
+			count(id)
+		FROM
 			users
 		WHERE
 			steam_id > 0
@@ -422,8 +429,10 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]UserProfiles
 			return profiles, allProfilesCount, err
 		}
 	}
+
 	return profiles, allProfilesCount, nil
 }
+
 func (*Users) SetStreamURL(userID int, streamURL string) error {
 	// Set the new stream URL
 	stmt, err := db.Prepare(`
