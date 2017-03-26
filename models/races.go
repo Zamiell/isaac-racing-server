@@ -474,3 +474,67 @@ func (*Races) Cleanup() ([]int, error) {
 
 	return leftoverRaces, nil
 }
+
+func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, int, error) {
+	raceOffset := currentPage * racesPerPage
+	rows, err := db.Query(`
+		SELECT 
+			r.id, 
+			r.datetime_started,
+			r.type, 
+			r.format, 
+			r.character, 
+			r.goal
+		FROM 
+			races r
+		GROUP BY
+			r.id
+		ORDER BY
+			r.id DESC
+		LIMIT
+			?
+		OFFSET
+			?
+	`, racesPerPage, raceOffset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()	
+	raceHistory := make([]RaceHistory, 0)
+	for rows.Next() {
+		var race RaceHistory
+		err = rows.Scan(
+			&race.RaceID,
+			&race.RaceDate,
+			&race.RaceType,
+			&race.RaceFormat,			
+			&race.RaceChar,		
+			&race.RaceGoal,			
+		)
+		if err != nil {
+			return raceHistory, 0, err
+		}
+		raceHistory = append(raceHistory, race)
+	}
+	rows, err = db.Query(`
+		SELECT 
+			count(id) 
+		FROM 
+			races
+		WHERE
+			status = 'finished'
+	`)
+	if err != nil {
+		return raceHistory, 0, err
+	}
+	defer rows.Close()
+	var allRaceCount int
+	for rows.Next() {
+		err = rows.Scan(&allRaceCount)
+		if err != nil {
+			return raceHistory, allRaceCount, err
+		}
+	}	
+	return raceHistory, allRaceCount, nil
+
+}

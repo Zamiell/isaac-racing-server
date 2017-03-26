@@ -7,24 +7,41 @@
 	</header>
 
 	<div id="race-listing-buttons" class="row">
-		<div class="3u 12u">
-			<a href="#" class="button fit">&lt;&lt;</a>
-		</div>
-		<div class="3u 12u">
-			<a href="#" class="button fit">&lt;</a>
-		</div>
-		<div class="3u 12u">
-			<a href="#" class="button fit">&gt;</a>
-		</div>
-		<div class="3u 12u">
-			<a href="#" class="button fit">&gt;&gt;</a>
-		</div>
+		{{ if ge .PreviousPage 1 -}}						
+			<div class="3u 12u">
+				<a href="../races" class="button fit">&lt;&lt;</a>
+			</div>
+			<div class="3u 12u">
+				<a href="../races/{{ .PreviousPage }}" class="button fit">&lt;</a>
+			</div>
+		{{- else }}
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+		{{- end }}
+		{{ if le .NextPage .TotalPages }}
+			<div class="3u 12u">
+				<a href="../races/{{ .NextPage }}" class="button fit">&gt;</a>
+			</div>
+			<div class="3u 12u">
+				<a href="../races/{{ .TotalPages }}" class="button fit">&gt;&gt;</a>
+			</div>
+		{{- else }}
+			<div class="3u 12u">
+				&nbsp;
+			</div>
+			<div class="3u 12u">
+				&nbsp;
+			</div>				
+		{{- end }}
+
 	</div>
 	<br />
 
 	<section class="box">
-		<p>(This page is just a placeholder for now.)</p>
-
 		<div class="table-wrapper">
 			<table id="race-listing-table">
 				<thead>
@@ -32,80 +49,30 @@
 						<th>ID</th>
 						<th>Date &amp; Time</th>
 						<th>Ruleset</th>
-						<th>Place</th>
-						<th>Name</th>
-						<th>Time</th>
-						<th>Comment</th>
+						<th>Format</th>
+						<th>Character</th>
+						<th>Goal</th>
 					</tr>
 				</thead>
+				<tfoot>
+					<tr>
+						<td>
+							Total Races: {{ .TotalRaceCount }}
+						</td>
+					</tr>
+				</tfoot>
+
 				<tbody>
-
+				{{ range .Results }}
 					<tr>
-						<td rowspan=3>499</td>
-						<td rowspan=3>Monday, July 25th, 2016 23:10 (EST)</td>
-						<td rowspan=3>Seeded</td>
-						<td>1</td>
-						<td>Zamiel</td>
-						<td>13:00</td>
-						<td>bad asdf  i got a sweet build gupper incubus and lots of familiars and wow all the transformations asdkfhjga asdfhgjasdkfhg adskhfjdddddddddg akhsjdfgdd all the</td>
+						<td>{{ .RaceID }}</td>
+						<td id="date"> {{ .RaceDate }}</td>
+						<td>{{ .RaceType }}</td>
+						<td>{{ .RaceFormat }}</td>
+						<td>{{ .RaceChar }}</td>
+						<td>{{ .RaceGoal }}</td>
 					</tr>
-					<tr class="participants-list">
-						<td>2</td>
-						<td>Dea1h</td>
-						<td>13:05</td>
-						<td>good</td>
-					</tr>
-					<tr class="participants-list">
-						<td>3</td>
-						<td>Cyber_1</td>
-						<td>13:06</td>
-						<td>damn</td>
-					</tr>
-
-					<tr>
-						<td rowspan=3>498</td>
-						<td rowspan=3>Monday, July 24th, 2016 23:10 (EST)</td>
-						<td rowspan=3>Unseeded</td>
-						<td>1</td>
-						<td>Zamiel</td>
-						<td>13:00</td>
-						<td>bad</td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>Dea1h</td>
-						<td>13:05</td>
-						<td>good</td>
-					</tr>
-					<tr>
-						<td>3</td>
-						<td>Cyber_1</td>
-						<td>13:06</td>
-						<td>damn</td>
-					</tr>
-
-					<tr>
-						<td rowspan=3>497</td>
-						<td rowspan=3>Monday, July 25th, 2016 23:10 (EST)</td>
-						<td rowspan=3>Seeded</td>
-						<td>1</td>
-						<td>Zamiel</td>
-						<td>13:00</td>
-						<td>bad  i got a sweet build gupper incubus and lots of familiars and wow all the transformations asdkfhjga asdfhgjasdkfhg  akhsjdfgdd all the</td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>Dea1h</td>
-						<td>13:05</td>
-						<td>good</td>
-					</tr>
-					<tr>
-						<td>3</td>
-						<td>Cyber_1</td>
-						<td>13:06</td>
-						<td>damn</td>
-					</tr>
-
+				{{ end }}
 				</tbody>
 			</table>
 		</div>

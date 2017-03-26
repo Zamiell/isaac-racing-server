@@ -35,7 +35,7 @@
 				</nav>
 			</header>
 			<!-- Push the extra vars through to the next template, might not need to do this later on -->
-			{{if or (eq .Title "Profiles") (eq .Title "Profile") -}}
+			{{if or (eq .Title "Profiles") (eq .Title "Profile") (eq .Title "Races") -}}
 				{{ template "content" .}}
 			{{- else}}
 				{{ template "content" }}
