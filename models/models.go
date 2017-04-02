@@ -148,6 +148,22 @@ type LeaderboardRowMostPlayed struct {
 	Total    int
 	Verified int
 }
+type RaceHistoryParticipants struct {
+	RacerName		string
+	RacerPlace		int
+	RacerTime		string
+	RacerComment	string
+}
+type RaceHistory struct {
+	RaceID				int
+	RaceDate			int
+	RaceType			string
+	RaceFormat			string
+	RaceChar			string
+	RaceGoal			string
+	RaceParticipants	[]RaceHistoryParticipants
+}
+
 
 /*
 	Global variables

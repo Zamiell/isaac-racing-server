@@ -474,3 +474,108 @@ func (*Races) Cleanup() ([]int, error) {
 
 	return leftoverRaces, nil
 }
+
+func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, int, error) {
+	raceOffset := currentPage * racesPerPage
+	rows, err := db.Query(`
+		SELECT 
+			r.id, 
+			r.datetime_started,
+			r.type, 
+			r.format, 
+			r.character, 
+			r.goal
+		FROM 
+			races r
+		GROUP BY
+			r.id
+		ORDER BY
+			r.id DESC
+		LIMIT
+			?
+		OFFSET
+			?
+	`, racesPerPage, raceOffset)
+	if err != nil {
+		return nil, 0, err
+	}
+	defer rows.Close()
+	raceHistory := make([]RaceHistory, 0)
+	for rows.Next() {
+		var race RaceHistory
+		err = rows.Scan(
+			&race.RaceID,
+			&race.RaceDate,
+			&race.RaceType,
+			&race.RaceFormat,
+			&race.RaceChar,
+			&race.RaceGoal,
+		)
+		race.RaceParticipants = nil
+		if err != nil {
+			return raceHistory, 0, err
+		}
+		rows2, err2 := db.Query(`
+			SELECT
+				u.username,
+				rp.place,
+				cast((rp.datetime_finished-r.datetime_started)/1000/60 as text) || ":" || substr('00'||cast((rp.datetime_finished-r.datetime_started)/1000%60 as text),-2,2),
+				rp.comment
+			FROM
+				race_participants rp
+			LEFT JOIN
+				users u
+				ON u.id = rp.user_id
+			LEFT JOIN
+				races r
+				ON r.id = rp.race_id
+			WHERE
+				rp.race_id = ?
+			ORDER BY
+				CASE WHEN rp.place is -1 THEN 1 ELSE 0 END,
+				rp.place
+			`, race.RaceID)
+		if err2 != nil {
+			return raceHistory, 0, err
+		}
+		raceRacers := make([]RaceHistoryParticipants, 0)
+		for rows2.Next() {
+			var racer RaceHistoryParticipants
+			err2 = rows2.Scan(
+				&racer.RacerName,
+				&racer.RacerPlace,
+				&racer.RacerTime,
+				&racer.RacerComment,
+			)
+			if err2 != nil {
+				return raceHistory, 0, err
+			}
+
+			raceRacers = append(raceRacers, racer)
+		}
+		race.RaceParticipants = raceRacers
+		raceHistory = append(raceHistory, race)
+	}
+	rows, err = db.Query(`
+		SELECT 
+			count(id) 
+		FROM 
+			races
+		WHERE
+			status = 'finished'
+	`)
+	if err != nil {
+		return raceHistory, 0, err
+	}
+	defer rows.Close()
+	var allRaceCount int
+	for rows.Next() {
+		err = rows.Scan(&allRaceCount)
+		if err != nil {
+			return raceHistory, allRaceCount, err
+		}
+	}
+
+	return raceHistory, allRaceCount, nil
+
+}
