@@ -84,6 +84,23 @@ type Item struct {
 	StageType int `json:"stageType"`
 }
 
+type StatsSeeded struct {
+	ELO            int
+	LastELOChange  int
+	NumSeededRaces int
+	LastSeededRace int
+}
+
+type StatsUnseeded struct {
+	UnseededAdjustedAverage int
+	UnseededRealAverage     int
+	NumUnseededRaces        int
+	NumForfeits             int
+	ForfeitPenalty          int
+	LowestUnseededTime      int
+	LastUnseededRace        int
+}
+
 // Used in the leaderboards (HTTP)
 type LeaderboardRowSeeded struct {
 	Name           string
@@ -131,6 +148,22 @@ type LeaderboardRowMostPlayed struct {
 	Total    int
 	Verified int
 }
+type RaceHistoryParticipants struct {
+	RacerName		string
+	RacerPlace		int
+	RacerTime		string
+	RacerComment	string
+}
+type RaceHistory struct {
+	RaceID				int
+	RaceDate			int
+	RaceType			string
+	RaceFormat			string
+	RaceChar			string
+	RaceGoal			string
+	RaceParticipants	[]RaceHistoryParticipants
+}
+
 
 /*
 	Global variables

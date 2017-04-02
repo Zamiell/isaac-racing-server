@@ -19,13 +19,17 @@ import (
 	Global variables
 */
 
+var customBookOfSin = 520
+var customCrystalBall = 521
+var customBetrayal = 522
+var customSmelter = 523
 var validDiversityActiveItems = [...]int{
 	// Rebirth items
 	33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
 	44, 45, 47, 49, 56, 58, 65, 66, 77, 78,
-	83, 84, 85, 86, 93, 511, 102, 105, 107, 111, // Replacing The Book of Sin (97) with 511
+	83, 84, 85, 86, 93, customBookOfSin, 102, 105, 107, 111, // Replacing The Book of Sin (97)
 	123, 124, 126, 127, 130, 133, 135, 136, 137, 145,
-	146, 147, 512, 160, 164, 166, 171, 175, 177, 181, // Replacing Crystal Ball (158) with 512
+	146, 147, customCrystalBall, 160, 164, 166, 171, 175, 177, 181, // Replacing Crystal Ball (158)
 	186, 192, 282, 285, 286, 287, 288, 289, 290, 291, // D100 (283) and D4 (284) are banned
 	292, 293, 294, 295, 296, 297, 298, 323, 324, 325,
 	326, 338,
@@ -35,8 +39,11 @@ var validDiversityActiveItems = [...]int{
 	406, 419, 421, 422, 427, 434, 437, 439, 441,
 
 	// Afterbirth+ items
-	475, 476, 477, 478, 514, 480, 481, 482, 483, 484, // Replacing Smelter (479) with 514
+	475, 476, 477, 478, customSmelter, 480, 481, 482, 483, 484, // Replacing Smelter (479)
 	485, 486, 487, 488, 490, 504, 507, 510, // D Infinity (489) is banned
+
+	// Booster Pack items
+	512, 515, 516,
 }
 var validDiversityPassiveItems = [...]int{
 	// Rebirth items
@@ -70,7 +77,7 @@ var validDiversityPassiveItems = [...]int{
 	350, 353, 354, 356, 358, 359, 360, 361, 362, 363, // Mom's Pearls (355) is banned
 	364, 365, 366, 367, 368, 369, 370, 371, 372, 373,
 	374, 375, 376, 377, 378, 379, 380, 381, 384, 385,
-	387, 388, 389, 390, 521, 392, 393, 394, 395, 397, // Replacing Betrayal (391) with 521
+	387, 388, 389, 390, customBetrayal, 392, 393, 394, 395, 397, // Replacing Betrayal (391)
 	398, 399, 400, 401, 402, 403, 404, 405, 407, 408,
 	409, 410, 411, 412, 413, 414, 415, 416, 417, 418,
 	420, 423, 424, 425, 426, 429, 430, 431, 432, 433, // PJs (428) is banned
@@ -82,6 +89,9 @@ var validDiversityPassiveItems = [...]int{
 	464, 465, 466, 467, 468, 469, 470, 471, 472, 473,
 	474, 491, 492, 493, 494, 495, 496, 497, 498, 499,
 	500, 501, 502, 503, 505, 506, 508, 509,
+
+	// Booster pack items
+	511, 513, 514, 517, 518, 519,
 }
 var validDiversityTrinkets = [...]int{
 	// Rebirth trinkets
@@ -944,6 +954,7 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	raceCheckFinish(raceID)
 
 	// Update fields in the users table (e.g. average, ELO)
+	// (we calculate stats for seeded races only when the race is completed)
 	raceUpdateUnseededStats(raceID, username)
 
 	// Check to see if the user got any achievements
@@ -1057,6 +1068,10 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// Check to see if the race is ready to finish
 	raceCheckFinish(raceID)
+
+	// Update fields in the users table (e.g. average, ELO)
+	// (we calculate stats for seeded races only when the race is completed)
+	raceUpdateUnseededStats(raceID, username)
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -1973,6 +1988,27 @@ func raceCheckFinish(raceID int) {
 
 // Now that a user has finished, quit, or been disqualified from a race, update fields in the users table for unseeded races
 func raceUpdateUnseededStats(raceID int, username string) {
+	// Don't do anything if this is not an unseeded race (or an unranked race)
+	/*
+		if unseededAndRanked, err := db.Races.CheckUnseededRanked(raceID); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			return
+		} else if unseededAndRanked == false {
+			return
+		}
+	*/
+
+	// Get their unseeded stats
+	/*
+		if statsUnseeded, err := db.Users.GetStatsUnseeded(username); err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			return
+		}
+	*/
+
+	// Update all the stats
 
 }
 
