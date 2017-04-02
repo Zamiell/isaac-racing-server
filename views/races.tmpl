@@ -70,7 +70,7 @@
 					<tr>
 						{{ $racers := len .RaceParticipants }}
 							<td rowspan="{{ $racers }}">{{ .RaceID }}</td>
-							<td id="date" rowspan="{{ $racers }}"> {{ .RaceDate }}</td>
+							<td id="racedate" rowspan="{{ $racers }}"> {{ .RaceDate }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceType }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceFormat }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceChar }}</td>
@@ -80,23 +80,28 @@
 								<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
 							</td>
 							{{ if eq .RacerPlace -1 -}}
-							<td>Forfeit<td>
-							<td>&nbsp;</td>
+								<td>Forfeit</td>
+								<td>&nbsp;</td>
 							{{- else}}
-							<td>{{ .RacerPlace }}</td>
-							<td>{{ .RacerTime }}</td>
+								<td>{{ .RacerPlace }}</td>
+								<td>{{ .RacerTime }}</td>
 							{{- end }}
 							{{ if ne .RacerComment "-" -}}
-							<td	title="{{ .RacerComment }}">
-							Comment
+								<td	title="{{ .RacerComment }}">
+								Comment
 							{{- else}}
-							<td>&nbsp;
+								<td>&nbsp;
 							{{ end }}
 							</td>
+							{{ if eq $index 0 -}}
+							</tr>
+							{{- else }}
+							</tr>
+							<tr class="participants-list">
+							{{- end }}							
 						{{ end }}
-					</tr>
+						
 					{{ end }}
-
 				</tbody>
 			</table>
 		</div>
