@@ -9,7 +9,7 @@ function ConvertTimeStamps() {
 			console.log(dt);
 			var d = new Date(0);
 			d.setUTCSeconds(dt);
-			$(this).find("td#racedate").html((d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + d.getMinutes	());
+			$(this).find("td#racedate").html((d.getMonth()+1) + '/' + d.getDate() + '/' + d.getFullYear() + ' ' + d.getHours() + ':' + ("0"+d.getMinutes()).slice(-2));
 		}
 	});
 };
