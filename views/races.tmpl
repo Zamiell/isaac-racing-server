@@ -76,9 +76,6 @@
 							<td rowspan="{{ $racers }}">{{ .RaceChar }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceGoal }}</td>
 						{{ range $index, $results := .RaceParticipants }}
-						{{ if $index }}
-						</tr>
-						{{ end }}
 							<td>
 								<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
 							</td>
@@ -96,8 +93,14 @@
 								<td>&nbsp;
 							{{ end }}
 							</td>
+							{{ if eq $index 0 -}}
+							</tr>
+							{{- else }}
+							</tr>
+							<tr class="participants-list">
+							{{- end }}							
 						{{ end }}
-					
+						
 					{{ end }}
 				</tbody>
 			</table>
