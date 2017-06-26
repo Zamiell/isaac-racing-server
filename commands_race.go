@@ -19,17 +19,16 @@ import (
 	Global variables
 */
 
-var customBookOfSin = 520
-var customCrystalBall = 521
-var customBetrayal = 522
-var customSmelter = 523
+var customBookOfSin = 526
+var customBetrayal = 527
+var customSmelter = 528
 var validDiversityActiveItems = [...]int{
 	// Rebirth items
 	33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
 	44, 45, 47, 49, 56, 58, 65, 66, 77, 78,
 	83, 84, 85, 86, 93, customBookOfSin, 102, 105, 107, 111, // Replacing The Book of Sin (97)
 	123, 124, 126, 127, 130, 133, 135, 136, 137, 145,
-	146, 147, customCrystalBall, 160, 164, 166, 171, 175, 177, 181, // Replacing Crystal Ball (158)
+	146, 147, 158, 160, 164, 166, 171, 175, 177, 181,
 	186, 192, 282, 285, 286, 287, 288, 289, 290, 291, // D100 (283) and D4 (284) are banned
 	292, 293, 294, 295, 296, 297, 298, 323, 324, 325,
 	326, 338,
@@ -43,7 +42,7 @@ var validDiversityActiveItems = [...]int{
 	485, 486, 487, 488, 490, 504, 507, 510, // D Infinity (489) is banned
 
 	// Booster Pack items
-	512, 515, 516,
+	512, 515, 516, 521, 522, 523,
 }
 var validDiversityPassiveItems = [...]int{
 	// Rebirth items
@@ -91,7 +90,7 @@ var validDiversityPassiveItems = [...]int{
 	500, 501, 502, 503, 505, 506, 508, 509,
 
 	// Booster pack items
-	511, 513, 514, 517, 518, 519,
+	511, 513, 514, 517, 518, 519, 520, 524, 525,
 }
 var validDiversityTrinkets = [...]int{
 	// Rebirth trinkets
@@ -1201,25 +1200,35 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	log.Debug("Getting here 1.")
+
 	// Validate basic things about the race ID
 	if raceValidate(conn, data, functionName) == false {
 		return
 	}
+
+	log.Debug("Getting here 2.")
 
 	// Validate that the race has started
 	if raceValidateStatus(conn, data, "in progress", functionName) == false {
 		return
 	}
 
+	log.Debug("Getting here 3.")
+
 	// Validate that they are in the race
 	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
+	log.Debug("Getting here 4.")
+
 	// Validate that their status is set to "racing" status
 	if racerValidateStatus(conn, userID, raceID, "racing", functionName) == false {
 		return
 	}
+
+	log.Debug("Getting here 5.")
 
 	// Get their current floor
 	floorNum, stageType, err := db.RaceParticipants.GetFloor(userID, raceID)
@@ -1230,6 +1239,8 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	log.Debug("Getting here 6.")
+
 	// Add this item to their build
 	if err = db.RaceParticipantItems.Insert(userID, raceID, itemID, floorNum, stageType); err != nil {
 		commandMutex.Unlock()
@@ -1238,6 +1249,8 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	log.Debug("Getting here 7.")
+
 	// Get the list of racers for this race
 	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
 	if err != nil {
@@ -1245,6 +1258,8 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		log.Error("Database error:", err)
 		return
 	}
+
+	log.Debug("Getting here 8.")
 
 	// Send a notification to all the people in this particular race that the user got an item
 	connectionMap.RLock()
@@ -1257,8 +1272,12 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 	connectionMap.RUnlock()
 
+	log.Debug("Getting here 9.")
+
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
+
+	log.Debug("Getting here 10.")
 }
 
 func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -1281,25 +1300,35 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	log.Debug("Getting here 1.")
+
 	// Validate basic things about the race ID
 	if raceValidate(conn, data, functionName) == false {
 		return
 	}
+
+	log.Debug("Getting here 2.")
 
 	// Validate that the race has started
 	if raceValidateStatus(conn, data, "in progress", functionName) == false {
 		return
 	}
 
+	log.Debug("Getting here 3.")
+
 	// Validate that they are in the race
 	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
+	log.Debug("Getting here 4.")
+
 	// Validate that their status is set to "racing" status
 	if racerValidateStatus(conn, userID, raceID, "racing", functionName) == false {
 		return
 	}
+
+	log.Debug("Getting here 5.")
 
 	// Validate that the floor is sane
 	if floorNum < 1 || floorNum > 12 {
@@ -1314,6 +1343,8 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	log.Debug("Getting here 6.")
+
 	// Set their floor in the database
 	floorArrived, err := db.RaceParticipants.SetFloor(userID, raceID, floorNum, stageType)
 	if err != nil {
@@ -1322,6 +1353,8 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
+
+	log.Debug("Getting here 7.")
 
 	// The floor gets sent as 1 when a reset occurs
 	if floorNum == 1 {
@@ -1342,6 +1375,8 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		}
 	}
 
+	log.Debug("Getting here 8.")
+
 	// Get the list of racers for this race
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
@@ -1350,10 +1385,14 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
+	log.Debug("Getting here 9.")
+
 	// Recalculate everyones mid-race places
 	if racerSetAllPlaceMid(conn, raceID, racerList, functionName) == false {
 		return
 	}
+
+	log.Debug("Getting here 10.")
 
 	// Send a notification to all the people in this particular race that the user got to a new floor
 	connectionMap.RLock()
@@ -1365,8 +1404,12 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 	connectionMap.RUnlock()
 
+	log.Debug("Getting here 11.")
+
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
+
+	log.Debug("Getting here 12.")
 }
 
 func raceRoom(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -1514,7 +1557,8 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 		ruleset.Character != "The Lost" &&
 		ruleset.Character != "Lilith" &&
 		ruleset.Character != "Keeper" &&
-		ruleset.Character != "Apollyon" {
+		ruleset.Character != "Apollyon" &&
+		ruleset.Character != "custom" {
 
 		commandMutex.Unlock()
 		connError(conn, functionName, "That is not a valid character.")

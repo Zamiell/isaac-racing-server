@@ -409,6 +409,9 @@ func connWarning(conn *ExtendedConnection, functionName string, message string) 
 
 // Called at the beginning of every command handler
 func commandRateLimit(conn *ExtendedConnection) bool {
+	return false
+	// Commenting this out because it might be causing a deadlock that happens with large 20+ races
+
 	// Local variables
 	username := conn.Username
 

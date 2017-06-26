@@ -105,7 +105,8 @@ func twitchInit() {
 		}
 
 		// Log all messages
-		log.Info("< " + msg)
+		// (commented out to eliminate spam)
+		//log.Info("< " + msg)
 
 		// Split the message by spaces
 		msgParts := strings.Split(msg, " ")
@@ -178,7 +179,7 @@ func twitchInit() {
 }
 
 func ircSend(command string) {
-	log.Info("> " + command)
+	//log.Info("> " + command)
 	conn.Write([]byte(command + "\r\n"))
 }
 

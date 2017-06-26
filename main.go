@@ -37,13 +37,13 @@ import (
 
 const (
 	domain        = "isaacracing.net"
-	useSSL        = false
+	useSSL        = true
 	sslCertFile   = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
 	sslKeyFile    = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
 	GATrackingID  = "UA-91999156-1"
 	sessionName   = "isaac.sid"
-	useTwitch     = false
-	useDiscord    = false
+	useTwitch     = true
+	useDiscord    = true
 	rateLimitRate = 480 // In commands sent
 	rateLimitPer  = 60  // In seconds
 )
@@ -153,6 +153,7 @@ func GAMiddleware(nextFunc func(w http.ResponseWriter, r *http.Request)) http.Ha
 			resp, err := myHTTPClient.PostForm("https://www.google-analytics.com/collect", data)
 			if err != nil {
 				log.Error("Failed to send a page hit to Google Analytics:", err)
+				return
 			}
 			defer resp.Body.Close()
 		}(r)
@@ -328,7 +329,6 @@ func main() {
 	p.Get("/", TollboothMiddleware(httpHome))
 	p.Get("/news", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpNews))
 	p.Get("/races", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpRaces))
-	p.Get("/races/:page", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpRaces))
 	p.Get("/profile", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile))
 	p.Get("/profile/:player", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile)) // Handles profile username
 	p.Get("/profiles", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles))
