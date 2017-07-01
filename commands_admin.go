@@ -116,11 +116,9 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			}
 
 			// Send everyone a notification that the user left the race
-			connectionMap.RLock()
 			for _, conn := range connectionMap.m {
 				conn.Connection.Emit("raceLeft", RaceMessage{raceID, recipient})
 			}
-			connectionMap.RUnlock()
 		} else {
 			// Set this racer's status to disqualified
 			if err := db.RaceParticipants.SetStatus(recipient, raceID, "disqualified"); err != nil {
@@ -155,14 +153,12 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			}
 
 			// Send a notification to all the people in this particular race that the user got disqualified
-			connectionMap.RLock()
 			for _, racer := range racerNames {
 				conn, ok := connectionMap.m[racer]
 				if ok == true { // Not all racers may be online during a race
 					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "disqualified", -2})
 				}
 			}
-			connectionMap.RUnlock()
 		}
 
 		// Check to see if the race should start or finish
@@ -170,9 +166,7 @@ func adminBan(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Check to see if the user is online
-	connectionMap.RLock()
 	bannedConnection, ok := connectionMap.m[recipient]
-	connectionMap.RUnlock()
 	if ok == true {
 		// Disconnect the user
 		connError(bannedConnection, functionName, "You have been banned. If you think this was a mistake, please contact the administration to appeal.")
@@ -481,17 +475,12 @@ func adminMute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Check to see if this user is currently connected
-	connectionMap.RLock()
 	_, ok := connectionMap.m[recipient]
-	connectionMap.RUnlock()
 	if ok == true {
 		// Update their connection map setting to be muted
-		connectionMap.Lock()
 		connectionMap.m[recipient].Muted = 1
-		connectionMap.Unlock()
 
 		// Look for this user in all chat rooms
-		chatRoomMap.Lock()
 		for room, users := range chatRoomMap.m {
 			// See if the user is in this chat room
 			index := -1
@@ -512,7 +501,6 @@ func adminMute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 					continue
 				}
 
-				connectionMap.RLock()
 				for _, user := range users {
 					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 					if ok == true {
@@ -522,10 +510,8 @@ func adminMute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 						continue
 					}
 				}
-				connectionMap.RUnlock()
 			}
 		}
-		chatRoomMap.Unlock()
 	}
 
 	// Log the mute
@@ -614,17 +600,12 @@ func adminUnmute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Check to see if this user is currently connected
-	connectionMap.RLock()
 	_, ok := connectionMap.m[recipient]
-	connectionMap.RUnlock()
 	if ok == true {
 		// Update their connection map setting to be unmuted
-		connectionMap.Lock()
 		connectionMap.m[recipient].Muted = 0
-		connectionMap.Unlock()
 
 		// Look for this user in all chat rooms
-		chatRoomMap.Lock()
 		for room, users := range chatRoomMap.m {
 			// See if the user is in this chat room
 			index := -1
@@ -645,7 +626,6 @@ func adminUnmute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 					continue
 				}
 
-				connectionMap.RLock()
 				for _, user := range users {
 					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 					if ok == true {
@@ -655,10 +635,8 @@ func adminUnmute(conn *ExtendedConnection, data *IncomingCommandMessage) {
 						continue
 					}
 				}
-				connectionMap.RUnlock()
 			}
 		}
-		chatRoomMap.Unlock()
 	}
 
 	// Log the unmute
@@ -735,17 +713,12 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Check to see if this user is currently connected
-	connectionMap.RLock()
 	_, ok := connectionMap.m[recipient]
-	connectionMap.RUnlock()
 	if ok == true {
 		// Update their connection map setting to be an admin
-		connectionMap.Lock()
 		connectionMap.m[recipient].Admin = 1
-		connectionMap.Unlock()
 
 		// Look for this user in all chat rooms
-		chatRoomMap.Lock()
 		for room, users := range chatRoomMap.m {
 			// See if the user is in this chat room
 			index := -1
@@ -766,7 +739,6 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 					continue
 				}
 
-				connectionMap.RLock()
 				for _, user := range users {
 					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 					if ok == true {
@@ -776,10 +748,8 @@ func adminPromote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 						continue
 					}
 				}
-				connectionMap.RUnlock()
 			}
 		}
-		chatRoomMap.Unlock()
 	}
 
 	// Log the promotion
@@ -856,17 +826,12 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Check to see if this user is currently connected
-	connectionMap.RLock()
 	_, ok := connectionMap.m[recipient]
-	connectionMap.RUnlock()
 	if ok == true {
 		// Update their connection map setting to be a normal user
-		connectionMap.Lock()
 		connectionMap.m[recipient].Admin = 0
-		connectionMap.Unlock()
 
 		// Look for this user in all chat rooms
-		chatRoomMap.Lock()
 		for room, users := range chatRoomMap.m {
 			// See if the user is in this chat room
 			index := -1
@@ -887,7 +852,6 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 					continue
 				}
 
-				connectionMap.RLock()
 				for _, user := range users {
 					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 					if ok == true {
@@ -897,10 +861,8 @@ func adminDemote(conn *ExtendedConnection, data *IncomingCommandMessage) {
 						continue
 					}
 				}
-				connectionMap.RUnlock()
 			}
 		}
-		chatRoomMap.Unlock()
 	}
 
 	// Log the demotion
@@ -936,13 +898,11 @@ func adminMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send everyone the server broadcast notification
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("adminMessage", &RoomMessageMessage{
 			Message: message,
 		})
 	}
-	connectionMap.RUnlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

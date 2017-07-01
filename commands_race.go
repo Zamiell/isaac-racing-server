@@ -19,14 +19,11 @@ import (
 	Global variables
 */
 
-var customBookOfSin = 526
-var customBetrayal = 527
-var customSmelter = 528
 var validDiversityActiveItems = [...]int{
 	// Rebirth items
 	33, 34, 35, 36, 37, 38, 39, 40, 41, 42,
 	44, 45, 47, 49, 56, 58, 65, 66, 77, 78,
-	83, 84, 85, 86, 93, customBookOfSin, 102, 105, 107, 111, // Replacing The Book of Sin (97)
+	83, 84, 85, 86, 93, 97, 102, 105, 107, 111,
 	123, 124, 126, 127, 130, 133, 135, 136, 137, 145,
 	146, 147, 158, 160, 164, 166, 171, 175, 177, 181,
 	186, 192, 282, 285, 286, 287, 288, 289, 290, 291, // D100 (283) and D4 (284) are banned
@@ -38,11 +35,11 @@ var validDiversityActiveItems = [...]int{
 	406, 419, 421, 422, 427, 434, 437, 439, 441,
 
 	// Afterbirth+ items
-	475, 476, 477, 478, customSmelter, 480, 481, 482, 483, 484, // Replacing Smelter (479)
+	475, 476, 477, 478, 479, 480, 481, 482, 483, 484,
 	485, 486, 487, 488, 490, 504, 507, 510, // D Infinity (489) is banned
 
 	// Booster Pack items
-	512, 515, 516, 521, 522, 523,
+	512, 515, 516, 521, 522, 523, 527,
 }
 var validDiversityPassiveItems = [...]int{
 	// Rebirth items
@@ -76,7 +73,7 @@ var validDiversityPassiveItems = [...]int{
 	350, 353, 354, 356, 358, 359, 360, 361, 362, 363, // Mom's Pearls (355) is banned
 	364, 365, 366, 367, 368, 369, 370, 371, 372, 373,
 	374, 375, 376, 377, 378, 379, 380, 381, 384, 385,
-	387, 388, 389, 390, customBetrayal, 392, 393, 394, 395, 397, // Replacing Betrayal (391)
+	387, 388, 389, 390, 391, 392, 393, 394, 395, 397,
 	398, 399, 400, 401, 402, 403, 404, 405, 407, 408,
 	409, 410, 411, 412, 413, 414, 415, 416, 417, 418,
 	420, 423, 424, 425, 426, 429, 430, 431, 432, 433, // PJs (428) is banned
@@ -90,7 +87,7 @@ var validDiversityPassiveItems = [...]int{
 	500, 501, 502, 503, 505, 506, 508, 509,
 
 	// Booster pack items
-	511, 513, 514, 517, 518, 519, 520, 524, 525,
+	511, 513, 514, 517, 518, 519, 520, 524, 525, 526, 528, 529,
 }
 var validDiversityTrinkets = [...]int{
 	// Rebirth trinkets
@@ -110,6 +107,9 @@ var validDiversityTrinkets = [...]int{
 	91, 92, 93, 94, 95, 96, 97, 98, 99, 100,
 	101, 102, 103, 104, 105, 106, 107, 108, 109, 110,
 	111, 112, 113, 114, 115, 116, 117, 118, 119,
+
+	// Booster pack trinkets
+	120, 121, 122, 123,
 }
 
 /*
@@ -256,7 +256,6 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send everyone a notification that a new race has been started
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceCreated", &models.Race{
 			ID:              raceID,
@@ -269,7 +268,6 @@ func raceCreate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			Racers:          []string{username},
 		})
 	}
-	connectionMap.RUnlock()
 
 	// Get all the information about the racers in this race
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
@@ -344,11 +342,9 @@ func raceJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send everyone a notification that the user joined
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceJoined", RaceMessage{raceID, username})
 	}
-	connectionMap.RUnlock()
 
 	// Get all the information about the racers in this race
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
@@ -405,11 +401,9 @@ func raceJoinSpectate(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send everyone a notification that the user joined
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceJoined", RaceMessage{raceID, username})
 	}
-	connectionMap.RUnlock()
 
 	// Get all the information about the racers in this race
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
@@ -473,11 +467,9 @@ func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	roomLeaveSub(conn, "_race_"+strconv.Itoa(raceID))
 
 	// Send everyone a notification that the user left the race
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceLeft", RaceMessage{raceID, username})
 	}
-	connectionMap.RUnlock()
 
 	// If the race went from 2 people to 1, automatically unready the last person so that they don't start the race by themsevles
 	if racerNames, err := db.RaceParticipants.GetRacerNames(raceID); err != nil {
@@ -501,12 +493,10 @@ func raceLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			}
 
 			// Tell them
-			connectionMap.RLock()
 			conn, ok := connectionMap.m[racerNames[0]]
 			if ok == true { // They should definately be online, but check anyway just in case
 				conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready", 0})
 			}
-			connectionMap.RUnlock()
 		}
 	}
 
@@ -569,14 +559,12 @@ func raceReady(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send a notification to all the people in this particular race that the user is ready
-	connectionMap.RLock()
 	for _, racer := range racerNames {
 		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "ready", 0})
 		}
 	}
-	connectionMap.RUnlock()
 
 	// Check to see if the race is ready to start
 	raceCheckStart(raceID)
@@ -637,14 +625,12 @@ func raceUnready(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send a notification to all the people in this particular race that the user is not ready
-	connectionMap.RLock()
 	for _, racer := range racerNames {
 		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready", 0})
 		}
 	}
-	connectionMap.RUnlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -802,11 +788,9 @@ func raceRuleset(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send everyone a notification that the ruleset has changed for this race
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceSetRuleset", RaceSetRulesetMessage{raceID, ruleset})
 	}
-	connectionMap.RUnlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -896,14 +880,12 @@ func raceFinish(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send a notification to all the people in this particular race that the user finished
-	connectionMap.RLock()
 	for _, racer := range racerList {
 		racerConn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
 			racerConn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "finished", currentPlace + 1})
 		}
 	}
-	connectionMap.RUnlock()
 
 	// Calculate their run time
 	started, err := db.Races.GetDatetimeStarted(raceID)
@@ -1036,14 +1018,12 @@ func raceQuit(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send a notification to all the people in this particular race that the user quit
-	connectionMap.RLock()
 	for _, racer := range racerList {
 		racerConn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
 			racerConn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "quit", -1})
 		}
 	}
-	connectionMap.RUnlock()
 
 	// Get the number of people left in the race
 	peopleLeft, err := db.RaceParticipants.GetPeopleLeft(raceID)
@@ -1158,14 +1138,12 @@ func raceComment(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Send a notification to all the people in this particular race that the user added or changed their comment
-	connectionMap.RLock()
 	for _, racer := range racerNames {
 		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetComment", &RacerSetCommentMessage{raceID, username, comment})
 		}
 	}
-	connectionMap.RUnlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -1200,35 +1178,25 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	log.Debug("Getting here 1.")
-
 	// Validate basic things about the race ID
 	if raceValidate(conn, data, functionName) == false {
 		return
 	}
-
-	log.Debug("Getting here 2.")
 
 	// Validate that the race has started
 	if raceValidateStatus(conn, data, "in progress", functionName) == false {
 		return
 	}
 
-	log.Debug("Getting here 3.")
-
 	// Validate that they are in the race
 	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
-	log.Debug("Getting here 4.")
-
 	// Validate that their status is set to "racing" status
 	if racerValidateStatus(conn, userID, raceID, "racing", functionName) == false {
 		return
 	}
-
-	log.Debug("Getting here 5.")
 
 	// Get their current floor
 	floorNum, stageType, err := db.RaceParticipants.GetFloor(userID, raceID)
@@ -1239,8 +1207,6 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	log.Debug("Getting here 6.")
-
 	// Add this item to their build
 	if err = db.RaceParticipantItems.Insert(userID, raceID, itemID, floorNum, stageType); err != nil {
 		commandMutex.Unlock()
@@ -1248,8 +1214,6 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
-
-	log.Debug("Getting here 7.")
 
 	// Get the list of racers for this race
 	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
@@ -1259,10 +1223,9 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	log.Debug("Getting here 8.")
+	log.Debug("Getting here 1.")
 
 	// Send a notification to all the people in this particular race that the user got an item
-	connectionMap.RLock()
 	for _, racer := range racerNames {
 		conn, ok := connectionMap.m[racer]
 		if ok == true { // Not all racers may be online during a race
@@ -1270,14 +1233,11 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			conn.Connection.Emit("racerAddItem", &RacerAddItemMessage{raceID, username, item})
 		}
 	}
-	connectionMap.RUnlock()
 
-	log.Debug("Getting here 9.")
+	log.Debug("Getting here 2.")
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
-
-	log.Debug("Getting here 10.")
 }
 
 func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -1300,35 +1260,25 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	log.Debug("Getting here 1.")
-
 	// Validate basic things about the race ID
 	if raceValidate(conn, data, functionName) == false {
 		return
 	}
-
-	log.Debug("Getting here 2.")
 
 	// Validate that the race has started
 	if raceValidateStatus(conn, data, "in progress", functionName) == false {
 		return
 	}
 
-	log.Debug("Getting here 3.")
-
 	// Validate that they are in the race
 	if raceValidateIn2(conn, data, functionName) == false {
 		return
 	}
 
-	log.Debug("Getting here 4.")
-
 	// Validate that their status is set to "racing" status
 	if racerValidateStatus(conn, userID, raceID, "racing", functionName) == false {
 		return
 	}
-
-	log.Debug("Getting here 5.")
 
 	// Validate that the floor is sane
 	if floorNum < 1 || floorNum > 12 {
@@ -1343,8 +1293,6 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	log.Debug("Getting here 6.")
-
 	// Set their floor in the database
 	floorArrived, err := db.RaceParticipants.SetFloor(userID, raceID, floorNum, stageType)
 	if err != nil {
@@ -1353,8 +1301,6 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		connError(conn, functionName, "Something went wrong. Please contact an administrator.")
 		return
 	}
-
-	log.Debug("Getting here 7.")
 
 	// The floor gets sent as 1 when a reset occurs
 	if floorNum == 1 {
@@ -1375,8 +1321,6 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		}
 	}
 
-	log.Debug("Getting here 8.")
-
 	// Get the list of racers for this race
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
 	if err != nil {
@@ -1385,31 +1329,25 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	log.Debug("Getting here 9.")
-
 	// Recalculate everyones mid-race places
 	if racerSetAllPlaceMid(conn, raceID, racerList, functionName) == false {
 		return
 	}
 
-	log.Debug("Getting here 10.")
+	log.Debug("Getting here 1.")
 
 	// Send a notification to all the people in this particular race that the user got to a new floor
-	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
 		if ok == true { // Not all racers may be online during a race
 			conn.Connection.Emit("racerSetFloor", &RacerSetFloorMessage{raceID, username, floorNum, stageType, floorArrived})
 		}
 	}
-	connectionMap.RUnlock()
 
-	log.Debug("Getting here 11.")
+	log.Debug("Getting here 2.")
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
-
-	log.Debug("Getting here 12.")
 }
 
 func raceRoom(conn *ExtendedConnection, data *IncomingCommandMessage) {
@@ -1770,6 +1708,7 @@ func racerSetAllPlaceMid(conn *ExtendedConnection, raceID int, racerList []model
 }
 
 // Called after someone disconnects or someone is banned
+// (the commandMutex should be locked when getting here)
 func raceCheckStartFinish(raceID int) {
 	// Get the status of the race
 	if status, err := db.Races.GetStatus(raceID); err != nil {
@@ -1783,6 +1722,7 @@ func raceCheckStartFinish(raceID int) {
 }
 
 // Check to see if a race is ready to start, and if so, start it
+// (the commandMutex should be locked when getting here)
 func raceCheckStart(raceID int) {
 	// Check to see if the race was deleted
 	if exists, err := db.Races.Exists(raceID); err != nil {
@@ -1825,11 +1765,9 @@ func raceCheckStart(raceID int) {
 	}
 
 	// Send everyone a notification that the race is starting soon
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceSetStatus", &RaceSetStatusMessage{raceID, "starting"})
 	}
-	connectionMap.RUnlock()
 
 	// Get the list of people in this race
 	racerList, err := db.RaceParticipants.GetRacerList(raceID)
@@ -1848,7 +1786,6 @@ func raceCheckStart(raceID int) {
 	startTime := time.Now().Add(secondsToWait*time.Second).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 
 	// Send everyone in the race a message describing exactly when it will start
-	connectionMap.RLock()
 	for _, racer := range racerList {
 		conn, ok := connectionMap.m[racer.Name]
 		if ok == true {
@@ -1860,7 +1797,6 @@ func raceCheckStart(raceID int) {
 			log.Warning("Failed to send a raceStart message to user \"" + racer.Name + "\". This should never happen.")
 		}
 	}
-	connectionMap.RUnlock()
 
 	// Make the Twitch bot announce that the race is starting in 10 seconds
 	if solo == false {
@@ -1929,11 +1865,9 @@ func raceCheckStart2(raceID int) {
 	}
 
 	// Send everyone a notification that the race is now in progress
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceSetStatus", &RaceSetStatusMessage{raceID, "in progress"})
 	}
-	connectionMap.RUnlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -1977,14 +1911,12 @@ func raceCheckStart3(raceID int) {
 			}
 
 			// Send a notification to all the people in this particular race that the user quit
-			connectionMap.RLock()
 			for _, racer2 := range racerList {
 				conn, ok := connectionMap.m[racer2.Name]
 				if ok == true { // Not all racers may be online during a race
 					conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, racer.Name, "quit", -1})
 				}
 			}
-			connectionMap.RUnlock()
 		}
 	}
 
@@ -1996,6 +1928,7 @@ func raceCheckStart3(raceID int) {
 }
 
 // Check to see if a rate is ready to finish, and if so, finish it
+// (the commandMutex should be locked when getting here)
 func raceCheckFinish(raceID int) {
 	// Check to see if the race was deleted
 	if exists, err := db.Races.Exists(raceID); err != nil {
@@ -2023,11 +1956,9 @@ func raceCheckFinish(raceID int) {
 	}
 
 	// Send everyone a notification that the race is now finished
-	connectionMap.RLock()
 	for _, conn := range connectionMap.m {
 		conn.Connection.Emit("raceSetStatus", &RaceSetStatusMessage{raceID, "finished"})
 	}
-	connectionMap.RUnlock()
 }
 
 // Now that a user has finished, quit, or been disqualified from a race, update fields in the users table for unseeded races

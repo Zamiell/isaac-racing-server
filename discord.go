@@ -93,14 +93,14 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Copy messages from "racing-plus-lobby"
 	if m.ChannelID == discordLobbyChannelID {
 		// Send everyone the notification
-		connectionMap.RLock()
+		commandMutex.Lock()
 		for _, conn := range connectionMap.m {
 			conn.Connection.Emit("discordMessage", &RoomMessageMessage{
 				Name:    m.Author.Username + "#" + m.Author.Discriminator,
 				Message: message,
 			})
 		}
-		connectionMap.RUnlock()
+		commandMutex.Unlock()
 	}
 }
 

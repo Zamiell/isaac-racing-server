@@ -180,9 +180,7 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	conn.RateLimitLastCheck = time.Now()
 
 	// Disconnect any existing connections with this username
-	connectionMap.RLock()
 	existingConnection, ok := connectionMap.m[username]
-	connectionMap.RUnlock()
 	if ok == true {
 		log.Info("Closing existing connection for user \"" + username + "\".")
 		connError(existingConnection, "logout", "You have logged on from somewhere else, so you have been disconnected here.")
@@ -191,9 +189,9 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 		// Wait until the existing connection is terminated
 		commandMutex.Unlock()
 		for {
-			connectionMap.RLock()
+			commandMutex.Lock()
 			_, ok := connectionMap.m[username]
-			connectionMap.RUnlock()
+			commandMutex.Unlock()
 			if ok == false {
 				break
 			}
@@ -202,10 +200,8 @@ func connOpen(conn *ExtendedConnection, r *http.Request) {
 	}
 
 	// Add the connection to a connection map so that we can keep track of all of the connections
-	connectionMap.Lock()
 	connectionMap.m[username] = conn
 	log.Info("User \""+username+"\" connected;", len(connectionMap.m), "user(s) now connected.") // Log the connection
-	connectionMap.Unlock()
 
 	// Get their stream URL
 	streamURL, err := db.Users.GetStreamURL(userID)
@@ -321,13 +317,10 @@ func connClose(conn *ExtendedConnection) {
 	commandMutex.Lock()
 
 	// Delete the connection from the connection map
-	connectionMap.Lock()
 	delete(connectionMap.m, username) // This will do nothing if the entry doesn't exist
-	connectionMap.Unlock()
 
 	// Make a list of all the chat rooms this person is in
 	var chatRoomList []string
-	chatRoomMap.RLock()
 	for room, users := range chatRoomMap.m {
 		for _, user := range users {
 			if user.Name == username {
@@ -336,7 +329,6 @@ func connClose(conn *ExtendedConnection) {
 			}
 		}
 	}
-	chatRoomMap.RUnlock()
 
 	// Leave all the chat rooms
 	for _, room := range chatRoomList {
@@ -363,20 +355,16 @@ func connClose(conn *ExtendedConnection) {
 			return
 		}
 		// Send everyone a notification that the user left the race
-		connectionMap.RLock()
 		for _, conn := range connectionMap.m {
 			conn.Connection.Emit("raceLeft", RaceMessage{raceID, username})
 		}
-		connectionMap.RUnlock()
 
 		// Check to see if the race should start
 		raceCheckStart(raceID)
 	}
 
 	// Log the disconnection
-	connectionMap.RLock()
 	log.Info("User \""+username+"\" disconnected;", len(connectionMap.m), "user(s) now connected.")
-	connectionMap.RUnlock()
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()

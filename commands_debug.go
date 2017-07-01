@@ -10,7 +10,7 @@ func debug(conn *ExtendedConnection) {
 	username := conn.Username
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
-	//commandMutex.Lock()
+	commandMutex.Lock()
 
 	// Rate limit all commands
 	if commandRateLimit(conn) == true {
@@ -39,5 +39,5 @@ func debug(conn *ExtendedConnection) {
 	//ircSend("JOIN #zamiell")
 
 	// The command is over, so unlock the command mutex
-	//commandMutex.Unlock()
+	commandMutex.Unlock()
 }

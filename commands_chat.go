@@ -49,9 +49,7 @@ func roomJoin(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that they are not already in the room
-	chatRoomMap.RLock()
 	users, ok := chatRoomMap.m[room]
-	chatRoomMap.RUnlock()
 	if ok == true {
 		// The room exists (at least 1 person is in it)
 		userInRoom := false
@@ -102,9 +100,7 @@ func roomLeave(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the room exists
-	chatRoomMap.RLock()
 	users, ok := chatRoomMap.m[room]
-	chatRoomMap.RUnlock()
 	if ok == false {
 		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to leave an invalid room.")
@@ -179,9 +175,7 @@ func roomMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the room exists
-	chatRoomMap.RLock()
 	users, ok := chatRoomMap.m[room]
-	chatRoomMap.RUnlock()
 	if ok == false {
 		commandMutex.Unlock()
 		connError(conn, functionName, "That is not a valid room name.")
@@ -282,9 +276,7 @@ func privateMessage(conn *ExtendedConnection, data *IncomingCommandMessage) {
 	}
 
 	// Validate that the person is online
-	connectionMap.RLock()
 	_, ok := connectionMap.m[recipient]
-	connectionMap.RUnlock()
 	if ok == false {
 		commandMutex.Unlock()
 		log.Warning("User \"" + username + "\" tried to private message \"" + recipient + "\", who is offline.")
@@ -328,7 +320,6 @@ func roomListAll(conn *ExtendedConnection, data *IncomingCommandMessage) {
 
 	// We have to initialize this way to avoid sending a null on an empty array: https://danott.co/posts/json-marshalling-empty-slices-to-empty-arrays-in-go.html
 	roomList := make([]Room, 0)
-	chatRoomMap.RLock()
 	for roomName, users := range chatRoomMap.m {
 		// Add the room to the list
 		roomList = append(roomList, Room{
@@ -336,7 +327,6 @@ func roomListAll(conn *ExtendedConnection, data *IncomingCommandMessage) {
 			len(users),
 		})
 	}
-	chatRoomMap.RUnlock()
 
 	// Send it to the user
 	conn.Connection.Emit("roomListAll", roomList)
@@ -359,14 +349,11 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 	roomManager.Join(room, conn.Connection)
 
 	// Add the user to the chat room mapping
-	chatRoomMap.Lock()
 	userObject := User{username, admin, muted}
 	chatRoomMap.m[room] = append(chatRoomMap.m[room], userObject)
 	users := chatRoomMap.m[room] // Save the list of users in the room for later
-	chatRoomMap.Unlock()
 
 	// Give the user the list of everyone in the chat room and tell everyone else that someone is joining
-	connectionMap.RLock()
 	for _, user := range users {
 		userConnection, ok := connectionMap.m[user.Name]
 		if ok == true { // All users in the chat room should be technically be online but there could be a race condition
@@ -382,7 +369,6 @@ func roomJoinSub(conn *ExtendedConnection, room string) {
 			continue
 		}
 	}
-	connectionMap.RUnlock()
 
 	// Get the chat history for this channel
 	var roomHistoryList []models.RoomHistory
@@ -419,9 +405,7 @@ func roomLeaveSub(conn *ExtendedConnection, room string) {
 	roomManager.Leave(room, conn.Connection)
 
 	// Get the index of the user in the chat room mapping for this room
-	chatRoomMap.RLock()
 	users, ok := chatRoomMap.m[room]
-	chatRoomMap.RUnlock()
 	if ok == false {
 		log.Error("Failed to get the chat room map for room \"" + room + "\".")
 		return
@@ -439,13 +423,10 @@ func roomLeaveSub(conn *ExtendedConnection, room string) {
 	}
 
 	// Remove the user from the chat room mapping
-	chatRoomMap.Lock()
 	chatRoomMap.m[room] = append(users[:index], users[index+1:]...)
 	users = chatRoomMap.m[room]
-	chatRoomMap.Unlock()
 
 	// Since the amount of people in the chat room changed, send everyone an update
-	connectionMap.RLock()
 	for _, user := range users {
 		userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 		if ok == true {
@@ -456,7 +437,6 @@ func roomLeaveSub(conn *ExtendedConnection, room string) {
 			continue
 		}
 	}
-	connectionMap.RUnlock()
 
 	// Log the leave
 	log.Debug("User \"" + conn.Username + "\" left room: #" + room)

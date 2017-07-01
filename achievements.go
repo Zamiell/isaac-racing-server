@@ -156,6 +156,7 @@ func achievementsInit() {
 	log.Info("Added", len(achievementMap), "achievements.")
 }
 
+// The commandMutex should be locked when getting here
 func achievementsCheck(username string) {
 	// Get this racer's current achievements
 	userAchievements, err := db.UserAchievements.GetAll(username)
@@ -273,7 +274,6 @@ func achievementsGive(username string, achievementID int) {
 	db.UserAchievements.Insert(username, achievementID)
 
 	// Send them a notification that they got this achievement
-	connectionMap.RLock()
 	conn, ok := connectionMap.m[username]
 	if ok == true {
 		conn.Connection.Emit("achievement", &AchievementMessage{
@@ -284,5 +284,4 @@ func achievementsGive(username string, achievementID int) {
 	} else {
 		log.Error("Failed to send achievement " + strconv.Itoa(achievementID) + " notification for user " + username + " because they are offline, which should be impossible.")
 	}
-	connectionMap.RUnlock()
 }

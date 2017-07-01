@@ -62,12 +62,12 @@ var (
 	pmManager     = golem.NewRoomManager()
 	connectionMap = struct {
 		// Maps are not safe for concurrent use: https://blog.golang.org/go-maps-in-action
-		sync.RWMutex
+		sync.RWMutex // Not actually used anymore
 		m map[string]*ExtendedConnection
 	}{m: make(map[string]*ExtendedConnection)}
 	chatRoomMap = struct {
 		// Maps are not safe for concurrent use: https://blog.golang.org/go-maps-in-action
-		sync.RWMutex
+		sync.RWMutex // Not actually used anymore
 		m map[string][]User
 	}{m: make(map[string][]User)}
 	achievementMap map[int][]string
