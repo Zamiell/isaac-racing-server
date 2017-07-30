@@ -88,6 +88,10 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		message == "!corruptedmod" {
 
 		discordSend(m.ChannelID, "Go to https://isaacracing.net/info and Ctrl+F for: `What do I do if the mod doesn't seem to be working correctly in-game?`")
+	} else if message == "!doc" ||
+		message == "!documentation" {
+
+		discordSend(m.ChannelID, "Everything in the mod has detailed documentation if you just bother to look on the website! Here's a handy link for you: https://github.com/Zamiell/isaac-racing-client/blob/master/mod/CHANGES.md")
 	}
 
 	// Copy messages from "racing-plus-lobby"

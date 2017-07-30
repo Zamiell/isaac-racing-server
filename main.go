@@ -328,12 +328,12 @@ func main() {
 	p := pat.New()
 	p.Get("/", TollboothMiddleware(httpHome))
 	p.Get("/news", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpNews))
-	p.Get("/races", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpRaces))
-	p.Get("/profile", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile))
-	p.Get("/profile/:player", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile)) // Handles profile username
-	p.Get("/profiles", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles))
-	p.Get("/profiles/:page", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles)) // Handles extra pages for profiles
-	p.Get("/leaderboards", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpLeaderboards))
+	//p.Get("/races", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpRaces))
+	//p.Get("/profile", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile))
+	//p.Get("/profile/:player", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfile)) // Handles profile username
+	//p.Get("/profiles", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles))
+	//p.Get("/profiles/:page", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpProfiles)) // Handles extra pages for profiles
+	//p.Get("/leaderboards", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpLeaderboards))
 	p.Get("/info", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpInfo))
 	p.Get("/download", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), httpDownload))
 	p.Post("/login", tollbooth.LimitFuncHandler(tollbooth.NewLimiter(1, time.Second), loginHandler))

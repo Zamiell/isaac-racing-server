@@ -1215,32 +1215,24 @@ func raceItem(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	// Get the list of racers for this race
-	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
-	if err != nil {
-		commandMutex.Unlock()
-		log.Error("Database error:", err)
-		return
-	}
-
-	log.Debug("Getting here 1.")
-
-	// Send a notification to all the people in this particular race that the user got an item
-	for _, racer := range racerNames {
-		log.Debug("Getting here 1-1:", racer)
-		conn, ok := connectionMap.m[racer]
-		log.Debug("Getting here 1-2.")
-		if ok == true { // Not all racers may be online during a race
-			log.Debug("Getting here 1-3.")
-			item := models.Item{itemID, floorNum, stageType}
-			log.Debug("Getting here 1-4.")
-			conn.Connection.Emit("racerAddItem", &RacerAddItemMessage{raceID, username, item})
-			log.Debug("Getting here 1-5.")
+	/*
+		// Get the list of racers for this race
+		racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
+		if err != nil {
+			commandMutex.Unlock()
+			log.Error("Database error:", err)
+			return
 		}
-		log.Debug("Getting here 1-6.")
-	}
 
-	log.Debug("Getting here 2.")
+		// Send a notification to all the people in this particular race that the user got an item
+		for _, racer := range racerNames {
+			conn, ok := connectionMap.m[racer]
+			if ok == true { // Not all racers may be online during a race
+				item := models.Item{itemID, floorNum, stageType}
+				conn.Connection.Emit("racerAddItem", &RacerAddItemMessage{raceID, username, item})
+			}
+		}
+	*/
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -1340,22 +1332,15 @@ func raceFloor(conn *ExtendedConnection, data *IncomingCommandMessage) {
 		return
 	}
 
-	log.Debug("Getting here 1.")
-
 	// Send a notification to all the people in this particular race that the user got to a new floor
-	for _, racer := range racerList {
-		log.Debug("Getting here 1-1:", racer)
-		conn, ok := connectionMap.m[racer.Name]
-		log.Debug("Getting here 1-2.")
-		if ok == true { // Not all racers may be online during a race
-			log.Debug("Getting here 1-3.")
-			conn.Connection.Emit("racerSetFloor", &RacerSetFloorMessage{raceID, username, floorNum, stageType, floorArrived})
-			log.Debug("Getting here 1-4.")
+	if len(racerList) <= 10 { // Only send it on small races to avoid deadlocks
+		for _, racer := range racerList {
+			conn, ok := connectionMap.m[racer.Name]
+			if ok == true { // Not all racers may be online during a race
+				conn.Connection.Emit("racerSetFloor", &RacerSetFloorMessage{raceID, username, floorNum, stageType, floorArrived})
+			}
 		}
-		log.Debug("Getting here 1-5.")
 	}
-
-	log.Debug("Getting here 2.")
 
 	// The command is over, so unlock the command mutex
 	commandMutex.Unlock()
@@ -1485,6 +1470,7 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 	if ruleset.Format != "unseeded" &&
 		ruleset.Format != "seeded" &&
 		ruleset.Format != "diversity" &&
+		ruleset.Format != "unseeded-beginner" &&
 		ruleset.Format != "custom" {
 
 		commandMutex.Unlock()
@@ -1518,6 +1504,7 @@ func raceValidateRuleset(conn *ExtendedConnection, data *IncomingCommandMessage,
 	if ruleset.Goal != "Blue Baby" &&
 		ruleset.Goal != "The Lamb" &&
 		ruleset.Goal != "Mega Satan" &&
+		ruleset.Goal != "Everything" &&
 		ruleset.Goal != "custom" {
 
 		commandMutex.Unlock()
@@ -1701,6 +1688,11 @@ func racerSetAllPlaceMid(conn *ExtendedConnection, raceID int, racerList []model
 				continue // We don't count people who finished or quit since our starting point was on the currentPlace
 			}
 			if racer2.FloorNum > racer.FloorNum {
+				racer.PlaceMid++
+			} else if racer2.FloorNum == racer.FloorNum && racer2.StageType < racer.StageType {
+				// This is custom logic for the "Everything" race goal
+				// Sheol is StageType 0 and the Dark Room is StageType 0
+				// Those are considered ahead of Cathedral and The Chest
 				racer.PlaceMid++
 			} else if racer2.FloorNum == racer.FloorNum && racer2.FloorArrived < racer.FloorArrived {
 				racer.PlaceMid++

@@ -43,7 +43,7 @@ CREATE TABLE races (
     status                TEXT                  DEFAULT "open", /* starting, in progress, finished */
     type                  INTEGER               DEFAULT 0, /* 0 for unranked, 1 for ranked */
     solo                  INTEGER               DEFAULT 0, /* 0 for solo, 1 for multiplayer */
-    format                TEXT                  DEFAULT "unseeded", /* seeded, diversity, custom */
+    format                TEXT                  DEFAULT "unseeded", /* seeded, diversity, unseededBeginner, custom */
     character             TEXT                  DEFAULT "Isaac", /* Isaac, Magdalene, Cain, Judas, Blue Baby, Eve, Samson, Azazel, Lazarus, Eden, The Lost, Lilith, Keeper */
     goal                  TEXT                  DEFAULT "Blue Baby", /* The Lamb, Mega Satan, custom */
     starting_build        INTEGER               DEFAULT -1, /* -1 for unseeded/diversity races, setting it to 0 means "keep it as it is" */
