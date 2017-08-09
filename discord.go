@@ -87,7 +87,7 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		message == "!corruptmod" ||
 		message == "!corruptedmod" {
 
-		discordSend(m.ChannelID, "Go to https://isaacracing.net/info and Ctrl+F for: `What do I do if the mod doesn't seem to be working correctly in-game?`")
+		discordSend(m.ChannelID, "`What do I do if the mod doesn't seem to be working correctly in-game?`\n<https://isaacracing.net/info#corrupt>")
 	} else if message == "!doc" ||
 		message == "!documentation" {
 
