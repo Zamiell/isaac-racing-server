@@ -1,5 +1,6 @@
 {{define "content"}}
 <!-- Main -->
+<style> div {position: relative; top: -50px;}</style>
 <section id="main" class="container">
 	<header>
 		<h2>Info &amp; Contact</h2>
@@ -36,11 +37,26 @@
 			<section class="box">
 				<h2>Frequently Asked Questions (FAQ)</h2>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<ul>
+					<li><a href="#release">When will Racing+ be officially released to the world?</a></li>
+					<li><a href="#easter_eggs">What are Easter Eggs? How do I use the BLCK CNDL Easter Egg?</a></li>
+					<li><a href="#hotkeys">Are there any keyboard hotkeys?</a></li>
+					<li><a href="#seasons">What is the difference between ranked and unranked? What are seasons?</a></li>
+					<li><a href="#on_launch">What does Racing+ do when it starts up?</a></li>
+					<li><a href="#mods">Is it possible to use Racing+ to race with / without any mods?</a></li>
+					<li><a href="#install_path">Where does Racing+ get installed to?</a></li>
+					<li><a href="#edens_blessing_bug">How do I fix the bug where I start with an extra random item at the beginning of every run?</a></li>
+					<li><a href="#error">What do I do if the client won't let me click the "Ready" button, saying that I need to "hold R to reset the game"?</a></li>
+					<li><a href="#corrupt">What do I do if the mod doesn't seem to be working correctly in-game?</a></li>
+					<li><a href="#username">How do I change my username?</a></li>
+					<li><a href="#emotes">My favorite emote doesn't work in the chat. Can you add it?</a></li>
+				</ul>
+
+				<div style="height: 1em;" id="release"></div><!-- Spacing -->
 				<h3>When will Racing+ be officially released to the world?</h3>
 				<p>I am working hard on it, and it will be released when it is finished.</p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="easter_eggs"></div><!-- Spacing -->
 				<h3>
 					What are Easter Eggs?<br />
 					How do I use the BLCK CNDL Easter Egg?
@@ -66,7 +82,7 @@
 					Unfortunately, you have to type in this Easter Egg before every race. Due to limitations in the Afterbirth+ modding API, I can't actually make the mod automatically disable curses for you.
 				</p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="hotkeys"></div><!-- Spacing -->
 				<h3>Are there any keyboard hotkeys?</h3>
 				<p>Yes! A <strong>(G)</strong> indicates a global hotkey &mdash; you can use global hotkeys even when Racing+ is not the active program.</p>
 				<ul>
@@ -83,7 +99,7 @@
 					<li><code>Alt + V</code> &mdash; Automatically type in BLCK CNDL and paste in the seed. (Must be at the character select screen.)</li>
 				</ul>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="seasons"></div><!-- Spacing -->
 				<h3>
 					What is the difference between ranked and unranked?<br />
 					What are seasons?
@@ -95,7 +111,7 @@
 					<li>Future seasons may have different rules than what is in place for season 1. This will help to keep Isaac racing fresh! You can discuss the kinds of rulesets that you want for subsequent seasons in the Isaac racing Discord server.</li>
 				</ul>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="on_launch"></div><!-- Spacing -->
 				<h3>What does Racing+ do when it starts up?</h3>
 				<ul>
 					<li>It makes sure that the Racing+ mod exists in your mods directory.</li>
@@ -104,7 +120,7 @@
 					<li>It makes sure that you have at least one fully unlocked save file.</li>
 				</ul>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="mods"></div><!-- Spacing -->
 				<h3>
 					Is it possible to use Racing+ to race without any mods?<br />
 					Is it possible to use Racing+ with a custom mod or mods?
@@ -122,14 +138,14 @@
 				</ul>
 				<p>Remember to communicate to everyone in the race which mods are to be used and what the rules are.</p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="install_path"></div><!-- Spacing -->
 				<h3>Where does Racing+ get installed to?</h3>
 				<p>The mod gets installed (via Steam) to:</p>
 				<p><code>C:\Users\[YourUsername]\Documents\My Games\Binding of Isaac Afterbirth+ Mods\racing+_857628390</code></p>
 				<p>The client gets installed to:</p>
 				<p><code>C:\Users\[YourUsername]\AppData\Local\Programs</code></p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="edens_blessing_bug"></div><!-- Spacing -->
 				<h3>How do I fix the bug where I start with an extra random item at the beginning of every run?</h3>
 				<p>This doesn't have anything to do with Racing+. It is actually a bug with Eden's Blessing in the base game. To fix it:</p>
 				<ul>
@@ -142,30 +158,30 @@
 				</ul>
 				<p>After that, the bug should be fixed.</p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="error"></div><!-- Spacing -->
 				<h3>What do I do if the client won't let me click the "Ready" button, saying that I need to "hold R to reset the game"?</h3>
 				<p>If you are resetting the game and the client is not detecting it, you probably have one of two problems.</p>
-				<p><strong>#1)</strong> - Your Isaac installation could be corrupted. Open up your Isaac "log.txt" file, which is located here by default:</p>
+				<p><strong>1)</strong> Your Isaac installation could be corrupted. Open up your Isaac "log.txt" file, which is located here by default:</p>
 				<p><code>C:\Users\[YourUsername]\Documents\My Games\Binding of Isaac Afterbirth+\log.txt</code></p>
 				<p>Search for the word "error". If you see something like this:</p>
 				<p><pre>[INFO] - Running Lua Script: resources/scripts/main.lua
 [INFO] - ERR: cannot open resources/scripts/main.lua: No such file or directory
 [INFO] - There was an error running the lua file: resources/scripts/main.lua</pre></p>
 				<p>This means that certain files are missing in your <code>resources</code> folder that are necessary for mods to run. Completely nuke your Isaac installation, ensure that all of the files are deleted, and then reinstall.</p>
-				<p><strong>#2)</strong> - You could have multiple installations of Isaac on your computer and Racing+ is pointed at the wrong "log.txt" file. From the lobby, click the "Settings" button at the top. This will allow you to change the log file that the Racing+ client is pointed at.</p>
+				<p><strong>2)</strong> You could have multiple installations of Isaac on your computer and Racing+ is pointed at the wrong "log.txt" file. From the lobby, click the "Settings" button at the top. This will allow you to change the log file that the Racing+ client is pointed at.</p>
 				<p>As a troubleshooting step, verify that you are looking at the right log file by starting a run, writing down the seed, opening up the "log.txt" file in Notepad, and searching to see if the game wrote the seed to the log file. If it didn't, then you need to find your real "log.txt" file and have Racing+ point to that one!</p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="corrupt"></div><!-- Spacing -->
 				<h3>What do I do if the mod doesn't seem to be working correctly in-game?</h3>
 				<p>Sometimes, after an update, Steam can download a corrupted version of the mod. If you launch the client and are able to get to the lobby, the client should automatically heal a corrupted mod in the background. If that doesn't work, try nuking your Racing+ mod manually by deleting the mod directory located at:</p>
 				<p><code>C:\Users\[YourUsername]\Documents\My Games\Binding of Isaac Afterbirth+ Mods\racing+_857628390</code></p>
 				<p>After deleting it, close Steam, reopen Steam, and then launch Isaac. The mod should then be automatically redownloaded.</p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="username"></div><!-- Spacing -->
 				<h3>How do I change my username?</h3>
 				<p>Once you sign up with a username, you can't change it. If you really, really need to change your username, contact an administrator.</p>
 
-				<div style="height: 1em;"></div><!-- Spacing -->
+				<div style="height: 1em;" id="emotes"></div><!-- Spacing -->
 				<h3>My favorite emote doesn't work in the chat. Can you add it?</h3>
 				<p>Yes. Send it to an administrator on Discord.</p>
 
