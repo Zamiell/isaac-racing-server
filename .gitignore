@@ -36,11 +36,6 @@ database.sqlite
 # Directories
 logs
 backups
-lets-encrypt
-test
 
 # The compiled binary
 isaac-racing-server
-
-# Minified CSS
-*.min.css

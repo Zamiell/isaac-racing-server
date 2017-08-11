@@ -23,19 +23,42 @@ You may also be interested in [the client repository](https://github.com/Zamiell
 
 
 
+Code Layout
+-----------
+
+* Logging stuff is in the `logger` directory.
+* Twitch.tv stuff is in the `twitch` directory.
+* Discord stuff is in the `discord` directory.
+* WebSocket command logic is in the `websocket` directory.
+* Database logic is in the `models` directory.
+* HTML templates are in the `views` directory.
+* Webpage logic is in the `controllers` directory.
+
+<br/>
+
+
+
 Install
 -------
 
-* Install Go (you need to be able to run the `go` command).
-* Install SQLite3 (you need to be able to run the `sqlite3` command).
-   * On Ubuntu: `apt install sqlite3`
-* `go get github.com/Zamiell/isaac-racing-server`
-* `cd $GOPATH/Zamiell/isaac-racing-server`
-* `sqlite3 database.sqlite < install/database_schema.sql`
-* `nano main.go`
-  * Change the constants near the top of the file to your liking.
-* `cp .env_template .env && nano .env`
-  * Fill in the values.
+These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will be needed for Windows installations.
+
+* Install Go:
+  * `sudo add-apt-repository ppa:longsleep/golang-backports`
+  * `sudo apt update`
+  * `sudo apt install golang-go -y`
+* Install SQLite3:
+   * `sudo apt install sqlite3 -y`
+* Clone the server:
+  * `go get github.com/Zamiell/isaac-racing-server`
+  * `cd $GOPATH/Zamiell/isaac-racing-server`
+* Set up the database:
+  * `sqlite3 database.sqlite < install/database_schema.sql`
+* Set up the configuration:
+  * `nano main.go` (change the constants near the top of the file to your liking)
+* Set up the environment values:
+  * `cp .env_template .env`
+  * `nano .env` (fill in the values)
 
 <br />
 
