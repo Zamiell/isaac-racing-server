@@ -86,7 +86,7 @@ CREATE TABLE race_participants (
     seed               VARCHAR(50)    NOT NULL  DEFAULT "-",
     starting_item      INT            NOT NULL  DEFAULT 0, /* Determined by seeing if room count is > 0 */
     place              INT            NOT NULL, /* -1 is quit, -2 is disqualified */
-    datetime_finished  DATETIME       NOT NULL, /* Defaults to the current time but should always be specified */
+    datetime_finished  DATETIME       NOT NULL,
     run_time           INT            NOT NULL, /* in milliseconds */
     comment            NVARCHAR(150)  NOT NULL  DEFAULT "-",
 
@@ -130,7 +130,7 @@ CREATE TABLE banned_users (
     user_id            INT            NOT NULL,
     admin_responsible  INT            NOT NULL,
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
-    datetime_banned    DATETIME       NOT NULL, /* Defaults to the current time */
+    datetime_banned    DATETIME       NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
@@ -143,7 +143,7 @@ CREATE TABLE banned_ips (
     ip                 VARCHAR(40)    NOT NULL,
     admin_responsible  INT            NOT NULL,
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
-    datetime_banned    DATETIME       NOT NULL, /* Defaults to the current time */
+    datetime_banned    DATETIME       NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
@@ -155,7 +155,7 @@ CREATE TABLE muted_users (
     user_id            INT            NOT NULL,
     admin_responsible  INT            NOT NULL,
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
-    datetime_muted     DATETIME       NOT NULL, /* Defaults to the current time */
+    datetime_muted     DATETIME       NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
@@ -168,7 +168,7 @@ CREATE TABLE chat_log (
     room           VARCHAR(50)    NOT NULL,
     user_id        INT            NOT NULL,
     message        NVARCHAR(200)  NOT NULL,
-    datetime_sent  DATETIME       NOT NULL, /* Defaults to the current time */
+    datetime_sent  DATETIME       NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
@@ -182,7 +182,7 @@ CREATE TABLE chat_log_pm (
     recipient_id   INT            NOT NULL,
     user_id        INT            NOT NULL,
     message        NVARCHAR(500)  NOT NULL,
-    datetime_sent  DATETIME       NOT NULL, /* Defaults to the current time */
+    datetime_sent  DATETIME       NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(recipient_id) REFERENCES users(id)
@@ -204,7 +204,7 @@ CREATE TABLE user_achievements (
     id                 INT        NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
     user_id            INT        NOT NULL,
     achievement_id     INT        NOT NULL,
-    datetime_achieved  DATETIME   NOT NULL, /* Defaults to the current time */
+    datetime_achieved  DATETIME   NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(achievement_id) REFERENCES achievement(id),

@@ -12,8 +12,8 @@ import (
 
 const (
 	domain       = "isaacracing.net"
-	useLocalhost = true // If true, it will use "localhost" instead of the above domain
-	useSSL       = false
+	useLocalhost = false // If true, it will use "localhost" instead of the above domain
+	useSSL       = true
 	sslCertFile  = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
 	sslKeyFile   = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
 )

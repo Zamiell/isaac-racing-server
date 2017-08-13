@@ -2,6 +2,8 @@ package models
 
 import (
 	"database/sql"
+
+	"github.com/Zamiell/isaac-racing-server/src/log"
 )
 
 type RaceParticipants struct{}
@@ -20,6 +22,7 @@ type Racer struct {
 }
 
 func (*RaceParticipants) Insert(raceID int, racer *Racer) error {
+	log.Debug("datetime_joined:", racer.DatetimeJoined)
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
 		INSERT INTO race_participants (
