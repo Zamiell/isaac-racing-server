@@ -82,11 +82,11 @@ CREATE TABLE race_participants (
     id                 INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
     user_id            INT            NOT NULL,
     race_id            INT            NOT NULL,
-    datetime_joined    TIMESTAMP      NOT NULL  DEFAULT NULL,
+    datetime_joined    TIMESTAMP      NOT NULL  DEFAULT 0,
     seed               VARCHAR(50)    NOT NULL,
     starting_item      INT            NOT NULL, /* Determined by seeing if room count is > 0 */
     place              INT            NOT NULL, /* -1 is quit, -2 is disqualified */
-    datetime_finished  TIMESTAMP      NOT NULL  DEFAULT NULL,
+    datetime_finished  TIMESTAMP      NOT NULL  DEFAULT 0,
     run_time           INT            NOT NULL, /* in milliseconds */
     comment            NVARCHAR(150)  NOT NULL,
 
