@@ -5,7 +5,6 @@ package main
 */
 
 /*
-
 // Sent in the "roomSetMuted" command (in the "adminMute" and "adminUnmute" functions)
 type RoomSetMutedMessage struct {
 	Room  string `json:"room"`
@@ -694,26 +693,5 @@ func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Log the demotion
 	log.Info("User \"" + username + "\" demoted \"" + recipient + "\" to a normal user.")
-}
-
-func websocketAdminMessage(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
-	functionName := "adminMessage"
-	username := conn.Username
-	message := data.Message
-
-	// Validate that the user is an admin
-	if conn.Admin != 2 {
-		log.Warning("User \"" + username + "\" tried to send a server broadcast, but they are not an administrator.")
-		websocketError(s, d.Command, "Only administrators can do that.")
-		return
-	}
-
-	// Send everyone the server broadcast notification
-	for _, conn := range connectionMap.m {
-		conn.Connection.Emit("adminMessage", &RoomMessageMessage{
-			Message: message,
-		})
-	}
 }
 */

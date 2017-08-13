@@ -59,6 +59,9 @@ func websocketInit() {
 	commandHandlerMap["profileSetStream"] = websocketProfileSetStream
 
 	// Admin commands
+	commandHandlerMap["adminMessage"] = websocketAdminMessage
+	commandHandlerMap["adminShutdown"] = websocketAdminShutdown
+	commandHandlerMap["adminUnshutdown"] = websocketAdminUnshutdown
 	/*
 		commandHandlerMap["adminBan"] = websocketAdminBan
 		commandHandlerMap["adminUnban"] = websocketAdminUnban
@@ -68,7 +71,7 @@ func websocketInit() {
 		commandHandlerMap["adminUnmute"] = websocketAdminUnmute
 		commandHandlerMap["adminPromote"] = websocketAdminPromote
 		commandHandlerMap["adminDemote"] = websocketAdminDemote
-		commandHandlerMap["adminMessage"] = websocketAdminMessage
+
 	*/
 
 	// Miscellaneous

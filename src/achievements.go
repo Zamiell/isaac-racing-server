@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/Zamiell/isaac-racing-server/src/log"
 )
 
@@ -275,7 +277,10 @@ func achievements11_14(userID int, username string, userAchievements []int) {
 
 func achievementsGive(userID int, username string, achievementID int) {
 	// Give them the achivement in the database
-	db.UserAchievements.Insert(userID, achievementID)
+	if err := db.UserAchievements.Insert(userID, achievementID); err != nil {
+		log.Error("Failed to give achivement #"+strconv.Itoa(achievementID)+" to user \""+username+"\":", err)
+		return
+	}
 
 	// Send them a notification that they got this achievement
 	// (they should not be offline, but check just in case they went offline immediately after finishing)

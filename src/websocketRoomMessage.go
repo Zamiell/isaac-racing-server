@@ -101,9 +101,6 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 				username,
 				d.Message,
 			})
-		} else {
-			log.Error("Failed to get the connection for user \"" + user.Name + "\" while sending a message from user \"" + username + "\" to room \"" + d.Room + "\".")
-			continue
 		}
 	}
 

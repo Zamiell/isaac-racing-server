@@ -64,3 +64,12 @@ type RaceStartMessage struct {
 	ID   int   `json:"id"`
 	Time int64 `json:"time"`
 }
+
+/*
+	Admin data types
+*/
+
+// Sent in the "adminMessage" command (in the "websocketHandleConnect" and "websocketAdminMessage" functions)
+type AdminMessageMessage struct {
+	Message string `json:"message"`
+}

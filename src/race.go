@@ -107,7 +107,10 @@ func (race *Race) SetAllPlaceMid() {
 				// Sheol is StageType 0 and the Dark Room is StageType 0
 				// Those are considered ahead of Cathedral and The Chest
 				racer.PlaceMid++
-			} else if racer2.FloorNum == racer.FloorNum && racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
+			} else if racer2.FloorNum == racer.FloorNum &&
+				racer2.StageType == racer.StageType &&
+				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
+
 				racer.PlaceMid++
 			}
 		}
@@ -239,7 +242,10 @@ func (race *Race) Finish() {
 		Captain:         race.Captain,
 		DatetimeStarted: race.DatetimeStarted,
 	}
-	db.Races.Finish(databaseRace)
+	if err := db.Races.Finish(databaseRace); err != nil {
+		log.Error("Failed to write race #"+strconv.Itoa(race.ID)+" to the database:", err)
+		return
+	}
 
 	for _, racer := range race.Racers {
 		databaseRacer := &models.Racer{
@@ -252,14 +258,35 @@ func (race *Race) Finish() {
 			RunTime:          racer.RunTime,
 			Comment:          racer.Comment,
 		}
-		db.RaceParticipants.Insert(race.ID, databaseRacer)
+		if err := db.RaceParticipants.Insert(race.ID, databaseRacer); err != nil {
+			log.Error("Failed to write the RaceParticipants row for \""+race.Name+"\" to the database:", err)
+			return
+		}
 
 		for _, item := range racer.Items {
-			db.RaceParticipantItems.Insert(racer.ID, race.ID, item.ID, item.FloorNum, item.StageType)
+			if err := db.RaceParticipantItems.Insert(
+				racer.ID,
+				race.ID,
+				item.ID,
+				item.FloorNum,
+				item.StageType,
+			); err != nil {
+				log.Error("Failed to write the RaceParticipantItems row for \""+race.Name+"\" to the database:", err)
+				return
+			}
 		}
 
 		for _, room := range racer.Rooms {
-			db.RaceParticipantRooms.Insert(racer.ID, race.ID, room.ID, room.FloorNum, room.StageType)
+			if err := db.RaceParticipantRooms.Insert(
+				racer.ID,
+				race.ID,
+				room.ID,
+				room.FloorNum,
+				room.StageType,
+			); err != nil {
+				log.Error("Failed to write the RaceParticipantRooms row for \""+race.Name+"\" to the database:", err)
+				return
+			}
 		}
 	}
 }

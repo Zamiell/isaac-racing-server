@@ -138,9 +138,6 @@ func websocketHandleConnect(s *melody.Session) {
 	}
 
 	// Send them the message(s) of the day
-	type AdminMessageMessage struct {
-		Message string `json:"message"`
-	}
 	websocketEmit(s, "adminMessage", &AdminMessageMessage{
 		"[Server Notice] Version 2.0 of the server is here! Please report bugs in the Isaac Discord chat: https://discord.gg/JzbhWQb",
 	})
