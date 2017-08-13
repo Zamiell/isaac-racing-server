@@ -20,8 +20,8 @@ CREATE TABLE users (
     steam_id             BIGINT        NOT NULL  UNIQUE, /* All authentication is through Steam, so we don't need to store a password for the user */
     /* steam_id must be a BIGINT, as they are 17 digits long */
     username             NVARCHAR(50)  NOT NULL  UNIQUE, /* MariaDB is case insensitive by default, which is what we want */
-    datetime_created     DATETIME      NOT NULL  DEFAULT NOW(),
-    datetime_last_login  DATETIME      NOT NULL  DEFAULT NOW(),
+    datetime_created     TIMESTAMP     NOT NULL  DEFAULT NOW(),
+    datetime_last_login  TIMESTAMP     NOT NULL  DEFAULT NOW(),
     last_ip              VARCHAR(40)   NOT NULL,
     admin                INT           NOT NULL  DEFAULT 0, /* 0 is not an admin, 1 is a staff, 2 is a full administrator */
     verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitamate player on the leaderboard */
@@ -31,7 +31,7 @@ CREATE TABLE users (
     seeded_trueskill_change  FLOAT      NOT NULL  DEFAULT 0,
     seeded_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 0,
     seeded_num_races         INT        NOT NULL  DEFAULT 0,
-    seeded_last_race         DATETIME   NULL      DEFAULT NULL,
+    seeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Unseeded leaderboard values */
     unseeded_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
@@ -40,7 +40,7 @@ CREATE TABLE users (
     unseeded_num_forfeits      INT        NOT NULL  DEFAULT 0,
     unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
     unseeded_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_last_race         DATETIME   NULL      DEFAULT NULL,
+    unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Stream values */
     stream_url                 NVARCHAR(50)  NOT NULL  DEFAULT "-", /* Their stream URL */
@@ -69,9 +69,9 @@ CREATE TABLE races (
     /* Other fields */
     seed               VARCHAR(50)  NULL      DEFAULT "-",
     captain            INT          NULL,
-    datetime_created   DATETIME     NOT NULL  DEFAULT NOW(),
-    datetime_started   DATETIME     NULL,
-    datetime_finished  DATETIME     NULL,
+    datetime_created   TIMESTAMP    NOT NULL  DEFAULT NOW(),
+    datetime_started   TIMESTAMP    NULL      DEFAULT NULL,
+    datetime_finished  TIMESTAMP    NULL      DEFAULT NULL,
 
     FOREIGN KEY(captain) REFERENCES users(id)
 );
@@ -82,13 +82,13 @@ CREATE TABLE race_participants (
     id                 INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
     user_id            INT            NOT NULL,
     race_id            INT            NOT NULL,
-    datetime_joined    DATETIME       NOT NULL,
-    seed               VARCHAR(50)    NOT NULL  DEFAULT "-",
-    starting_item      INT            NOT NULL  DEFAULT 0, /* Determined by seeing if room count is > 0 */
+    datetime_joined    TIMESTAMP      NOT NULL  DEFAULT NULL,
+    seed               VARCHAR(50)    NOT NULL,
+    starting_item      INT            NOT NULL, /* Determined by seeing if room count is > 0 */
     place              INT            NOT NULL, /* -1 is quit, -2 is disqualified */
-    datetime_finished  DATETIME       NOT NULL,
+    datetime_finished  TIMESTAMP      NOT NULL  DEFAULT NULL,
     run_time           INT            NOT NULL, /* in milliseconds */
-    comment            NVARCHAR(150)  NOT NULL  DEFAULT "-",
+    comment            NVARCHAR(150)  NOT NULL,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(race_id) REFERENCES races(id),
@@ -130,7 +130,7 @@ CREATE TABLE banned_users (
     user_id            INT            NOT NULL,
     admin_responsible  INT            NOT NULL,
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
-    datetime_banned    DATETIME       NOT NULL  DEFAULT NOW(),
+    datetime_banned    TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
@@ -143,7 +143,7 @@ CREATE TABLE banned_ips (
     ip                 VARCHAR(40)    NOT NULL,
     admin_responsible  INT            NOT NULL,
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
-    datetime_banned    DATETIME       NOT NULL  DEFAULT NOW(),
+    datetime_banned    TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
@@ -155,7 +155,7 @@ CREATE TABLE muted_users (
     user_id            INT            NOT NULL,
     admin_responsible  INT            NOT NULL,
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
-    datetime_muted     DATETIME       NOT NULL  DEFAULT NOW(),
+    datetime_muted     TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
@@ -168,7 +168,7 @@ CREATE TABLE chat_log (
     room           VARCHAR(50)    NOT NULL,
     user_id        INT            NOT NULL,
     message        NVARCHAR(200)  NOT NULL,
-    datetime_sent  DATETIME       NOT NULL  DEFAULT NOW(),
+    datetime_sent  TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id)
 );
@@ -182,7 +182,7 @@ CREATE TABLE chat_log_pm (
     recipient_id   INT            NOT NULL,
     user_id        INT            NOT NULL,
     message        NVARCHAR(500)  NOT NULL,
-    datetime_sent  DATETIME       NOT NULL  DEFAULT NOW(),
+    datetime_sent  TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(recipient_id) REFERENCES users(id)
@@ -204,7 +204,7 @@ CREATE TABLE user_achievements (
     id                 INT        NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
     user_id            INT        NOT NULL,
     achievement_id     INT        NOT NULL,
-    datetime_achieved  DATETIME   NOT NULL  DEFAULT NOW(),
+    datetime_achieved  TIMESTAMP  NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     FOREIGN KEY(achievement_id) REFERENCES achievement(id),
@@ -223,7 +223,7 @@ CREATE TABLE user_season_stats (
     /* Seeded leaderboard values */
     seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
     seeded_num_races         INT        NOT NULL  DEFAULT 0,
-    seeded_last_race         DATETIME   NULL      DEFAULT NULL,
+    seeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Unseeded leaderboard values */
     unseeded_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
@@ -232,7 +232,7 @@ CREATE TABLE user_season_stats (
     unseeded_num_forfeits      INT        NOT NULL  DEFAULT 0,
     unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
     unseeded_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_last_race         DATETIME   NULL      DEFAULT NULL,
+    unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     UNIQUE(user_id, season)
