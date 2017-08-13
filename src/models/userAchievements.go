@@ -1,57 +1,51 @@
 package models
 
-/*
-	Data types
-*/
+import "database/sql"
 
 type UserAchievements struct{}
 
-/*
-	"user_achievements" table functions
-*/
-
-func (*UserAchievements) GetAll(username string) ([]int, error) {
-	// Get all the achivements for this user
-	rows, err := db.Query(`
- 		SELECT achievement_id
- 		FROM user_achievements
- 		WHERE user_id = (SELECT id FROM users WHERE username = ?)
- 		ORDER BY datetime_achieved
- 	`, username)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	// Make the list
-	var achievementList []int
-	for rows.Next() {
-		var achievement int
-		err := rows.Scan(&achievement)
-		if err != nil {
-			return nil, err
-		}
-
-		// Add it to the list
-		achievementList = append(achievementList, achievement)
-	}
-
-	return achievementList, nil
-}
-
-func (*UserAchievements) Insert(username string, achievementID int) error {
-	// Give the achievement to that user
-	stmt, err := db.Prepare(`
-		INSERT INTO user_achievements (user_id, achievement_id, datetime_achieved)
-		VALUES ((SELECT id FROM users WHERE username = ?), ?, ?)
-	`)
-	if err != nil {
+func (*UserAchievements) Insert(userID int, achievementID int) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		INSERT INTO user_achievements (user_id, achievement_id)
+		VALUES (?, ?)
+	`); err != nil {
 		return err
+	} else {
+		stmt = v
 	}
-	_, err = stmt.Exec(username, achievementID, makeTimestamp())
-	if err != nil {
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(userID, achievementID); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+func (*UserAchievements) GetAll(userID int) ([]int, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+ 		SELECT achievement_id
+ 		FROM user_achievements
+ 		WHERE user_id = ?
+ 		ORDER BY datetime_achieved
+ 	`, userID); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	var achievementList []int
+	for rows.Next() {
+		var achievementID int
+		if err := rows.Scan(&achievementID); err != nil {
+			return nil, err
+		}
+
+		achievementList = append(achievementList, achievementID)
+	}
+
+	return achievementList, nil
 }

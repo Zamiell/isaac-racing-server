@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"math"
 	"net/http"
@@ -12,10 +8,6 @@ import (
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 )
-
-/*
-	HTTP handlers
-*/
 
 func httpRaces(c *gin.Context) {
 	// Local variables

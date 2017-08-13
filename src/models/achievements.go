@@ -1,42 +1,33 @@
 package models
 
-/*
-	Data types
-*/
+import (
+	"database/sql"
+)
 
 type Achievements struct{}
 
-/*
-	"achievements" table functions
-*/
-
 func (*Achievements) Insert(id int, name string, description string) error {
-	// Add the achievement
-	stmt, err := db.Prepare(`
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
 		INSERT INTO achievements (id, name, description)
 		VALUES (?, ?, ?)
-	`)
-	if err != nil {
+	`); err != nil {
 		return err
+	} else {
+		stmt = v
 	}
-	_, err = stmt.Exec(id, name, description)
-	if err != nil {
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(id, name, description); err != nil {
 		return err
 	}
 
 	return nil
 }
 
+// Delete every row in this table
 func (*Achievements) DeleteAll() error {
-	// Delete every row in the database
-	_, err := db.Exec("DELETE FROM achievements")
-	if err != nil {
-		return err
-	}
-
-	// Vacuum, as recommended by: http://www.tutorialspoint.com/sqlite/sqlite_truncate_table.htm
-	_, err = db.Exec("VACUUM")
-	if err != nil {
+	if _, err := db.Exec("TRUNCATE achievements"); err != nil {
 		return err
 	}
 

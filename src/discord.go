@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"os"
 	"strings"
@@ -11,10 +7,6 @@ import (
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/bwmarrin/discordgo"
 )
-
-/*
-	Constants
-*/
 
 const (
 	// This is the ID of the "Isaac Speedrunning & Racing" server (guild)
@@ -24,34 +16,36 @@ const (
 	discordLobbyChannelID = "286115994621968384"
 )
 
-/*
-	Global variables
-*/
-
 var (
-	discord      *discordgo.Session
-	discordBotID string
+	discord        *discordgo.Session
+	discordEnabled = false
+	discordBotID   string
 )
 
-func discordInit() {
+/*
+	Initialization functions
+*/
 
-	if useDiscord {
-		go discordConnect()
+func discordInit() {
+	// Read the OAuth secret from the environment variable
+	// (it was loaded from the .env file in main.go)
+	token := os.Getenv("DISCORD_TOKEN")
+	if len(token) == 0 {
+		log.Info("The \"DISCORD_TOKEN\" environment variable is blank; aborting Discord bot initialization.")
+		return
 	}
+
+	discordEnabled = true
+	go discordConnect(token)
 }
 
-func discordConnect() {
-	// Local variables
-	var err error
-
-	// Read the OAuth secret from the environment variable (it was loaded from the .env file in main.go)
-	oauthToken := os.Getenv("DISCORD_OAUTH")
-
-	// Connect
-	discord, err = discordgo.New("Bot " + oauthToken) // Bot accounts must be prefixed with "Bot"
-	if err != nil {
+func discordConnect(token string) {
+	// Bot accounts must be prefixed with "Bot"
+	if d, err := discordgo.New("Bot " + token); err != nil {
 		log.Error("Error creating Discord session: ", err)
 		return
+	} else {
+		discord = d
 	}
 
 	// Register function handlers for various events
@@ -59,8 +53,7 @@ func discordConnect() {
 	discord.AddHandler(discordMessageCreate)
 
 	// Open the websocket and begin listening
-	err = discord.Open()
-	if err != nil {
+	if err := discord.Open(); err != nil {
 		log.Error("Error opening Discord session: ", err)
 	}
 }
@@ -126,7 +119,7 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 */
 
 func discordSend(channelID string, message string) {
-	if !useDiscord {
+	if !discordEnabled {
 		return
 	}
 

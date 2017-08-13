@@ -1,20 +1,13 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"encoding/json"
 	"sync"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
+	"github.com/Zamiell/isaac-racing-server/src/models"
 	melody "gopkg.in/olahol/melody.v1" // A WebSocket framework
 )
-
-/*
-	Global variables
-*/
 
 var (
 	// This is the Melody WebSocket router
@@ -57,8 +50,9 @@ func websocketInit() {
 	commandHandlerMap["raceUnready"] = websocketRaceUnready
 	commandHandlerMap["raceFinish"] = websocketRaceFinish
 	commandHandlerMap["raceQuit"] = websocketRaceQuit
-	commandHandlerMap["raceItem"] = websocketRaceItem
+	commandHandlerMap["raceSeed"] = websocketRaceSeed
 	commandHandlerMap["raceFloor"] = websocketRaceFloor
+	commandHandlerMap["raceItem"] = websocketRaceItem
 	commandHandlerMap["raceRoom"] = websocketRaceRoom
 
 	// Profile commands
@@ -139,11 +133,36 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 		streamURL = v.(string)
 	}
 
+	var twitchBotEnabled bool
+	if v, exists := s.Get("twitchBotEnabled"); !exists {
+		log.Error("Failed to get \"twitchBotEnabled\" from the session (in the \"" + d.Command + "\" function).")
+		return false
+	} else {
+		twitchBotEnabled = v.(bool)
+	}
+
+	var twitchBotDelay int
+	if v, exists := s.Get("twitchBotDelay"); !exists {
+		log.Error("Failed to get \"twitchBotDelay\" from the session (in the \"" + d.Command + "\" function).")
+		return false
+	} else {
+		twitchBotDelay = v.(int)
+	}
+
 	/*
 		Stick them inside the data object
 	*/
 
-	d.v = &SessionValues{userID, username, admin, muted, streamURL}
+	d.v = &models.SessionValues{
+		UserID:           userID,
+		Username:         username,
+		Admin:            admin,
+		Muted:            muted,
+		StreamURL:        streamURL,
+		TwitchBotEnabled: twitchBotEnabled,
+		TwitchBotDelay:   twitchBotDelay,
+		Banned:           false,
+	}
 	return true
 }
 
@@ -152,7 +171,7 @@ func websocketEmit(s *melody.Session, command string, d interface{}) {
 	// Convert the data to JSON
 	var ds string
 	if dj, err := json.Marshal(d); err != nil {
-		log.Error("Failed to marshal data when writing to a Melody session.")
+		log.Error("Failed to marshal data when writing to a Melody session:", err)
 		return
 	} else {
 		ds = string(dj)
@@ -162,7 +181,7 @@ func websocketEmit(s *melody.Session, command string, d interface{}) {
 	msg := command + " " + ds
 	bytes := []byte(msg)
 	if err := s.Write(bytes); err != nil {
-		log.Error("Failed to write to Melody session.")
+		// This can routinely fail if the session is closed, so just return
 		return
 	}
 }
@@ -180,13 +199,19 @@ func websocketError(s *melody.Session, functionName string, message string) {
 		// Specify a default error message
 		message = "Something went wrong. Please contact an administrator."
 	}
-	websocketEmit(s, "error", &ErrorMessage{functionName, message})
+	websocketEmit(s, "error", &ErrorMessage{
+		functionName,
+		message,
+	})
 }
 
 // Sent to the client if something unexpected happened
 // (client-side, this will make a popup appear but still allow them to continue what they were doing)
 func websocketWarning(s *melody.Session, functionName string, message string) {
-	websocketEmit(s, "warning", &ErrorMessage{functionName, message})
+	websocketEmit(s, "warning", &ErrorMessage{
+		functionName,
+		message,
+	})
 }
 
 func websocketClose(s *melody.Session) {

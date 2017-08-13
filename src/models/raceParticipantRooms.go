@@ -1,43 +1,31 @@
 package models
 
-/*
-	Data types
-*/
+import (
+	"database/sql"
+)
 
 type RaceParticipantRooms struct{}
 
-/*
-	"race_participant_rooms" table functions
-*/
-
-func (*RaceParticipantRooms) Insert(userID int, raceID int, roomID string) error {
-	// Add the room to the list of rooms visited for this person's race
-	stmt, err := db.Prepare(`
-		INSERT INTO race_participant_rooms (race_participant_id, room_id)
-		VALUES ((SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?), ?)
-	`)
-	if err != nil {
+// Add the room to the list of rooms visited for this person's race
+func (*RaceParticipantRooms) Insert(userID int, raceID int, roomID string, floorNum int, stageType int) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		INSERT INTO race_participant_rooms (race_participant_id, room_id, floor_num, stage_type)
+		VALUES ((SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?), ?, ?, ?)
+	`); err != nil {
 		return err
+	} else {
+		stmt = v
 	}
-	_, err = stmt.Exec(userID, raceID, roomID)
-	if err != nil {
-		return err
-	}
+	defer stmt.Close()
 
-	return nil
-}
-
-func (*RaceParticipantRooms) Reset(userID int, raceID int) error {
-	// The racer reset, so remove all of their rooms visited for this race
-	stmt, err := db.Prepare(`
-		DELETE FROM race_participant_rooms
-		WHERE race_participant_id = (SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?)
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(userID, raceID)
-	if err != nil {
+	if _, err := stmt.Exec(
+		userID,
+		raceID,
+		roomID,
+		floorNum,
+		stageType,
+	); err != nil {
 		return err
 	}
 

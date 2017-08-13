@@ -1,581 +1,193 @@
 package models
 
-/*
-	Imports
-*/
-
 import (
 	"database/sql"
-	"strings"
-)
 
-/*
-	Data types
-*/
+	"github.com/Zamiell/isaac-racing-server/src/log"
+)
 
 type Races struct{}
 
-/*
-	"races" table functions
-*/
-
-func (*Races) Exists(raceID int) (bool, error) {
-	// Find out if the requested race exists
-	var id int
-	err := db.QueryRow(`
-		SELECT id
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&id)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	} else {
-		return true, nil
-	}
+// This mirrors the "races" table row
+// (it contains a subset of the information in the non-models Race struct)
+type Race struct {
+	ID            int
+	Name          string
+	Ranked        bool
+	Solo          bool
+	Format        string
+	Character     string
+	Goal          string
+	StartingBuild int
+	Seed          string
+	Captain       string
+	/* This is stored in the database as a user_id reference, but we convert it during the SELECT */
+	DatetimeCreated  int64
+	DatetimeStarted  int64
+	DatetimeFinished int64
 }
 
-func (*Races) GetCurrentRaces() ([]Race, error) {
-	// Get the current races
-	rows, err := db.Query(`
-		SELECT
-			id,
-			name,
-			status,
-			type,
-			solo,
-			format,
-			character,
-			goal,
-			starting_build,
-			seed,
-			datetime_created,
-			datetime_started,
-			(SELECT username FROM users WHERE id = captain) as captain
-		FROM races
-		WHERE status != 'finished'
-		ORDER BY datetime_created
-	`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	// We have to initialize this way to avoid sending a null on an empty array: https://danott.co/posts/json-marshalling-empty-slices-to-empty-arrays-in-go.html
-	raceList := make([]Race, 0)
-	for rows.Next() {
-		var race Race
-		err2 := rows.Scan(
-			&race.ID,
-			&race.Name,
-			&race.Status,
-			&race.Ruleset.Type,
-			&race.Ruleset.Solo,
-			&race.Ruleset.Format,
-			&race.Ruleset.Character,
-			&race.Ruleset.Goal,
-			&race.Ruleset.StartingBuild,
-			&race.Seed,
-			&race.DatetimeCreated,
-			&race.DatetimeStarted,
-			&race.Captain,
-		)
-		if err2 != nil {
-			return nil, err
-		}
-
-		// Add it to the list
-		raceList = append(raceList, race)
-	}
-
-	// Get the names of the people in this race
-	rows, err = db.Query(`
-		SELECT races.id, users.username
-		FROM races
-			JOIN race_participants ON race_participants.race_id = races.id
-			JOIN users ON users.id = race_participants.user_id
-		WHERE races.status != 'finished'
-		ORDER BY race_participants.datetime_joined
-	`)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	// For each name that we found, append it to the appropriate place in the raceList object
-	for rows.Next() {
-		var raceID int
-		var username string
-		err := rows.Scan(&raceID, &username)
-		if err != nil {
-			return nil, err
-		}
-
-		// Find the race in the raceList object
-		for i, race := range raceList {
-			if race.ID == raceID {
-				raceList[i].Racers = append(race.Racers, username)
-				break
-			}
-		}
-	}
-
-	return raceList, nil
-}
-
-func (*Races) GetStatus(raceID int) (string, error) {
-	// Get the status of the race
-	var status string
-	err := db.QueryRow(`
-		SELECT status
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&status)
-	if err != nil {
-		return "", err
-	}
-
-	return status, nil
-}
-
-func (*Races) GetDatetimeStarted(raceID int) (int, error) {
-	// Get the time that the race started
-	var datetimeStarted int
-	err := db.QueryRow(`
-		SELECT datetime_started
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&datetimeStarted)
-	if err != nil {
-		return 0, err
-	}
-
-	return datetimeStarted, nil
-}
-
-func (*Races) GetRuleset(raceID int) (Ruleset, error) {
-	// Get the ruleset of the race
-	var ruleset Ruleset
-	err := db.QueryRow(`
-		SELECT solo, format, character, goal, starting_build
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&ruleset.Solo, &ruleset.Format, &ruleset.Character, &ruleset.Goal, &ruleset.StartingBuild)
-	if err != nil {
-		return ruleset, err
-	}
-
-	return ruleset, nil
-}
-
-func (*Races) CheckName(name string) (bool, error) {
-	// Check to see if there are non-finished races with the same name
-	rows, err := db.Query(`
-		SELECT name
-		FROM races
-		WHERE status != 'finished'
-	`)
-	if err != nil {
-		return false, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		var raceName string
-		err := rows.Scan(&raceName)
-		if err != nil {
-			return false, err
-		}
-
-		if strings.ToLower(name) == strings.ToLower(raceName) && name != "-" {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
-
-func (*Races) CheckStatus(raceID int, status string) (bool, error) {
-	// Check to see if the race is set to this status
-	var id int
-	err := db.QueryRow(`
-		SELECT id
-		FROM races
-		WHERE id = ? AND status = ?
-	`, raceID, status).Scan(&id)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	} else {
-		return true, nil
-	}
-}
-
-func (*Races) CheckCaptain(raceID int, captain int) (bool, error) {
-	// Check to see if this user is the captain of the race
-	var id int
-	err := db.QueryRow(`
-		SELECT id
-		FROM races
-		WHERE id = ? AND captain = ?
-	`, raceID, captain).Scan(&id)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	} else {
-		return true, nil
-	}
-}
-
-func (*Races) CheckSolo(raceID int) (bool, error) {
-	// Check to see if this is a solo race
-	// (only 1 person is able to join)
-	var id int
-	err := db.QueryRow(`
-		SELECT solo
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&id)
-	if err != nil {
-		return false, err
-	} else if id == 0 {
-		return false, nil
-	} else {
-		return true, nil
-	}
-}
-
-func (*Races) CheckSeededRanked(raceID int) (bool, error) {
-	// Check to see if this is a seeded and ranked race
-	var raceType int
-	var raceFormat string
-	err := db.QueryRow(`
-		SELECT type, format
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&raceType, &raceFormat)
-	if err != nil {
-		return false, err
-	} else if raceType == 1 && raceFormat == "seeded" {
-		return true, nil
-	} else {
-		return false, nil
-	}
-}
-
-func (*Races) CheckUnseededRanked(raceID int) (bool, error) {
-	// Check to see if this is an unseeded and ranked race
-	var raceType int
-	var raceFormat string
-	err := db.QueryRow(`
-		SELECT type, format
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&raceType, &raceFormat)
-	if err != nil {
-		return false, err
-	} else if raceType == 1 && raceFormat == "unseeded" {
-		return true, nil
-	} else {
-		return false, nil
-	}
-}
-
-func (*Races) SetStatus(raceID int, status string) error {
-	// Set the new status for this race
-	stmt, err := db.Prepare(`
-		UPDATE races
-		SET status = ?
-		WHERE id = ?
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(status, raceID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*Races) SetRuleset(raceID int, ruleset Ruleset) error {
-	// Set the new ruleset for this race
-	stmt, err := db.Prepare(`
-		UPDATE races
-		SET ruleset = ?, character = ?, goal = ?, starting_build = ?
-		WHERE id = ?
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(ruleset.Format, ruleset.Character, ruleset.Goal, ruleset.StartingBuild, raceID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*Races) SetSeed(raceID int, seed string) error {
-	// Set a seed for this race
-	stmt, err := db.Prepare(`
-		UPDATE races
-		SET seed = ?
-		WHERE id = ?
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(seed, raceID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*Races) Start(raceID int) error {
-	// Change the status for this race to "in progress" and set "datetime_started" equal to now
-	stmt, err := db.Prepare(`
-		UPDATE races
-		SET status = 'in progress', datetime_started = ?
-		WHERE id = ?
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(makeTimestamp(), raceID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*Races) Finish(raceID int) error {
-	// Change the status for this race to "finished" and set "datetime_finished" equal to now
-	stmt, err := db.Prepare(`
-		UPDATE races
-		SET status = 'finished', datetime_finished = (strftime('%s', 'now'))
-		WHERE id = ?
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(raceID)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*Races) Insert(name string, ruleset Ruleset, userID int) (int, error) {
-	// Add the race to the database
-	var raceID int
-	if stmt, err := db.Prepare(`
-		INSERT INTO races (
-			name,
-			type,
-			solo,
-			format,
-			character,
-			goal,
-			starting_build,
-			captain,
-			datetime_created
-		)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+// Create a new row in the races table with no data associated with it
+// (see the large comment in the "websocketRaceCreate" function for an
+// explanation)
+func (*Races) Insert() (int, error) {
+	var result sql.Result
+	if v, err := db.Exec(`
+		INSERT INTO races ()
+		VALUES ()
 	`); err != nil {
 		return 0, err
 	} else {
-		result, err := stmt.Exec(
-			name,
-			ruleset.Type,
-			ruleset.Solo,
-			ruleset.Format,
-			ruleset.Character,
-			ruleset.Goal,
-			ruleset.StartingBuild,
-			userID,
-			makeTimestamp(),
-		)
-		if err != nil {
-			return 0, err
-		}
-		raceID64, err := result.LastInsertId()
-		if err != nil {
-			return 0, err
-		}
+		result = v
+	}
+
+	var raceID int
+	if raceID64, err := result.LastInsertId(); err != nil {
+		return 0, err
+	} else {
 		raceID = int(raceID64)
 	}
 
 	return raceID, nil
 }
 
-func (*Races) Cleanup() ([]int, error) {
-	// Get the current races
-	rows, err := db.Query(`
+func (*Races) Delete(raceID int) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		DELETE FROM races
+		WHERE id = ?
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(raceID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+/*
+// Used in the "?" function
+// TODO probably needed for set comment
+func (*Races) Exists(raceID int) (bool, error) {
+	var id int
+	if err := db.QueryRow(`
 		SELECT id
 		FROM races
-		WHERE status = 'open' OR status = 'starting'
+		WHERE id = ?
+	`, raceID).Scan(&id); err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
+*/
+
+// Now that the race is over, fill in the blank race in the database with all of
+// the information that the server had on hand
+func (*Races) Finish(race *Race) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE races
+		SET
+			finished = 1,
+			name = ?,
+			ranked = ?,
+			solo = ?,
+			format = ?,
+			player_type = ?,
+			goal = ?,
+			starting_build = ?,
+			seed = ?,
+			captain = (SELECT id FROM users where username = ?),
+			datetime_started = FROM_UNIXTIME(?),
+			datetime_finished = NOW()
+		WHERE id = ?
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	// Convert some bools to ints
+	ranked := 0
+	if race.Ranked {
+		ranked = 1
+	}
+	solo := 0
+	if race.Solo {
+		solo = 1
+	}
+
+	if _, err := stmt.Exec(
+		race.Name,
+		ranked,
+		solo,
+		race.Format,
+		race.Character,
+		race.Goal,
+		race.StartingBuild,
+		race.Seed,
+		race.Captain,
+		race.DatetimeStarted,
+		race.ID,
+	); err != nil {
+		return err
+	}
+
+	log.Debug("race.DatetimeStarted:", race.DatetimeStarted)
+
+	return nil
+}
+
+// Clean up any unfinished races from the database
+func (*Races) Cleanup() ([]int, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT id
+		FROM races
+		WHERE finished = 0
 		ORDER BY id
-	`)
-	if err != nil {
+	`); err != nil {
 		return nil, err
+	} else {
+		rows = v
 	}
 	defer rows.Close()
 
-	// Iterate over the current races
 	var leftoverRaces []int
 	for rows.Next() {
 		var raceID int
-		err := rows.Scan(&raceID)
-		if err != nil {
+		if err := rows.Scan(&raceID); err != nil {
 			return nil, err
 		}
-
 		leftoverRaces = append(leftoverRaces, raceID)
-	}
-
-	// Delete all of the entries from the race_participants table (we don't want to use RaceParticipants.Delete because we don't care about captains)
-	for _, raceID := range leftoverRaces {
-		stmt, err := db.Prepare(`
-			DELETE FROM race_participants
-			WHERE race_id = ?
-		`)
-		if err != nil {
-			return nil, err
-		}
-		_, err = stmt.Exec(raceID)
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	// Delete the entries from the races table
 	for _, raceID := range leftoverRaces {
-		stmt, err := db.Prepare(`
+		var stmt *sql.Stmt
+		if v, err := db.Prepare(`
 			DELETE FROM races
 			WHERE id = ?
-		`)
-		if err != nil {
+		`); err != nil {
 			return nil, err
+		} else {
+			stmt = v
 		}
-		_, err = stmt.Exec(raceID)
-		if err != nil {
+		defer stmt.Close()
+
+		if _, err := stmt.Exec(raceID); err != nil {
 			return nil, err
 		}
 	}
 
 	return leftoverRaces, nil
-}
-
-func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, int, error) {
-	raceOffset := currentPage * racesPerPage
-	rows, err := db.Query(`
-		SELECT
-			r.id,
-			r.datetime_started,
-			r.type,
-			r.format,
-			r.character,
-			r.goal
-		FROM
-			races r
-		GROUP BY
-			r.id
-		ORDER BY
-			r.id DESC
-		LIMIT
-			?
-		OFFSET
-			?
-	`, racesPerPage, raceOffset)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer rows.Close()
-	raceHistory := make([]RaceHistory, 0)
-	for rows.Next() {
-		var race RaceHistory
-		err = rows.Scan(
-			&race.RaceID,
-			&race.RaceDate,
-			&race.RaceType,
-			&race.RaceFormat,
-			&race.RaceChar,
-			&race.RaceGoal,
-		)
-		race.RaceParticipants = nil
-		if err != nil {
-			return raceHistory, 0, err
-		}
-		rows2, err2 := db.Query(`
-			SELECT
-				u.username,
-				rp.place,
-				cast((rp.datetime_finished-r.datetime_started)/1000/60 as text) || ":" || substr('00'||cast((rp.datetime_finished-r.datetime_started)/1000%60 as text),-2,2),
-				rp.comment
-			FROM
-				race_participants rp
-			LEFT JOIN
-				users u
-				ON u.id = rp.user_id
-			LEFT JOIN
-				races r
-				ON r.id = rp.race_id
-			WHERE
-				rp.race_id = ?
-			ORDER BY
-				CASE WHEN rp.place is -1 THEN 1 ELSE 0 END,
-				rp.place
-			`, race.RaceID)
-		if err2 != nil {
-			return raceHistory, 0, err
-		}
-		raceRacers := make([]RaceHistoryParticipants, 0)
-		for rows2.Next() {
-			var racer RaceHistoryParticipants
-			err2 = rows2.Scan(
-				&racer.RacerName,
-				&racer.RacerPlace,
-				&racer.RacerTime,
-				&racer.RacerComment,
-			)
-			if err2 != nil {
-				return raceHistory, 0, err
-			}
-
-			raceRacers = append(raceRacers, racer)
-		}
-		race.RaceParticipants = raceRacers
-		raceHistory = append(raceHistory, race)
-	}
-	rows, err = db.Query(`
-		SELECT
-			count(id)
-		FROM
-			races
-		WHERE
-			status = 'finished'
-	`)
-	if err != nil {
-		return raceHistory, 0, err
-	}
-	defer rows.Close()
-	var allRaceCount int
-	for rows.Next() {
-		err = rows.Scan(&allRaceCount)
-		if err != nil {
-			return raceHistory, allRaceCount, err
-		}
-	}
-
-	return raceHistory, allRaceCount, nil
-
 }

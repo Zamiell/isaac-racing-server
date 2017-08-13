@@ -1,17 +1,9 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
-
-/*
-	WebSocket debug command functions
-*/
 
 func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables

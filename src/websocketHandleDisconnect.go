@@ -13,17 +13,27 @@ func websocketHandleDisconnect(s *melody.Session) {
 		log.Error("Did not complete the \"" + d.Command + "\" function. There is now likely orphaned entries in various data structures.")
 		return
 	}
-	userID := d.v.UserID
 	username := d.v.Username
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
 	defer commandMutex.Unlock()
 
-	// Delete the connection from the session map
-	delete(websocketSessions, username) // This will do nothing if the entry doesn't exist
+	// Eject this player from any races that have not started yet
+	for raceID, race := range races {
+		if race.Status != "open" {
+			continue
+		}
+
+		if _, ok := race.Racers[username]; ok {
+			d.ID = raceID
+			websocketRaceLeave(s, d)
+		}
+	}
 
 	// Leave all the chat rooms that this person is in
+	// (we want this part after the race ejection because that step involves leaving rooms)
+	// (at this point the user should only be in the lobby, but iterate through all of the chat rooms to make sure)
 	for room, users := range chatRooms {
 		for _, user := range users {
 			if user.Name == username {
@@ -34,29 +44,8 @@ func websocketHandleDisconnect(s *melody.Session) {
 		}
 	}
 
-	// Check to see if this user is in any races that are not already in progress
-	raceIDs, err := db.RaceParticipants.GetNotStartedRaces(userID)
-	if err != nil {
-		log.Error("Database error:", err)
-		return
-	}
-
-	// Iterate over the races that they are currently in
-	for _, raceID := range raceIDs {
-		// Remove this user from the participants list for that race
-		if err := db.RaceParticipants.Delete(username, raceID); err != nil {
-			log.Error("Database error:", err)
-			return
-		}
-
-		// Send everyone a notification that the user left the race
-		for _, s := range websocketSessions {
-			websocketEmit(s, "raceLeft", &RaceLeftMessage{raceID, username})
-		}
-
-		// Check to see if the race should start
-		raceCheckStart(raceID)
-	}
+	// Delete the connection from the session map
+	delete(websocketSessions, username)
 
 	// Log the disconnection
 	log.Info("User \""+username+"\" disconnected;", len(websocketSessions), "user(s) now connected.")

@@ -1,9 +1,5 @@
 package log
 
-/*
-	Imports
-*/
-
 import (
 	"errors"
 	"fmt"
@@ -12,10 +8,6 @@ import (
 	raven "github.com/getsentry/raven-go" // The Sentry client for Golang
 	logging "github.com/op/go-logging"    // A logging library
 )
-
-/*
-	Global variables
-*/
 
 var (
 	log *logging.Logger

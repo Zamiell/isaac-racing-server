@@ -1,29 +1,26 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"net"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
+	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
 /*
 	Validate that they have logged in before opening a WebSocket connection
+
+	Essentially, all we need to do is check to see if they have any cookie
+	values stored, because that implies that they got through the "httpLogin"
+	less than 5 seconds ago. But we also do a few other checks to be thorough.
 */
 
-func httpValidateSession(c *gin.Context) *SessionValues {
+func httpValidateSession(c *gin.Context) *models.SessionValues {
 	// Local variables
 	r := c.Request
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-
-	// Lock the command mutex for the duration of the function to prevent database locks
-	commandMutex.Lock()
-	defer commandMutex.Unlock()
 
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
@@ -34,8 +31,8 @@ func httpValidateSession(c *gin.Context) *SessionValues {
 		return nil
 	}
 
-	// If they have logged in, their cookie should have values of
-	// "userID", "username", "admin", "muted", and "streamURL"
+	// If they have logged in, their cookie should have values matching the
+	// SessionValues struct
 	session := sessions.Default(c)
 	var userID int
 	if v := session.Get("userID"); v == nil {
@@ -72,6 +69,20 @@ func httpValidateSession(c *gin.Context) *SessionValues {
 	} else {
 		streamURL = v.(string)
 	}
+	var twitchBotEnabled bool
+	if v := session.Get("muted"); v == nil {
+		log.Info("Unauthorized WebSocket handshake detected from \"" + ip + "\" (failed twitchBotEnabled check).")
+		return nil
+	} else {
+		twitchBotEnabled = v.(bool)
+	}
+	var twitchBotDelay int
+	if v := session.Get("admin"); v == nil {
+		log.Info("Unauthorized WebSocket handshake detected from \"" + ip + "\" (failed twitchBotDelay check).")
+		return nil
+	} else {
+		twitchBotDelay = v.(int)
+	}
 
 	// Check for sessions that belong to orphaned accounts
 	if userExists, err := db.Users.Exists(username); err != nil {
@@ -83,20 +94,23 @@ func httpValidateSession(c *gin.Context) *SessionValues {
 	}
 
 	// Check to see if this user is banned
-	if userIsBanned, err := db.BannedUsers.Check(username); err != nil {
+	if userIsBanned, err := db.BannedUsers.Check(userID); err != nil {
 		log.Error("Database error:", err)
 		return nil
 	} else if userIsBanned {
-		log.Info("User \"" + username + "\" tried to log in, but they are banned.")
+		log.Info("User \"" + username + "\" tried to establish a WebSocket connection, but they are banned.")
 		return nil
 	}
 
 	// If they got this far, they are a valid user
-	return &SessionValues{
-		userID,
-		username,
-		admin,
-		muted,
-		streamURL,
+	return &models.SessionValues{
+		UserID:           userID,
+		Username:         username,
+		Admin:            admin,
+		Muted:            muted,
+		StreamURL:        streamURL,
+		TwitchBotEnabled: twitchBotEnabled,
+		TwitchBotDelay:   twitchBotDelay,
+		Banned:           false,
 	}
 }

@@ -16,10 +16,6 @@ func httpRegister(c *gin.Context) {
 	w := c.Writer
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 
-	// Lock the command mutex for the duration of the function to prevent database locks
-	commandMutex.Lock()
-	defer commandMutex.Unlock()
-
 	/*
 		Validation
 	*/
@@ -71,11 +67,11 @@ func httpRegister(c *gin.Context) {
 	}
 
 	// Check to see if this Steam ID exists in the database
-	if userID, _, _, _, err := db.Users.Login(steamID); err != nil {
+	if sessionValues, err := db.Users.Login(steamID); err != nil {
 		log.Error("Database error:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
-	} else if userID != 0 {
+	} else if sessionValues != nil {
 		// They are trying to register a new account, but this Steam ID already exists in the database
 		log.Error("User from IP \"" + ip + "\" tried to register, but they already exist in the database.")
 		http.Error(w, "There is already a Racing+ account tied to your Steam ID, so you cannot register a new one.", http.StatusUnauthorized)
@@ -121,9 +117,11 @@ func httpRegister(c *gin.Context) {
 	// Save the information to the session
 	session.Set("userID", userID)
 	session.Set("username", username)
-	session.Set("admin", 0)       // By default, new users are not administrators
-	session.Set("muted", 0)       // By default, new users are not muted
-	session.Set("streamURL", "-") // By default, new users do not have a stream URL set
+	session.Set("admin", 0)                // By default, new users are not administrators
+	session.Set("muted", false)            // By default, new users are not muted
+	session.Set("streamURL", "-")          // By default, new users do not have a stream URL set
+	session.Set("twitchBotEnabled", false) // By default, new users do not have the Twitch bot enabled
+	session.Set("twitchBotDelay", 15)      // By default, new users have a Twitch bot delay of 15
 	session.Save()
 
 	// Log the user creation

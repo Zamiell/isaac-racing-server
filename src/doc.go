@@ -8,21 +8,6 @@ find . -name "*.go" | xargs cat | wc -l
 
 
 
-Database
---------
-
-Open the database:
-sqlite3 database.sqlite
-
-Get all of the users:
-SELECT * FROM users;
-
-Make people admins:
-UPDATE users SET admin = 2 WHERE username = 'zamiel';
-UPDATE users SET admin = 2 WHERE username = 'chronometrics';
-
-
-
 Incoming WebSocket commands - chat
 ----------------------------------
 
@@ -40,9 +25,6 @@ roomMessage {"room":"_race_1","message":"gg"}
 
 Send a private message:
 privateMessage {"name":"zamiel","message":"private message lol"}
-
-Get a list of all of the current rooms:
-roomListAll {}
 
 
 
@@ -142,9 +124,6 @@ raceJoin {"id":1,"name":"zamiel"}
 
 When someone leaves a race:
 raceLeft {"id":1,"name":"zamiel"}
-
-When the race ruleset changes:
-raceSetRuleset {"id":3,"ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0}}
 
 When the race changes status:
 raceSetStatus {"id":3,"status":"starting"}

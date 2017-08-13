@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"regexp"
 	"strings"
@@ -18,12 +14,14 @@ import (
 
 func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
-	newStreamURL := d.Name
-	newTwitchBotEnabled := d.Enabled
-	newTwitchBotDelay := d.Value
 	userID := d.v.UserID
 	username := d.v.Username
 	oldStreamURL := d.v.StreamURL
+	oldTwitchBotEnabled := d.v.TwitchBotEnabled
+	oldTwitchBotDelay := d.v.TwitchBotDelay
+	newStreamURL := d.Name
+	newTwitchBotEnabled := d.Enabled
+	newTwitchBotDelay := d.Value
 
 	/*
 		Validation
@@ -32,22 +30,6 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the stream URL is not empty
 	if newStreamURL == "" {
 		newStreamURL = "-"
-	}
-
-	// Get the user's current Twitch bot setting
-	oldTwitchBotEnabled, err := db.Users.GetTwitchBotEnabled(userID)
-	if err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	}
-
-	// Get the user's current Twitch bot delay
-	oldTwitchBotDelay, err := db.Users.GetTwitchBotDelay(userID)
-	if err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
 	}
 
 	// Prepare some regular expressions for later
@@ -143,42 +125,11 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 			return
 		}
 
-		// Set the new username in the session
+		// Set the new stream URL in the WebSocket session
 		s.Set("streamURL", newStreamURL)
 
-		// Look for this user in all chat rooms
-		for room, users := range chatRooms {
-			// See if the user is in this chat room
-			index := -1
-			for i, user := range users {
-				if user.Name == username {
-					index = i
-					break
-				}
-			}
-			if index == -1 {
-				// They are not in this chat room
-				continue
-			}
-
-			// Update their stream URL
-			chatRooms[room][index].StreamURL = newStreamURL
-
-			// Send everyone in the room an update
-			for _, user := range users {
-				// All users in the chat room should be online, but check just in case
-				if s2, ok := websocketSessions[user.Name]; ok {
-					type RoomUpdateMessage struct {
-						Room string `json:"room"`
-						User User   `json:"user"`
-					}
-					websocketEmit(s2, "roomUpdate", &RoomUpdateMessage{room, chatRooms[room][index]})
-				} else {
-					log.Error("Failed to get the connection for user \"" + user.Name + "\" while setting a new stream URL for user \"" + username + "\".")
-					continue
-				}
-			}
-		}
+		// It has to also be updated in all chat rooms
+		chatRoomsUpdate(username, "StreamURL", newStreamURL)
 	}
 
 	/*
@@ -218,6 +169,9 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 			websocketError(s, d.Command, "")
 			return
 		}
+
+		// Set the new stream URL in the WebSocket session
+		s.Set("twitchBotEnabled", newTwitchBotEnabled)
 	}
 
 	/*
@@ -238,5 +192,8 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 			websocketError(s, d.Command, "")
 			return
 		}
+
+		// Set the new stream URL in the WebSocket session
+		s.Set("twitchBotDelay", newTwitchBotDelay)
 	}
 }

@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-gonic/gin"

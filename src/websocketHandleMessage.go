@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"encoding/json"
 	"strings"

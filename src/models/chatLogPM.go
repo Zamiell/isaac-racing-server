@@ -1,26 +1,25 @@
 package models
 
-/*
-	Data types
-*/
+import (
+	"database/sql"
+)
 
 type ChatLogPM struct{}
 
-/*
-	"chat_log_pm" table functions
-*/
-
-func (*ChatLogPM) Insert(recipient string, username string, message string) error {
-	// Add the message
-	stmt, err := db.Prepare(`
-		INSERT INTO chat_log_pm (recipient_id, user_id, message, datetime_sent)
-		VALUES ((SELECT id FROM users WHERE username = ?), (SELECT id FROM users WHERE username = ?), ?, ?)
-	`)
-	if err != nil {
+// Used in the "websocketPrivateMessage" function
+func (*ChatLogPM) Insert(recipientID int, userID int, message string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		INSERT INTO chat_log_pm (recipient_id, user_id, message)
+		VALUES (?, ?, ?)
+	`); err != nil {
 		return err
+	} else {
+		stmt = v
 	}
-	_, err = stmt.Exec(recipient, username, message, makeTimestamp())
-	if err != nil {
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(recipientID, userID, message); err != nil {
 		return err
 	}
 

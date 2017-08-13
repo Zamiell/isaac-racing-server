@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"net"
 	"net/http"
@@ -14,10 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
-
-/*
-	Middleware functions
-*/
 
 // Send this page view to Google Analytics
 // (we do this on the server because client-side blocking is common via Adblock

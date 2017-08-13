@@ -1,29 +1,14 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
-	"strconv"
-
 	"github.com/Zamiell/isaac-racing-server/src/log"
 )
-
-/*
-	Global variables
-*/
 
 var (
 	achievementMap map[int][]string
 )
 
-/*
-	Achievement functions
-*/
-
 func achievementsInit() {
-	// Define all of the achievements
 	achievementMap = map[int][]string{
 		// Complete x races
 		1: {"This Wasn't So Bad", "Complete your first race."},
@@ -161,129 +146,139 @@ func achievementsInit() {
 		if err := db.Achievements.Insert(id, achievement[0], achievement[1]); err != nil {
 			log.Fatal("Failed to insert the achievements:", err)
 		}
-
 	}
 	log.Info("Added", len(achievementMap), "achievements.")
 }
 
-// The commandMutex should be locked when getting here
-func achievementsCheck(username string) {
+func achievementsCheck(userID int, username string) {
 	// Get this racer's current achievements
-	userAchievements, err := db.UserAchievements.GetAll(username)
+	userAchievements, err := db.UserAchievements.GetAll(userID)
 	if err != nil {
 		log.Error("Database error:", err)
 		return
 	}
 
-	// Achievement 1-8 (complete x races)
-	if !intInSlice(1, userAchievements) ||
-		!intInSlice(2, userAchievements) ||
-		!intInSlice(3, userAchievements) ||
-		!intInSlice(4, userAchievements) ||
-		!intInSlice(5, userAchievements) ||
-		!intInSlice(6, userAchievements) ||
+	achievements1_8(userID, username, userAchievements)
+	achievements11_14(userID, username, userAchievements)
+}
+
+// Achievement 1-8 (complete x races)
+func achievements1_8(userID int, username string, userAchievements []int) {
+	if intInSlice(1, userAchievements) &&
+		intInSlice(2, userAchievements) &&
+		intInSlice(3, userAchievements) &&
+		intInSlice(4, userAchievements) &&
+		intInSlice(5, userAchievements) &&
+		intInSlice(6, userAchievements) &&
+		intInSlice(7, userAchievements) &&
+		intInSlice(8, userAchievements) {
+
+		return
+	}
+
+	finishedList, err := db.RaceParticipants.GetFinishedRaces(userID)
+	if err != nil {
+		log.Error("Database error:", err)
+		return
+	}
+
+	// Achievement 1 - This Wasn't So Bad - Complete your first race.
+	if !intInSlice(1, userAchievements) {
+		if len(finishedList) >= 1 {
+			achievementsGive(userID, username, 1)
+		}
+	}
+
+	// Achievement 2 - I Think I Have the Hang of This - Complete 10 races.
+	if !intInSlice(2, userAchievements) {
+		if len(finishedList) >= 10 {
+			achievementsGive(userID, username, 2)
+		}
+	}
+
+	// Achievement 3 - Intermediate Racist - Complete 50 races.
+	if !intInSlice(3, userAchievements) {
+		if len(finishedList) >= 50 {
+			achievementsGive(userID, username, 3)
+		}
+	}
+
+	// Achievement 4 - Expert Racist - Complete 100 races.
+	if !intInSlice(4, userAchievements) {
+		if len(finishedList) >= 100 {
+			achievementsGive(userID, username, 4)
+		}
+	}
+
+	// Achievement 5 - Orange Juice - Complete 500 races.
+	if !intInSlice(5, userAchievements) {
+		if len(finishedList) >= 500 {
+			achievementsGive(userID, username, 5)
+		}
+	}
+
+	// Achievement 6-8 (complete x races with every ruleset)
+	if !intInSlice(6, userAchievements) ||
 		!intInSlice(7, userAchievements) ||
 		!intInSlice(8, userAchievements) {
 
-		finishedList, err := db.RaceParticipants.GetFinishedRaces(username)
-		if err != nil {
-			log.Error("Database error:", err)
-			return
-		}
-
-		// Achievement 1 - This Wasn't So Bad - Complete your first race.
-		if !intInSlice(1, userAchievements) {
-			if len(finishedList) >= 1 {
-				achievementsGive(username, 1)
+		// Count the number of races in each ruleset
+		countUnseeded := 0
+		countSeeded := 0
+		countDiversity := 0
+		for _, race := range finishedList {
+			if race.Format == "unseeded" {
+				countUnseeded++
+			} else if race.Format == "seeded" {
+				countSeeded++
+			} else if race.Format == "diversity" {
+				countDiversity++
 			}
 		}
 
-		// Achievement 2 - I Think I Have the Hang of This - Complete 10 races.
-		if !intInSlice(2, userAchievements) {
-			if len(finishedList) >= 10 {
-				achievementsGive(username, 2)
+		// Achievement 6 - Dipping Your Toe in the Water - Complete a race with every ruleset (unseeded, seeded, and diversity).
+		if !intInSlice(6, userAchievements) {
+			if countUnseeded >= 1 && countSeeded >= 1 && countDiversity >= 1 {
+				achievementsGive(userID, username, 6)
 			}
 		}
 
-		// Achievement 3 - Intermediate Racist - Complete 50 races.
-		if !intInSlice(3, userAchievements) {
-			if len(finishedList) >= 50 {
-				achievementsGive(username, 3)
+		// Achievement 7 - Experimental Treatment - Complete 10 races with every ruleset (unseeded, seeded, and diversity).
+		if !intInSlice(7, userAchievements) {
+			if countUnseeded >= 10 && countSeeded >= 10 && countDiversity >= 10 {
+				achievementsGive(userID, username, 7)
 			}
 		}
 
-		// Achievement 4 - Expert Racist - Complete 100 races.
-		if !intInSlice(4, userAchievements) {
-			if len(finishedList) >= 100 {
-				achievementsGive(username, 4)
+		// Achievement 8 - Jack of All Trades - Complete 100 races with every ruleset (unseeded, seeded, and diversity).
+		if !intInSlice(8, userAchievements) {
+			if countUnseeded >= 100 && countSeeded >= 100 && countDiversity >= 100 {
+				achievementsGive(userID, username, 8)
 			}
-		}
-
-		// Achievement 5 - Orange Juice - Complete 500 races.
-		if !intInSlice(5, userAchievements) {
-			if len(finishedList) >= 500 {
-				achievementsGive(username, 5)
-			}
-		}
-
-		// Achievement 6-8 (complete x races with every ruleset)
-		if !intInSlice(6, userAchievements) ||
-			!intInSlice(7, userAchievements) ||
-			!intInSlice(8, userAchievements) {
-
-			// Count the number of races in each ruleset
-			var countUnseeded int
-			var countSeeded int
-			var countDiversity int
-			for _, race := range finishedList {
-				if race.Ruleset.Format == "unseeded" {
-					countUnseeded++
-				} else if race.Ruleset.Format == "seeded" {
-					countSeeded++
-				} else if race.Ruleset.Format == "diversity" {
-					countDiversity++
-				}
-			}
-
-			// Achievement 6 - Dipping Your Toe in the Water - Complete a race with every ruleset (unseeded, seeded, and diversity).
-			if !intInSlice(6, userAchievements) {
-				if countUnseeded >= 1 && countSeeded >= 1 && countDiversity >= 1 {
-					achievementsGive(username, 6)
-				}
-			}
-
-			// Achievement 7 - Experimental Treatment - Complete 10 races with every ruleset (unseeded, seeded, and diversity).
-			if !intInSlice(7, userAchievements) {
-				if countUnseeded >= 10 && countSeeded >= 10 && countDiversity >= 10 {
-					achievementsGive(username, 7)
-				}
-			}
-
-			// Achievement 8 - Jack of All Trades - Complete 100 races with every ruleset (unseeded, seeded, and diversity).
-			if !intInSlice(8, userAchievements) {
-				if countUnseeded >= 100 && countSeeded >= 100 && countDiversity >= 100 {
-					achievementsGive(username, 8)
-				}
-			}
-		}
-
-		// Achievement 11-14 (get x average)
-		if !intInSlice(11, userAchievements) ||
-			!intInSlice(12, userAchievements) ||
-			!intInSlice(13, userAchievements) ||
-			!intInSlice(14, userAchievements) {
-
-			// Get their average
-			// TODO
 		}
 	}
 }
 
-func achievementsGive(username string, achievementID int) {
+// Achievement 11-14 (get x average)
+func achievements11_14(userID int, username string, userAchievements []int) {
+	if intInSlice(11, userAchievements) &&
+		intInSlice(12, userAchievements) &&
+		intInSlice(13, userAchievements) &&
+		intInSlice(14, userAchievements) {
+
+		return
+	}
+
+	// Get their average
+	// TODO
+}
+
+func achievementsGive(userID int, username string, achievementID int) {
 	// Give them the achivement in the database
-	db.UserAchievements.Insert(username, achievementID)
+	db.UserAchievements.Insert(userID, achievementID)
 
 	// Send them a notification that they got this achievement
+	// (they should not be offline, but check just in case they went offline immediately after finishing)
 	s, ok := websocketSessions[username]
 	if ok {
 		type AchievementMessage struct {
@@ -296,7 +291,5 @@ func achievementsGive(username string, achievementID int) {
 			achievementMap[achievementID][0],
 			achievementMap[achievementID][1],
 		})
-	} else {
-		log.Error("Failed to send achievement " + strconv.Itoa(achievementID) + " notification for user " + username + " because they are offline, which shouldn't happen unless they went offline immediately after finishing.")
 	}
 }

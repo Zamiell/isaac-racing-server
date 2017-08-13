@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"net/http"
 
@@ -31,6 +27,8 @@ func httpWS(c *gin.Context) {
 	keys["admin"] = sessionValues.Admin
 	keys["muted"] = sessionValues.Muted
 	keys["streamURL"] = sessionValues.StreamURL
+	keys["twitchBotEnabled"] = sessionValues.TwitchBotEnabled
+	keys["twitchBotDelay"] = sessionValues.TwitchBotDelay
 
 	// Validation succeeded, so establish the WebSocket connection
 	m.HandleRequestWithKeys(w, r, keys)

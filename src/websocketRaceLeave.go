@@ -1,78 +1,81 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
+
 	melody "gopkg.in/olahol/melody.v1"
 )
 
 func websocketRaceLeave(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
-	raceID := d.ID
 	username := d.v.Username
 
-	// Validate basic things about the race ID
-	if !raceValidate(s, d) {
+	/*
+		Validation
+	*/
+
+	// Validate that the race exists
+	var race *Race
+	if v, ok := races[d.ID]; !ok {
 		return
+	} else {
+		race = v
 	}
 
-	// Validate that the race is open
-	if !raceValidateStatus(s, d, "open") {
+	// Validate that the race has started
+	if race.Status != "open" {
 		return
 	}
 
 	// Validate that they are in the race
-	if !raceValidateIn2(s, d) {
+	if _, ok := race.Racers[username]; !ok {
 		return
 	}
 
-	// Remove this user from the participants list for that race
-	if err := db.RaceParticipants.Delete(username, raceID); err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	}
+	/*
+		Leave
+	*/
 
 	// Disconnect the user from the channel for that race
-	d.Room = "_race_" + strconv.Itoa(raceID)
+	d.Room = "_race_" + strconv.Itoa(race.ID)
 	websocketRoomLeaveSub(s, d)
+
+	// Remove this racer from the map
+	delete(race.Racers, username)
 
 	// Send everyone a notification that the user left the race
 	for _, s := range websocketSessions {
-		websocketEmit(s, "raceLeft", &RaceLeftMessage{raceID, username})
+		type RaceLeftMessage struct {
+			ID   int    `json:"id"`
+			Name string `json:"name"`
+		}
+		websocketEmit(s, "raceLeft", &RaceLeftMessage{
+			race.ID,
+			username,
+		})
 	}
 
-	// If the race went from 2 people to 1, automatically unready the last person so that they don't start the race by themsevles
-	if racerNames, err := db.RaceParticipants.GetRacerNames(raceID); err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	} else if len(racerNames) == 1 {
-		if currentStatus, err := db.RaceParticipants.GetStatus(racerNames[0], raceID); err != nil {
+	if len(race.Racers) == 0 {
+		// Remove this race if this is the last person to leave
+		delete(races, d.ID)
+
+		// Also delete it from the database
+		if err := db.Races.Delete(d.ID); err != nil {
 			log.Error("Database error:", err)
 			websocketError(s, d.Command, "")
 			return
-		} else if currentStatus == "ready" {
-			// Set them from "ready" to "not ready"
-			if err := db.RaceParticipants.SetStatus(racerNames[0], raceID, "not ready"); err != nil {
-				log.Error("Database error:", err)
-				websocketError(s, d.Command, "")
-				return
-			}
-
-			// Tell them
-			// (they should definately be online, but check just in case)
-			if s, ok := websocketSessions[racerNames[0]]; ok {
-				websocketEmit(s, "racerSetStatus", &RacerSetStatusMessage{raceID, username, "not ready", 0})
+		}
+	} else if len(race.Racers) == 1 {
+		// If the race went from 2 people to 1, check to see if the last person is ready
+		for _, lastRacer := range race.Racers {
+			if lastRacer.Status == "ready" {
+				// Automatically unready the last person so that they don't start the race by themsevles
+				race.SetRacerStatus(lastRacer.Name, "not ready")
 			}
 		}
+	} else {
+		race.CheckStart()
 	}
-
-	// Check to see if the race is ready to start
-	raceCheckStart(raceID)
 }

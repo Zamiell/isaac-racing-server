@@ -1,104 +1,106 @@
 package models
 
-/*
-	Imports
-*/
-
 import (
 	"database/sql"
 )
 
-/*
-	Data types
-*/
-
 type BannedIPs struct{}
 
 /*
-	"banned_ips" table functions
+
+func (*BannedIPs) Insert(ip string, adminResponsible int, reason string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		INSERT INTO banned_ips (ip, admin_responsible, reason)
+		VALUES (?, ?, ?)
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(ip, adminResponsible); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*BannedIPs) InsertUserIP(username string, adminResponsible int, reason string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		INSERT INTO banned_ips (ip, admin_responsible, reason)
+		VALUES ((SELECT last_ip FROM users WHERE username = ?), ?, ?)
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(
+		username,
+		adminResponsible,
+		reason,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*BannedIPs) Delete(ip string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		DELETE FROM banned_ips
+		WHERE ip = ?
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(ip); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*BannedIPs) DeleteUserIP(username string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		DELETE FROM banned_ips
+		WHERE ip = (SELECT last_ip FROM users WHERE username = ?)
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(username); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 */
 
 func (*BannedIPs) Check(ip string) (bool, error) {
-	// Check if this IP is banned
 	var id int
-	err := db.QueryRow(`
+	if err := db.QueryRow(`
 		SELECT id
 		FROM banned_ips
 		WHERE ip = ?
-	`, ip).Scan(&id)
-	if err == sql.ErrNoRows {
+	`, ip).Scan(&id); err == sql.ErrNoRows {
 		return false, nil
 	} else if err != nil {
 		return false, err
-	} else {
-		return true, nil
-	}
-}
-
-func (*BannedIPs) Insert(username string, adminResponsible int) error {
-	// Add the IP address to the banned list in the database
-	stmt, err := db.Prepare(`
-		INSERT INTO banned_ips (ip, admin_responsible, datetime_banned)
-		VALUES ((SELECT last_ip FROM users WHERE username = ?), ?, ?)
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(username, adminResponsible, makeTimestamp())
-	if err != nil {
-		return err
 	}
 
-	return nil
-}
-
-func (*BannedIPs) InsertIP(ip string, adminResponsible int) error {
-	// Add the IP address to the banned list in the database
-	stmt, err := db.Prepare(`
-		INSERT INTO banned_ips (ip, admin_responsible)
-		VALUES (?, ?)
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(ip, adminResponsible)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*BannedIPs) Delete(username string) error {
-	// Remove the IP address from the banned IP list in the database
-	stmt, err := db.Prepare(`
-		DELETE FROM banned_ips
-		WHERE ip = (SELECT last_ip FROM users WHERE username = ?)
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(username)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*BannedIPs) DeleteIP(ip string) error {
-	// Remove the IP address from the banned IP list in the database
-	stmt, err := db.Prepare(`
-		DELETE FROM banned_ips
-		WHERE ip = ?
-	`)
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(ip)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return true, nil
 }

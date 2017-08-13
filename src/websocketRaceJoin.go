@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"strconv"
 
@@ -11,44 +7,56 @@ import (
 	melody "gopkg.in/olahol/melody.v1"
 )
 
+// This is also called manually by the "websocketRaceCreate" function
 func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
-	raceID := d.ID
 	userID := d.v.UserID
 	username := d.v.Username
+	raceID := d.ID
 
-	// Validate basic things about the race ID
-	if !raceValidate(s, d) {
+	/*
+		Validation
+	*/
+
+	// Validate that the race exists
+	var race *Race
+	if v, ok := races[d.ID]; !ok {
 		return
+	} else {
+		race = v
 	}
 
-	// Validate that the race is open
-	if !raceValidateStatus(s, d, "open") {
+	// Validate that the race has started
+	if race.Status != "open" {
 		return
 	}
 
 	// Validate that they are not in the race
-	if !raceValidateOut2(s, d) {
+	if _, ok := race.Racers[username]; ok {
 		return
 	}
 
-	// Validate that this is not a solo race
-	if solo, err := db.Races.CheckSolo(raceID); err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	} else if solo {
+	// Validate that we are not trying to join a solo race
+	if race.Ruleset.Solo && len(race.Racers) > 0 {
 		log.Warning("User \"" + username + "\" attempted to call " + d.Command + " on race ID " + strconv.Itoa(raceID) + ", but it is a solo race.")
 		websocketError(s, d.Command, "Race ID "+strconv.Itoa(raceID)+" is a solo race, so you cannot join it.")
 		return
 	}
 
-	// Add this user to the participants list for that race
-	if err := db.RaceParticipants.Insert(userID, raceID); err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
+	/*
+		Join
+	*/
+
+	// Add this user to the race
+	racer := &Racer{
+		ID:             userID,
+		Name:           username,
+		DatetimeJoined: getTimestamp(),
+		Status:         "not ready",
+		Items:          make([]*Item, 0),
+		Rooms:          make([]*Room, 0),
 	}
+	race.Racers[username] = racer
 
 	// Send everyone a notification that the user joined
 	for _, s := range websocketSessions {
@@ -56,18 +64,14 @@ func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
 			ID   int    `json:"id"`
 			Name string `json:"name"`
 		}
-		websocketEmit(s, "raceJoined", &RaceJoinedMessage{raceID, username})
+		websocketEmit(s, "raceJoined", &RaceJoinedMessage{
+			raceID,
+			username,
+		})
 	}
 
-	// Get all the information about the racers in this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
-	if err != nil {
-		log.Error("Database error:", err)
-		return
-	}
-
-	// Send it to the user
-	websocketEmit(s, "racerList", &RacerListMessage{raceID, racerList})
+	// Send them all the information about the racers in this race
+	racerListMessage(s, race)
 
 	// Join the user to the channel for that race
 	d.Room = "_race_" + strconv.Itoa(raceID)

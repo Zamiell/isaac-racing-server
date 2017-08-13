@@ -5,6 +5,21 @@ package main
 */
 
 /*
+
+// Sent in the "roomSetMuted" command (in the "adminMute" and "adminUnmute" functions)
+type RoomSetMutedMessage struct {
+	Room  string `json:"room"`
+	Name  string `json:"name"`
+	Muted int    `json:"muted"`
+}
+
+// Sent in the "roomSetAdmin" command (in the "adminPromote" and "adminDemote" functions)
+type RoomSetAdminMessage struct {
+	Room  string `json:"room"`
+	Name  string `json:"name"`
+	Admin int    `json:"admin"`
+}
+
 func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
 	functionName := "adminBan"
@@ -73,12 +88,7 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Find out if the banned user is in any races that are currently going on
-	raceList, err := db.RaceParticipants.GetCurrentRaces(recipient)
-	if err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	}
+	// TODO
 
 	// Iterate over the races that they are currently in
 	for _, race := range raceList {
@@ -87,11 +97,7 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 		// Find out if the race is started
 		if race.Status == "open" {
 			// Remove this user from the participants list for that race
-			if err := db.RaceParticipants.Delete(recipient, raceID); err != nil {
-				log.Error("Database error:", err)
-				websocketError(s, d.Command, "")
-				return
-			}
+			// TODO
 
 			// Send everyone a notification that the user left the race
 			for _, conn := range connectionMap.m {
@@ -116,13 +122,6 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 			if err := db.RaceParticipants.SetPlace(username, raceID, -2); err != nil {
 				log.Error("Database error:", err)
 				websocketError(s, d.Command, "")
-				return
-			}
-
-			// Get the list of racers for this race
-			racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
-			if err != nil {
-				log.Error("Database error:", err)
 				return
 			}
 
@@ -393,7 +392,11 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 				for _, user := range users {
 					userConnection, ok := connectionMap.m[user.Name] // This should always succeed, but there might be a race condition
 					if ok {
-						userConnection.Connection.Emit("roomSetMuted", &RoomSetMutedMessage{room, recipient, 1})
+						userConnection.Connection.Emit("roomSetMuted", &RoomSetMutedMessage{
+							room,
+							recipient,
+							1,
+						})
 					} else {
 						log.Error("Failed to get the connection for user \"" + user.Name + "\" while muting user \"" + recipient + "\".")
 						continue

@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"strings"
 	"unicode/utf8"
@@ -22,6 +18,7 @@ import (
 
 func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
+	userID := d.v.UserID
 	username := d.v.Username
 	muted := d.v.Muted
 
@@ -42,13 +39,13 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	// Don't allow empty messages
 	if d.Message == "" {
 		log.Warning("User \"" + username + "\" tried to send an empty message.")
-		websocketError(s, d.Command, "You cannot send an empty message.")
+		websocketWarning(s, d.Command, "You cannot send an empty message.")
 		return
 	}
 
 	// Validate that the user is not muted
 	if muted {
-		websocketError(s, d.Command, "You have been muted by an administrator, so you cannot chat with others.")
+		websocketWarning(s, d.Command, "You have been muted by an administrator, so you cannot chat with others.")
 		return
 	}
 
@@ -75,7 +72,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the message is not excessively long
 	if utf8.RuneCountInString(d.Message) > 150 {
-		websocketError(s, d.Command, "Messages must not be longer than 150 characters.")
+		websocketWarning(s, d.Command, "Messages must not be longer than 150 characters.")
 		return
 	}
 
@@ -84,7 +81,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	*/
 
 	// Add the new message to the database
-	if err := db.ChatLog.Insert(d.Room, username, d.Message); err != nil {
+	if err := db.ChatLog.Insert(d.Room, userID, d.Message); err != nil {
 		log.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
@@ -99,7 +96,11 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 				Name    string `json:"name"`
 				Message string `json:"message"`
 			}
-			websocketEmit(s2, "roomMessage", &RoomMessageMessage{d.Room, username, d.Message})
+			websocketEmit(s2, "roomMessage", &RoomMessageMessage{
+				d.Room,
+				username,
+				d.Message,
+			})
 		} else {
 			log.Error("Failed to get the connection for user \"" + user.Name + "\" while sending a message from user \"" + username + "\" to room \"" + d.Room + "\".")
 			continue

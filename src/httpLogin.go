@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"encoding/json"
 	"io/ioutil"
@@ -14,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
+	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -29,10 +26,6 @@ func httpLogin(c *gin.Context) {
 	r := c.Request
 	w := c.Writer
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-
-	// Lock the command mutex for the duration of the function to prevent database locks
-	commandMutex.Lock()
-	defer commandMutex.Unlock()
 
 	/*
 		Validation
@@ -78,41 +71,25 @@ func httpLogin(c *gin.Context) {
 	}
 
 	// Check to see if this Steam ID exists in the database
-	// (being banned and muted are in separate tables for reason and timestamp
-	// logging purposes, so we must get them at a later step)
-	userID, username, admin, streamURL, err := db.Users.Login(steamID)
-	if err != nil {
+	var sessionValues *models.SessionValues
+	if v, err := db.Users.Login(steamID); err != nil {
 		log.Error("Database error:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
-	} else if userID == 0 {
+	} else if v == nil {
 		// This is a new user, so return a success, but don't give them a WebSocket cookie
 		// (the client is expected to now make a POST request to "/register")
 		http.Error(w, http.StatusText(http.StatusAccepted), http.StatusAccepted)
 		return
+	} else {
+		sessionValues = v
 	}
 
 	// Check to see if this user is banned
-	if userIsBanned, err := db.BannedUsers.Check(username); err != nil {
-		log.Error("Database error:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	} else if userIsBanned {
-		log.Info("User \"" + username + "\" tried to log in, but they are banned.")
+	if sessionValues.Banned {
+		log.Info("User \"" + sessionValues.Username + "\" tried to log in, but they are banned.")
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
-	}
-
-	// Check to see if this user is muted
-	var muted bool
-	if userIsMuted, err := db.MutedUsers.Check(username); err != nil {
-		log.Error("Database error:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	} else if userIsMuted {
-		muted = true
-	} else {
-		muted = false
 	}
 
 	/*
@@ -120,22 +97,24 @@ func httpLogin(c *gin.Context) {
 	*/
 
 	// Update the database with datetime_last_login and last_ip
-	if err := db.Users.SetLogin(username, ip); err != nil {
+	if err := db.Users.SetLogin(sessionValues.UserID, ip); err != nil {
 		log.Error("Database error:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	// Save the information to the session
-	session.Set("userID", userID)
-	session.Set("username", username)
-	session.Set("admin", admin)
-	session.Set("muted", muted)
-	session.Set("streamURL", streamURL)
+	session.Set("userID", sessionValues.UserID)
+	session.Set("username", sessionValues.Username)
+	session.Set("admin", sessionValues.Admin)
+	session.Set("muted", sessionValues.Muted)
+	session.Set("streamURL", sessionValues.StreamURL)
+	session.Set("twitchBotEnabled", sessionValues.TwitchBotEnabled)
+	session.Set("twitchBotDelay", sessionValues.TwitchBotDelay)
 	session.Save()
 
 	// Log the login request
-	log.Info("User \""+username+"\" logged in from:", ip)
+	log.Info("User \""+sessionValues.Username+"\" logged in from:", ip)
 }
 
 /*

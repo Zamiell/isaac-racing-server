@@ -1,17 +1,13 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"io/ioutil"
 	"path"
+	"sort"
 	"strconv"
 	"time"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
-	"github.com/Zamiell/isaac-racing-server/src/models"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -24,9 +20,10 @@ func websocketHandleConnect(s *melody.Session) {
 		websocketClose(s)
 		return
 	}
-	userID := d.v.UserID
 	username := d.v.Username
 	streamURL := d.v.StreamURL
+	twitchBotEnabled := d.v.TwitchBotEnabled
+	twitchBotDelay := d.v.TwitchBotDelay
 
 	/*
 		Establish the WebSocket session
@@ -59,22 +56,6 @@ func websocketHandleConnect(s *melody.Session) {
 	websocketSessions[username] = s
 	log.Info("User \""+username+"\" connected;", len(websocketSessions), "user(s) now connected.")
 
-	// Get their Twitch bot settings
-	var twitchBotEnabled bool
-	if v, err := db.Users.GetTwitchBotEnabled(userID); err != nil {
-		log.Error("Database error:", err)
-		return
-	} else {
-		twitchBotEnabled = v
-	}
-	var twitchBotDelay int
-	if v, err := db.Users.GetTwitchBotDelay(userID); err != nil {
-		log.Error("Database error:", err)
-		return
-	} else {
-		twitchBotDelay = v
-	}
-
 	// Send them various settings tied to their account
 	type SettingsMessage struct {
 		Username         string `json:"username"`
@@ -89,50 +70,70 @@ func websocketHandleConnect(s *melody.Session) {
 		TwitchBotEnabled: twitchBotEnabled,
 		TwitchBotDelay:   twitchBotDelay,
 		// Send them the current time so that they can calculate the local offset
-		Time: makeTimestamp(),
+		Time: getTimestamp(),
 	})
 
-	// Get the current list of races
-	var raceList []models.Race
-	if v, err := db.Races.GetCurrentRaces(); err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	} else {
-		raceList = v
+	// Prepare some data about all of the ongoing races to send to the newly
+	// connected user
+	// (we only want to send the client a subset of the race information in
+	// order to conserve bandwidth and hide some things that they don't need to
+	// see)
+	// https://stackoverflow.com/questions/18342784/how-to-iterate-through-a-map-in-golang-in-order/18342865
+	raceIDs := make([]int, 0)
+	for id := range races {
+		raceIDs = append(raceIDs, id)
+	}
+	sort.Ints(raceIDs)
+	raceListMessage := make([]RaceCreatedMessage, 0)
+	for _, id := range raceIDs {
+		race := races[id]
+		msg := RaceCreatedMessage{
+			ID:              race.ID,
+			Name:            race.Name,
+			Status:          race.Status,
+			Ruleset:         race.Ruleset,
+			Captain:         race.Captain,
+			DatetimeCreated: race.DatetimeCreated,
+			DatetimeStarted: race.DatetimeStarted,
+		}
+		racers := make([]string, 0)
+		for racerName := range race.Racers {
+			racers = append(racers, racerName)
+		}
+		msg.Racers = racers
+
+		raceListMessage = append(raceListMessage, msg)
 	}
 
 	// Send it to the user
-	websocketEmit(s, "raceList", raceList)
+	websocketEmit(s, "raceList", raceListMessage)
 
-	// Find out if the user is in any races that are currently going on
-	for _, race := range raceList {
-		for _, racer := range race.Racers {
-			if racer == username {
-				// Join the user to the chat room coresponding to this race
-				d.Room = "_race_" + strconv.Itoa(race.ID)
-				websocketRoomJoinSub(s, d)
+	// Check to see if this user is in any ongoing races
+	for _, id := range raceIDs {
+		race := races[id]
+		if _, ok := race.Racers[username]; !ok {
+			// They are not in this race
+			continue
+		}
 
-				// Send them all the information about the racers in this race
-				if racerList, err := db.RaceParticipants.GetRacerList(race.ID); err != nil {
-					log.Error("Database error:", err)
-					return
-				} else {
-					websocketEmit(s, "racerList", &RacerListMessage{race.ID, racerList})
-				}
+		// Join the user to the chat room coresponding to this race
+		d.Room = "_race_" + strconv.Itoa(race.ID)
+		websocketRoomJoinSub(s, d)
 
-				// If the race is currently in the 10 second countdown
-				if race.Status == "starting" {
-					// Get the time 10 seconds in the future
-					startTime := time.Now().Add(10*time.Second).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
-					// This will technically put them behind the other racers by some amount of seconds, but it gives them 10 seconds to get ready after a disconnect
+		// Send them all the information about the racers in this race
+		racerListMessage(s, race)
 
-					// Send them a message describing exactly when it will start
-					websocketEmit(s, "raceStart", &RaceStartMessage{race.ID, startTime})
-				}
+		// If the race is currently in the 10 second countdown
+		if race.Status == "starting" {
+			// Get the time 10 seconds in the future
+			startTime := time.Now().Add(10*time.Second).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+			// This will technically put them behind the other racers by some amount of seconds, but it gives them 10 seconds to get ready after a disconnect
 
-				break
-			}
+			// Send them a message describing exactly when it will start
+			websocketEmit(s, "raceStart", &RaceStartMessage{
+				race.ID,
+				startTime,
+			})
 		}
 	}
 
@@ -141,10 +142,7 @@ func websocketHandleConnect(s *melody.Session) {
 		Message string `json:"message"`
 	}
 	websocketEmit(s, "adminMessage", &AdminMessageMessage{
-		Message: "[Server Notice] Racing+ is in alpha and is NOT finished - lots of features are still missing or bugged.",
-	})
-	websocketEmit(s, "adminMessage", &AdminMessageMessage{
-		Message: "[Server Notice] Most racers hang out in the Isaac Discord chat: https://discord.gg/JzbhWQb",
+		"[Server Notice] Version 2.0 of the server is here! Please report bugs in the Isaac Discord chat: https://discord.gg/JzbhWQb",
 	})
 	messageRaw, err := ioutil.ReadFile(path.Join(projectPath, "message_of_the_day.txt"))
 	if err != nil {
@@ -154,7 +152,7 @@ func websocketHandleConnect(s *melody.Session) {
 	message := string(messageRaw)
 	if len(message) > 0 {
 		websocketEmit(s, "adminMessage", &AdminMessageMessage{
-			Message: string(messageRaw),
+			string(messageRaw),
 		})
 	}
 }

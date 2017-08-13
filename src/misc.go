@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"strconv"
 	"time"
@@ -55,7 +51,7 @@ func isAlphaNumericUnderscore(str string) bool {
 }
 
 // From: https://stackoverflow.com/questions/24122821/go-golang-time-now-unixnano-convert-to-milliseconds
-func makeTimestamp() int64 {
+func getTimestamp() int64 {
 	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 }
 

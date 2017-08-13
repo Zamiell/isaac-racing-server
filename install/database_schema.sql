@@ -1,81 +1,97 @@
 /*
-    sqlite3 database.sqlite < install/database_schema.sql
+    Setting up the database is covered in the README.md file.
+
+    The length of NVARCHAR and VARCHAR columns was deliberately chosen to be liberal;
+    application-level constraints limit these values to be much smaller than they are expressed here.
 */
+
+USE isaac;
+
+/*
+    We have to disable foreign key checks so that we can drop the tables;
+    this will only disable it for the current session
+ */
+SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS users;
 CREATE TABLE users (
-    id                         INTEGER    PRIMARY KEY  AUTOINCREMENT,
-    steam_id                   INTEGER    NOT NULL  UNIQUE,
-    username                   TEXT       NOT NULL  UNIQUE COLLATE NOCASE, /* Usernames must be case insensitive unique */
-    datetime_created           INTEGER    NOT NULL,
-    datetime_last_login        INTEGER    NOT NULL,
-    last_ip                    TEXT       NOT NULL,
-    admin                      INTEGER    DEFAULT 0,
-    verified                   INTEGER    DEFAULT 0,
+    /* Main values */
+    id                   INT           NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    steam_id             BIGINT        NOT NULL  UNIQUE, /* All authentication is through Steam, so we don't need to store a password for the user */
+    /* steam_id must be a BIGINT, as they are 17 digits long */
+    username             NVARCHAR(50)  NOT NULL  UNIQUE, /* MariaDB is case insensitive by default, which is what we want */
+    datetime_created     DATETIME      NOT NULL  DEFAULT NOW(),
+    datetime_last_login  DATETIME      NOT NULL  DEFAULT NOW(),
+    last_ip              VARCHAR(40)   NOT NULL,
+    admin                INT           NOT NULL  DEFAULT 0, /* 0 is not an admin, 1 is a staff, 2 is a full administrator */
+    verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitamate player on the leaderboard */
 
-    /* Seeded leaderboard stuff */
-    elo                        INTEGER    DEFAULT 0,
-    last_elo_change            INTEGER    DEFAULT 0,
-    num_seeded_races           INTEGER    DEFAULT 0,
-    last_seeded_race           INTEGER    DEFAULT 0,
+    /* Seeded leaderboard values */
+    seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
+    seeded_trueskill_change  FLOAT      NOT NULL  DEFAULT 0,
+    seeded_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 0,
+    seeded_num_races         INT        NOT NULL  DEFAULT 0,
+    seeded_last_race         DATETIME   NULL      DEFAULT NULL,
 
-    /* Unseeded leaderboard stuff */
-    unseeded_adjusted_average  INTEGER    DEFAULT 0,
-    unseeded_real_average      INTEGER    DEFAULT 0,
-    num_unseeded_races         INTEGER    DEFAULT 0,
-    num_forfeits               INTEGER    DEFAULT 0,
-    forfeit_penalty            INTEGER    DEFAULT 0,
-    lowest_unseeded_time       INTEGER    DEFAULT 0,
-    last_unseeded_race         INTEGER    DEFAULT 0,
+    /* Unseeded leaderboard values */
+    unseeded_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_num_races         INT        NOT NULL  DEFAULT 0,
+    unseeded_num_forfeits      INT        NOT NULL  DEFAULT 0,
+    unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_last_race         DATETIME   NULL      DEFAULT NULL,
 
-    /* Twitch bot stuff */
-    stream_url                 TEXT       DEFAULT "-", /* Their stream URL */
-    twitch_bot_enabled         INTEGER    DEFAULT 0, /* Either 0 or 1 */
-    twitch_bot_delay           INTEGER    DEFAULT 15 /* Between 0 and 60 */
+    /* Stream values */
+    stream_url                 NVARCHAR(50)  NOT NULL  DEFAULT "-", /* Their stream URL */
+    twitch_bot_enabled         TINYINT(1)    NOT NULL  DEFAULT 0, /* Either 0 or 1 */
+    twitch_bot_delay           INT           NOT NULL  DEFAULT 15 /* Between 0 and 60 */
 );
 CREATE UNIQUE INDEX users_index_steam_id ON users (steam_id);
 CREATE UNIQUE INDEX users_index_username ON users (username);
 
 DROP TABLE IF EXISTS races;
 CREATE TABLE races (
-    id                    INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    name                  TEXT                  DEFAULT "-",
-    status                TEXT                  DEFAULT "open", /* starting, in progress, finished */
-    type                  INTEGER               DEFAULT 0, /* 0 for unranked, 1 for ranked */
-    solo                  INTEGER               DEFAULT 0, /* 0 for solo, 1 for multiplayer */
-    format                TEXT                  DEFAULT "unseeded", /* seeded, diversity, unseededBeginner, custom */
-    character             TEXT                  DEFAULT "Isaac", /* Isaac, Magdalene, Cain, Judas, Blue Baby, Eve, Samson, Azazel, Lazarus, Eden, The Lost, Lilith, Keeper */
-    goal                  TEXT                  DEFAULT "Blue Baby", /* The Lamb, Mega Satan, custom */
-    starting_build        INTEGER               DEFAULT -1, /* -1 for unseeded/diversity races, setting it to 0 means "keep it as it is" */
-    seed                  TEXT                  DEFAULT "-",
-    captain               INTEGER               NOT NULL,
-    sound_effect          INTEGER               DEFAULT 0, /* 0 for not played yet, 1 for played (only one sound effect can be played per race) */
-    datetime_created      INTEGER               NOT NULL,
-    datetime_started      INTEGER               DEFAULT 0,
-    datetime_finished     INTEGER               DEFAULT 0,
-    FOREIGN KEY(captain)  REFERENCES users(id)
+    /* Main fields */
+    id       INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    finished TINYINT(1)     NOT NULL  DEFAULT 0,
+    name     NVARCHAR(100)  NULL,
+
+    /* Format */
+    ranked          TINYINT(1)   NULL, /* 0 for unranked, 1 for ranked */
+    solo            TINYINT(1)   NULL, /* 0 for solo, 1 for multiplayer */
+    format          VARCHAR(50)  NULL, /* unseeded, seeded, diversity, unseeded-lite, custom */
+    player_type     VARCHAR(50)  NULL, /* You can't name columns "character" in MariaDB, so we will use the Lua name for this instead */
+    /* Isaac, Magdalene, Cain, Judas, Blue Baby, Eve, Samson, Azazel, Lazarus, Eden, The Lost, Lilith, Keeper, Samael */
+    goal            VARCHAR(50)  NULL, /* Blue Baby, The Lamb, Mega Satan, Everything, custom */
+    starting_build  INT          NULL  DEFAULT -1, /* -1 for unseeded & diversity races, otherwise matches the build number */
+
+    /* Other fields */
+    seed               VARCHAR(50)  NULL      DEFAULT "-",
+    captain            INT          NULL,
+    datetime_created   DATETIME     NOT NULL  DEFAULT NOW(),
+    datetime_started   DATETIME     NULL,
+    datetime_finished  DATETIME     NULL,
+
+    FOREIGN KEY(captain) REFERENCES users(id)
 );
-CREATE INDEX races_index_status ON races (status);
 CREATE INDEX races_index_datetime_finished ON races (datetime_finished);
 
 DROP TABLE IF EXISTS race_participants;
 CREATE TABLE race_participants (
-    id                    INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    user_id               INTEGER               NOT NULL,
-    race_id               INTEGER               NOT NULL,
-    status                TEXT                  DEFAULT "not ready", /* ready, racing, finished, quit, disqualified, observing */
-    datetime_joined       INTEGER               NOT NULL,
-    datetime_finished     INTEGER               DEFAULT 0,
-    place                 INTEGER               DEFAULT 0, /* -1 is quit, -2 is disqualified */
-    place_mid             INTEGER               DEFAULT 1, /* All racers should start tied for 1st place */
-    comment               TEXT                  DEFAULT "-",
-    seed                  TEXT                  DEFAULT "-",
-    starting_item         INTEGER               DEFAULT 0,
-    floor_num             INTEGER               DEFAULT 0,
-    stage_type            INTEGER               DEFAULT 0,
-    floor_arrived         INTEGER               DEFAULT 0,
-    FOREIGN KEY(user_id)  REFERENCES users(id),
-    FOREIGN KEY(race_id)  REFERENCES races(id),
+    id                 INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    user_id            INT            NOT NULL,
+    race_id            INT            NOT NULL,
+    datetime_joined    DATETIME       NOT NULL,
+    seed               VARCHAR(50)    NOT NULL  DEFAULT "-",
+    starting_item      INT            NOT NULL  DEFAULT 0, /* Determined by seeing if room count is > 0 */
+    place              INT            NOT NULL, /* -1 is quit, -2 is disqualified */
+    datetime_finished  DATETIME       NOT NULL, /* Defaults to the current time but should always be specified */
+    run_time           INT            NOT NULL, /* in milliseconds */
+    comment            NVARCHAR(150)  NOT NULL  DEFAULT "-",
+
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(race_id) REFERENCES races(id),
     UNIQUE(user_id, race_id)
 );
 CREATE INDEX race_participants_index_user_id ON race_participants (user_id);
@@ -84,64 +100,77 @@ CREATE INDEX race_participants_index_datetime_joined ON race_participants (datet
 
 DROP TABLE IF EXISTS race_participant_items;
 CREATE TABLE race_participant_items (
-    id                                INTEGER                           PRIMARY KEY  AUTOINCREMENT,
-    race_participant_id               INTEGER                           NOT NULL,
-    item_id                           INTEGER                           NOT NULL,
-    floor_num                         INTEGER                           NOT NULL,
-    stage_type                        INTEGER                           NOT NULL,
-    FOREIGN KEY(race_participant_id)  REFERENCES race_participants(id)
+    id                   INT  NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    race_participant_id  INT  NOT NULL,
+    item_id              INT  NOT NULL,
+    floor_num            INT  NOT NULL,
+    stage_type           INT  NOT NULL,
+
+    FOREIGN KEY(race_participant_id) REFERENCES race_participants(id) ON DELETE CASCADE
+    /* If the race participant entry is deleted, automatically delete all of their items */
 );
 CREATE INDEX race_participant_items_index_race_participant_id ON race_participant_items (race_participant_id);
 
 DROP TABLE IF EXISTS race_participant_rooms;
 CREATE TABLE race_participant_rooms (
-    id                                INTEGER                           PRIMARY KEY  AUTOINCREMENT,
-    race_participant_id               INTEGER                           NOT NULL,
-    room_id                           TEXT                              NOT NULL,
-    FOREIGN KEY(race_participant_id)  REFERENCES race_participants(id)
+    id                   INT          NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    race_participant_id  INT          NOT NULL,
+    room_id              VARCHAR(50)  NOT NULL,
+    floor_num            INT          NOT NULL,
+    stage_type           INT          NOT NULL,
+
+    FOREIGN KEY(race_participant_id) REFERENCES race_participants(id) ON DELETE CASCADE
+    /* If the race participant entry is deleted, automatically delete all of their rooms */
 );
 CREATE INDEX race_participant_rooms_index_race_participant_id ON race_participant_rooms (race_participant_id);
 
 DROP TABLE IF EXISTS banned_users;
 CREATE TABLE banned_users (
-    id                              INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    user_id                         INTEGER               NOT NULL,
-    admin_responsible               INTEGER               NOT NULL,
-    datetime_banned                 INTEGER               NOT NULL,
-    FOREIGN KEY(user_id)            REFERENCES users(id),
-    FOREIGN KEY(admin_responsible)  REFERENCES users(id)
+    id                 INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    user_id            INT            NOT NULL,
+    admin_responsible  INT            NOT NULL,
+    reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
+    datetime_banned    DATETIME       NOT NULL, /* Defaults to the current time */
+
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX banned_users_index_user_id ON banned_users (user_id);
 
 DROP TABLE IF EXISTS banned_ips;
 CREATE TABLE banned_ips (
-    id                              INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    ip                              TEXT                  NOT NULL,
-    admin_responsible               INTEGER               NOT NULL,
-    datetime_banned                 INTEGER               NOT NULL,
-    FOREIGN KEY(admin_responsible)  REFERENCES users(id)
+    id                 INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    ip                 VARCHAR(40)    NOT NULL,
+    admin_responsible  INT            NOT NULL,
+    reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
+    datetime_banned    DATETIME       NOT NULL, /* Defaults to the current time */
+
+    FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX banned_ips_index_ip ON banned_ips (ip);
 
 DROP TABLE IF EXISTS muted_users;
 CREATE TABLE muted_users (
-    id                              INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    user_id                         INTEGER               NOT NULL,
-    admin_responsible               INTEGER               NOT NULL,
-    datetime_muted                  INTEGER               NOT NULL,
-    FOREIGN KEY(user_id)            REFERENCES users(id),
-    FOREIGN KEY(admin_responsible)  REFERENCES users(id)
+    id                 INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    user_id            INT            NOT NULL,
+    admin_responsible  INT            NOT NULL,
+    reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
+    datetime_muted     DATETIME       NOT NULL, /* Defaults to the current time */
+
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX muted_users_index_user_id ON muted_users (user_id);
 
 DROP TABLE IF EXISTS chat_log;
 CREATE TABLE chat_log (
-    id                    INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    room                  TEXT                  NOT NULL,
-    user_id               INTEGER               NOT NULL,
-    message               TEXT                  NOT NULL,
-    datetime_sent         INTEGER               NOT NULL,
-    FOREIGN KEY(user_id)  REFERENCES users(id)
+    id             INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    room           VARCHAR(50)    NOT NULL,
+    user_id        INT            NOT NULL,
+    message        NVARCHAR(200)  NOT NULL,
+    datetime_sent  DATETIME       NOT NULL, /* Defaults to the current time */
+
+    FOREIGN KEY(user_id) REFERENCES users(id)
 );
 CREATE INDEX chat_log_index_room ON chat_log (room);
 CREATE INDEX chat_log_index_user_id ON chat_log (user_id);
@@ -149,13 +178,14 @@ CREATE INDEX chat_log_index_datetime ON chat_log (datetime_sent);
 
 DROP TABLE IF EXISTS chat_log_pm;
 CREATE TABLE chat_log_pm (
-    id                         INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    recipient_id               INTEGER               NOT NULL,
-    user_id                    INTEGER               NOT NULL,
-    message                    TEXT                  NOT NULL,
-    datetime_sent              INTEGER               NOT NULL,
-    FOREIGN KEY(user_id)       REFERENCES users(id),
-    FOREIGN KEY(recipient_id)  REFERENCES users(id)
+    id             INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    recipient_id   INT            NOT NULL,
+    user_id        INT            NOT NULL,
+    message        NVARCHAR(500)  NOT NULL,
+    datetime_sent  DATETIME       NOT NULL, /* Defaults to the current time */
+
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(recipient_id) REFERENCES users(id)
 );
 CREATE INDEX chat_log_pm_index_recipient_id ON chat_log_pm (recipient_id);
 CREATE INDEX chat_log_pm_index_user_id ON chat_log_pm (user_id);
@@ -163,20 +193,21 @@ CREATE INDEX chat_log_pm_index_datetime ON chat_log_pm (datetime_sent);
 
 DROP TABLE IF EXISTS achievements;
 CREATE TABLE achievements (
-    id                    INTEGER               PRIMARY KEY  AUTOINCREMENT,
-    name                  TEXT                  NOT NULL,
-    description           TEXT                  NOT NULL
+    id           INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    name         NVARCHAR(100)  NOT NULL,
+    description  NVARCHAR(300)  NOT NULL
 );
-CREATE UNIQUE INDEX achievements_index_name ON achievements (name COLLATE NOCASE);
+CREATE UNIQUE INDEX achievements_index_name ON achievements (name);
 
 DROP TABLE IF EXISTS user_achievements;
 CREATE TABLE user_achievements (
-    id                           INTEGER                     PRIMARY KEY  AUTOINCREMENT,
-    user_id                      INTEGER                     NOT NULL,
-    achievement_id               INTEGER                     NOT NULL,
-    datetime_achieved            INTEGER                     NOT NULL,
-    FOREIGN KEY(user_id)         REFERENCES users(id),
-    FOREIGN KEY(achievement_id)  REFERENCES achievement(id),
+    id                 INT        NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    user_id            INT        NOT NULL,
+    achievement_id     INT        NOT NULL,
+    datetime_achieved  DATETIME   NOT NULL, /* Defaults to the current time */
+
+    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(achievement_id) REFERENCES achievement(id),
     UNIQUE(user_id, achievement_id)
 );
 CREATE INDEX user_achievements_index_user_id ON user_achievements (user_id);
@@ -184,26 +215,26 @@ CREATE INDEX user_achievements_index_achievement_id ON user_achievements (achiev
 
 DROP TABLE IF EXISTS user_season_stats;
 CREATE TABLE user_season_stats (
-    id                         INTEGER   PRIMARY KEY  AUTOINCREMENT,
-    user_id                    INTEGER   NOT NULL,
-    season                     INTEGER   NOT NULL,
+    /* Main values */
+    id       INT  NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    user_id  INT  NOT NULL,
+    season   INT  NOT NULL,
 
-    /* Seeded leaderboard stuff */
-    elo                        INTEGER    DEFAULT 0,
-    last_elo_change            INTEGER    DEFAULT 0,
-    num_seeded_races           INTEGER    DEFAULT 0,
-    last_seeded_race           INTEGER    DEFAULT 0,
+    /* Seeded leaderboard values */
+    seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
+    seeded_num_races         INT        NOT NULL  DEFAULT 0,
+    seeded_last_race         DATETIME   NULL      DEFAULT NULL,
 
-    /* Unseeded leaderboard stuff */
-    unseeded_adjusted_average  INTEGER    DEFAULT 0,
-    unseeded_real_average      INTEGER    DEFAULT 0,
-    num_unseeded_races         INTEGER    DEFAULT 0,
-    num_forfeits               INTEGER    DEFAULT 0,
-    forfeit_penalty            INTEGER    DEFAULT 0,
-    lowest_unseeded_time       INTEGER    DEFAULT 0,
-    last_unseeded_race         INTEGER    DEFAULT 0,
+    /* Unseeded leaderboard values */
+    unseeded_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_num_races         INT        NOT NULL  DEFAULT 0,
+    unseeded_num_forfeits      INT        NOT NULL  DEFAULT 0,
+    unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_last_race         DATETIME   NULL      DEFAULT NULL,
 
-    FOREIGN KEY(user_id)       REFERENCES users(id),
+    FOREIGN KEY(user_id) REFERENCES users(id),
     UNIQUE(user_id, season)
 );
 CREATE INDEX user_season_stats_index_user_id ON user_season_stats (user_id);

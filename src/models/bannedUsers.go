@@ -1,51 +1,29 @@
 package models
 
-/*
-	Imports
-*/
-
 import (
 	"database/sql"
 )
 
-/*
-	Data types
-*/
-
 type BannedUsers struct{}
 
 /*
-	"banned_users" table functions
-*/
-
-func (*BannedUsers) Check(username string) (bool, error) {
-	// Check if this user is banned
-	var id int
-	err := db.QueryRow(`
-		SELECT id
-		FROM banned_users
-		WHERE user_id = (SELECT id FROM users WHERE username = ?)
-	`, username).Scan(&id)
-	if err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	} else {
-		return true, nil
-	}
-}
-
-func (*BannedUsers) Insert(username string, adminResponsible int) error {
-	// Add this user to the ban list in the database
-	stmt, err := db.Prepare(`
-		INSERT INTO banned_users (user_id, admin_responsible, datetime_banned)
-		VALUES ((SELECT id from users WHERE username = ?), ?)
-	`)
-	if err != nil {
+func (*BannedUsers) Insert(username string, adminResponsible int, reason string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		INSERT INTO banned_users (user_id, admin_responsible, reason)
+		VALUES ((SELECT id from users WHERE username = ?), ?, ?)
+	`); err != nil {
 		return err
+	} else {
+		stmt = v
 	}
-	_, err = stmt.Exec(username, adminResponsible, makeTimestamp())
-	if err != nil {
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(
+		username,
+		adminResponsible,
+		reason,
+	); err != nil {
 		return err
 	}
 
@@ -53,18 +31,37 @@ func (*BannedUsers) Insert(username string, adminResponsible int) error {
 }
 
 func (*BannedUsers) Delete(username string) error {
-	// Remove the user from the banned users list in the database
-	stmt, err := db.Prepare(`
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
 		DELETE FROM banned_users
 		WHERE user_id = (SELECT id from users WHERE username = ?)
-	`)
-	if err != nil {
+	`); err != nil {
 		return err
+	} else {
+		stmt = v
 	}
-	_, err = stmt.Exec(username)
-	if err != nil {
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(username); err != nil {
 		return err
 	}
 
 	return nil
+}
+*/
+
+// Called from the "httpValidateSession" function
+func (*BannedUsers) Check(userID int) (bool, error) {
+	var id int
+	if err := db.QueryRow(`
+		SELECT id
+		FROM banned_users
+		WHERE user_id = ?
+	`, userID).Scan(&id); err == sql.ErrNoRows {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }

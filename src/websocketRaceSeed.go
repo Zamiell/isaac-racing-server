@@ -4,9 +4,10 @@ import (
 	melody "gopkg.in/olahol/melody.v1"
 )
 
-func websocketRaceUnready(s *melody.Session, d *IncomingWebsocketData) {
+func websocketRaceSeed(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
 	username := d.v.Username
+	seed := d.Seed
 
 	/*
 		Validation
@@ -20,8 +21,8 @@ func websocketRaceUnready(s *melody.Session, d *IncomingWebsocketData) {
 		race = v
 	}
 
-	// Validate that the race is open
-	if race.Status != "open" {
+	// Validate that the race has started
+	if race.Status != "in progress" {
 		return
 	}
 
@@ -33,14 +34,16 @@ func websocketRaceUnready(s *melody.Session, d *IncomingWebsocketData) {
 		racer = v
 	}
 
-	// Validate that their status is set to "ready"
-	if racer.Status != "ready" {
+	// Validate that they are still racing
+	if racer.Status != "racing" {
 		return
 	}
 
 	/*
-		Unready
+		Add the seed
 	*/
 
-	race.SetRacerStatus(username, "not ready")
+	racer.Seed = seed
+	racer.Items = make([]*Item, 0) // Reset all of their accumulated items
+	racer.Rooms = make([]*Room, 0) // Reset all of their visited rooms
 }

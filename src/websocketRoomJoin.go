@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"strings"
 
@@ -65,23 +61,26 @@ func websocketRoomJoin(s *melody.Session, d *IncomingWebsocketData) {
 
 func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
-	room := d.Room
 	username := d.v.Username
 	admin := d.v.Admin
 	muted := d.v.Muted
 	streamURL := d.v.StreamURL
+	room := d.Room
 
 	// Add the user to the chat room map
 	userObject := User{username, admin, muted, streamURL}
-	chatRooms[room] = append(chatRooms[room], userObject)
-	users := chatRooms[room] // Save the list of users in the room for later
+	chatRooms[room] = append(chatRooms[room], userObject) // This will create the map entry if it does not already exist
+	users := chatRooms[room]                              // Save the list of users in the room for later
 
 	// Give the user the list of everyone in the chat room
 	type RoomListMessage struct {
 		Room  string `json:"room"`
 		Users []User `json:"users"`
 	}
-	websocketEmit(s, "roomList", &RoomListMessage{room, users})
+	websocketEmit(s, "roomList", &RoomListMessage{
+		room,
+		users,
+	})
 
 	// Tell everyone else that someone joined
 	for _, user := range users {
@@ -96,7 +95,10 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 					Room string `json:"room"`
 					User User   `json:"user"`
 				}
-				websocketEmit(s2, "roomJoined", &RoomJoinedMessage{room, userObject})
+				websocketEmit(s2, "roomJoined", &RoomJoinedMessage{
+					room,
+					userObject,
+				})
 			}
 		} else {
 			log.Error("Failed to get the connection for user \"" + user.Name + "\" while connecting user \"" + username + "\" to room \"" + room + "\".")
@@ -130,7 +132,10 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 		Room    string               `json:"room"`
 		History []models.RoomHistory `json:"history"`
 	}
-	websocketEmit(s, "roomHistory", &RoomHistoryMessage{room, roomHistoryList})
+	websocketEmit(s, "roomHistory", &RoomHistoryMessage{
+		room,
+		roomHistoryList,
+	})
 
 	// Log the join
 	log.Info("User \"" + username + "\" joined room: #" + room)

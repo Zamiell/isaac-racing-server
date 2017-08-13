@@ -1,29 +1,25 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"bufio"
 	"net"
 	"net/textproto"
 	"os"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
-	"github.com/Zamiell/isaac-racing-server/src/models"
 )
 
-/*
-	Global variables
-*/
+const (
+	twitchUsername string = "IsaacRacingPlus"
+)
 
 var (
-	twitchUsername string = "IsaacRacingPlus"
-	twitchConn     net.Conn
+	twitchConn    net.Conn
+	twitchEnabled bool = false
 )
 
 /*
@@ -31,23 +27,27 @@ var (
 */
 
 func twitchInit() {
-	if useTwitch {
-		go twitchConnect()
+	// Read the OAuth secret from the environment variable
+	// (it was loaded from the .env file in main.go)
+	oauthToken := os.Getenv("TWITCH_OAUTH")
+	if len(oauthToken) == 0 {
+		log.Info("The \"TWITCH_OAUTH\" environment variable is blank; aborting Twitch bot initialization.")
+		return
 	}
+
+	twitchEnabled = true
+	go twitchConnect(oauthToken)
 }
 
-func twitchConnect() {
-	// Read the OAuth secret from the environment variable (it was loaded from the .env file in main.go)
-	oauthToken := os.Getenv("TWITCH_OAUTH")
-
+func twitchConnect(oauthToken string) {
 	// Connect to the Twitch IRC server
-	var err error
-	twitchConn, err = net.Dial("tcp", "irc.chat.twitch.tv:6667")
-	if err != nil {
+	if c, err := net.Dial("tcp", "irc.chat.twitch.tv:6667"); err != nil {
 		log.Error("Failed to connect to the Twitch IRC:", err)
 		time.Sleep(30 * time.Second)
-		go twitchConnect() // Reconnect after 30 seconds
+		go twitchConnect(oauthToken) // Reconnect after 30 seconds
 		return
+	} else {
+		twitchConn = c
 	}
 	defer twitchConn.Close()
 
@@ -172,7 +172,7 @@ func twitchNotMod(channel string) {
 
 	// Get the user ID and username of the user that matches this stream
 	streamURL := "https://www.twitch.tv/" + channel
-	userID, username, err := db.Users.FindUserFromStreamURL(streamURL)
+	userID, username, err := db.Users.GetUserFromStreamURL(streamURL)
 	if err != nil {
 		log.Error("Database error:", err)
 		return
@@ -189,22 +189,108 @@ func twitchNotMod(channel string) {
 
 	// If the user is online, send them a warning to let them know what happened
 	if s, ok := websocketSessions[username]; ok {
-		websocketWarning(s, "twitch.notMod", "The Twitch bot has been disabled for your account because it is not a moderator in your channel. Please type <code>/mod IsaacRacingPlus</code> in your Twitch chat, wait a few minutes, and then check the box again in the Racing+ settings.")
+		websocketWarning(s, "twitchNotMod", "The Twitch bot has been disabled for your account because it is not a moderator in your channel. Please type <code>/mod IsaacRacingPlus</code> in your Twitch chat, wait a few minutes, and then check the box again in the Racing+ settings.")
 	}
 }
 
-// Called from the "raceFinish", "raceQuit", and the "raceCheckStart" functions
-func twitchRacerSend(racer models.Racer, message string) {
-	if !useTwitch {
+/*
+	Twitch racer functions
+*/
+
+func twitchRacerFinish(race *Race, racer *Racer) {
+	// Make a string representing the run time
+	minutes := strconv.FormatInt(racer.RunTime/1000/60, 10) // Convert it to a string
+	seconds := strconv.FormatInt(racer.RunTime/1000%60, 10) // Convert it to a string
+	if len(seconds) == 1 {
+		seconds = "0" + seconds
+	}
+	timeString := "(" + minutes + ":" + seconds + ")"
+	placeString := getOrdinal(racer.Place)
+
+	// Get the number of people left in the race
+	numLeft := 0
+	for _, racer2 := range race.Racers {
+		if racer2.Status == "racing" {
+			numLeft++
+		}
+	}
+
+	// Join everything together
+	twitchString := "/me - " + placeString + " - " + racer.Name + " " + timeString + " - "
+	if numLeft == 0 {
+		twitchString += "Race completed."
+	} else {
+		twitchString += strconv.Itoa(numLeft) + " left"
+	}
+
+	// Send it to everyone in the race
+	for username := range race.Racers {
+		twitchRacerSend(username, twitchString)
+	}
+}
+
+func twitchRacerQuit(race *Race, racer *Racer) {
+	// Get the number of people left in the race
+	numLeft := 0
+	for _, racer2 := range race.Racers {
+		if racer2.Status == "racing" {
+			numLeft++
+		}
+	}
+
+	// Make a string announcing that the person quit
+	twitchString := "/me - " + racer.Name + " quit - "
+	if numLeft == 0 {
+		twitchString += "Race completed."
+	} else {
+		twitchString += strconv.Itoa(numLeft) + " left"
+	}
+
+	// Send it to everyone in the race
+	for username := range race.Racers {
+		twitchRacerSend(username, twitchString)
+	}
+}
+
+func twitchRaceStart(race *Race) {
+	if race.Ruleset.Solo {
 		return
 	}
 
-	if racer.TwitchBotEnabled == 0 {
+	for _, racer := range race.Racers {
+		twitchRacerSend(racer.Name, "/me - The race is starting in 10 seconds!")
+	}
+}
+
+// Called from the "twitchRacerFinish", "twitchRacerQuit", and the "raceCheckStart" functions
+func twitchRacerSend(username string, message string) {
+	if !twitchEnabled {
 		return
 	}
 
-	if !strings.HasPrefix(racer.StreamURL, "https://www.twitch.tv/") {
-		log.Error("User \"" + racer.Name + "\" had a stream URL set to \"" + racer.StreamURL + "\" but their \"TwitchBotEnabled\" was set to 1, which should never happen.")
+	s, ok := websocketSessions[username]
+	if !ok {
+		// Don't bother sending anything to their Twitch chat if they are not even connected
+		return
+	}
+
+	d := &IncomingWebsocketData{}
+	d.Command = "twitchRacerSend"
+	if !websocketGetSessionValues(s, d) {
+		log.Error("Did not complete the \"" + d.Command + "\" function.")
+		websocketClose(s)
+		return
+	}
+	streamURL := d.v.StreamURL
+	twitchBotEnabled := d.v.TwitchBotEnabled
+	twitchBotDelay := d.v.TwitchBotDelay
+
+	if !twitchBotEnabled {
+		return
+	}
+
+	if !strings.HasPrefix(streamURL, "https://www.twitch.tv/") {
+		log.Error("User \"" + username + "\" had a stream URL set to \"" + streamURL + "\" but their \"TwitchBotEnabled\" was set to 1, which should never happen.")
 		return
 	}
 
@@ -214,17 +300,10 @@ func twitchRacerSend(racer models.Racer, message string) {
 		log.Error("Failed to compile the Twitch username regular expression:", err)
 		return
 	}
-	channel := re.FindStringSubmatch(racer.StreamURL)[1]
+	channel := re.FindStringSubmatch(streamURL)[1]
 	channel = strings.ToLower(channel)
 
-	twitchSend(channel, message, racer.TwitchBotDelay)
-}
-
-func twitchSend(channel string, message string, delay int) {
-	go func(channel string, message string, delay int) {
-		time.Sleep(time.Second * time.Duration(delay))
-		twitchIRCSend(":" + twitchUsername + "!" + twitchUsername + "@" + twitchUsername + ".tmi.twitch.tv PRIVMSG #" + channel + " :" + message)
-	}(channel, message, delay)
+	twitchSend(channel, message, twitchBotDelay)
 }
 
 /*
@@ -237,6 +316,13 @@ func twitchJoinChannel(channel string) {
 
 func twitchLeaveChannel(channel string) {
 	twitchIRCSend("PART #" + channel)
+}
+
+func twitchSend(channel string, message string, delay int) {
+	go func(channel string, message string, delay int) {
+		time.Sleep(time.Second * time.Duration(delay))
+		twitchIRCSend(":" + twitchUsername + "!" + twitchUsername + "@" + twitchUsername + ".tmi.twitch.tv PRIVMSG #" + channel + " :" + message)
+	}(channel, message, delay)
 }
 
 func twitchIRCSend(command string) {

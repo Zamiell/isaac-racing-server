@@ -23,21 +23,6 @@ You may also be interested in [the client repository](https://github.com/Zamiell
 
 
 
-Code Layout
------------
-
-* Logging stuff is in the `logger` directory.
-* Twitch.tv stuff is in the `twitch` directory.
-* Discord stuff is in the `discord` directory.
-* WebSocket command logic is in the `websocket` directory.
-* Database logic is in the `models` directory.
-* HTML templates are in the `views` directory.
-* Webpage logic is in the `controllers` directory.
-
-<br/>
-
-
-
 Install
 -------
 
@@ -47,18 +32,28 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
   * `sudo add-apt-repository ppa:longsleep/golang-backports`
   * `sudo apt update`
   * `sudo apt install golang-go -y`
-* Install SQLite3:
-   * `sudo apt install sqlite3 -y`
+* Install [MariaDB](https://mariadb.org/) and set up a user:
+  * `sudo apt install mariadb-server -y`
+  * `sudo mysql_secure_installation`
+    * Follow the prompts.
+  * `sudo mysql -u root -p`
+    * `CREATE DATABASE isaac;`
+    * `CREATE USER 'isaacuser'@'localhost' IDENTIFIED BY '1234567890';` (change the password to something else)
+    * `GRANT ALL PRIVILEGES ON isaac.* to 'isaacuser'@'localhost';`
 * Clone the server:
-  * `go get github.com/Zamiell/isaac-racing-server`
-  * `cd $GOPATH/Zamiell/isaac-racing-server`
-* Set up the database:
-  * `sqlite3 database.sqlite < install/database_schema.sql`
-* Set up the configuration:
-  * `nano main.go` (change the constants near the top of the file to your liking)
-* Set up the environment values:
-  * `cp .env_template .env`
-  * `nano .env` (fill in the values)
+  * `mkdir -p $GOPATH/Zamiell`
+  * `cd $GOPATH/Zamiell/`
+  * `git clone https://github.com/Zamiell/isaac-racing-server.git` (or clone a fork, if you are doing development work)
+* Set up environment variables:
+  * `cp .env_defaults .env`
+  * `nano .env`
+    * Change the `DB_HOST`, `DB_USER`, and `DB_PASS` values accordingly.
+    * Create a random 64 digit alphanumeric string for `SESSION_SECRET`.
+    * `SENTRY_SECRET`, `TWITCH_OAUTH`, and `DISCORD_TOKEN` can be left blank.
+* Import the database schema:
+  * `mysql -uisaacuser -p1234567890 < install/database_schema.sql` (change the password accordingly)
+* Set up the some configuration variables:
+  * `nano src/main.go` (change the constants near the top of the file to your liking)
 
 <br />
 

@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"strconv"
 
@@ -13,29 +9,37 @@ import (
 
 func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
-	raceID := d.ID
+	username := d.v.Username
 	floorNum := d.FloorNum
 	stageType := d.StageType
-	userID := d.v.UserID
-	username := d.v.Username
 
-	// Validate basic things about the race ID
-	if !raceValidate(s, d) {
+	/*
+		Validation
+	*/
+
+	// Validate that the race exists
+	var race *Race
+	if v, ok := races[d.ID]; !ok {
 		return
+	} else {
+		race = v
 	}
 
 	// Validate that the race has started
-	if !raceValidateStatus(s, d, "in progress") {
+	if race.Status != "in progress" {
 		return
 	}
 
 	// Validate that they are in the race
-	if !raceValidateIn2(s, d) {
+	var racer *Racer
+	if v, ok := race.Racers[username]; !ok {
 		return
+	} else {
+		racer = v
 	}
 
-	// Validate that their status is set to "racing" status
-	if !racerValidateStatus(s, d, "racing") {
+	// Validate that they are still racing
+	if racer.Status != "racing" {
 		return
 	}
 
@@ -46,53 +50,39 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 		websocketError(s, d.Command, "That is not a valid floor number.")
 		return
 	} else if stageType < 0 || stageType > 3 {
+		// 3 is Greed Mode
 		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(stageType) + "\" is a bogus stage type.")
 		websocketError(s, d.Command, "That is not a valid stage type.")
 		return
 	}
 
-	// Set their floor in the database
-	floorArrived, err := db.RaceParticipants.SetFloor(userID, raceID, floorNum, stageType)
-	if err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	}
+	/*
+		Set the floor
+	*/
 
-	// The floor gets sent as 1 when a reset occurs
-	if floorNum == 1 {
-		// Reset all of their accumulated items
-		if err = db.RaceParticipantItems.Reset(userID, raceID); err != nil {
-			log.Error("Database error:", err)
-			websocketError(s, d.Command, "")
-			return
-		}
+	racer.FloorNum = floorNum
+	racer.StageType = stageType
+	racer.DatetimeArrivedFloor = getTimestamp()
 
-		// Reset all of their visited rooms
-		if err = db.RaceParticipantItems.Reset(userID, raceID); err != nil {
-			log.Error("Database error:", err)
-			websocketError(s, d.Command, "")
-			return
-		}
-	}
-
-	// Get the list of racers for this race
-	racerList, err := db.RaceParticipants.GetRacerList(raceID)
-	if err != nil {
-		log.Error("Database error:", err)
-		return
-	}
-
-	// Recalculate everyones mid-race places
-	if !racerSetAllPlaceMid(s, d, racerList) {
-		return
-	}
-
-	// Send a notification to all the people in this particular race that the user got to a new floor
-	for _, racer := range racerList {
+	for racerName := range race.Racers {
 		// Not all racers may be online during a race
-		if s, ok := websocketSessions[racer.Name]; ok {
-			websocketEmit(s, "racerSetFloor", &RacerSetFloorMessage{raceID, username, floorNum, stageType, floorArrived})
+		if s, ok := websocketSessions[racerName]; ok {
+			type RacerSetFloorMessage struct {
+				ID                   int    `json:"id"`
+				Name                 string `json:"name"`
+				FloorNum             int    `json:"floorNum"`
+				StageType            int    `json:"stageType"`
+				DatetimeArrivedFloor int64  `json:"datetimeArrivedFloor"`
+			}
+			websocketEmit(s, "racerSetFloor", &RacerSetFloorMessage{
+				race.ID,
+				username,
+				floorNum,
+				stageType,
+				racer.DatetimeArrivedFloor,
+			})
 		}
 	}
+
+	race.SetAllPlaceMid()
 }

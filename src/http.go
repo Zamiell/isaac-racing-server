@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"html/template"
 	"net/http"
@@ -20,20 +16,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-/*
-	Constants
-*/
-
 const (
 	sessionName = "isaac.sid"
 )
 
-/*
-	Global variables
-*/
-
 var (
 	sessionStore sessions.CookieStore
+	GATrackingID string
+	myHTTPClient = &http.Client{ // We don't want to use the default http.Client structure because it has no default timeout set
+		Timeout: 10 * time.Second,
+	}
 )
 
 /*
@@ -51,8 +43,8 @@ type TemplateData struct {
 	NextPage       int
 
 	// Profiles/profile stuff
-	ResultsProfiles   []models.UserProfilesRow
-	ResultsProfile    models.UserProfileData
+	ResultsProfiles   []models.ProfilesRow
+	ResultsProfile    models.ProfileData
 	TotalProfileCount int
 	UsersPerPage      int
 }
@@ -63,11 +55,18 @@ type TemplateData struct {
 
 func httpInit() {
 	// Create a new Gin HTTP router
+	gin.SetMode(gin.ReleaseMode) // Comment this out to debug HTTP stuff
 	httpRouter := gin.Default()
-	gin.SetMode(gin.ReleaseMode) // Uncomment this while debugging HTTP stuff
+
+	// Read the session secret from the environment variable
+	// (it was loaded from the .env file in main.go)
+	sessionSecret := os.Getenv("SESSION_SECRET")
+	if len(sessionSecret) == 0 {
+		log.Info("The \"SESSION_SECRET\" environment variable is blank; aborting HTTP initalization.")
+		return
+	}
 
 	// Create a session store
-	sessionSecret := os.Getenv("SESSION_SECRET")
 	sessionStore = sessions.NewCookieStore([]byte(sessionSecret))
 	options := sessions.Options{
 		Path:   "/",
@@ -92,10 +91,15 @@ func httpInit() {
 	sessionStore.Options(options)
 	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
 
-	// Define middleware
+	// Use the Tollbooth middleware for rate-limiting
 	limiter := tollbooth.NewLimiter(1, time.Second) // Limit each user to 1 request per second
 	httpRouter.Use(tollbooth_gin.LimitHandler(limiter))
-	httpRouter.Use(httpMwGoogleAnalytics)
+
+	// Use a custom middleware for Google Analytics tracking
+	GATrackingID = os.Getenv("GA_TRACKING_ID")
+	if len(GATrackingID) != 0 {
+		httpRouter.Use(httpMwGoogleAnalytics)
+	}
 
 	// Path handlers (for the WebSocket server)
 	httpRouter.POST("/login", httpLogin)

@@ -1,26 +1,51 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
-	"github.com/Zamiell/isaac-racing-server/src/models"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
 func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
+	username := d.v.Username
 	raceID := d.ID
 	itemID := d.ItemID
-	userID := d.v.UserID
-	username := d.v.Username
+
+	/*
+		Validation
+	*/
+
+	// Validate that the race exists
+	var race *Race
+	if v, ok := races[d.ID]; !ok {
+		return
+	} else {
+		race = v
+	}
+
+	// Validate that the race has started
+	if race.Status != "in progress" {
+		return
+	}
+
+	// Validate that they are in the race
+	var racer *Racer
+	if v, ok := race.Racers[username]; !ok {
+		return
+	} else {
+		racer = v
+	}
+
+	// Validate that they are still racing
+	if racer.Status != "racing" {
+		return
+	}
 
 	// Validate that the item number is sane
-	// The highest item ID is 510 (Delirious), and the Racing+ mod has a bunch of custom items
+	// The highest item ID (at the time of this writing) is 529 (Pop!),
+	// and the Racing+ mod has a bunch of custom items
 	// So just check for over 600 to be safe
 	if itemID < 1 || itemID > 600 {
 		log.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
@@ -28,58 +53,30 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	// Validate basic things about the race ID
-	if !raceValidate(s, d) {
-		return
-	}
+	/*
+		Add the item
+	*/
 
-	// Validate that the race has started
-	if !raceValidateStatus(s, d, "in progress") {
-		return
+	item := &Item{
+		itemID,
+		racer.FloorNum,
+		racer.StageType,
 	}
+	racer.Items = append(racer.Items, item)
 
-	// Validate that they are in the race
-	if !raceValidateIn2(s, d) {
-		return
-	}
-
-	// Validate that their status is set to "racing" status
-	if !racerValidateStatus(s, d, "racing") {
-		return
-	}
-
-	// Get their current floor
-	floorNum, stageType, err := db.RaceParticipants.GetFloor(userID, raceID)
-	if err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	}
-
-	// Add this item to their build
-	if err = db.RaceParticipantItems.Insert(userID, raceID, itemID, floorNum, stageType); err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	}
-
-	// Get the list of racers for this race
-	racerNames, err := db.RaceParticipants.GetRacerNames(raceID)
-	if err != nil {
-		log.Error("Database error:", err)
-		return
-	}
-
-	// Send a notification to all the people in this particular race that the user got an item
-	for _, racer := range racerNames {
+	for racerName := range race.Racers {
 		// Not all racers may be online during a race
-		if s, ok := websocketSessions[racer]; ok {
-			item := models.Item{
-				ID:        itemID,
-				FloorNum:  floorNum,
-				StageType: stageType,
+		if s, ok := websocketSessions[racerName]; ok {
+			type RacerAddItemMessage struct {
+				ID   int    `json:"id"`
+				Name string `json:"name"`
+				Item *Item  `json:"item"`
 			}
-			websocketEmit(s, "racerAddItem", &RacerAddItemMessage{raceID, username, item})
+			websocketEmit(s, "racerAddItem", &RacerAddItemMessage{
+				raceID,
+				username,
+				item,
+			})
 		}
 	}
 }

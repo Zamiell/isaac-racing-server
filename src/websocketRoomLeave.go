@@ -1,9 +1,5 @@
 package main
 
-/*
-	Imports
-*/
-
 import (
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
@@ -59,8 +55,8 @@ func websocketRoomLeave(s *melody.Session, d *IncomingWebsocketData) {
 
 func websocketRoomLeaveSub(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
-	room := d.Room
 	username := d.v.Username
+	room := d.Room
 
 	// Get the index of the user in the chat room mapping for this room
 	users, ok := chatRooms[room]
@@ -97,7 +93,10 @@ func websocketRoomLeaveSub(s *melody.Session, d *IncomingWebsocketData) {
 				Room string `json:"room"`
 				Name string `json:"name"`
 			}
-			websocketEmit(s2, "roomLeft", &RoomLeftMessage{room, username})
+			websocketEmit(s2, "roomLeft", &RoomLeftMessage{
+				room,
+				username,
+			})
 		} else {
 			log.Error("Failed to get the connection for user \"" + user.Name + "\" while disconnecting user \"" + username + "\" from room \"" + room + "\".")
 			continue
