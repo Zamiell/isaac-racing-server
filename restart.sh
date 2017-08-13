@@ -1,8 +1,10 @@
 #!/bin/bash
 
-cd src
+cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server/src"
 go install
-mv "$GOPATH/bin/src" "$GOPATH/bin/isaac-racing-server"
 if [ $? -eq 0 ]; then
+        mv "$GOPATH/bin/src" "$GOPATH/bin/isaac-racing-server"
 	supervisorctl restart isaac-racing-server
+else
+	echo "isaac-racing-server - Go compilation failed!"
 fi

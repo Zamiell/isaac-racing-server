@@ -94,7 +94,8 @@ func (*Races) Exists(raceID int) (bool, error) {
 func (*Races) Finish(race *Race) error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
-		UPDATE races
+		UPDATE
+			races
 		SET
 			finished = 1,
 			name = ?,
@@ -106,9 +107,10 @@ func (*Races) Finish(race *Race) error {
 			starting_build = ?,
 			seed = ?,
 			captain = (SELECT id FROM users where username = ?),
-			datetime_started = FROM_UNIXTIME(?),
+			datetime_started = FROM_UNIXTIME(? / 1000),
 			datetime_finished = NOW()
-		WHERE id = ?
+		WHERE
+			id = ?
 	`); err != nil {
 		return err
 	} else {

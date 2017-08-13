@@ -17,10 +17,12 @@ type RaceHistory struct {
 	RaceParticipants []RaceHistoryParticipants
 }
 type RaceHistoryParticipants struct {
-	RacerName    string
-	RacerPlace   int
-	RacerTime    string
-	RacerComment string
+	RacerName     string
+	RacerPlace    int
+	RacerTime     string
+	RacerComment  string
+	RaceRoomCount int
+	RaceItemCount int
 }
 
 func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, int, error) {
@@ -29,18 +31,20 @@ func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, 
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
-			r.id,
-			r.datetime_started,
-			r.type,
-			r.format,
-			r.character,
-			r.goal
+			id,
+			ranked,
+			format,
+			player_type,
+			goal,
+			datetime_finished
 		FROM
-			races r
+			races
+		WHERE
+			finished = 1
 		GROUP BY
-			r.id
+			id
 		ORDER BY
-			r.id DESC
+			id DESC
 		LIMIT
 			?
 		OFFSET
@@ -70,23 +74,20 @@ func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, 
 		var rows2 *sql.Rows
 		if v, err := db.Query(`
 			SELECT
-				u.username,
-				rp.place,
-				cast((rp.datetime_finished-r.datetime_started)/1000/60 as text) || ":" || substr('00'||cast((rp.datetime_finished-r.datetime_started)/1000%60 as text),-2,2),
-				rp.comment
+			    u.username,
+			    rp.place,
+			    rp.run_time,
+			    rp.comment
 			FROM
-				race_participants rp
+			    race_participants rp
 			LEFT JOIN
-				users u
-				ON u.id = rp.user_id
-			LEFT JOIN
-				races r
-				ON r.id = rp.race_id
+			    users u
+			    ON u.id = rp.user_id
 			WHERE
-				rp.race_id = ?
+			    rp.race_id = 33
 			ORDER BY
-				CASE WHEN rp.place is -1 THEN 1 ELSE 0 END,
-				rp.place
+			    CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
+			    rp.place;
 		`, race.RaceID); err != nil {
 			return nil, 0, err
 		} else {
@@ -102,6 +103,8 @@ func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, 
 				&racer.RacerPlace,
 				&racer.RacerTime,
 				&racer.RacerComment,
+				&racer.RaceRoomCount,
+				&racer.RaceItemCount,
 			); err != nil {
 				return nil, 0, err
 			}

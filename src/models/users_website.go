@@ -84,8 +84,10 @@ func (*Users) GetStatsSeeded(username string) (StatsSeeded, error) {
 			last_elo_change,
 			num_seeded_races,
 			last_seeded_race
-		FROM users
-		WHERE username = ?
+		FROM
+			users
+		WHERE
+			username = ?
 	`, username).Scan(
 		&stats.ELO,
 		&stats.LastELOChange,
@@ -109,8 +111,10 @@ func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
 			forfeit_penalty,
 			lowest_unseeded_time,
 			last_unseeded_race
-		FROM users
-		WHERE username = ?
+		FROM
+			users
+		WHERE
+			username = ?
 	`, username).Scan(
 		&stats.UnseededAdjustedAverage,
 		&stats.UnseededRealAverage,
@@ -136,8 +140,10 @@ func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
 			last_elo_change,
 			num_seeded_races,
 			last_seeded_race
-		FROM users
-		WHERE num_seeded_races > 1
+		FROM
+			users
+		WHERE
+			num_seeded_races > 1
 	`); err != nil {
 		return nil, err
 	} else {
@@ -179,8 +185,10 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			forfeit_penalty,
 			lowest_unseeded_time,
 			last_unseeded_race
-		FROM users
-		WHERE num_unseeded_races > 15
+		FROM
+			users
+		WHERE
+			num_unseeded_races > 15
 	`); err != nil {
 		return nil, err
 	} else {

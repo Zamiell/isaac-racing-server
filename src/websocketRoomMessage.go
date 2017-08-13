@@ -21,6 +21,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	userID := d.v.UserID
 	username := d.v.Username
 	muted := d.v.Muted
+	message := d.Message
 
 	/*
 		Perform validation
@@ -34,10 +35,10 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Strip leading and trailing whitespace from the message
-	d.Message = strings.TrimSpace(d.Message)
+	message = strings.TrimSpace(message)
 
 	// Don't allow empty messages
-	if d.Message == "" {
+	if message == "" {
 		log.Warning("User \"" + username + "\" tried to send an empty message.")
 		websocketWarning(s, d.Command, "You cannot send an empty message.")
 		return
@@ -71,7 +72,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that the message is not excessively long
-	if utf8.RuneCountInString(d.Message) > 150 {
+	if utf8.RuneCountInString(message) > 150 {
 		websocketWarning(s, d.Command, "Messages must not be longer than 150 characters.")
 		return
 	}
@@ -81,7 +82,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	*/
 
 	// Add the new message to the database
-	if err := db.ChatLog.Insert(d.Room, userID, d.Message); err != nil {
+	if err := db.ChatLog.Insert(d.Room, userID, message); err != nil {
 		log.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
@@ -99,16 +100,16 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 			websocketEmit(s2, "roomMessage", &RoomMessageMessage{
 				d.Room,
 				username,
-				d.Message,
+				message,
 			})
 		}
 	}
 
 	// Also send lobby messages to Discord
 	if d.Room == "lobby" {
-		discordSend(discordLobbyChannelID, "<"+username+"> "+d.Message)
+		discordSend(discordLobbyChannelID, "<"+username+"> "+message)
 	}
 
 	// Log the message
-	log.Info("#" + d.Room + " <" + username + "> " + d.Message)
+	log.Info("#" + d.Room + " <" + username + "> " + message)
 }

@@ -91,7 +91,8 @@ CREATE TABLE race_participants (
     comment            NVARCHAR(150)  NOT NULL,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(race_id) REFERENCES races(id),
+    FOREIGN KEY(race_id) REFERENCES races(id) ON DELETE CASCADE,
+    /* If the race is deleted, automatically delete all of the race participant rows */
     UNIQUE(user_id, race_id)
 );
 CREATE INDEX race_participants_index_user_id ON race_participants (user_id);
@@ -132,7 +133,8 @@ CREATE TABLE banned_users (
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
     datetime_banned    TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
-    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    /* If the user is deleted, automatically delete the banned_users entry */
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX banned_users_index_user_id ON banned_users (user_id);
@@ -157,7 +159,8 @@ CREATE TABLE muted_users (
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
     datetime_muted     TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
-    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
+    /* If the user is deleted, automatically delete the muted_users entry */
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX muted_users_index_user_id ON muted_users (user_id);
@@ -207,7 +210,7 @@ CREATE TABLE user_achievements (
     datetime_achieved  TIMESTAMP  NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(achievement_id) REFERENCES achievement(id),
+    FOREIGN KEY(achievement_id) REFERENCES achievements(id),
     UNIQUE(user_id, achievement_id)
 );
 CREATE INDEX user_achievements_index_user_id ON user_achievements (user_id);

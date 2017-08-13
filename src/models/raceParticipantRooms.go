@@ -10,8 +10,18 @@ type RaceParticipantRooms struct{}
 func (*RaceParticipantRooms) Insert(userID int, raceID int, roomID string, floorNum int, stageType int) error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
-		INSERT INTO race_participant_rooms (race_participant_id, room_id, floor_num, stage_type)
-		VALUES ((SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?), ?, ?, ?)
+		INSERT INTO race_participant_rooms (
+			race_participant_id,
+			room_id,
+			floor_num,
+			stage_type
+		)
+		VALUES (
+			(SELECT id FROM race_participants WHERE user_id = ? AND race_id = ?),
+			?,
+			?,
+			?
+		)
 	`); err != nil {
 		return err
 	} else {

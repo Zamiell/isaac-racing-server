@@ -37,12 +37,20 @@ type RoomHistory struct {
 func (*ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
-		SELECT users.username, chat_log.message, chat_log.datetime_sent
-		FROM chat_log
-			JOIN users ON users.id = chat_log.user_id
-		WHERE room = ?
-		ORDER BY chat_log.datetime_sent DESC
-		LIMIT ?
+		SELECT
+			users.username,
+			chat_log.message,
+			UNIX_TIMESTAMP(chat_log.datetime_sent)
+		FROM
+			chat_log
+		JOIN
+			users ON users.id = chat_log.user_id
+		WHERE
+			room = ?
+		ORDER BY
+			chat_log.datetime_sent DESC
+		LIMIT
+			?
 	`, room, count); err != nil {
 		return nil, err
 	} else {

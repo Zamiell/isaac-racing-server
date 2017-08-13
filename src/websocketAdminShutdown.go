@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os/exec"
+	"path"
 	"time"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
@@ -37,9 +39,17 @@ func websocketAdminShutdownSub(s *melody.Session, d *IncomingWebsocketData) {
 
 		// Check to see if all races are finished
 		if len(races) == 0 {
+			// Wait 30 seconds so that the last people finishing a race are not immediately booted upon finishing
+			time.Sleep(time.Second * 30)
+
 			d.Message = "All races have completed. Initiating shutdown and restart."
 			websocketAdminMessage(s, d)
+			restart()
 			break
 		}
 	}
+}
+
+func restart() {
+	exec.Command(path.Join(projectPath, "restart.sh"))
 }

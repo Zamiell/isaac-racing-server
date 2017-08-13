@@ -28,17 +28,17 @@ func websocketAdminMessage(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Strip leading and trailing whitespace from the message
-	d.Message = strings.TrimSpace(d.Message)
+	message = strings.TrimSpace(message)
 
 	// Don't allow empty messages
-	if d.Message == "" {
+	if message == "" {
 		log.Warning("User \"" + username + "\" tried to send an empty message.")
 		websocketWarning(s, d.Command, "You cannot send an empty message.")
 		return
 	}
 
 	// Validate that the message is not excessively long
-	if utf8.RuneCountInString(d.Message) > 150 {
+	if utf8.RuneCountInString(message) > 150 {
 		websocketWarning(s, d.Command, "Messages must not be longer than 150 characters.")
 		return
 	}
@@ -47,8 +47,11 @@ func websocketAdminMessage(s *melody.Session, d *IncomingWebsocketData) {
 		Send the message
 	*/
 
+	// Prefix the message to designate that it is a special message
+	message = "[Server Notice] " + message
+
 	// Add the new message to the database
-	if err := db.ChatLog.Insert("server", userID, d.Message); err != nil {
+	if err := db.ChatLog.Insert("server", userID, message); err != nil {
 		log.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
@@ -62,10 +65,8 @@ func websocketAdminMessage(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Also send lobby messages to Discord
-	if d.Room == "lobby" {
-		discordSend(discordLobbyChannelID, "[Server Notice] "+d.Message)
-	}
+	discordSend(discordLobbyChannelID, message)
 
 	// Log the message
-	log.Info("#" + d.Room + " <" + username + "> [Server Notice] " + d.Message)
+	log.Info("#SERVER <" + username + "> " + message)
 }

@@ -20,13 +20,13 @@ func websocketHandleDisconnect(s *melody.Session) {
 	defer commandMutex.Unlock()
 
 	// Eject this player from any races that have not started yet
-	for raceID, race := range races {
+	for _, race := range races {
 		if race.Status != "open" {
 			continue
 		}
 
 		if _, ok := race.Racers[username]; ok {
-			d.ID = raceID
+			d.ID = race.ID
 			websocketRaceLeave(s, d)
 		}
 	}

@@ -82,8 +82,10 @@ func (*Users) Login(steamID string) (*SessionValues, error) {
 				FROM banned_users
 				WHERE user_id = matched_id
 			) AS banned
-		FROM users
-		WHERE steam_id = ?
+		FROM
+			users
+		WHERE
+			steam_id = ?
 	`, steamID).Scan(
 		&userID,
 		&username,

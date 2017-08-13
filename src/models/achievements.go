@@ -27,7 +27,7 @@ func (*Achievements) Insert(id int, name string, description string) error {
 
 // Delete every row in this table
 func (*Achievements) DeleteAll() error {
-	if _, err := db.Exec("TRUNCATE achievements"); err != nil {
+	if _, err := db.Exec("DELETE FROM achievements"); err != nil {
 		return err
 	}
 

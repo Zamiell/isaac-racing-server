@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
@@ -17,7 +19,27 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	// Print out the connection map
+	var i int
+
+	// Print out all of the connected users
+	log.Debug("----------------")
+	log.Debug("Connected users:")
+	i = 0
+	for name := range websocketSessions {
+		i++
+		log.Debug(strconv.Itoa(i) + " - " + name)
+	}
+
+	// Print out all of the races
+	log.Debug("--------------")
+	log.Debug("Ongoing races:")
+	i = 0
+	for _, race := range races {
+		log.Debug(strconv.Itoa(i) + ")")
+		log.Debug(race)
+	}
+	log.Debug("--------------")
+
 	/*
 		fmt.Println(connectionMap.m)
 		for _, conn := range connectionMap.m {

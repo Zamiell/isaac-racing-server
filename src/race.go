@@ -127,7 +127,7 @@ func (race *Race) Start() {
 	}
 
 	// Log the race starting
-	log.Info("Race " + strconv.Itoa(race.ID) + " starting in " + string(secondsToWait) + " seconds.")
+	log.Info("Race #"+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
 
 	// Change the status for this race to "starting"
 	race.SetStatus("starting")
