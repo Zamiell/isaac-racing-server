@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"strconv"
 )
 
 /*
@@ -11,22 +10,24 @@ import (
 */
 
 type StatsSeeded struct {
-	ELO            int
-	LastELOChange  int
-	NumSeededRaces int
-	LastSeededRace int
+	TrueSkill  float32
+	LastChange float32
+	Sigma      float32
+	NumRaces   int
+	LastRace   int64
 }
 
 type StatsUnseeded struct {
-	UnseededAdjustedAverage int
-	UnseededRealAverage     int
-	NumUnseededRaces        int
-	NumForfeits             int
-	ForfeitPenalty          int
-	LowestUnseededTime      int
-	LastUnseededRace        int
+	AdjustedAverage int
+	RealAverage     int
+	NumRaces        int
+	NumForfeits     int
+	ForfeitPenalty  int
+	LowestTime      int
+	LastRace        int64
 }
 
+/*
 // Used in the leaderboards
 type LeaderboardRowSeeded struct {
 	Name           string
@@ -58,32 +59,35 @@ type LeaderboardRowMostPlayed struct {
 	Total    int
 	Verified int
 }
+*/
 
 type ProfilesRow struct {
-	Username     string
-	DateCreated  int
-	StreamUrl    string
-	Achievements int
+	Username        string
+	DatetimeCreated int64
+	StreamURL       string
+	NumAchievements int
 }
 type ProfileData struct {
-	Username      string
-	DateCreated   int
-	Verified      int
-	ELO           int
-	LastELOChange int
-	SeededRaces   int
-	UnseededRaces int
-	StreamUrl     string
+	Username          string
+	DatetimeCreated   int64
+	DatetimeLastLogin int64
+	Admin             int
+	Verified          bool
+	StatsSeeded       StatsSeeded
+	StatsUnseeded     StatsUnseeded
+	StreamURL         string
 }
 
+/*
 func (*Users) GetStatsSeeded(username string) (StatsSeeded, error) {
 	var stats StatsSeeded
 	if err := db.QueryRow(`
 		SELECT
-			elo,
-			last_elo_change,
-			num_seeded_races,
-			last_seeded_race
+			seeded_trueskill,
+			seeded_trueskill_change,
+			seeded_trueskill_sigma,
+			seeded_num_races,
+			seeded_last_race
 		FROM
 			users
 		WHERE
@@ -219,19 +223,31 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 
 	return leaderboard, nil
 }
+*/
 
 // Get player data to populate the player's profile page
 func (*Users) GetProfileData(username string) (ProfileData, error) {
 	var profileData ProfileData
+	var rawVerified int
 	if err := db.QueryRow(`
 		SELECT
 			username,
 			datetime_created,
+			datetime_last_login,
+			admin,
 			verified,
-			elo,
-			last_elo_change,
-			num_seeded_races,
-			num_unseeded_races,
+			seeded_trueskill,
+			seeded_trueskill_change,
+			seeded_trueskill_sigma,
+			seeded_num_races,
+			seeded_last_race,
+			unseeded_adjusted_average,
+			unseeded_real_average,
+			unseeded_num_races,
+			unseeded_num_forfeits,
+			unseeded_forfeit_penalty,
+			unseeded_lowest_time,
+			unseeded_last_race,
 			stream_url
 		FROM
 			users
@@ -240,18 +256,32 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 			username = ?
 	`, username).Scan(
 		&profileData.Username,
-		&profileData.DateCreated,
-		&profileData.Verified,
-		&profileData.ELO,
-		&profileData.LastELOChange,
-		&profileData.SeededRaces,
-		&profileData.UnseededRaces,
-		&profileData.StreamUrl,
+		&profileData.DatetimeCreated,
+		&profileData.DatetimeLastLogin,
+		&profileData.Admin,
+		&rawVerified,
+		&profileData.StatsSeeded.TrueSkill,
+		&profileData.StatsSeeded.LastChange,
+		&profileData.StatsSeeded.Sigma,
+		&profileData.StatsSeeded.NumRaces,
+		&profileData.StatsSeeded.LastRace,
+		&profileData.StatsUnseeded.AdjustedAverage,
+		&profileData.StatsUnseeded.RealAverage,
+		&profileData.StatsUnseeded.NumRaces,
+		&profileData.StatsUnseeded.NumForfeits,
+		&profileData.StatsUnseeded.ForfeitPenalty,
+		&profileData.StatsUnseeded.LowestTime,
+		&profileData.StatsUnseeded.LastRace,
+		&profileData.StreamURL,
 	); err == sql.ErrNoRows {
 		return profileData, nil
 	} else if err != nil {
 		return profileData, err
 	} else {
+		// Convert the int to a bool
+		if rawVerified == 1 {
+			profileData.Verified = true
+		}
 		return profileData, nil
 	}
 }
@@ -282,7 +312,7 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 			?
 		OFFSET
 			?
-	`, strconv.Itoa(usersPerPage), strconv.Itoa(usersOffset)); err == sql.ErrNoRows {
+	`, usersPerPage, usersOffset); err == sql.ErrNoRows {
 		return nil, 0, nil
 	} else if err != nil {
 		return nil, 0, err
@@ -297,9 +327,9 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 		var row ProfilesRow
 		if err := rows.Scan(
 			&row.Username,
-			&row.DateCreated,
-			&row.StreamUrl,
-			&row.Achievements,
+			&row.DatetimeCreated,
+			&row.StreamURL,
+			&row.NumAchievements,
 		); err != nil {
 			return nil, 0, err
 		}

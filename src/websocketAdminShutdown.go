@@ -22,10 +22,14 @@ func websocketAdminShutdown(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	shutdownMode = true
-	d.Message = "The server is restarting soon. New race creation has been disabled for the time being."
-	websocketAdminMessage(s, d)
 
-	go websocketAdminShutdownSub(s, d)
+	if len(races) > 0 {
+		d.Message = "The server will restart when all ongoing races have finished. New race creation has been disabled."
+		websocketAdminMessage(s, d)
+		go websocketAdminShutdownSub(s, d)
+	} else {
+		restartServer(s, d)
+	}
 }
 
 func websocketAdminShutdownSub(s *melody.Session, d *IncomingWebsocketData) {
@@ -42,14 +46,20 @@ func websocketAdminShutdownSub(s *melody.Session, d *IncomingWebsocketData) {
 			// Wait 30 seconds so that the last people finishing a race are not immediately booted upon finishing
 			time.Sleep(time.Second * 30)
 
-			d.Message = "All races have completed. Initiating shutdown and restart."
-			websocketAdminMessage(s, d)
-			restart()
+			restartServer(s, d)
 			break
 		}
 	}
 }
 
-func restart() {
-	exec.Command(path.Join(projectPath, "restart.sh"))
+func restartServer(s *melody.Session, d *IncomingWebsocketData) {
+	d.Message = "The server is restarting; please stand by."
+	websocketAdminMessage(s, d)
+
+	cmd := exec.Command(path.Join(projectPath, "restart.sh"))
+	if output, err := cmd.Output(); err != nil {
+		log.Error("Failed to execute \"restart.sh\":", err)
+	} else {
+		log.Info("\"restart.sh\" completed:", output)
+	}
 }

@@ -10,14 +10,6 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const (
-	domain       = "isaacracing.net"
-	useLocalhost = false // If true, it will use "localhost" instead of the above domain
-	useSSL       = true
-	sslCertFile  = "/etc/letsencrypt/live/" + domain + "/fullchain.pem"
-	sslKeyFile   = "/etc/letsencrypt/live/" + domain + "/privkey.pem"
-)
-
 var (
 	projectPath  = path.Join(os.Getenv("GOPATH"), "src", "github.com", "Zamiell", "isaac-racing-server")
 	db           *models.Models
@@ -64,7 +56,7 @@ func main() {
 		}
 	}
 
-	// Add the achievements to the database (in achievements.go)
+	// Populate the achievements map (in achievements.go)
 	achievementsInit()
 
 	// Start the Twitch bot (in twitch.go)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -9,9 +8,10 @@ import (
 	Data types
 */
 
+/*
 type LeaderboardSeeded []models.LeaderboardRowSeeded
 
-/*func (l LeaderboardSeeded) Len() int {
+func (l LeaderboardSeeded) Len() int {
 	return len(s)
 }
 func (l LeaderboardSeeded) Swap(i, j int) {
@@ -19,9 +19,11 @@ func (l LeaderboardSeeded) Swap(i, j int) {
 }
 func (l LeaderboardSeeded) Less(i, j int) bool {
 	return len(s[i]) < len(s[j])
-}*/
+}
 
 type LeaderboardUnseeded []models.LeaderboardRowUnseeded
+
+*/
 
 /*
 	HTTP handlers

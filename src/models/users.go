@@ -56,13 +56,9 @@ func (*Users) Insert(steamID string, username string, ip string) (int, error) {
 // If they are, it returns a bunch of information about them
 // Used in the "httpLogin" and "httpRegister" functions
 func (*Users) Login(steamID string) (*SessionValues, error) {
-	var userID int
-	var username string
-	var admin int
+	sessionValues := &SessionValues{}
 	var rawMuted int
-	var streamURL string
 	var rawTwitchBotEnabled int
-	var twitchBotDelay int
 	var rawBanned int
 	if err := db.QueryRow(`
 		SELECT
@@ -87,13 +83,13 @@ func (*Users) Login(steamID string) (*SessionValues, error) {
 		WHERE
 			steam_id = ?
 	`, steamID).Scan(
-		&userID,
-		&username,
-		&admin,
+		&sessionValues.UserID,
+		&sessionValues.Username,
+		&sessionValues.Admin,
 		&rawMuted,
-		&streamURL,
+		&sessionValues.StreamURL,
 		&rawTwitchBotEnabled,
-		&twitchBotDelay,
+		&sessionValues.TwitchBotDelay,
 		&rawBanned,
 	); err == sql.ErrNoRows {
 		return nil, nil
@@ -103,29 +99,19 @@ func (*Users) Login(steamID string) (*SessionValues, error) {
 
 	// Convert the ints to bools
 	// (MariaDB stores booleans as a 0 or 1)
-	muted := false
+	sessionValues.Muted = false
 	if rawMuted == 1 {
-		muted = true
+		sessionValues.Muted = true
 	}
-	twitchBotEnabled := false
+	sessionValues.TwitchBotEnabled = false
 	if rawTwitchBotEnabled == 1 {
-		twitchBotEnabled = true
+		sessionValues.TwitchBotEnabled = true
 	}
-	banned := false
+	sessionValues.Banned = false
 	if rawBanned == 1 {
-		banned = true
+		sessionValues.Banned = true
 	}
 
-	sessionValues := &SessionValues{
-		userID,
-		username,
-		admin,
-		muted,
-		streamURL,
-		twitchBotEnabled,
-		twitchBotDelay,
-		banned,
-	}
 	return sessionValues, nil
 }
 
@@ -177,12 +163,14 @@ func (*Users) GetAllStreamURLs() ([]string, error) {
 }
 
 // Get the user ID and username that matches a stream URL
+// (MariaDB will perform a case insensitive comparison by default,
+// which is what we want)
 // Used in the "twitchNotMod" function
 func (*Users) GetUserFromStreamURL(streamURL string) (int, string, error) {
 	var userID int
 	var username string
 	if err := db.QueryRow(`
-		SELECT userID, username
+		SELECT id, username
 		FROM users
 		WHERE stream_url = ?
 	`, streamURL).Scan(&userID, &username); err == sql.ErrNoRows {

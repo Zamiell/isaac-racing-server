@@ -103,7 +103,7 @@ func twitchConnect(oauthToken string) {
 		}
 
 		// Log all messages
-		log.Info("< " + msg)
+		//log.Info("< " + msg)
 
 		// Split the message by spaces
 		msgParts := strings.Split(msg, " ")
@@ -326,6 +326,6 @@ func twitchSend(channel string, message string, delay int) {
 }
 
 func twitchIRCSend(command string) {
-	log.Info("> " + command)
+	//log.Info("> " + command)
 	twitchConn.Write([]byte(command + "\r\n"))
 }

@@ -2,8 +2,6 @@ package models
 
 import (
 	"database/sql"
-
-	"github.com/Zamiell/isaac-racing-server/src/log"
 )
 
 type Races struct{}
@@ -143,8 +141,6 @@ func (*Races) Finish(race *Race) error {
 	); err != nil {
 		return err
 	}
-
-	log.Debug("race.DatetimeStarted:", race.DatetimeStarted)
 
 	return nil
 }

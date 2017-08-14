@@ -118,7 +118,7 @@ func (*Races) GetRaceHistory(currentPage int, racesPerPage int) ([]RaceHistory, 
 	if err := db.QueryRow(`
 		SELECT count(id)
 		FROM races
-		WHERE status = 'finished'
+		WHERE finished = 1
 	`).Scan(&allRaceCount); err != nil {
 		return nil, 0, err
 	}

@@ -27,7 +27,7 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	i = 0
 	for name := range websocketSessions {
 		i++
-		log.Debug(strconv.Itoa(i) + " - " + name)
+		log.Debug(strconv.Itoa(i)+")", name)
 	}
 
 	// Print out all of the races
@@ -35,8 +35,8 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	log.Debug("Ongoing races:")
 	i = 0
 	for _, race := range races {
-		log.Debug(strconv.Itoa(i) + ")")
-		log.Debug(race)
+		i++
+		log.Debug(strconv.Itoa(i)+")", race)
 	}
 	log.Debug("--------------")
 

@@ -52,23 +52,23 @@ func httpProfile(c *gin.Context) {
 	w := c.Writer
 	r := c.Request
 
-	// Get player from URL
+	// Parse the player name from the URL
 	var player string
 	player = r.URL.Query().Get(":player")
 	if player == "" {
-		log.Error("Failed to a parse the player data: ", player)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
 	}
 
-	// Get the data from the database
 	playerData, err := db.Users.GetProfileData(player)
 	if err != nil {
 		log.Error("Failed to get player data from the database: ", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
-	// Create the title with player's name
-	data := TemplateData{
+	httpServeTemplate(w, "profile", TemplateData{
 		Title:          "Profile",
 		ResultsProfile: playerData,
-	}
-	httpServeTemplate(w, "profile", data)
+	})
 }

@@ -70,14 +70,14 @@ func httpValidateSession(c *gin.Context) *models.SessionValues {
 		streamURL = v.(string)
 	}
 	var twitchBotEnabled bool
-	if v := session.Get("muted"); v == nil {
+	if v := session.Get("twitchBotEnabled"); v == nil {
 		log.Info("Unauthorized WebSocket handshake detected from \"" + ip + "\" (failed twitchBotEnabled check).")
 		return nil
 	} else {
 		twitchBotEnabled = v.(bool)
 	}
 	var twitchBotDelay int
-	if v := session.Get("admin"); v == nil {
+	if v := session.Get("twitchBotDelay"); v == nil {
 		log.Info("Unauthorized WebSocket handshake detected from \"" + ip + "\" (failed twitchBotDelay check).")
 		return nil
 	} else {

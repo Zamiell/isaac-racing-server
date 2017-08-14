@@ -48,13 +48,12 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
 * Set up environment variables:
   * `cp .env_defaults .env`
   * `nano .env`
-    * Change the `DB_HOST`, `DB_USER`, and `DB_PASS` values accordingly.
     * Create a random 64 digit alphanumeric string for `SESSION_SECRET`.
-    * `SENTRY_SECRET`, `TWITCH_OAUTH`, and `DISCORD_TOKEN` can be left blank.
+    * Change the `DB_PASS` values accordingly.
+    * If you want to be able to login to the WebSocket server, set a value for `STEAM_WEB_API_KEY`. (You can get it from the [Steam community portal](https://steamcommunity.com/dev/apikey).)
+    * The rest of the values can be left blank.
 * Import the database schema:
   * `mysql -uisaacuser -p1234567890 < install/database_schema.sql` (change the password accordingly)
-* Set up the some configuration variables:
-  * `nano src/main.go` (change the constants near the top of the file to your liking)
 
 <br />
 

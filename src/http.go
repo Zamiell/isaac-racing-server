@@ -58,12 +58,23 @@ func httpInit() {
 	gin.SetMode(gin.ReleaseMode) // Comment this out to debug HTTP stuff
 	httpRouter := gin.Default()
 
-	// Read the session secret from the environment variable
-	// (it was loaded from the .env file in main.go)
+	// Read some HTTP server configuration values from environment variables
+	// (they were loaded from the .env file in main.go)
 	sessionSecret := os.Getenv("SESSION_SECRET")
 	if len(sessionSecret) == 0 {
 		log.Info("The \"SESSION_SECRET\" environment variable is blank; aborting HTTP initalization.")
 		return
+	}
+	domain := os.Getenv("DOMAIN")
+	if len(domain) == 0 {
+		log.Info("The \"DOMAIN\" environment variable is blank; aborting HTTP initalization.")
+		return
+	}
+	tlsCertFile := os.Getenv("TLS_CERT_FILE")
+	tlsKeyFile := os.Getenv("TLS_KEY_FILE")
+	useTLS := true
+	if len(tlsCertFile) == 0 || len(tlsKeyFile) == 0 {
+		useTLS = false
 	}
 
 	// Create a session store
@@ -82,11 +93,8 @@ func httpInit() {
 		// Mitigate XSS attacks:
 		// https://www.owasp.org/index.php/HttpOnly
 	}
-	if !useSSL {
+	if !useTLS {
 		options.Secure = false
-	}
-	if useLocalhost {
-		options.Domain = "localhost"
 	}
 	sessionStore.Options(options)
 	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
@@ -108,19 +116,22 @@ func httpInit() {
 
 	// Path handlers (for the website)
 	httpRouter.GET("/", httpHome)
-	httpRouter.GET("/races", httpRaces)
-	//httpRouter.GET("/profile", httpProfile)
-	//httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
-	//httpRouter.GET("/profiles", httpProfiles)
-	//httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
-	//httpRouter.GET("/leaderboards", httpLeaderboards)
+	/*
+		httpRouter.GET("/races", httpRaces)
+		httpRouter.GET("/races/:page", httpRaces)
+		httpRouter.GET("/profile", httpProfile)
+		httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
+		httpRouter.GET("/profiles", httpProfiles)
+		httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
+		httpRouter.GET("/leaderboards", httpLeaderboards)
+	*/
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
 	httpRouter.Static("/public", "../public")
 
 	// Figure out the port that we are using for the HTTP server
 	var port int
-	if useSSL {
+	if useTLS {
 		// We want all HTTP requests to be redirected to HTTPS
 		// (but make an exception for Let's Encrypt)
 		// The Gin router is using the default serve mux, so we need to create a
@@ -146,11 +157,11 @@ func httpInit() {
 
 	// Start listening and serving requests (which is blocking)
 	log.Info("Listening on port " + strconv.Itoa(port) + ".")
-	if useSSL {
+	if useTLS {
 		if err := http.ListenAndServeTLS(
 			":"+strconv.Itoa(port), // Nothing before the colon implies 0.0.0.0
-			sslCertFile,
-			sslKeyFile,
+			tlsCertFile,
+			tlsKeyFile,
 			httpRouter,
 		); err != nil {
 			log.Fatal("http.ListenAndServeTLS failed:", err)

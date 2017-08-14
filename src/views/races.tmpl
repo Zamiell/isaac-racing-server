@@ -7,7 +7,7 @@
 	</header>
 
 	<div id="race-listing-buttons" class="row">
-		{{ if ge .PreviousPage 1 -}}						
+		{{ if ge .PreviousPage 1 -}}
 			<div class="3u 12u">
 				<a href="../races" class="button fit">&lt;&lt;</a>
 			</div>
@@ -35,9 +35,8 @@
 			</div>
 			<div class="3u 12u">
 				&nbsp;
-			</div>				
+			</div>
 		{{- end }}
-
 	</div>
 	<br />
 
@@ -66,42 +65,34 @@
 					</tr>
 				</tfoot>
 				<tbody>
-				{{ range .Results }}
-					<tr>
-						{{ $racers := len .RaceParticipants }}
+					{{ range .ResultsRaces }}
+						<tr>
+							{{ $racers := len .RaceParticipants }}
 							<td rowspan="{{ $racers }}">{{ .RaceID }}</td>
 							<td id="racedate" rowspan="{{ $racers }}"> {{ .RaceDate }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceType }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceFormat }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceChar }}</td>
 							<td rowspan="{{ $racers }}">{{ .RaceGoal }}</td>
-						{{ range $index, $results := .RaceParticipants }}
-							<td>
-								<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
-							</td>
-							{{ if eq .RacerPlace -1 -}}
-								<td>Forfeit</td>
-								<td>&nbsp;</td>
-							{{- else}}
-								<td>{{ .RacerPlace }}</td>
-								<td>{{ .RacerTime }}</td>
-							{{- end }}
-							{{ if ne .RacerComment "-" -}}
-								<td	title="{{ .RacerComment }}">
-								Comment
-							{{- else}}
-								<td>&nbsp;
+							{{ range $index, $results := .RaceParticipants }}
+								<td>
+									<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
+								</td>
+								{{ if eq .RacerPlace -1 -}}
+									<td>Forfeit</td>
+									<td>&nbsp;</td>
+								{{- else}}
+									<td>{{ .RacerPlace }}</td>
+									<td>{{ .RacerTime }}</td>
+								{{- end }}
+								{{ if ne .RacerComment "-" -}}
+									<td	title="{{ .RacerComment }}">Comment<td/>
+								{{- else}}
+									<td>&nbsp;</td>
+								{{ end }}
 							{{ end }}
-							</td>
-							{{ if eq $index 0 -}}
-							</tr>
-							{{- else }}
-							</tr>
-							<tr class="participants-list">
-							{{- end }}							
-						{{ end }}
-						
-					{{ end }}
+						</tr>
+					{{- end }}
 				</tbody>
 			</table>
 		</div>

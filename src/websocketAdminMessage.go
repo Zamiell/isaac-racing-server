@@ -8,6 +8,13 @@ import (
 	melody "gopkg.in/olahol/melody.v1"
 )
 
+/*
+	Command example:
+	adminMessage {
+		message: "the tournament is starting soon",
+	}
+*/
+
 // Also called from the "websocketAdminShutdown" function
 func websocketAdminMessage(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables

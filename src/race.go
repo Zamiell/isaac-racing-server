@@ -108,7 +108,6 @@ func (race *Race) SetAllPlaceMid() {
 				// Those are considered ahead of Cathedral and The Chest
 				racer.PlaceMid++
 			} else if racer2.FloorNum == racer.FloorNum &&
-				racer2.StageType == racer.StageType &&
 				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
 
 				racer.PlaceMid++
@@ -127,7 +126,7 @@ func (race *Race) Start() {
 	}
 
 	// Log the race starting
-	log.Info("Race #"+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
+	log.Info("Race #"+strconv.Itoa(race.ID)+" starting in", int(secondsToWait), "seconds.")
 
 	// Change the status for this race to "starting"
 	race.SetStatus("starting")
@@ -203,7 +202,9 @@ func (race *Race) Start3() {
 		d := &IncomingWebsocketData{}
 		d.Command = "race.Start3"
 		d.ID = race.ID
-		d.v.Username = racer.Name
+		d.v = &models.SessionValues{
+			Username: racer.Name,
+		}
 		websocketRaceQuit(nil, d)
 	}
 }

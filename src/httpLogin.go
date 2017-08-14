@@ -174,6 +174,11 @@ func validateSteamTicket(steamID string, ticket string, ip string, w http.Respon
 
 	// Make the request
 	apiKey := os.Getenv("STEAM_WEB_API_KEY")
+	if len(apiKey) == 0 {
+		log.Error("The \"STEAM_WEB_API_KEY\" environment variable is blank; aborting the login request.")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return false
+	}
 	appID := "250900" // This is the app ID on Steam for The Binding of Isaac: Rebirth
 	resp, err := myHTTPClient.Get("https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1?key=" + apiKey + "&appid=" + appID + "&ticket=" + ticket)
 	if err != nil {

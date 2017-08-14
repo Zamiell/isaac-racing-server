@@ -19,7 +19,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the server is not shutting down soon
 	if shutdownMode {
-		websocketWarning(s, d.Command, "The server is restarting soon; you cannot start any new races for the time being.")
+		websocketWarning(s, d.Command, "The server is restarting soon (when all ongoing races have finished). You cannot start any new races for the time being.")
 		return
 	}
 

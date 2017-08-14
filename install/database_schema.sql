@@ -49,6 +49,7 @@ CREATE TABLE users (
 );
 CREATE UNIQUE INDEX users_index_steam_id ON users (steam_id);
 CREATE UNIQUE INDEX users_index_username ON users (username);
+INSERT INTO users (steam_id, username, last_ip) VALUES (0, "[SERVER]", "-");
 
 DROP TABLE IF EXISTS races;
 CREATE TABLE races (
