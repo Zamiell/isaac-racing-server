@@ -42,14 +42,14 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
     * `GRANT ALL PRIVILEGES ON isaac.* to 'isaacuser'@'localhost';`
     * `FLUSH PRIVILEGES;`
 * Clone the server:
-  * `mkdir -p $GOPATH/Zamiell`
-  * `cd $GOPATH/Zamiell/`
+  * `mkdir -p "$GOPATH/src/github.com/Zamiell"`
+  * `cd "$GOPATH/src/github.com/Zamiell/"`
   * `git clone https://github.com/Zamiell/isaac-racing-server.git` (or clone a fork, if you are doing development work)
 * Set up environment variables:
   * `cp .env_defaults .env`
   * `nano .env`
     * Create a random 64 digit alphanumeric string for `SESSION_SECRET`.
-    * Change the `DB_PASS` values accordingly.
+    * Change the `DB_PASS` value accordingly.
     * If you want to be able to login to the WebSocket server, set a value for `STEAM_WEB_API_KEY`. (You can get it from the [Steam community portal](https://steamcommunity.com/dev/apikey).)
     * The rest of the values can be left blank.
 * Import the database schema:

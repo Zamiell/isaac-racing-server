@@ -86,7 +86,7 @@ func httpLogin(c *gin.Context) {
 		return
 	}
 	if version != latestVersion {
-		errorMsg := "Your client version is " + version + " and the latest version is " + latestVersion + ".<br /><br />Please restart the Racing+ program and it should automatically update to the latest version. Alternatively, you can manually download the install for the latest version from the Racing+ website."
+		errorMsg := "Your client version is <strong>" + version + "</strong> and the latest version is <strong>" + latestVersion + "</strong>.<br /><br />Please restart the Racing+ program and it should automatically update to the latest version. If that does not work, you can try manually downloading the latest version from the Racing+ website."
 		http.Error(w, errorMsg, http.StatusUnauthorized)
 	}
 

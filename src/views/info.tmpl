@@ -56,32 +56,6 @@
 				<h3>When will Racing+ be officially released to the world?</h3>
 				<p>I am working hard on it, and it will be released when it is finished.</p>
 
-				<div style="height: 1em;" id="easter_eggs"></div><!-- Spacing -->
-				<h3>
-					What are Easter Eggs?<br />
-					How do I use the BLCK CNDL Easter Egg?
-				</h3>
-				<p>In Isaac, you can enable <a href="https://bindingofisaacrebirth.gamepedia.com/Seeds">various Easter Eggs</a> before starting a run. These Easter Eggs will alter your run in different ways. One of these is the "Total Curse Immunity" Easter Egg, which prevents all curses from appearing. Historically, most races have been done without curses, so Racing+ continues this tradition by ensuring that every player has this Easter Egg on before starting a race.</p>
-				<p>
-					Easter Eggs can be enabled by typing in a special seed at the character select screen before entering the game:<br />
-					<code>Tab</code>
-					<code>B</code>
-					<code>L</code>
-					<code>C</code>
-					<code>K</code>
-					<code>C</code>
-					<code>N</code>
-					<code>D</code>
-					<code>L</code>
-					<code>Enter</code>
-				</p>
-				<p>
-					Alternatively, you can use the helpful <code>Alt + C</code> hotkey to type all of this in for you automatically. This hotkey is not part of the mod itself, but it will work as long as you have the Racing+ client open.
-				</p>
-				<p>
-					Unfortunately, you have to type in this Easter Egg before every race. Due to limitations in the Afterbirth+ modding API, I can't actually make the mod automatically disable curses for you.
-				</p>
-
 				<div style="height: 1em;" id="hotkeys"></div><!-- Spacing -->
 				<h3>Are there any keyboard hotkeys?</h3>
 				<p>Yes! A <strong>(G)</strong> indicates a global hotkey &mdash; you can use global hotkeys even when Racing+ is not the active program.</p>
@@ -95,8 +69,6 @@
 					<li><code>Alt + F</code> &mdash; Finish a race (only in "Custom" races) <strong>(G)</strong>.</li>
 					<li><code>Alt + Q</code> &mdash; Quit the current race <strong>(G)</strong>.</li>
 					<li><code>Alt + L</code> &mdash; Return to the lobby.</li>
-					<li><code>Alt + C</code> &mdash; Automatically type in BLCK CNDL. (Must be at the character select screen.)</li>
-					<li><code>Alt + V</code> &mdash; Automatically type in BLCK CNDL and paste in the seed. (Must be at the character select screen.)</li>
 				</ul>
 
 				<div style="height: 1em;" id="seasons"></div><!-- Spacing -->
@@ -106,7 +78,7 @@
 				</h3>
 				<ul>
 					<li>In ranked play, unseeded races will count towards your average time and seeded races will count towards your TrueSkill rating. Both of these are tracked on separate leaderboards.</li>
-					<li>To keep things fresh, the leaderboards will be reset after 3 months. This 3 month long period is called a "season". The ruleset will stay the same for the entire season.</li>
+					<li>To keep things fresh, the leaderboards will be reset after 6 months. This 6 month long period is called a "season". The ruleset will stay the same for the entire season.</li>
 					<li>Season 1 is tentatively set to begin once the client is out of alpha.</li>
 					<li>Future seasons may have different rules than what is in place for season 1. This will help to keep Isaac racing fresh! You can discuss the kinds of rulesets that you want for subsequent seasons in the Isaac racing Discord server.</li>
 				</ul>
@@ -116,14 +88,13 @@
 				<ul>
 					<li>It makes sure that the Racing+ mod exists in your mods directory.</li>
 					<li>It makes sure that mods are enabled in your <code>options.ini</code> file.</li>
-					<li>It makes sure that the Racing+ mod is the only mod enabled.</li>
 					<li>It makes sure that you have at least one fully unlocked save file.</li>
 				</ul>
 
 				<div style="height: 1em;" id="mods"></div><!-- Spacing -->
 				<h3>
 					Is it possible to use Racing+ to race without any mods?<br />
-					Is it possible to use Racing+ with a custom mod or mods?
+					Is it possible to use Racing+ with a custom mod or multiple mods?
 				</h3>
 				<p class="margin-half">
 					Yes! First, note that Racing+ does several things when it starts up, as detailed in the previous question.<br />
@@ -147,7 +118,7 @@
 
 				<div style="height: 1em;" id="edens_blessing_bug"></div><!-- Spacing -->
 				<h3>How do I fix the bug where I start with an extra random item at the beginning of every run?</h3>
-				<p>This doesn't have anything to do with Racing+. It is actually a bug with Eden's Blessing in the base game. To fix it:</p>
+				<p>This doesn't have anything to do with Racing+. It is actually a bug with Eden's Blessing in the vanilla game. To fix it:</p>
 				<ul>
 					<li>Disable all mods.</li>
 					<li>Exit the game.</li>
@@ -155,6 +126,8 @@
 					<li>Enter a run with no easter eggs or seeds.</li>
 					<li>Hold R to reset once.</li>
 					<li>Go back to the main menu and re-enable mods.</li>
+					<li>Exit the game.</li>
+					<li>Open the game.</li>
 				</ul>
 				<p>After that, the bug should be fixed.</p>
 
@@ -200,7 +173,7 @@
 					<li><a href="https://moddingofisaac.com/user/255">Dan</a> &mdash; A modder who created the <a href="https://moddingofisaac.com/mod/950/fogless">Fogless! mod</a>, which is included with the Racing+ Lua mod.</li>
 					<li><a href="https://www.twitch.tv/RatRacing">RatRacing</a> &mdash; A speedrunner who originally created the starting room graphic.</li>
 					<li><a href="https://www.twitch.tv/birdie0">birdie0</a> &mdash; A speedrunner who worked on the starting room graphic and helped with bug reporting.</li>
-					<li><a href="https://www.twitch.tv/sillypears">sillypears</a> &mdash; A speedrunner who helped with bug reporting.</li>
+					<li><a href="https://www.twitch.tv/sillypears">sillypears</a> &mdash; A speedrunner who helped with bug reporting and helped code parts of the website.</li>
 					<li><a href="https://www.twitch.tv/InvaderTimStreams">InvaderTim</a> &mdash; A speedrunner who helped code the Racing+ client.</li>
 				</ul>
 				<div style="height: 0.5em;"></div><!-- Spacing -->
