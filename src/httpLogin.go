@@ -6,6 +6,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 
@@ -51,7 +52,7 @@ func httpLogin(c *gin.Context) {
 		return
 	}
 
-	// Validate that the user sent the Steam ID and the ticket
+	// Validate that the user sent the Steam ID, the ticket, and the version number of the client
 	steamID := c.PostForm("steamID")
 	if steamID == "" {
 		log.Error("User from IP \"" + ip + "\" tried to log in, but they did not provide the \"steamID\" parameter.")
@@ -63,6 +64,30 @@ func httpLogin(c *gin.Context) {
 		log.Error("User from IP \"" + ip + "\" tried to log in, but they did not provide the \"ticket\" parameter.")
 		http.Error(w, "You must provide the \"ticket\" parameter to log in.", http.StatusUnauthorized)
 		return
+	}
+	version := c.PostForm("version")
+	if version == "" {
+		log.Error("User from IP \"" + ip + "\" tried to log in, but they did not provide the \"version\" parameter.")
+		http.Error(w, "You must provide the \"version\" parameter to log in.", http.StatusUnauthorized)
+		return
+	}
+
+	// Validate that the version is the latest version
+	latestVersionRaw, err := ioutil.ReadFile(path.Join(projectPath, "latest_client_version.txt"))
+	if err != nil {
+		log.Error("Failed to read the \"latest_client_version.txt\" file:", err)
+		return
+	}
+	latestVersion := string(latestVersionRaw)
+	latestVersion = strings.TrimSpace(latestVersion)
+	if len(latestVersion) == 0 {
+		log.Error("The \"latest_client_version.txt\" file is empty, so users will not be able to login to the WebSocket server.")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	if version != latestVersion {
+		errorMsg := "Your client version is " + version + " and the latest version is " + latestVersion + ".<br /><br />Please restart the Racing+ program and it should automatically update to the latest version. Alternatively, you can manually download the install for the latest version from the Racing+ website."
+		http.Error(w, errorMsg, http.StatusUnauthorized)
 	}
 
 	// Validate the ticket with the Steam API
