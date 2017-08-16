@@ -32,6 +32,9 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
   * `sudo add-apt-repository ppa:longsleep/golang-backports` (if you don't do this, it will install a version of Go that is very old)
   * `sudo apt update`
   * `sudo apt install golang-go -y`
+  * `mkdir "$HOME/go"`
+  * `export GOPATH=$HOME/go && echo 'export GOPATH=$HOME/go' >> ~/.profile`
+  * `export PATH=$PATH:$GOPATH/bin && echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.profile`
 * Install [MariaDB](https://mariadb.org/) and set up a user:
   * `sudo apt install mariadb-server -y`
   * `sudo mysql_secure_installation`
@@ -45,6 +48,9 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
   * `mkdir -p "$GOPATH/src/github.com/Zamiell"`
   * `cd "$GOPATH/src/github.com/Zamiell/"`
   * `git clone https://github.com/Zamiell/isaac-racing-server.git` (or clone a fork, if you are doing development work)
+* Download and install all of the Go dependencies:
+  * `cd isaac-racing-server`
+  * `go get -v ./...` (it will give an error about `runtime.main_main·f` for some reason; ignore this and proceed)
 * Set up environment variables:
   * `cp .env_template .env`
   * `nano .env`
@@ -53,7 +59,7 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
     * If you want to be able to login to the WebSocket server, set a value for `STEAM_WEB_API_KEY`. (You can get it from the [Steam community portal](https://steamcommunity.com/dev/apikey).)
     * The rest of the values can be left blank.
 * Import the database schema:
-  * `mysql -uisaacuser -p1234567890 < install/database_schema.sql` (change the password accordingly)
+  * `mysql -uisaacuser -p < install/database_schema.sql`
 
 <br />
 
@@ -62,8 +68,8 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
 Run
 ---
 
-* `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server/src"`
-* `go run *.go`
+* `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server"`
+* `sudo go run src/*.go` (sudo is necessary because it runs on port 80 and/or 443)
 
 <br />
 
