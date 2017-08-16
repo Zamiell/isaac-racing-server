@@ -62,7 +62,7 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
 Run
 ---
 
-* `cd $GOPATH/Zamiell/isaac-racing-server/src`
+* `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server/src"`
 * `go run *.go`
 
 <br />
@@ -73,7 +73,7 @@ Run
 Compile / Build
 ---------------
 
-* `cd $GOPATH/Zamiell/isaac-racing-server/src`
+* `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server/src"`
 * `go install`
 * `mv "$GOPATH/bin/src" "$GOPATH/bin/isaac-racing-server"` (the binary is called `src` by default, since the name of the directory is `src`)
 
