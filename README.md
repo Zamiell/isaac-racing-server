@@ -46,7 +46,7 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
   * `cd "$GOPATH/src/github.com/Zamiell/"`
   * `git clone https://github.com/Zamiell/isaac-racing-server.git` (or clone a fork, if you are doing development work)
 * Set up environment variables:
-  * `cp .env_defaults .env`
+  * `cp .env_template .env`
   * `nano .env`
     * Create a random 64 digit alphanumeric string for `SESSION_SECRET`.
     * Change the `DB_PASS` value accordingly.
