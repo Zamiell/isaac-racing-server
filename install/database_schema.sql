@@ -24,7 +24,7 @@ CREATE TABLE users (
     datetime_last_login  TIMESTAMP     NOT NULL  DEFAULT NOW(),
     last_ip              VARCHAR(40)   NOT NULL,
     admin                INT           NOT NULL  DEFAULT 0, /* 0 is not an admin, 1 is a staff, 2 is a full administrator */
-    verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitamate player on the leaderboard */
+    verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitimate player on the leaderboard */
 
     /* Seeded leaderboard values */
     seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,

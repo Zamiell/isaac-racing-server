@@ -29,7 +29,7 @@ Install
 These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will be needed for Windows installations.
 
 * Install Go:
-  * `sudo add-apt-repository ppa:longsleep/golang-backports`
+  * `sudo add-apt-repository ppa:longsleep/golang-backports` (if you don't do this, it will install a version of Go that is very old)
   * `sudo apt update`
   * `sudo apt install golang-go -y`
 * Install [MariaDB](https://mariadb.org/) and set up a user:
