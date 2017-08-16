@@ -62,7 +62,7 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
 Run
 ---
 
-* `cd $GOPATH/Zamiell/isaac-racing-server`
+* `cd $GOPATH/Zamiell/isaac-racing-server/src`
 * `go run *.go`
 
 <br />
@@ -73,7 +73,9 @@ Run
 Compile / Build
 ---------------
 
-* `go install` (this creates `$GOPATH/bin/isaac-racing-server`)
+* `cd $GOPATH/Zamiell/isaac-racing-server/src`
+* `go install`
+* `mv "$GOPATH/bin/src" "$GOPATH/bin/isaac-racing-server"` (the binary is called `src` by default, since the name of the directory is `src`)
 
 <br />
 
@@ -96,12 +98,12 @@ Later, to renew the certificate:
 Install as a service (optional)
 -------------------------------
 
-* Install Supervisor (for example, on Ubuntu 16.04):
+* Install Supervisor:
   * `apt install supervisor`
-  * `systemctl enable supervisor` (http://unix.stackexchange.com/questions/281774/ubuntu-server-16-04-cannot-get-supervisor-to-start-automatically)
+  * `systemctl enable supervisor` (this is needed due to [a quick in Ubuntu 16.04](http://unix.stackexchange.com/questions/281774/ubuntu-server-16-04-cannot-get-supervisor-to-start-automatically))
 * Copy the configuration files:
-  * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf /etc/supervisord/supervisord.conf`
-  * `cp $GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf /etc/supervisord/conf.d/isaac-racing-server.conf`
+  * `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf" "/etc/supervisord/supervisord.conf"`
+  * `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf" "/etc/supervisord/conf.d/isaac-racing-server.conf"`
 * Start it: `systemctl start supervisor`
 
 Later, to manage the service:
