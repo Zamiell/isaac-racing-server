@@ -39,3 +39,6 @@ backups
 
 # The compiled binary
 isaac-racing-server
+
+# A helper script
+database_shell.sh

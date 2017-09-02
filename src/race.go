@@ -9,6 +9,60 @@ import (
 )
 
 /*
+	Data structures
+*/
+
+// Used to track the current races in memory
+type Race struct {
+	ID              int
+	Name            string
+	Status          string /* open, starting, in progress, finished */
+	Ruleset         Ruleset
+	Captain         string
+	SoundPlayed     bool
+	DatetimeCreated int64
+	DatetimeStarted int64
+	Racers          map[string]*Racer
+}
+type Ruleset struct {
+	Ranked        bool   `json:"ranked"`
+	Solo          bool   `json:"solo"`
+	Format        string `json:"format"`
+	Character     string `json:"character"`
+	Goal          string `json:"goal"`
+	StartingBuild int    `json:"startingBuild"`
+	Seed          string `json:"seed"`
+}
+type Racer struct {
+	ID                   int
+	Name                 string
+	DatetimeJoined       int64
+	Status               string
+	Seed                 string
+	FloorNum             int
+	StageType            int
+	DatetimeArrivedFloor int64
+	Items                []*Item
+	StartingItem         int /* Determined by seeing if room count is > 0 */
+	Rooms                []*Room
+	Place                int
+	PlaceMid             int
+	DatetimeFinished     int64
+	RunTime              int64 /* in milliseconds */
+	Comment              string
+}
+type Item struct {
+	ID        int `json:"id"`
+	FloorNum  int `json:"floorNum"`
+	StageType int `json:"stageType"`
+}
+type Room struct {
+	ID        string /* e.g. "5.999" */
+	FloorNum  int
+	StageType int
+}
+
+/*
 	Race object methods
 */
 
@@ -108,6 +162,7 @@ func (race *Race) SetAllPlaceMid() {
 				// Those are considered ahead of Cathedral and The Chest
 				racer.PlaceMid++
 			} else if racer2.FloorNum == racer.FloorNum &&
+				racer2.StageType == racer.StageType &&
 				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
 
 				racer.PlaceMid++
@@ -126,7 +181,7 @@ func (race *Race) Start() {
 	}
 
 	// Log the race starting
-	log.Info("Race #"+strconv.Itoa(race.ID)+" starting in", int(secondsToWait), "seconds.")
+	log.Info("Race #"+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
 
 	// Change the status for this race to "starting"
 	race.SetStatus("starting")
@@ -199,11 +254,14 @@ func (race *Race) Start3() {
 			continue
 		}
 
-		d := &IncomingWebsocketData{}
-		d.Command = "race.Start3"
-		d.ID = race.ID
-		d.v = &models.SessionValues{
-			Username: racer.Name,
+		log.Info("Forcing racer \"" + racer.Name + "\" to quit since the race time limit has been reached.")
+
+		d := &IncomingWebsocketData{
+			Command: "race.Start3",
+			ID:      race.ID,
+			v: &models.SessionValues{
+				Username: racer.Name,
+			},
 		}
 		websocketRaceQuit(nil, d)
 	}
