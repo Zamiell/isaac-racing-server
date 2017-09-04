@@ -60,6 +60,6 @@ func restartServer(s *melody.Session, d *IncomingWebsocketData) {
 	if output, err := cmd.Output(); err != nil {
 		log.Error("Failed to execute \"restart.sh\":", err)
 	} else {
-		log.Info("\"restart.sh\" completed:", output)
+		log.Info("\"restart.sh\" completed:", string(output))
 	}
 }
