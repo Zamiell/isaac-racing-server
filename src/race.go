@@ -331,6 +331,7 @@ func (race *Race) Finish() {
 				item.ID,
 				item.FloorNum,
 				item.StageType,
+				item.DatetimeAcquired,
 			); err != nil {
 				log.Error("Failed to write the RaceParticipantItems row for \""+race.Name+"\" to the database:", err)
 				return
@@ -344,6 +345,7 @@ func (race *Race) Finish() {
 				room.ID,
 				room.FloorNum,
 				room.StageType,
+				room.DatetimeArrived,
 			); err != nil {
 				log.Error("Failed to write the RaceParticipantRooms row for \""+race.Name+"\" to the database:", err)
 				return
