@@ -73,22 +73,25 @@ func httpLogin(c *gin.Context) {
 	}
 
 	// Validate that the version is the latest version
-	latestVersionRaw, err := ioutil.ReadFile(path.Join(projectPath, "latest_client_version.txt"))
-	if err != nil {
-		log.Error("Failed to read the \"latest_client_version.txt\" file:", err)
-		return
-	}
-	latestVersion := string(latestVersionRaw)
-	latestVersion = strings.TrimSpace(latestVersion)
-	if len(latestVersion) == 0 {
-		log.Error("The \"latest_client_version.txt\" file is empty, so users will not be able to login to the WebSocket server.")
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-	if version != latestVersion {
-		errorMsg := "Your client version is <strong>" + version + "</strong> and the latest version is <strong>" + latestVersion + "</strong>.<br /><br />Please restart the Racing+ program and it should automatically update to the latest version. If that does not work, you can try manually downloading the latest version from the Racing+ website."
-		http.Error(w, errorMsg, http.StatusUnauthorized)
-		return
+	// (unless this is a test account)
+	if steamID > 0 {
+		latestVersionRaw, err := ioutil.ReadFile(path.Join(projectPath, "latest_client_version.txt"))
+		if err != nil {
+			log.Error("Failed to read the \"latest_client_version.txt\" file:", err)
+			return
+		}
+		latestVersion := string(latestVersionRaw)
+		latestVersion = strings.TrimSpace(latestVersion)
+		if len(latestVersion) == 0 {
+			log.Error("The \"latest_client_version.txt\" file is empty, so users will not be able to login to the WebSocket server.")
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+			return
+		}
+		if version != latestVersion {
+			errorMsg := "Your client version is <strong>" + version + "</strong> and the latest version is <strong>" + latestVersion + "</strong>.<br /><br />Please restart the Racing+ program and it should automatically update to the latest version. If that does not work, you can try manually downloading the latest version from the Racing+ website."
+			http.Error(w, errorMsg, http.StatusUnauthorized)
+			return
+		}
 	}
 
 	// Validate the ticket with the Steam API
