@@ -52,14 +52,16 @@ type Racer struct {
 	Comment              string
 }
 type Item struct {
-	ID        int `json:"id"`
-	FloorNum  int `json:"floorNum"`
-	StageType int `json:"stageType"`
+	ID               int   `json:"id"`
+	FloorNum         int   `json:"floorNum"`
+	StageType        int   `json:"stageType"`
+	DatetimeAcquired int64 `json:"datetimeAcquired"`
 }
 type Room struct {
-	ID        string /* e.g. "5.999" */
-	FloorNum  int
-	StageType int
+	ID              string /* e.g. "5.999" */
+	FloorNum        int
+	StageType       int
+	DatetimeArrived int64
 }
 
 /*

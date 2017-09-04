@@ -47,6 +47,7 @@ func websocketRaceRoom(s *melody.Session, d *IncomingWebsocketData) {
 		roomID,
 		racer.FloorNum,
 		racer.StageType,
+		getTimestamp(),
 	}
 	racer.Rooms = append(racer.Rooms, room)
 }

@@ -107,7 +107,7 @@ CREATE TABLE race_participant_items (
     item_id              INT        NOT NULL,
     floor_num            INT        NOT NULL,
     stage_type           INT        NOT NULL,
-    datetime_acquired    TIMESTAMP  NOT NULL  DEFAULT NOW(),
+    datetime_acquired    TIMESTAMP  NOT NULL,
 
     FOREIGN KEY(race_participant_id) REFERENCES race_participants(id) ON DELETE CASCADE
     /* If the race participant entry is deleted, automatically delete all of their items */
@@ -121,7 +121,7 @@ CREATE TABLE race_participant_rooms (
     room_id              VARCHAR(50)  NOT NULL,
     floor_num            INT          NOT NULL,
     stage_type           INT          NOT NULL,
-    datetime_arrived     TIMESTAMP    NOT NULL  DEFAULT NOW(),
+    datetime_arrived     TIMESTAMP    NOT NULL,
 
     FOREIGN KEY(race_participant_id) REFERENCES race_participants(id) ON DELETE CASCADE
     /* If the race participant entry is deleted, automatically delete all of their rooms */

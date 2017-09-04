@@ -60,6 +60,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 		itemID,
 		racer.FloorNum,
 		racer.StageType,
+		getTimestamp(),
 	}
 	racer.Items = append(racer.Items, item)
 

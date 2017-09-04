@@ -74,7 +74,11 @@ func httpLogin(c *gin.Context) {
 
 	// Validate that the version is the latest version
 	// (unless this is a test account)
-	if steamID > 0 {
+	if steamIDint, err := strconv.Atoi(steamID); err != nil {
+		log.Error("Failed to convert the steam ID to an integer.")
+		http.Error(w, "You provided an invalid \"steamID\".", http.StatusUnauthorized)
+		return
+	} else if steamIDint > 0 {
 		latestVersionRaw, err := ioutil.ReadFile(path.Join(projectPath, "latest_client_version.txt"))
 		if err != nil {
 			log.Error("Failed to read the \"latest_client_version.txt\" file:", err)
