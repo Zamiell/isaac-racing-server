@@ -45,5 +45,6 @@ func websocketRaceSeed(s *melody.Session, d *IncomingWebsocketData) {
 
 	racer.Seed = seed
 	racer.Items = make([]*Item, 0) // Reset all of their accumulated items
+	racer.StartingItem = 0
 	racer.Rooms = make([]*Room, 0) // Reset all of their visited rooms
 }

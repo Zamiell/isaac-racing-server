@@ -52,7 +52,6 @@ type RaceCreatedMessage struct {
 	Name            string   `json:"name"`
 	Status          string   `json:"status"`
 	Ruleset         Ruleset  `json:"ruleset"`
-	Seed            string   `json:"seed"`
 	Captain         string   `json:"captain"`
 	DatetimeCreated int64    `json:"datetimeCreated"`
 	DatetimeStarted int64    `json:"datetimeStarted"`

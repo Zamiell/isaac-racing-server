@@ -44,8 +44,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that the item number is sane
-	// The highest item ID (at the time of this writing) is 529 (Pop!),
-	// and the Racing+ mod has a bunch of custom items
+	// The the base game there are over 500 items and the Racing+ mod has a bunch of custom items
 	// So just check for over 600 to be safe
 	if itemID < 1 || itemID > 600 {
 		log.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
@@ -78,5 +77,10 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 				item,
 			})
 		}
+	}
+
+	// Check to see if this is their starting item
+	if race.Ruleset.Format != "seeded" && racer.StartingItem == 0 && len(racer.Rooms) > 1 {
+		racer.StartingItem = itemID
 	}
 }

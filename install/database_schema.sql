@@ -102,11 +102,12 @@ CREATE INDEX race_participants_index_datetime_joined ON race_participants (datet
 
 DROP TABLE IF EXISTS race_participant_items;
 CREATE TABLE race_participant_items (
-    id                   INT  NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
-    race_participant_id  INT  NOT NULL,
-    item_id              INT  NOT NULL,
-    floor_num            INT  NOT NULL,
-    stage_type           INT  NOT NULL,
+    id                   INT        NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    race_participant_id  INT        NOT NULL,
+    item_id              INT        NOT NULL,
+    floor_num            INT        NOT NULL,
+    stage_type           INT        NOT NULL,
+    datetime_acquired    TIMESTAMP  NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(race_participant_id) REFERENCES race_participants(id) ON DELETE CASCADE
     /* If the race participant entry is deleted, automatically delete all of their items */
@@ -120,6 +121,7 @@ CREATE TABLE race_participant_rooms (
     room_id              VARCHAR(50)  NOT NULL,
     floor_num            INT          NOT NULL,
     stage_type           INT          NOT NULL,
+    datetime_arrived     TIMESTAMP    NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(race_participant_id) REFERENCES race_participants(id) ON DELETE CASCADE
     /* If the race participant entry is deleted, automatically delete all of their rooms */
