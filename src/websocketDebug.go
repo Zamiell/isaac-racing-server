@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
@@ -36,7 +37,14 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	i = 0
 	for _, race := range races {
 		i++
-		log.Debug(strconv.Itoa(i)+")", race)
+		raceString := fmt.Sprintf("%+v", race)
+		log.Debug(strconv.Itoa(i)+")", raceString)
+		j := 0
+		for _, racer := range race.Racers {
+			j++
+			racerString := fmt.Sprintf("%+v", racer)
+			log.Debug("\t"+strconv.Itoa(j)+")", racerString)
+		}
 	}
 	log.Debug("--------------")
 

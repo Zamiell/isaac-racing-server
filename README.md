@@ -69,7 +69,7 @@ Run
 ---
 
 * `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server"`
-* `sudo go run src/*.go` (sudo is necessary because it runs on port 80 and/or 443)
+* `go run src/*.go` (sudo might be necessary because it runs on port 80 and/or 443)
 
 <br />
 
