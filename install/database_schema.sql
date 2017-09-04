@@ -85,7 +85,7 @@ CREATE TABLE race_participants (
     race_id            INT            NOT NULL,
     datetime_joined    TIMESTAMP      NOT NULL  DEFAULT 0,
     seed               VARCHAR(50)    NOT NULL,
-    starting_item      INT            NOT NULL, /* Determined by seeing if room count is > 0 */
+    starting_item      INT            NOT NULL,
     place              INT            NOT NULL, /* -1 is quit, -2 is disqualified */
     datetime_finished  TIMESTAMP      NOT NULL  DEFAULT 0,
     run_time           INT            NOT NULL, /* in milliseconds */

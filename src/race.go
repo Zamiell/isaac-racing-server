@@ -43,7 +43,7 @@ type Racer struct {
 	StageType            int
 	DatetimeArrivedFloor int64
 	Items                []*Item
-	StartingItem         int /* Determined by seeing if room count is > 0 */
+	StartingItem         int
 	Rooms                []*Room
 	Place                int
 	PlaceMid             int
