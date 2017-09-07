@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"time"
 )
 
 /*
@@ -9,23 +10,7 @@ import (
 	but these functions are only used for the website
 */
 
-type StatsSeeded struct {
-	TrueSkill  float32
-	LastChange float32
-	Sigma      float32
-	NumRaces   int
-	LastRace   int64
-}
 
-type StatsUnseeded struct {
-	AdjustedAverage int
-	RealAverage     int
-	NumRaces        int
-	NumForfeits     int
-	ForfeitPenalty  int
-	LowestTime      int
-	LastRace        int64
-}
 
 /*
 // Used in the leaderboards
@@ -60,17 +45,34 @@ type LeaderboardRowMostPlayed struct {
 	Verified int
 }
 */
+type StatsSeeded struct {
+	TrueSkill  float32
+	LastChange float32
+	Sigma      float32
+	NumRaces   int
+	LastRace   sql.NullInt64
+}
+
+type StatsUnseeded struct {
+	AdjustedAverage int
+	RealAverage     int
+	NumRaces        int
+	NumForfeits     int
+	ForfeitPenalty  int
+	LowestTime      int
+	LastRace        sql.NullInt64
+}
 
 type ProfilesRow struct {
 	Username        string
-	DatetimeCreated int64
+	DatetimeCreated time.Time
 	StreamURL       string
 	NumAchievements int
 }
 type ProfileData struct {
 	Username          string
-	DatetimeCreated   int64
-	DatetimeLastLogin int64
+	DatetimeCreated   time.Time
+	DatetimeLastLogin time.Time
 	Admin             int
 	Verified          bool
 	StatsSeeded       StatsSeeded
@@ -333,8 +335,7 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 		); err != nil {
 			return nil, 0, err
 		}
-
-		// Append this row to the leaderboard
+		
 		profiles = append(profiles, row)
 	}
 

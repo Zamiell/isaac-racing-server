@@ -7,7 +7,6 @@ import (
 	"path"
 	"strconv"
 	"time"
-
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/didip/tollbooth"
@@ -36,6 +35,7 @@ type TemplateData struct {
 	Title string
 
 	// Races stuff
+	RaceResults	   []models.RaceHistory
 	ResultsRaces   []models.RaceHistory
 	TotalRaceCount int
 	TotalPages     int
@@ -116,15 +116,24 @@ func httpInit() {
 
 	// Path handlers (for the website)
 	httpRouter.GET("/", httpHome)
-	/*
-		httpRouter.GET("/races", httpRaces)
-		httpRouter.GET("/races/:page", httpRaces)
-		httpRouter.GET("/profile", httpProfile)
-		httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
-		httpRouter.GET("/profiles", httpProfiles)
-		httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
-		httpRouter.GET("/leaderboards", httpLeaderboards)
-	*/
+	
+	// Path handlers for single profile
+	httpRouter.GET("/profile", httpProfile)
+	httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
+
+	// Path handlers for all profiles
+	httpRouter.GET("/profiles", httpProfiles)
+	httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
+		
+	// Path handlers for race page
+	httpRouter.GET("/race", httpRace)
+	httpRouter.GET("/race/:raceid", httpRace)
+	
+	// Path handlers for races page
+	httpRouter.GET("/races", httpRaces)
+	httpRouter.GET("/races/:page", httpRaces)
+	
+	//	httpRouter.GET("/leaderboards", httpLeaderboards)
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
 	httpRouter.Static("/public", "../public")

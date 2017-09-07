@@ -1,6 +1,6 @@
 @import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css");
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,300italic,400italic");
-
+@import url("race.css");
 /*
   Alpha by HTML5 UP
   html5up.net | @ajlkn
@@ -2121,7 +2121,7 @@
       font-weight: 300;
       padding-left: 2.55em;
       padding-right: 0.75em;
-      position: relative;
+      position: absolute;
     }
 
       input[type="checkbox"] + label:before,
@@ -2587,7 +2587,7 @@
       /*font-weight: 300;*/
       font-weight: 400;
       padding: 0 0.75em 0.75em 0.75em;
-      text-align: left;
+      text-align: center;
     }
 
     table thead {
@@ -3847,7 +3847,7 @@
     }
 
     #race-listing-table {
-      font-size: 0.7em;
+      font-size: 1em;
     }
     #race-listing-table .participants-list {
 
