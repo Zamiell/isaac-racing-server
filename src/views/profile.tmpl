@@ -55,7 +55,7 @@
 					{{ range .RaceResults }}
 						<tr>
 							{{ $racers := len .RaceParticipants }}
-							<td rowspan="{{ $racers }}">{{ .RaceID }}</td>
+							<td rowspan="{{ $racers }}"><a href="race/{{ .RaceID }}">{{ .RaceID }}</a></td>
 							<td id="racedate" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
 							<td rowspan="{{ $racers }}"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ .RaceType }}" /></td>
 							<td rowspan="{{ $racers }}"><img src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
