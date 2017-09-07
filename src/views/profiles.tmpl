@@ -56,11 +56,11 @@
 					</tr>
 				</tfoot>
 				<tbody>
-					{{ range .ResultsProfile }}
+					{{ range .ResultsProfiles }}
 						<tr>
-							<td><a href="../profile/{{.Username}}"> {{ .Username }} </a></td>
-							<td id="date"> {{ .DateCreated }}</td>
-							<td> {{ .Achievements }} </td>
+							<td><a href="../profile/{{ .Username }}"> {{ .Username }} </a></td>
+							<td id="date"> {{ .DatetimeCreated }}</td>
+							<td> {{ .NumAchievements }} </td>
 						</tr>
 					{{ end }}
 				</tbody>

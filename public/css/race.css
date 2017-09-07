@@ -1,0 +1,350 @@
+/* Main */
+  #race-main {
+    padding: 2em 0;
+  }
+    #race-main > header.race {
+      text-align: center;
+      margin: 0 0 .5em 0;
+    }
+
+      #race-main > header h2 {
+        font-size: 2.75em;
+        margin: 0;
+        color: white;
+      }
+
+      #race-main > header p {
+        border-top: solid 2px #e5e5e5;
+        /*color: #777;*/
+        color: white;
+        display: inline-block;
+        font-style: normal;
+        margin: 1em 0 0 0;
+        padding: 1em 0 1.25em 0;
+      }
+
+/* Box */
+
+  .race-box {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 0 #e5e5e5;
+    margin: 0 0 1em 0;
+    padding: 1em;
+  }
+
+    .race-box > :last-child {
+      margin-bottom: 0;
+    }
+
+    .race-box.alt {
+      background: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      margin: 0 0 2em 0;
+      padding: 0 !important;
+    }
+
+    .race-box.features .features-row {
+      border-top: solid 2px #e5e5e5;
+      position: relative;
+    }
+
+      .race-box.features .features-row:after {
+        clear: both;
+        content: '';
+        display: block;
+      }
+
+      .race-box.features .features-row section {
+        float: left;
+        padding: 3em;
+        width: 50%;
+      }
+
+        .race-box.features .features-row section :last-child {
+          margin-bottom: 0;
+        }
+
+        .race-box.features .features-row section:nth-child(2n) {
+          padding-right: 0;
+        }
+
+          .race-box.features .features-row section:nth-child(2n):before {
+            background: #e5e5e5;
+            content: '';
+            display: block;
+            height: 100%;
+            margin-left: -3em;
+            position: absolute;
+            top: 0;
+            width: 2px;
+          }
+
+        .race-box.features .features-row section:nth-child(2n-1) {
+          padding-left: 0;
+        }
+
+      .race-box.features .features-row:first-child {
+        border-top: 0;
+      }
+
+        .race-box.features .features-row:first-child section {
+          padding-top: 0;
+        }
+
+      .race-box.features .features-row:last-child {
+        padding-bottom: 0;
+      }
+
+        .race-box.features .features-row:last-child section {
+          padding-bottom: 0;
+        }
+
+    .race-box.special {
+      text-align: center;
+    }
+
+    .race-box .image.featured {
+      border-radius: 0;
+      display: block;
+      margin: 3em 0 3em -3em;
+      position: relative;
+      width: calc(100% + 6em);
+    }
+
+      .race-box .image.featured img {
+        border-radius: 0;
+        display: block;
+        width: 100%;
+      }
+
+      .race-box .image.featured:first-child {
+        border-radius: 6px 6px 0 0;
+        margin-bottom: 3em;
+        margin-top: -3em;
+      }
+
+        .race-box .image.featured:first-child img {
+          border-radius: 6px 6px 0 0;
+        }
+
+      .race-box .image.featured:last-child {
+        border-radius: 0 0 6px 6px;
+        margin-bottom: -3em;
+        margin-top: 3em;
+      }
+
+        .race-box .image.featured:last-child img {
+          border-radius: 0 0 6px 6px;
+        }
+
+/* Headers */
+
+
+  #header .race  {
+    background: #444;
+    color: #bbb;
+    cursor: default;
+    height: 3.25em;
+    left: 0;
+    line-height: 3.25em;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 10000;
+  }
+
+    #header .race  h1 {
+      color: inherit;
+      height: inherit;
+      left: 1.25em;
+      line-height: inherit;
+      margin: 0;
+      padding: 0;
+      position: absolute;
+      top: 0;
+    }
+
+      #header .race  h1 a {
+        color: #fff;
+        font-weight: 400;
+        border: 0;
+      }
+
+        #header .race  h1 a:hover {
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+    #header .race  nav {
+      height: inherit;
+      line-height: inherit;
+      position: absolute;
+      right: 0.75em;
+      top: 0;
+      vertical-align: middle;
+    }
+
+      #header .race  nav > ul {
+        list-style: none;
+        margin: 0;
+        padding-left: 0;
+      }
+
+        #header .race  nav > ul > li {
+          display: inline-block;
+          padding-left: 0;
+        }
+
+          #header .race  nav > ul > li > ul {
+            display: none;
+          }
+
+          #header .race  nav > ul > li a {
+            display: inline-block;
+            height: 2em;
+            line-height: 1.95em;
+            padding: 0 1em;
+            border-radius: 6px;
+          }
+
+            #header .race  nav > ul > li a:hover {
+              background-color: rgba(255, 255, 255, 0.1);
+            }
+
+          #header .race  nav > ul > li a:not(.button) {
+            color: #fff;
+            display: inline-block;
+            text-decoration: none;
+            border: 0;
+          }
+
+            #header .race  nav > ul > li a:not(.button).icon:before {
+              color: #999;
+              margin-right: 0.5em;
+            }
+
+          #header .race  nav > ul > li:first-child {
+            margin-left: 0;
+          }
+
+          #header .race  nav > ul > li.active a:not(.button) {
+            background-color: rgba(153, 153, 153, 0.25);
+          }
+
+          #header .race  nav > ul > li .button {
+            margin: 0 0 0 0.5em;
+            position: relative;
+          }
+
+    #header .race  input[type="submit"],
+    #header .race  input[type="reset"],
+    #header .race  input[type="button"],
+    #header .race  .button {
+      background-color: transparent;
+      box-shadow: inset 0 0 0 2px #999;
+      color: #fff;
+    }
+
+      #header .race  input[type="submit"]:hover,
+      #header .race  input[type="reset"]:hover,
+      #header .race  input[type="button"]:hover,
+      #header .race  .button:hover {
+        background-color: rgba(153, 153, 153, 0.25);
+      }
+
+      #header .race  input[type="submit"]:active,
+      #header .race  input[type="reset"]:active,
+      #header .race  input[type="button"]:active,
+      #header .race  .button:active {
+        background-color: rgba(153, 153, 153, 0.5);
+      }
+
+    #header .race  .container {
+      position: relative;
+    }
+
+      #header .race  .container h1 {
+        left: 0;
+      }
+
+      #header .race  .container nav {
+        right: 0;
+      }
+
+    #header .race .reveal {
+      -moz-animation: reveal-header 0.5s;
+      -webkit-animation: reveal-header 0.5s;
+      -ms-animation: reveal-header 0.5s;
+      animation: reveal-header 0.5s;
+    }
+
+    #header .race .alt {
+      -moz-animation: none;
+      -webkit-animation: none;
+      -ms-animation: none;
+      animation: none;
+      background: none;
+      color: rgba(255, 255, 255, 0.75);
+      position: absolute;
+    }
+
+      #header .race .alt nav > ul > li a:not(.button).icon:before {
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      #header .race .alt nav > ul > li.active a:not(.button) {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      #header .race .alt input[type="submit"],
+      #header .race .alt input[type="reset"],
+      #header .race .alt input[type="button"],
+      #header .race .alt .button {
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+      }
+
+        #header .race .alt input[type="submit"]:hover,
+        #header .race .alt input[type="reset"]:hover,
+        #header .race .alt input[type="button"]:hover,
+        #header .race .alt .button:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #header .race .alt input[type="submit"]:active,
+        #header .race .alt input[type="reset"]:active,
+        #header .race .alt input[type="button"]:active,
+        #header .race .alt .button:active {
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+
+   #race-listing-buttons .button {
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+        color: #fff;
+        min-width: 12em;
+        background-color: transparent;
+    }
+
+    #race-listing-buttons .button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #race-listing-buttons .button:active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    #race-listing-table {
+      font-size: 1em;
+    }
+
+    table#race-listing-table td {
+      text-align: center;
+      vertical-align: top;
+    }
+    table#race-listing-table td#racername {
+      text-align: left;
+      vertical-align: top;
+    }    
+    #race-listing-table .participants-list {
+
+    }

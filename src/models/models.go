@@ -62,7 +62,7 @@ func Init() (*Models, error) {
 
 	// Initialize the database
 	// (3306 is the default port for MariaDB)
-	dsn := dbUser + ":" + dbPass + "@(" + dbHost + ":3306)/" + dbName
+	dsn := dbUser + ":" + dbPass + "@(" + dbHost + ":3306)/" + dbName + "?parseTime=true" 
 	if v, err := sql.Open("mysql", dsn); err != nil {
 		return nil, err
 	} else {

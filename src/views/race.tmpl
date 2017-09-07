@@ -1,0 +1,66 @@
+{{define "content"}}
+<!-- Main -->
+<section id="race-main" class="container">
+	<header class=race>
+		<h2>Race Results for #{{ (index .RaceResults 0).RaceID }}</h2>
+		<p></p>
+		 
+	</header>
+
+	<section class="race-box">
+		<div class="table-wrapper">
+			<table  border=1 id="race-listing-table">
+				<thead>
+					<tr>
+						<th>ID</th>
+						<th>Date &amp; Time</th>
+						<th>Ranked</th>
+						<th>Format</th>
+						<th>Character</th>
+						<th>Goal</th>
+						<th>Racer</th>
+						<th>Place</th>
+						<th>Time</th>
+						<th>Comment</th>
+					</tr>
+				</thead>
+				<tfoot>
+				</tfoot>
+				<tbody>
+					{{ range .RaceResults }}
+						<tr>
+							{{ $racers := len .RaceParticipants }}
+							<td rowspan="{{ $racers }}">{{ .RaceID }}</td>
+							<td id="racedate" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
+							<td rowspan="{{ $racers }}"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ .RaceType }}" /></td>
+							<td rowspan="{{ $racers }}"><img src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
+							<td rowspan="{{ $racers }}"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
+							<td rowspan="{{ $racers }}"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
+							
+							{{ range $index, $results := .RaceParticipants }}
+								<td class=racername>
+									<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
+								</td>
+								{{ if eq .RacerPlace -1 -}}
+									<td>Quit</td>
+									<td>&nbsp;</td>
+								{{- else}}
+									<td>{{ .RacerPlace }}</td>
+									<td>{{ .RacerTime }}</td>
+								{{- end }}
+								{{ if ne .RacerComment "-" -}}
+									<td	title="{{ .RacerComment }}"> {{ .RacerComment }}</td>
+								{{- else}}
+									<td>&nbsp;</td>
+								{{ end }}
+							<tr>
+							{{ end }}
+							</tr>
+						</tr>
+					{{- end }}
+				</tbody>
+			</table>
+		</div>
+	</section>
+</section>
+{{end}}
