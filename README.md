@@ -15,7 +15,7 @@ Description
 
 This is the server software for Racing+, a Binding of Isaac: Afterbirth+ racing platform. Normally a single player game, the Lua mod, client, and server allow players to be able to race each other in real time.
 
-The server is written in [Go](https://golang.org/) and uses WebSockets to communicate with the client. It leverages [Auth0](https://auth0.com/) for authentication and uses a [SQLite](https://sqlite.org/) database to keep track of the races.
+The server is written in [Go](https://golang.org/) and uses WebSockets to communicate with the client. It leverages the [Steam API](https://partner.steamgames.com/doc/webapi_overview) for authentication and uses a [MariaDB](https://mariadb.com/) database to keep track of the races.
 
 You may also be interested in [the client repository](https://github.com/Zamiell/isaac-racing-client) or [the Lua mod](https://github.com/Zamiell/isaac-racing-client/tree/master/mod).
 
