@@ -27,9 +27,7 @@ type RaceHistoryParticipants struct {
 	RacerComment  string
 }
 
-func (*Races) GetRacesHistory(currentPage int, racesPerPage int) ([]RaceHistory, int, error) {
-	raceOffset := currentPage * racesPerPage
-
+func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int) ([]RaceHistory, int, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
