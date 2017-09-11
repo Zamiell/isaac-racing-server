@@ -14,15 +14,17 @@ func httpRaces(c *gin.Context) {
 	w := c.Writer
 	currentPage := 1
 	racesPerPage := 20
+	raceOffset := 0
+	
 
 	// Grab the current page from the URI and set currentPage if found
 	i, err := strconv.ParseInt(c.Params.ByName("page"), 10, 32)
 	if err == nil && int(i) > 1 {
 		currentPage = int(i)
+		raceOffset = (racesPerPage * currentPage) + 1
 	} 
 
-	// Gather the race data and page content
-	raceData, totalRaces, err := db.Races.GetRacesHistory(currentPage, racesPerPage)
+	raceData, totalRaces, err := db.Races.GetRacesHistory(currentPage, racesPerPage, raceOffset)
 	if err != nil {
 		log.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
