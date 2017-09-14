@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 )
@@ -50,7 +51,7 @@ func httpProfile(c *gin.Context) {
 	// Local variables
 	w := c.Writer
 	racesPerPage := 5
-	
+
 	// Parse the player name from the URL
 	player := c.Params.ByName("player")
 	if player == "" {
@@ -83,7 +84,7 @@ func httpProfile(c *gin.Context) {
 	data := TemplateData{
 		Title:          "Profile",
 		ResultsProfile: playerData,
-		RaceResults:	raceData,
+		RaceResults:    raceData,
 	}
 
 	httpServeTemplate(w, "profile", data)

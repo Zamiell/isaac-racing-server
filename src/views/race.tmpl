@@ -4,7 +4,7 @@
 	<header class=race>
 		<h2>Race Results for #{{ (index .RaceResults 0).RaceID }}</h2>
 		<p></p>
-		 
+
 	</header>
 
 	<section class="race-box">
@@ -36,7 +36,7 @@
 							<td rowspan="{{ $racers }}"><img src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
 							<td rowspan="{{ $racers }}"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
 							<td rowspan="{{ $racers }}"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
-							
+
 							{{ range $index, $results := .RaceParticipants }}
 								<td class=racername>
 									<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>

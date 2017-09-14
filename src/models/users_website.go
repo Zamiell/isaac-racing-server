@@ -10,8 +10,6 @@ import (
 	but these functions are only used for the website
 */
 
-
-
 /*
 // Used in the leaderboards
 type LeaderboardRowSeeded struct {
@@ -45,6 +43,7 @@ type LeaderboardRowMostPlayed struct {
 	Verified int
 }
 */
+// StatsSeeded is used to get all seeded stats
 type StatsSeeded struct {
 	TrueSkill  float32
 	LastChange float32
@@ -53,6 +52,7 @@ type StatsSeeded struct {
 	LastRace   sql.NullInt64
 }
 
+// StatsUnseeded is used to get all unseeded stats
 type StatsUnseeded struct {
 	AdjustedAverage int
 	RealAverage     int
@@ -63,12 +63,15 @@ type StatsUnseeded struct {
 	LastRace        sql.NullInt64
 }
 
+// ProfilesRow gets each row for all profiles
 type ProfilesRow struct {
 	Username        string
 	DatetimeCreated time.Time
 	StreamURL       string
 	NumAchievements int
 }
+
+// ProfileData has all data for each racer
 type ProfileData struct {
 	Username          string
 	DatetimeCreated   time.Time
@@ -227,7 +230,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 }
 */
 
-// Get player data to populate the player's profile page
+// GetProfileData gets player data to populate the player's profile page
 func (*Users) GetProfileData(username string) (ProfileData, error) {
 	var profileData ProfileData
 	var rawVerified int
@@ -288,7 +291,7 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 	}
 }
 
-// Get players data to populate the profiles page
+// GetUserProfiles gets players data to populate the profiles page
 func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow, int, error) {
 	usersOffset := (currentPage - 1) * usersPerPage
 	var rows *sql.Rows
@@ -335,7 +338,7 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 		); err != nil {
 			return nil, 0, err
 		}
-		
+
 		profiles = append(profiles, row)
 	}
 

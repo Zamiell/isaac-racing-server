@@ -4,29 +4,33 @@ import (
 	"database/sql"
 	"time"
 )
-	
+
 /*
 	These are more functions for querying the "races" table,
 	but these functions are only used for the website
 */
 
+// RaceHistory gets the history for each race in the database
 type RaceHistory struct {
-	RaceID				int
-	RaceType			string
-	RaceFormat			string
-	RaceChar			string
-	RaceGoal			string
-	RaceDateStart		time.Time
-	RaceDateFinished	time.Time
-	RaceParticipants	[]RaceHistoryParticipants
-}
-type RaceHistoryParticipants struct {
-	RacerName     string
-	RacerPlace    int
-	RacerTime     string
-	RacerComment  string
+	RaceID           int
+	RaceType         string
+	RaceFormat       string
+	RaceChar         string
+	RaceGoal         string
+	RaceDateStart    time.Time
+	RaceDateFinished time.Time
+	RaceParticipants []RaceHistoryParticipants
 }
 
+// RaceHistoryParticipants gets the user stats for each racer in each race
+type RaceHistoryParticipants struct {
+	RacerName    string
+	RacerPlace   int
+	RacerTime    string
+	RacerComment string
+}
+
+// GetRacesHistory gets all data for all races
 func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int) ([]RaceHistory, int, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
@@ -127,7 +131,8 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 	return raceHistory, allRaceCount, nil
 }
 
-func (*Races) GetRaceHistory(raceId int) ([]RaceHistory, error) {
+// GetRaceHistory gets race history for a single race
+func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -146,7 +151,7 @@ func (*Races) GetRaceHistory(raceId int) ([]RaceHistory, error) {
 			id
 		ORDER BY
 			datetime_created DESC
-	`, raceId); err != nil {
+	`, raceID); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -213,7 +218,8 @@ func (*Races) GetRaceHistory(raceId int) ([]RaceHistory, error) {
 	return raceHistory, nil
 }
 
-func (*Races) GetRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory,  error) {
+// GetRaceProfileHistory gets the race data for the profile page
+func (*Races) GetRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -229,13 +235,13 @@ func (*Races) GetRaceProfileHistory(user string, racesPerPage int) ([]RaceHistor
 		LEFT JOIN
 			race_participants rp
 			ON rp.race_id = r.id
-		LEFT JOIN 
+		LEFT JOIN
 			users u
 			ON u.id = rp.user_id
 
 		WHERE
 			r.finished = 1
-			AND u.username = ? 
+			AND u.username = ?
 		GROUP BY
 			id
 		ORDER BY
