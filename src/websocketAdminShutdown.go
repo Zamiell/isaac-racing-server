@@ -13,6 +13,7 @@ func websocketAdminShutdown(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
 	username := d.v.Username
 	admin := d.v.Admin
+	comment := d.Comment
 
 	// Validate that the user is an admin
 	if admin != 2 {
@@ -21,7 +22,13 @@ func websocketAdminShutdown(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	shutdownMode = true
+	if comment == "restart" {
+		// We want to automatically restart the server once all races are finished
+		shutdownMode = 1
+	} else {
+		// We don't want to automatically restart the server and have to probably perform some manual administrative activity
+		shutdownMode = 2
+	}
 
 	if len(races) > 0 {
 		d.Message = "The server will restart when all ongoing races have finished. New race creation has been disabled."
@@ -36,7 +43,7 @@ func websocketAdminShutdownSub(s *melody.Session, d *IncomingWebsocketData) {
 	for {
 		time.Sleep(time.Second)
 
-		if !shutdownMode {
+		if shutdownMode == 0 {
 			log.Info("shutdownMode changed to false. Shutdown aborted.")
 			break
 		}
@@ -55,6 +62,11 @@ func websocketAdminShutdownSub(s *melody.Session, d *IncomingWebsocketData) {
 func restartServer(s *melody.Session, d *IncomingWebsocketData) {
 	d.Message = "The server is restarting; please stand by."
 	websocketAdminMessage(s, d)
+
+	if shutdownMode == 2 {
+		// We don't want to perform an automatic restart
+		return
+	}
 
 	cmd := exec.Command(path.Join(projectPath, "restart.sh"))
 	if output, err := cmd.Output(); err != nil {

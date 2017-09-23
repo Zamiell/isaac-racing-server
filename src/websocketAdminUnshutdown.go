@@ -17,5 +17,5 @@ func websocketAdminUnshutdown(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	shutdownMode = false
+	shutdownMode = 0
 }
