@@ -6,7 +6,9 @@ import (
 	"os"
 	"path"
 	"strconv"
+	"strings"
 	"time"
+
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/didip/tollbooth"
@@ -35,7 +37,7 @@ type TemplateData struct {
 	Title string
 
 	// Races stuff
-	RaceResults	   []models.RaceHistory
+	RaceResults    []models.RaceHistory
 	ResultsRaces   []models.RaceHistory
 	TotalRaceCount int
 	TotalPages     int
@@ -116,7 +118,7 @@ func httpInit() {
 
 	// Path handlers (for the website)
 	httpRouter.GET("/", httpHome)
-	
+
 	// Path handlers for single profile
 	httpRouter.GET("/profile", httpProfile)
 	httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
@@ -124,15 +126,15 @@ func httpInit() {
 	// Path handlers for all profiles
 	httpRouter.GET("/profiles", httpProfiles)
 	httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
-		
+
 	// Path handlers for race page
 	httpRouter.GET("/race", httpRace)
 	httpRouter.GET("/race/:raceid", httpRace)
-	
+
 	// Path handlers for races page
 	httpRouter.GET("/races", httpRaces)
 	httpRouter.GET("/races/:page", httpRaces)
-	
+
 	//	httpRouter.GET("/leaderboards", httpLeaderboards)
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
@@ -214,14 +216,19 @@ func httpServeTemplate(w http.ResponseWriter, templateName string, data interfac
 	// Create the template
 	tmpl, err := template.ParseFiles(lp, fp)
 	if err != nil {
-		log.Error("Failed to create the template:", err)
+		log.Error("Failed to create the template: " + err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	// Execute the template and send it to the user
-	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
-		log.Error("Failed to execute the template:", err)
+	if err := tmpl.ExecuteTemplate(w, "layout", data); strings.HasSuffix(err.Error(), ": write: broken pipe") {
+		// Broken pipe errors can occur when the user presses the "Stop" button while the template is executing
+		// We don't want to reporting these errors to Sentry
+		// https://stackoverflow.com/questions/26853200/filter-out-broken-pipe-errors-from-template-execution
+		log.Info("Failed to execute the template: " + err.Error())
+	} else if err != nil {
+		log.Error("Failed to execute the template: " + err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
