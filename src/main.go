@@ -26,7 +26,7 @@ func main() {
 	log.Info("| Starting isaac-racing-server. |")
 	log.Info("+-------------------------------+")
 
-	// Load the .env file which contains environment variables with secret values
+	// Load the ".env" file which contains environment variables with secret values
 	if err := godotenv.Load(path.Join(projectPath, ".env")); err != nil {
 		log.Fatal("Failed to load .env file:", err)
 	}

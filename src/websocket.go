@@ -62,6 +62,7 @@ func websocketInit() {
 	commandHandlerMap["adminMessage"] = websocketAdminMessage
 	commandHandlerMap["adminShutdown"] = websocketAdminShutdown
 	commandHandlerMap["adminUnshutdown"] = websocketAdminUnshutdown
+	commandHandlerMap["adminLoadEnv"] = websocketAdminLoadEnv
 	/*
 		commandHandlerMap["adminBan"] = websocketAdminBan
 		commandHandlerMap["adminUnban"] = websocketAdminUnban
