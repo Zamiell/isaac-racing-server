@@ -82,8 +82,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			SELECT
 			    u.username,
 			    rp.place,
-			    CONCAT(LPAD(ROUND(rp.run_time/1000/60,0),2,0), ":", LPAD(ROUND(rp.run_time/1000%60,0),2,0) ),
-			    rp.comment
+			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),			    rp.comment
 			FROM
 			    race_participants rp
 			LEFT JOIN
@@ -179,7 +178,7 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 			SELECT
 			    u.username,
 			    rp.place,
-			    CONCAT(LPAD(ROUND(rp.run_time/1000/60,0),2,0), ":", LPAD(ROUND(rp.run_time/1000%60,0),2,0) ),
+			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
 			    rp.comment
 			FROM
 			    race_participants rp
@@ -276,7 +275,7 @@ func (*Races) GetRaceProfileHistory(user string, racesPerPage int) ([]RaceHistor
 			SELECT
 			    u.username,
 			    rp.place,
-			    CONCAT(LPAD(ROUND(rp.run_time/1000/60,0),2,0), ":", LPAD(ROUND(rp.run_time/1000%60,0),2,0) ),
+			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
 			    rp.comment
 			FROM
 			    race_participants rp
