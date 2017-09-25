@@ -82,7 +82,8 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			SELECT
 			    u.username,
 			    rp.place,
-			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),			    rp.comment
+			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),			    
+			    rp.comment
 			FROM
 			    race_participants rp
 			LEFT JOIN
