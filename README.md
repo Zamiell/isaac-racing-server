@@ -52,7 +52,7 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
   * `cd isaac-racing-server`
 * Download and install all of the Go dependencies:
   * `cd src` (this is where all of the Go source code lives)
-  * `go get -v ./...`
+  * `go get ./...` (it is normal for this to take a very long time)
   * `cd ..`
 * Set up environment variables:
   * `cp .env_template .env`
