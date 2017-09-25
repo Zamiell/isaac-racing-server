@@ -49,9 +49,11 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
   * `mkdir -p "$GOPATH/src/github.com/Zamiell"`
   * `cd "$GOPATH/src/github.com/Zamiell/"`
   * `git clone https://github.com/Zamiell/isaac-racing-server.git` (or clone a fork, if you are doing development work)
-* Download and install all of the Go dependencies:
   * `cd isaac-racing-server`
-  * `go get -v ./...` (it will give an error about `runtime.main_main·f` for some reason; ignore this and proceed)
+* Download and install all of the Go dependencies:
+  * `cd src` (this is where all of the Go source code lives)
+  * `go get -v ./...`
+  * `cd ..`
 * Set up environment variables:
   * `cp .env_template .env`
   * `nano .env`

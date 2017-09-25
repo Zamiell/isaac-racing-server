@@ -2,6 +2,7 @@ package main
 
 import (
 	"html/template"
+	"net"
 	"net/http"
 	"os"
 	"path"
@@ -11,10 +12,9 @@ import (
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
-	"github.com/didip/tollbooth"
-	"github.com/didip/tollbooth/thirdparty/tollbooth_gin"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	limiter "github.com/julianshen/gin-limiter"
 )
 
 const (
@@ -101,9 +101,18 @@ func httpInit() {
 	sessionStore.Options(options)
 	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
 
-	// Use the Tollbooth middleware for rate-limiting
-	limiter := tollbooth.NewLimiter(1, time.Second) // Limit each user to 1 request per second
-	httpRouter.Use(tollbooth_gin.LimitHandler(limiter))
+	// Use the gin-limiter middleware for rate-limiting
+	// (to only allow one request per second)
+	// Based on: https://github.com/julianshen/gin-limiter/blob/master/example/web.go
+	limiterMiddleware := limiter.NewRateLimiter(time.Second, 1, func(c *gin.Context) (string, error) {
+		// Local variables
+		r := c.Request
+		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+
+		// Just use the IP address as the key
+		return ip, nil
+	}).Middleware()
+	httpRouter.Use(limiterMiddleware)
 
 	// Use a custom middleware for Google Analytics tracking
 	GATrackingID = os.Getenv("GA_TRACKING_ID")
