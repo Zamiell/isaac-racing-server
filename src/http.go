@@ -57,7 +57,7 @@ type TemplateData struct {
 
 func httpInit() {
 	// Create a new Gin HTTP router
-	gin.SetMode(gin.ReleaseMode) // Comment this out to debug HTTP stuff
+	//gin.SetMode(gin.ReleaseMode) // Comment this out to debug HTTP stuff
 	httpRouter := gin.Default()
 
 	// Read some HTTP server configuration values from environment variables
@@ -101,10 +101,19 @@ func httpInit() {
 	sessionStore.Options(options)
 	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
 
+	/*
+		Commented out because it doesn't work:
+		https://github.com/didip/tollbooth_gin/issues/3
+
+		// Use the Tollbooth Gin middleware for Google Analytics tracking
+		limiter := tollbooth.NewLimiter(1, time.Second, nil) // Limit each user to 1 request per second
+		httpRouter.Use(tollbooth_gin.LimitHandler(limiter))
+	*/
+
 	// Use the gin-limiter middleware for rate-limiting
 	// (to only allow one request per second)
 	// Based on: https://github.com/julianshen/gin-limiter/blob/master/example/web.go
-	limiterMiddleware := limiter.NewRateLimiter(time.Second, 1, func(c *gin.Context) (string, error) {
+	limiterMiddleware := limiter.NewRateLimiter(time.Second*60, 60, func(c *gin.Context) (string, error) {
 		// Local variables
 		r := c.Request
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
@@ -231,14 +240,15 @@ func httpServeTemplate(w http.ResponseWriter, templateName string, data interfac
 	}
 
 	// Execute the template and send it to the user
-	if err := tmpl.ExecuteTemplate(w, "layout", data); strings.HasSuffix(err.Error(), ": write: broken pipe") {
-		// Broken pipe errors can occur when the user presses the "Stop" button while the template is executing
-		// We don't want to reporting these errors to Sentry
-		// https://stackoverflow.com/questions/26853200/filter-out-broken-pipe-errors-from-template-execution
-		log.Info("Failed to execute the template: " + err.Error())
-	} else if err != nil {
-		log.Error("Failed to execute the template: " + err.Error())
+	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
+		if strings.HasSuffix(err.Error(), ": write: broken pipe") {
+			// Broken pipe errors can occur when the user presses the "Stop" button while the template is executing
+			// We don't want to reporting these errors to Sentry
+			// https://stackoverflow.com/questions/26853200/filter-out-broken-pipe-errors-from-template-execution
+			log.Info("Failed to execute the template: " + err.Error())
+		} else {
+			log.Error("Failed to execute the template: " + err.Error())
+		}
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
 	}
 }
