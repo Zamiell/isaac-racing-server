@@ -57,7 +57,7 @@ type TemplateData struct {
 
 func httpInit() {
 	// Create a new Gin HTTP router
-	//gin.SetMode(gin.ReleaseMode) // Comment this out to debug HTTP stuff
+	gin.SetMode(gin.ReleaseMode) // Comment this out to debug HTTP stuff
 	httpRouter := gin.Default()
 
 	// Read some HTTP server configuration values from environment variables
