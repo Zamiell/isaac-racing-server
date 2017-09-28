@@ -2,7 +2,6 @@ package main
 
 import (
 	"html/template"
-	"net"
 	"net/http"
 	"os"
 	"path"
@@ -12,9 +11,10 @@ import (
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/didip/tollbooth"
+	"github.com/didip/tollbooth_gin"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	limiter "github.com/julianshen/gin-limiter"
 )
 
 const (
@@ -101,27 +101,31 @@ func httpInit() {
 	sessionStore.Options(options)
 	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
 
-	/*
-		Commented out because it doesn't work:
-		https://github.com/didip/tollbooth_gin/issues/3
-
-		// Use the Tollbooth Gin middleware for Google Analytics tracking
-		limiter := tollbooth.NewLimiter(1, time.Second, nil) // Limit each user to 1 request per second
-		httpRouter.Use(tollbooth_gin.LimitHandler(limiter))
-	*/
-
-	// Use the gin-limiter middleware for rate-limiting
-	// (to only allow one request per second)
-	// Based on: https://github.com/julianshen/gin-limiter/blob/master/example/web.go
-	limiterMiddleware := limiter.NewRateLimiter(time.Second*60, 60, func(c *gin.Context) (string, error) {
-		// Local variables
-		r := c.Request
-		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-
-		// Just use the IP address as the key
-		return ip, nil
-	}).Middleware()
+	// Use the Tollbooth Gin middleware for Google Analytics tracking
+	limiter := tollbooth.NewLimiter(1, time.Second, nil) // Limit each user to 1 request per second
+	// When a user requests "/", they will also request the CSS and images;
+	// this middleware is smart enough to know that it is considered part of the first request
+	// However, it is still not possible to spam download CSS or image files
+	limiterMiddleware := tollbooth_gin.LimitHandler(limiter)
 	httpRouter.Use(limiterMiddleware)
+
+	/*
+		This was used as an alterate to the Tollbooth middleware when it wasn't working
+
+		// Use the gin-limiter middleware for rate-limiting
+		// We only allow 60 request per minute, an average of 1 per second
+		// This is because when a user requests "/", they will also request the CSS and images
+		// Based on: https://github.com/julianshen/gin-limiter/blob/master/example/web.go
+		limiterMiddleware := limiter.NewRateLimiter(time.Second*60, 60, func(c *gin.Context) (string, error) {
+			// Local variables
+			r := c.Request
+			ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+
+			// Just use the IP address as the key
+			return ip, nil
+		}).Middleware()
+		httpRouter.Use(limiterMiddleware)
+	*/
 
 	// Use a custom middleware for Google Analytics tracking
 	GATrackingID = os.Getenv("GA_TRACKING_ID")
