@@ -7,7 +7,6 @@ import (
 type BannedIPs struct{}
 
 /*
-
 func (*BannedIPs) Insert(ip string, adminResponsible int, reason string) error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
@@ -26,12 +25,14 @@ func (*BannedIPs) Insert(ip string, adminResponsible int, reason string) error {
 
 	return nil
 }
+*/
 
-func (*BannedIPs) InsertUserIP(username string, adminResponsible int, reason string) error {
+// Used in the "websocketAdminBan()" function
+func (*BannedIPs) InsertUserIP(userID int, adminResponsible int, reason string) error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
-		INSERT INTO banned_ips (ip, admin_responsible, reason)
-		VALUES ((SELECT last_ip FROM users WHERE username = ?), ?, ?)
+		INSERT INTO banned_ips (ip, user_id, admin_responsible, reason)
+		VALUES ((SELECT last_ip FROM users WHERE id = ?), ?, ?)
 	`); err != nil {
 		return err
 	} else {
@@ -40,7 +41,7 @@ func (*BannedIPs) InsertUserIP(username string, adminResponsible int, reason str
 	defer stmt.Close()
 
 	if _, err := stmt.Exec(
-		username,
+		userID,
 		adminResponsible,
 		reason,
 	); err != nil {
@@ -50,6 +51,7 @@ func (*BannedIPs) InsertUserIP(username string, adminResponsible int, reason str
 	return nil
 }
 
+/*
 func (*BannedIPs) Delete(ip string) error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
@@ -68,12 +70,13 @@ func (*BannedIPs) Delete(ip string) error {
 
 	return nil
 }
+*/
 
-func (*BannedIPs) DeleteUserIP(username string) error {
+func (*BannedIPs) DeleteUserIP(userID int) error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
 		DELETE FROM banned_ips
-		WHERE ip = (SELECT last_ip FROM users WHERE username = ?)
+		WHERE ip = (SELECT last_ip FROM users WHERE id = ?)
 	`); err != nil {
 		return err
 	} else {
@@ -81,14 +84,12 @@ func (*BannedIPs) DeleteUserIP(username string) error {
 	}
 	defer stmt.Close()
 
-	if _, err := stmt.Exec(username); err != nil {
+	if _, err := stmt.Exec(userID); err != nil {
 		return err
 	}
 
 	return nil
 }
-
-*/
 
 func (*BannedIPs) Check(ip string) (bool, error) {
 	var id int

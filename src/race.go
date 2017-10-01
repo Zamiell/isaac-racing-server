@@ -353,30 +353,15 @@ func (race *Race) Finish() {
 			}
 		}
 	}
-}
 
-/*
-	Race subroutines
-*/
+	// Update the leaderboard
+	if !race.Ruleset.Ranked {
+		return
+	}
 
-// Now that a user has finished, quit, or been disqualified from a race, update fields in the users table for unseeded races
-func raceUpdateUnseededStats(raceID int, username string) {
-	// Don't do anything if this is not an unseeded race (or an unranked race)
-	// TODO
-
-	// Get their unseeded stats
-	/*
-		if statsUnseeded, err := db.Users.GetStatsUnseeded(username); err != nil {
-			log.Error("Database error:", err)
-			return
-		}
-	*/
-
-	// Update all the stats
-	// TODO
-}
-
-// Now that the race has finished, update fields in the users table for seeded races
-func raceUpdateSeededStats(raceID int, username string) {
-
+	if race.Ruleset.Format == "seeded" {
+		leaderboardUpdateUnseeded(race)
+	} else if race.Ruleset.Format == "unseeded" {
+		leaderboardUpdateSeeded(race)
+	}
 }

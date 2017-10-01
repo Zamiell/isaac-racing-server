@@ -92,11 +92,6 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	for _, user := range users {
 		// All users in the chat room should be online, but check just in case
 		if s2, ok := websocketSessions[user.Name]; ok {
-			type RoomMessageMessage struct {
-				Room    string `json:"room"`
-				Name    string `json:"name"`
-				Message string `json:"message"`
-			}
 			websocketEmit(s2, "roomMessage", &RoomMessageMessage{
 				d.Room,
 				username,

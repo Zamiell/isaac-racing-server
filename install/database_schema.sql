@@ -136,8 +136,7 @@ CREATE TABLE banned_users (
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
     datetime_banned    TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-    /* If the user is deleted, automatically delete the banned_users entry */
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE, /* If the user is deleted, automatically delete the banned_users entry */
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX banned_users_index_user_id ON banned_users (user_id);
@@ -146,13 +145,16 @@ DROP TABLE IF EXISTS banned_ips;
 CREATE TABLE banned_ips (
     id                 INT            NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
     ip                 VARCHAR(40)    NOT NULL,
+    user_id            INT            NULL      DEFAULT NULL, /* If specified, this IP address is associated with the respective user */
     admin_responsible  INT            NOT NULL,
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
     datetime_banned    TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE, /* If the user is deleted, automatically delete the banned_ips entry */
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX banned_ips_index_ip ON banned_ips (ip);
+CREATE UNIQUE INDEX banned_ips_index_user_id ON banned_ips (user_id);
 
 DROP TABLE IF EXISTS muted_users;
 CREATE TABLE muted_users (
@@ -162,8 +164,7 @@ CREATE TABLE muted_users (
     reason             NVARCHAR(150)  NOT NULL  DEFAULT "-",
     datetime_muted     TIMESTAMP      NOT NULL  DEFAULT NOW(),
 
-    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
-    /* If the user is deleted, automatically delete the muted_users entry */
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE, /* If the user is deleted, automatically delete the muted_users entry */
     FOREIGN KEY(admin_responsible) REFERENCES users(id)
 );
 CREATE UNIQUE INDEX muted_users_index_user_id ON muted_users (user_id);

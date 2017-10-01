@@ -50,9 +50,4 @@ func websocketRaceQuit(s *melody.Session, d *IncomingWebsocketData) {
 	race.SetAllPlaceMid()
 	twitchRacerQuit(race, racer)
 	race.CheckFinish()
-
-	// Update fields in the users table (e.g. average, ELO)
-	// (we calculate stats for seeded races only when the race is completed)
-	//leaderboardUpdateUnseededStats(raceID, username)
-	// TODO
 }

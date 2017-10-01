@@ -85,11 +85,14 @@ func httpValidateSession(c *gin.Context) *models.SessionValues {
 	}
 
 	// Check for sessions that belong to orphaned accounts
-	if userExists, err := db.Users.Exists(username); err != nil {
+	if userExists, databaseID, err := db.Users.Exists(username); err != nil {
 		log.Error("Database error:", err)
 		return nil
 	} else if !userExists {
 		log.Error("User \"" + username + "\" does not exist in the database; they are trying to establish a WebSocket connection with an orphaned account.")
+		return nil
+	} else if userID != databaseID {
+		log.Error("User \"" + username + "\" exists in the database, but they are trying to establish a WebSocket connection with an account ID that does not match the ID in the database.")
 		return nil
 	}
 

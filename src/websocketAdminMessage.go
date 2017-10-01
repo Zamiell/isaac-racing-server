@@ -9,6 +9,8 @@ import (
 )
 
 /*
+	This is sent on the client with the "/notice" command.
+
 	Command example:
 	adminMessage {
 		message: "the tournament is starting soon",

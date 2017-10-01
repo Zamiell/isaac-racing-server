@@ -2,6 +2,8 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"strconv"
 )
 
 type Users struct{}
@@ -115,23 +117,37 @@ func (*Users) Login(steamID string) (*SessionValues, error) {
 	return sessionValues, nil
 }
 
-// Check if the username exists in the database
-// (MariaDB will perform a case insensitive comparison by default,
-// which is what we want)
-// Used in the "httpRegister" and "httpValidateSession" functions
-func (*Users) Exists(username string) (bool, error) {
+// Also returns the user ID so that it can be used in the "websocketAdminBan()" function
+func (*Users) Exists(username string) (bool, int, error) {
 	var id int
 	if err := db.QueryRow(`
 		SELECT id
 		FROM users
 		WHERE username = ?
 	`, username).Scan(&id); err == sql.ErrNoRows {
-		return false, nil
+		return false, -1, nil
 	} else if err != nil {
-		return false, err
+		return false, -1, err
 	}
 
-	return true, nil
+	return true, id, nil
+}
+
+// Check to see if a user is either staff or an admin
+// Used in the "websocketAdminBan()" function
+func (*Users) GetAdmin(userID int) (int, error) {
+	var admin int
+	if err := db.QueryRow(`
+		SELECT admin
+		FROM users
+		WHERE id = ?
+	`, userID).Scan(&admin); err == sql.ErrNoRows {
+		return -1, errors.New("A user with an ID of \"" + strconv.Itoa(userID) + "\" does not exist.")
+	} else if err != nil {
+		return -1, err
+	}
+
+	return admin, nil
 }
 
 // Used in the "twitchConnect" and "websocketProfileSetStream" functions

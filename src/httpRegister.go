@@ -91,7 +91,7 @@ func httpRegister(c *gin.Context) {
 	}
 
 	// Validate that the username is not already taken
-	if userExists, err := db.Users.Exists(username); err != nil {
+	if userExists, _, err := db.Users.Exists(username); err != nil {
 		log.Error("Database error:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return

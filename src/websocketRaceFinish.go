@@ -51,11 +51,7 @@ func websocketRaceFinish(s *melody.Session, d *IncomingWebsocketData) {
 	twitchRacerFinish(race, racer)
 	race.CheckFinish()
 
-	// Update fields in the users table (e.g. average, ELO)
-	// (we calculate stats for seeded races only when the race is completed)
-	//leaderboardUpdateUnseededStats(raceID, username)
-	// TODO
-
 	// Check to see if the user got any achievements
+	// (which can only happen if they actually finished the race)
 	achievementsCheck(userID, username)
 }

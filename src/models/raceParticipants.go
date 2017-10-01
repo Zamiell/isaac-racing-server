@@ -100,6 +100,45 @@ func (*RaceParticipants) GetFinishedRaces(userID int) ([]Race, error) {
 	return raceList, nil
 }
 
+// Used in the "achievements1_8()" function
+type UnseededTime struct {
+	Place   int // -1 is quit, -2 is disqualified
+	RunTime int64
+}
+
+// Get a list of the a player's times for ranked unseeded races
+// Used in the "leaderboardUpdateUnseeded()" function
+func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT race_participants.place, race_participants.run_time
+		FROM race_participants
+			JOIN races ON race_participants.race_id = races.id
+		WHERE race_participants.user_id = ? AND races.ranked = 1 AND races.format = "unseeded"
+		ORDER BY races.datetime_finished DESC
+		LIMIT ?
+	`, userID); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	// Iterate over the races
+	var raceList []UnseededTime
+	for rows.Next() {
+		var race UnseededTime
+		if err := rows.Scan(&race.Place, &race.RunTime); err != nil {
+			return nil, err
+		}
+
+		// Append this race to the slice
+		raceList = append(raceList, race)
+	}
+
+	return raceList, nil
+}
+
 /*
 // Used in ?
 func (*RaceParticipants) SetComment(userID int, raceID int, comment string) error {

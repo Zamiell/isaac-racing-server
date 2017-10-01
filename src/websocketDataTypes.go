@@ -33,7 +33,7 @@ type IncomingWebsocketData struct {
 */
 
 // Used in defining the "chatRooms" map
-// Sent in the "roomUpdate" command (in the "chatRoomsUpdate" function)
+// Sent in the "roomUpdate" command (in the "chatRoomsUpdate()" function)
 type User struct {
 	Name      string `json:"name"`
 	Admin     int    `json:"admin"`
@@ -41,12 +41,20 @@ type User struct {
 	StreamURL string `json:"streamURL"`
 }
 
+// Sent in the "roomMessage" command (in the "websocketroomMessage()" function)
+// Sent in the "adminBan" command (in the "websocketAdminBan()" function)
+type RoomMessageMessage struct {
+	Room    string `json:"room"`
+	Name    string `json:"name"`
+	Message string `json:"message"`
+}
+
 /*
 	Race data types
 */
 
-// Sent in the "raceCreate" command (in the "websocketRaceCreate" function)
-// Sent in the "raceList" command (in the "websocketHandleConnect" function)
+// Sent in the "raceCreate" command (in the "websocketRaceCreate()" function)
+// Sent in the "raceList" command (in the "websocketHandleConnect()" function)
 type RaceCreatedMessage struct {
 	ID              int      `json:"id"`
 	Name            string   `json:"name"`
@@ -58,7 +66,7 @@ type RaceCreatedMessage struct {
 	Racers          []string `json:"racers"`
 }
 
-// Sent in the "raceStart" command (in the "raceCheckStart" and "websocketHandleConnect" functions)
+// Sent in the "raceStart" command (in the "raceCheckStart()" and "websocketHandleConnect()" functions)
 type RaceStartMessage struct {
 	ID   int   `json:"id"`
 	Time int64 `json:"time"`
@@ -68,7 +76,7 @@ type RaceStartMessage struct {
 	Admin data types
 */
 
-// Sent in the "adminMessage" command (in the "websocketHandleConnect" and "websocketAdminMessage" functions)
+// Sent in the "adminMessage" command (in the "websocketHandleConnect()" and "websocketAdminMessage()" functions)
 type AdminMessageMessage struct {
 	Message string `json:"message"`
 }
