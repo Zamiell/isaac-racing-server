@@ -232,13 +232,14 @@ func (race *Race) Start2() {
 		racer.Status = "racing"
 	}
 
-	// Return for now and do more things in 30 minutes
+	// Return for now and do more things later on when it is time to check to see if the race has been going for too long
 	go race.Start3()
 }
 
 func (race *Race) Start3() {
-	// Sleep 30 minutes
-	time.Sleep(30 * time.Minute)
+	// Sleep 4 hours
+	time.Sleep(4 * time.Hour)
+	//time.Sleep(30 * time.Minute) // This is the old timeout
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
