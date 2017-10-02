@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/bwmarrin/discordgo"
@@ -56,6 +57,10 @@ func discordConnect(token string) {
 	if err := discord.Open(); err != nil {
 		log.Error("Error opening Discord session: ", err)
 	}
+
+	// Announce that the server has started
+	message := "The server has successfully started at: " + time.Now().Format("Mon Jan 2 15:04:05 MST 2006")
+	discordSend(discordLobbyChannelID, message)
 }
 
 /*
