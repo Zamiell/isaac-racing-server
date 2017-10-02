@@ -29,7 +29,7 @@ func httpWS(c *gin.Context) {
 	keys["streamURL"] = sessionValues.StreamURL
 	keys["twitchBotEnabled"] = sessionValues.TwitchBotEnabled
 	keys["twitchBotDelay"] = sessionValues.TwitchBotDelay
-	keys["rateLimitAllowance"] = rateLimitRate
+	keys["rateLimitAllowance"] = float64(rateLimitRate)
 	keys["rateLimitLastCheck"] = time.Now()
 
 	// Validation succeeded, so establish the WebSocket connection

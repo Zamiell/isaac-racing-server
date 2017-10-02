@@ -10,7 +10,6 @@ const (
 )
 
 func leaderboardUpdateSeeded(race *Race) {
-
 }
 
 func leaderboardUpdateUnseeded(race *Race) {
