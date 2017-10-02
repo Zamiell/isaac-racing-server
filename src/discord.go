@@ -59,7 +59,7 @@ func discordConnect(token string) {
 	}
 
 	// Announce that the server has started
-	message := "The server has successfully started at: " + time.Now().Format("Mon Jan 2 15:04:05 MST 2006")
+	message := "[Server Notice] The server has successfully started at: " + time.Now().Format("Mon Jan 2 15:04:05 MST 2006")
 	discordSend(discordLobbyChannelID, message)
 }
 
