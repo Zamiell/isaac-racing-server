@@ -128,15 +128,14 @@ func discordSend(channelID string, message string) {
 		return
 	}
 
-	_, err := discord.ChannelMessageSend(channelID, message)
-	if err != nil {
-		errorMessage := "Failed to send message to \""
+	if _, err := discord.ChannelMessageSend(channelID, message); err != nil {
+		errorMessage := "Failed to send \"" + message + "\" to \""
 		if channelID == discordLobbyChannelID {
 			errorMessage += "racing-plus-lobby"
 		} else {
 			errorMessage += channelID
 		}
-		errorMessage += "\": " + message
+		errorMessage += "\": " + err
 		log.Warning(errorMessage)
 	}
 }

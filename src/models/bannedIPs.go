@@ -42,6 +42,7 @@ func (*BannedIPs) InsertUserIP(userID int, adminResponsible int, reason string) 
 
 	if _, err := stmt.Exec(
 		userID,
+		userID,
 		adminResponsible,
 		reason,
 	); err != nil {

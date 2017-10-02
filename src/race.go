@@ -237,9 +237,8 @@ func (race *Race) Start2() {
 }
 
 func (race *Race) Start3() {
-	// Sleep 4 hours
-	time.Sleep(4 * time.Hour)
-	//time.Sleep(30 * time.Minute) // This is the old timeout
+	//time.Sleep(4 * time.Hour)
+	time.Sleep(30 * time.Minute) // This is the old timeout
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"strconv"
 	"time"
 	"unicode/utf8"
 
@@ -73,14 +74,17 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the user is not creating new races over and over, which will generate an annoying sound effect for everyone in the lobby
 	// Algorithm from: http://stackoverflow.com/questions/667508/whats-a-good-rate-limiting-algorithm
 	// (allow staff/admins to create unlimited races)
-	if admin == 0 {
+	if admin == 2 {
 		now := time.Now()
 		timePassed := now.Sub(rateLimitLastCheck).Seconds()
 		s.Set("rateLimitLastCheck", now)
+		log.Info("User \"" + username + "\" has \"" + strconv.Itoa(timePassed) + "\" time passed since the last race creation.")
 
 		newRateLimitAllowance := rateLimitAllowance + timePassed*(rateLimitRate/rateLimitPer)
+		log.Info("Rate limit allowance now at:", newRateLimitAllowance)
 		if newRateLimitAllowance > rateLimitRate {
 			newRateLimitAllowance = rateLimitRate
+			log.Info("Reset rate limit to:", rateLimitRate)
 		}
 
 		if newRateLimitAllowance < 1 {
