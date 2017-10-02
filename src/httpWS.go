@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -19,8 +20,7 @@ func httpWS(c *gin.Context) {
 		return
 	}
 
-	// Transfer the values from the login cookie into WebSocket session
-	// variables
+	// Transfer the values from the login cookie into WebSocket session variables
 	keys := make(map[string]interface{})
 	keys["userID"] = sessionValues.UserID
 	keys["username"] = sessionValues.Username
@@ -29,6 +29,8 @@ func httpWS(c *gin.Context) {
 	keys["streamURL"] = sessionValues.StreamURL
 	keys["twitchBotEnabled"] = sessionValues.TwitchBotEnabled
 	keys["twitchBotDelay"] = sessionValues.TwitchBotDelay
+	keys["rateLimitAllowance"] = rateLimitRate
+	keys["rateLimitLastCheck"] = time.Now()
 
 	// Validation succeeded, so establish the WebSocket connection
 	m.HandleRequestWithKeys(w, r, keys)

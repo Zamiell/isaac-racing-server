@@ -1,15 +1,26 @@
 package main
 
 import (
+	"time"
 	"unicode/utf8"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
+const (
+	rateLimitRate       = 3  // Number of races created
+	rateLimitPer        = 60 // Per seconds
+	automaticBanAdminID = 1
+	automaticBanReason  = "race spamming"
+)
+
 func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
 	username := d.v.Username
+	admin := d.v.Admin
+	rateLimitAllowance := d.v.RateLimitAllowance
+	rateLimitLastCheck := d.v.RateLimitLastCheck
 	name := d.Name
 	ruleset := d.Ruleset
 
@@ -56,6 +67,30 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		if race.Name == name {
 			websocketError(s, d.Command, "There is already a non-finished race with that name.")
 			return
+		}
+	}
+
+	// Validate that the user is not spamming race creation
+	// Algorithm from: http://stackoverflow.com/questions/667508/whats-a-good-rate-limiting-algorithm
+	// (allow staff/admins to create unlimited races)
+	if admin == 0 {
+		now := time.Now()
+		timePassed := now.Sub(rateLimitLastCheck).Seconds()
+		s.Set("rateLimitLastCheck", now)
+
+		newRateLimitAllowance := rateLimitAllowance + timePassed*(rateLimitRate/rateLimitPer)
+		if newRateLimitAllowance > rateLimitRate {
+			newRateLimitAllowance = rateLimitRate
+		}
+
+		if newRateLimitAllowance < 1 {
+			// They are spamming new races, so automatically ban them as punishment
+			log.Warning("User \"" + username + "\" triggered new race rate-limiting; banning them.")
+			ban(s, d)
+			return
+		} else {
+			newRateLimitAllowance -= 1
+			s.Set("rateLimitAllowance", newRateLimitAllowance)
 		}
 	}
 
@@ -123,4 +158,34 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	d.ID = race.ID
 	websocketRaceJoin(s, d)
+}
+
+func ban(s *melody.Session, d *IncomingWebsocketData) {
+	// Local variables
+	userID := d.v.UserID
+
+	/*
+		This code is copied from the "websocketAdminBan()" function
+	*/
+
+	// Add this username to the ban list in the database
+	if err := db.BannedUsers.Insert(userID, automaticBanAdminID, automaticBanReason); err != nil {
+		log.Error("Database error:", err)
+		websocketError(s, d.Command, "")
+		return
+	}
+
+	// Add their IP to the banned IP list
+	if err := db.BannedIPs.InsertUserIP(userID, automaticBanAdminID, automaticBanReason); err != nil {
+		log.Error("Database error:", err)
+		websocketError(s, d.Command, "")
+		return
+	}
+
+	websocketError(
+		s,
+		"Banned",
+		"New race spamming detected. You have been banned. If you think this was a mistake, please contact the administration to appeal.",
+	)
+	websocketClose(s)
 }

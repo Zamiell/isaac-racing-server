@@ -17,6 +17,7 @@ import (
 	less than 5 seconds ago. But we also do a few other checks to be thorough.
 */
 
+// Called from the "httpWS()" function
 func httpValidateSession(c *gin.Context) *models.SessionValues {
 	// Local variables
 	r := c.Request

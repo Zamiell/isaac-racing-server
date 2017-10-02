@@ -43,6 +43,7 @@ type User struct {
 
 // Sent in the "roomMessage" command (in the "websocketroomMessage()" function)
 // Sent in the "adminBan" command (in the "websocketAdminBan()" function)
+// Sent in the "adminUnban" command (in the "websocketAdminUnban()" function)
 type RoomMessageMessage struct {
 	Room    string `json:"room"`
 	Name    string `json:"name"`

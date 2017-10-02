@@ -40,17 +40,6 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 		recipientID = v
 	}
 
-	// Validate that the requested person is not a staff member or an administrator
-	if recipientAdmin, err := db.Users.GetAdmin(recipientID); err != nil {
-		log.Error("Database error:", err)
-		websocketError(s, d.Command, "")
-		return
-	} else if recipientAdmin > 0 {
-		log.Warning("User \"" + username + "\" tried to ban \"" + recipient + "\", but staff/admins cannot be banned.")
-		websocketWarning(s, d.Command, "You cannot ban a staff member or an administrator.")
-		return
-	}
-
 	// Validate that the requested person is not already banned
 	if userIsBanned, err := db.BannedUsers.Check(recipientID); err != nil {
 		log.Error("Database error:", err)
@@ -59,6 +48,17 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 	} else if userIsBanned {
 		log.Warning("User \"" + username + "\" tried to ban \"" + recipient + "\", but they are already banned.")
 		websocketError(s, d.Command, "That user is already banned.")
+		return
+	}
+
+	// Validate that the requested person is not a staff member or an administrator
+	if recipientAdmin, err := db.Users.GetAdmin(recipientID); err != nil {
+		log.Error("Database error:", err)
+		websocketError(s, d.Command, "")
+		return
+	} else if recipientAdmin > 0 {
+		log.Warning("User \"" + username + "\" tried to ban \"" + recipient + "\", but staff/admins cannot be banned.")
+		websocketWarning(s, d.Command, "You cannot ban a staff member or an administrator.")
 		return
 	}
 

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"sync"
+	"time"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
@@ -152,19 +153,38 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 		twitchBotDelay = v.(int)
 	}
 
+	var rateLimitAllowance float64
+	if v, exists := s.Get("rateLimitAllowance"); !exists {
+		log.Error("Failed to get \"rateLimitAllowance\" from the session (in the \"" + d.Command + "\" function).")
+		return false
+	} else {
+		rateLimitAllowance = v.(float64)
+	}
+
+	var rateLimitLastCheck time.Time
+	if v, exists := s.Get("rateLimitLastCheck"); !exists {
+		log.Error("Failed to get \"rateLimitLastCheck\" from the session (in the \"" + d.Command + "\" function).")
+		return false
+	} else {
+		rateLimitLastCheck = v.(time.Time)
+	}
+
 	/*
 		Stick them inside the data object
 	*/
 
+	// "SessionValues" is defined in the "users.go" file
 	d.v = &models.SessionValues{
-		UserID:           userID,
-		Username:         username,
-		Admin:            admin,
-		Muted:            muted,
-		StreamURL:        streamURL,
-		TwitchBotEnabled: twitchBotEnabled,
-		TwitchBotDelay:   twitchBotDelay,
-		Banned:           false,
+		UserID:             userID,
+		Username:           username,
+		Admin:              admin,
+		Muted:              muted,
+		StreamURL:          streamURL,
+		TwitchBotEnabled:   twitchBotEnabled,
+		TwitchBotDelay:     twitchBotDelay,
+		Banned:             false,
+		RateLimitAllowance: rateLimitAllowance,
+		RateLimitLastCheck: rateLimitLastCheck,
 	}
 	return true
 }

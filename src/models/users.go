@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"strconv"
+	"time"
 )
 
 type Users struct{}
@@ -14,14 +15,16 @@ type Users struct{}
 // the IncomingWebsocketData object as a convenience for command handler
 // functions
 type SessionValues struct {
-	UserID           int
-	Username         string
-	Admin            int
-	Muted            bool
-	StreamURL        string
-	TwitchBotEnabled bool
-	TwitchBotDelay   int
-	Banned           bool
+	UserID             int
+	Username           string
+	Admin              int
+	Muted              bool
+	StreamURL          string
+	TwitchBotEnabled   bool
+	TwitchBotDelay     int
+	Banned             bool
+	RateLimitAllowance float64   // Set in the "websocketGetSessionValues()" function
+	RateLimitLastCheck time.Time // Set in the "websocketGetSessionValues()" function
 }
 
 // Used in the "httpRegister" function
