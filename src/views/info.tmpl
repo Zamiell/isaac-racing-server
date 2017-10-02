@@ -73,7 +73,7 @@
 					<li><a href="#faq-boss-cutscenes">Why do I have boss cutscenes? Aren't they supposed to be removed?</a></li>
 					<li><a href="#faq-corrupt">What do I do if the mod doesn't seem to be working correctly in-game?</a></li>
 					<li><a href="#faq-edens-blessing-bug">How do I fix the bug where I start with an extra random item at the beginning of every run?</a></li>
-					<li><a href="#faq-log-error">What do I do if the client won't let me click the "Ready" button, saying that I need to "hold R to reset the game"?</a></li>
+					<li><a href="#faq-log-error">What do I do if the client won't let me click the "Ready" button?</a></li>
 					<li><a href="#faq-username">How do I change my username?</a></li>
 					<li><a href="#faq-emotes">My favorite emote doesn't work in the chat. Can you add it?</a></li>
 				</ul>
@@ -97,8 +97,8 @@
 				<div style="height: 1em;" id="faq-on-launch"></div><!-- Spacing -->
 				<h3>What does Racing+ do when it starts up?</h3>
 				<ul>
-					<li>It makes sure that mods are enabled in your <code>options.ini</code> file.</li>
-					<li>It makes sure that you have at least one fully unlocked save file.</li>
+					<li>It checks to make sure you have at least one fully unlocked save file.</li>
+					<li>It checks to make sure your Racing+ Lua mod is not corrupted. (Steam sucks at keeping it in sync with the latest version.)</li>
 				</ul>
 
 				<div style="height: 1em;" id="faq-mods"></div><!-- Spacing -->
@@ -128,14 +128,13 @@
 
 				<div style="height: 1em;" id="faq-boss-cutscenes"></div><!-- Spacing -->
 				<h3>Why do I have boss cutscenes? Aren't they supposed to be removed?</h3>
-				<p>The first time you launch the game after subscribing to the mod on the Workshop OR the first time you launch the game after a new mod update has been released, the mod will only partially load. (This is due to a bug with Steam.)</p>
-				<p>Just exit and reopen the game and the boss cutscenes should be removed. If not, see the instructions for <a href="#faq-corrupt">dealing with a corrupt mod.</a></p>
+				<p>Sometimes, due to bugs in Steam, Racing+ will only partially load. Try exiting and reopening the game. If that does not work, see the instructions for <a href="#faq-corrupt">dealing with a corrupt mod.</a></p>
 
 				<div style="height: 1em;" id="faq-corrupt"></div><!-- Spacing -->
 				<h3>What do I do if the mod doesn't seem to be working correctly in-game?</h3>
-				<p>Sometimes, after an update, Steam can download a corrupted version of the mod. If you launch the client and are able to get to the lobby, the client should automatically heal a corrupted mod in the background. If that doesn't work, try nuking your Racing+ mod manually by deleting the mod directory located at:</p>
+				<p>Sometimes, after an update, Steam can download a corrupted version of the mod. If you launch the client and are able to get to the lobby, the client should automatically heal a corrupted mod. If that doesn't work, try nuking your Racing+ mod manually by deleting the mod directory located at:</p>
 				<p><code>C:\Users\[YourUsername]\Documents\My Games\Binding of Isaac Afterbirth+ Mods\racing+_857628390</code></p>
-				<p>After deleting it, close Steam, reopen Steam, and then launch Isaac. The mod should then be automatically redownloaded.</p>
+				<p>After deleting it, close Steam, reopen Steam, wait for the Steam download progress bar to complete, and then launch Isaac.</p>
 
 				<div style="height: 1em;" id="faq-edens-blessing-bug"></div><!-- Spacing -->
 				<h3>How do I fix the bug where I start with an extra random item at the beginning of every run?</h3>
@@ -153,8 +152,8 @@
 				<p>After that, the bug should be fixed.</p>
 
 				<div style="height: 1em;" id="faq-log-error"></div><!-- Spacing -->
-				<h3>What do I do if the client won't let me click the "Ready" button, saying that I need to "hold R to reset the game"?</h3>
-				<p>If you are resetting the game and the client is not detecting it, you probably have one of two problems.</p>
+				<h3>What do I do if the client won't let me click the "Ready" button?</h3>
+				<p>If you mouse over the "Ready" button, Racing+ will give you a helpful message describing why. If you are started a run and the client is not detecting it, you probably have one of two problems.</p>
 				<p><strong>1)</strong> Your Isaac installation could be corrupted. Open up your Isaac "log.txt" file, which is located here by default:</p>
 				<p><code>C:\Users\[YourUsername]\Documents\My Games\Binding of Isaac Afterbirth+\log.txt</code></p>
 				<p>Search for the word "error". If you see something like this:</p>
@@ -180,16 +179,62 @@
 				<h2>Shoutouts</h2>
 				<p>The following people deserve special recognition. Contributors are listed in chronological order.</p>
 				<ul>
-					<li><a href="https://www.twitch.tv/Gromfalloon">Gromfalloon</a> &mdash; The excellent artist who designed the artwork for the Racing+ logo.</li>
-					<li><a href="https://www.twitch.tv/Chronometrics">Chronometrics</a> &mdash; A speedrunner who helped with programming and Lua problem solving. He also makes and continues to support <a href="https://github.com/Tempus/Basement-Renovator">Basement Renovator</a>.</li>
-					<li><a href="https://www.twitch.tv/SedNegi">SedNegi</a> &mdash; A speedrunner who helped translate the text to French and provide voice acting.</li>
-					<li><a href="https://gamejolt.com/@matrefeytontias">Matrefeytontias</a> &mdash; A modder who helped with the creation of the in-game graphics.</li>
-					<li><a href="https://www.twitch.tv/blcd_">blcd</a> &mdash; A modder who helped with reverse engineering the game to derive formulas for how items work, provided code for the Lua mod, and other helpful things.</li>
-					<li><a href="https://moddingofisaac.com/user/255">Dan</a> &mdash; A modder who created the <a href="https://moddingofisaac.com/mod/950/fogless">Fogless! mod</a>, which is included with the Racing+ Lua mod.</li>
-					<li><a href="https://www.twitch.tv/RatRacing">RatRacing</a> &mdash; A speedrunner who originally created the starting room graphic.</li>
-					<li><a href="https://www.twitch.tv/birdie0">birdie0</a> &mdash; A speedrunner who worked on the starting room graphic and helped with bug reporting.</li>
-					<li><a href="https://www.twitch.tv/sillypears">sillypears</a> &mdash; A speedrunner who helped with bug reporting and helped code parts of the website.</li>
-					<li><a href="https://www.twitch.tv/InvaderTimStreams">InvaderTim</a> &mdash; A speedrunner who helped code the Racing+ client.</li>
+					<li>
+						<a href="https://www.twitch.tv/Gromfalloon">Gromfalloon</a> &mdash;
+						The excellent artist who designed the artwork for the Racing+ logo.
+					</li>
+					<li>
+						<a href="https://www.twitch.tv/Chronometrics">Chronometrics</a> &mdash;
+						A speedrunner who helped with programming and Lua problem solving. He also makes and continues to support <a href="https://github.com/Tempus/Basement-Renovator">Basement Renovator</a>.
+					</li>
+					<li>
+						<a href="https://www.twitch.tv/SedNegi">SedNegi</a> &mdash;
+						A speedrunner who helped translate the text to French and provide voice acting.
+					</li>
+					<li>
+						<a href="https://gamejolt.com/@matrefeytontias">Matrefeytontias</a> &mdash;
+						A modder who helped with the creation of the in-game graphics.
+					</li>
+					<li>
+						<a href="https://www.twitch.tv/blcd_">blcd</a> &mdash;
+						A modder who helped with reverse engineering the game to derive formulas for how items work, provided code for the Lua mod, and other helpful things.
+					</li>
+					<li>
+						<a href="https://moddingofisaac.com/user/255">Dan</a> &mdash;
+						A modder who created the <a href="https://moddingofisaac.com/mod/950/fogless">Fogless! mod</a>, which is included with the Racing+ Lua mod.
+					</li>
+					<li>
+						<a href="https://www.twitch.tv/RatRacing">RatRacing</a> &mdash;
+						A speedrunner who originally created the starting room graphic.
+					</li>
+					<li>
+						<a href="https://www.twitch.tv/birdie0">birdie0</a> &mdash;
+						A speedrunner who worked on the starting room graphic and helped with bug reporting.
+					</li>
+					<li>
+						<a href="https://www.twitch.tv/sillypears">sillypears</a> &mdash;
+						A speedrunner who helped with bug reporting and helped code most of the website.
+					</li>
+					<li>
+						<a href="https://www.twitch.tv/InvaderTimStreams">InvaderTim</a> &mdash;
+						A speedrunner who helped code the Racing+ client.
+					</li>
+					<li>
+						<a href="http://steamcommunity.com/id/ghostbrosterconnor">Ghostbroster</a> &mdash;
+						A modder who created the <a href="http://steamcommunity.com/sharedfiles/filedetails/?id=897795840">Samael</a> character, which is included in Racing+.
+					</li>
+					<li>
+						<a href="http://steamcommunity.com/id/frezin">freeze</a> &mdash;
+						A modder who created the <a href="http://steamcommunity.com/sharedfiles/filedetails/?id=839519212">Broken Modem</a> mod. He contributed a better sprite, which is included in Racing+.
+					</li>
+					<li>
+						<a href="https://steamcommunity.com/id/piber20">piber20</a> &mdash;
+						A modder who created the <a href="https://steamcommunity.com/sharedfiles/filedetails/?id=1120999933">Unique Card Backs</a> mod, which is included in Racing+.
+					</li>
+					<li>
+						<a href="http://steamcommunity.com/profiles/76561197993627005"></a>O_o &mdash;
+						A modder who created the <a href="http://steamcommunity.com/sharedfiles/filedetails/?id=1138554495">Trinket Outlines</a> mod, which is included in Racing+.
+					</li>
 				</ul>
 				<div style="height: 0.5em;"></div><!-- Spacing -->
 			</section>
