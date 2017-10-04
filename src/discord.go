@@ -135,7 +135,7 @@ func discordSend(channelID string, message string) {
 		} else {
 			errorMessage += channelID
 		}
-		errorMessage += "\": " + err
+		errorMessage += "\": " + err.Error()
 		log.Warning(errorMessage)
 	}
 }

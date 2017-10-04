@@ -78,7 +78,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		now := time.Now()
 		timePassed := now.Sub(rateLimitLastCheck).Seconds()
 		s.Set("rateLimitLastCheck", now)
-		log.Info("User \"" + username + "\" has \"" + strconv.Itoa(timePassed) + "\" time passed since the last race creation.")
+		log.Info("User \"" + username + "\" has \"" + strconv.FormatFloat(timePassed, 'f', 2, 64) + "\" time passed since the last race creation.")
 
 		newRateLimitAllowance := rateLimitAllowance + timePassed*(rateLimitRate/rateLimitPer)
 		log.Info("Rate limit allowance now at:", newRateLimitAllowance)
