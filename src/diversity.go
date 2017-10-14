@@ -80,7 +80,7 @@ var validDiversityPassiveItems = [...]int{
 	500, 501, 502, 503, 505, 506, 508, 509,
 
 	// Booster pack items
-	511, 513, 514, 517, 518, 519, 520, 524, 525, 526, 528, 529,
+	511, 513, 514, 517, 518, 519, 520, 524, 525, 526, 528, 529, 530, 531, 532, 533, // Schoolbag (534) is given on every run already
 }
 
 var validDiversityTrinkets = [...]int{
