@@ -1957,6 +1957,10 @@
     text-align: center;
   }
 
+  header.top {
+    position: relative;
+    top: -50px;
+  }
   header p {
     color: #999;
     position: relative;

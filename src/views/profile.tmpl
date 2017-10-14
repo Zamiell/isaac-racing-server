@@ -1,7 +1,7 @@
 {{define "content"}}
 <!-- Main -->
 <section id="main" class="container">
-	<header>
+	<header class="top">
 		<!-- This checks for the username and populates it along with the verification badge if verified -->
 		<h2>{{ if ne .ResultsProfile.Username "" }} {{ .ResultsProfile.Username }}'s {{ end }} Profile {{if .ResultsProfile.Verified }} <img height="16px" width="16px" src="../public/img/verified.png" /> {{ end }}</h2>
 		<!-- This checks for the players Twitch stream and places the Glitch icon with a link to a new window/tab -->
