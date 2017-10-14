@@ -45,8 +45,8 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the item number is sane
 	// The the base game there are over 500 items and the Racing+ mod has a bunch of custom items
-	// So just check for over 600 to be safe
-	if itemID < 1 || itemID > 600 {
+	// So just check for over 700 to be safe
+	if itemID < 1 || itemID > 700 {
 		log.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
 		websocketError(s, d.Command, "That is not a valid item ID.")
 		return
