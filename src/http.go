@@ -245,10 +245,14 @@ func httpServeTemplate(w http.ResponseWriter, templateName string, data interfac
 
 	// Execute the template and send it to the user
 	if err := tmpl.ExecuteTemplate(w, "layout", data); err != nil {
-		if strings.HasSuffix(err.Error(), ": write: broken pipe") {
+		if strings.HasSuffix(err.Error(), ": write: broken pipe") ||
+			strings.HasSuffix(err.Error(), ": client disconnected") ||
+			strings.HasSuffix(err.Error(), ": http2: stream closed") {
+
 			// Broken pipe errors can occur when the user presses the "Stop" button while the template is executing
 			// We don't want to reporting these errors to Sentry
 			// https://stackoverflow.com/questions/26853200/filter-out-broken-pipe-errors-from-template-execution
+			// Not sure why stream closed errors happen
 			log.Info("Failed to execute the template: " + err.Error())
 		} else {
 			log.Error("Failed to execute the template: " + err.Error())
