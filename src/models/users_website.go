@@ -11,38 +11,9 @@ import (
 */
 
 /*
-// Used in the leaderboards
-type LeaderboardRowSeeded struct {
-	Name           string
-	ELO            int
-	LastELOChange  int
-	NumSeededRaces int
-	LastSeededRace int
-	Verified       int
-}
-type LeaderboardRowUnseeded struct {
-	Name                    string
-	UnseededAdjustedAverage int
-	UnseededRealAverage     int
-	NumUnseededRaces        int
-	NumForfeits             int
-	ForfeitPenalty          int
-	LowestUnseededTime      int
-	LastUnseededRace        int
-	Verified                int
-}
-type LeaderboardRowTopTimes struct {
-	Name     string
-	Time     int
-	Date     int
-	Verified int
-}
-type LeaderboardRowMostPlayed struct {
-	Name     string
-	Total    int
-	Verified int
-}
+	Data structures
 */
+
 // StatsSeeded is used to get all seeded stats
 type StatsSeeded struct {
 	TrueSkill  float32
@@ -82,6 +53,47 @@ type ProfileData struct {
 	StatsUnseeded     StatsUnseeded
 	StreamURL         string
 }
+
+// Used in the leaderboards
+/*
+type LeaderboardRowSeeded struct {
+	Name           string
+	ELO            int
+	LastELOChange  int
+	NumSeededRaces int
+	LastSeededRace int
+	Verified       int
+}
+*/
+type LeaderboardRowUnseeded struct {
+	Name            string
+	AdjustedAverage int
+	RealAverage     int
+	NumRaces        int
+	NumForfeits     int
+	ForfeitPenalty  int
+	LowestTime      int
+	LastRace        time.Time
+	Verified        int
+}
+
+/*
+type LeaderboardRowTopTimes struct {
+	Name     string
+	Time     int
+	Date     int
+	Verified int
+}
+type LeaderboardRowMostPlayed struct {
+	Name     string
+	Total    int
+	Verified int
+}
+*/
+
+/*
+	Functions
+*/
 
 /*
 func (*Users) GetStatsSeeded(username string) (StatsSeeded, error) {
@@ -137,96 +149,6 @@ func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
 	} else {
 		return stats, nil
 	}
-}
-
-// Make a leaderboard for the seeded format based on all of the users
-func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
-	var rows *sql.Rows
-	if v, err := db.Query(`
-		SELECT
-			username,
-			elo,
-			last_elo_change,
-			num_seeded_races,
-			last_seeded_race
-		FROM
-			users
-		WHERE
-			num_seeded_races > 1
-	`); err != nil {
-		return nil, err
-	} else {
-		rows = v
-	}
-	defer rows.Close()
-
-	// Iterate over the users
-	leaderboard := make([]LeaderboardRowSeeded, 0)
-	for rows.Next() {
-		var row LeaderboardRowSeeded
-		if err := rows.Scan(
-			&row.Name,
-			&row.ELO,
-			&row.LastELOChange,
-			&row.NumSeededRaces,
-			&row.LastSeededRace,
-		); err != nil {
-			return nil, err
-		}
-
-		// Append this row to the leaderboard
-		leaderboard = append(leaderboard, row)
-	}
-
-	return leaderboard, nil
-}
-
-// Make a leaderboard for the unseeded format based on all of the users
-func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
-	var rows *sql.Rows
-	if v, err := db.Query(`
-		SELECT
-			username,
-			unseeded_adjusted_average,
-			unseeded_real_average,
-			num_unseeded_races,
-			num_forfeits,
-			forfeit_penalty,
-			lowest_unseeded_time,
-			last_unseeded_race
-		FROM
-			users
-		WHERE
-			num_unseeded_races > 15
-	`); err != nil {
-		return nil, err
-	} else {
-		rows = v
-	}
-	defer rows.Close()
-
-	// Iterate over the users
-	leaderboard := make([]LeaderboardRowUnseeded, 0)
-	for rows.Next() {
-		var row LeaderboardRowUnseeded
-		if err := rows.Scan(
-			&row.Name,
-			&row.UnseededAdjustedAverage,
-			&row.UnseededRealAverage,
-			&row.NumUnseededRaces,
-			&row.NumForfeits,
-			&row.ForfeitPenalty,
-			&row.LowestUnseededTime,
-			&row.LastUnseededRace,
-		); err != nil {
-			return nil, err
-		}
-
-		// Append this row to the leaderboard
-		leaderboard = append(leaderboard, row)
-	}
-
-	return leaderboard, nil
 }
 */
 
@@ -354,3 +276,95 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 
 	return profiles, allProfilesCount, nil
 }
+
+// Make a leaderboard for the unseeded format based on all of the users
+func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT
+			username,
+			unseeded_adjusted_average,
+			unseeded_real_average,
+			unseeded_num_races,
+			unseeded_num_forfeits,
+			unseeded_forfeit_penalty,
+			unseeded_lowest_time,
+			unseeded_last_race
+		FROM
+			users
+		WHERE
+			unseeded_num_races > 0
+	`); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowUnseeded, 0)
+	for rows.Next() {
+		var row LeaderboardRowUnseeded
+		if err := rows.Scan(
+			&row.Name,
+			&row.AdjustedAverage,
+			&row.RealAverage,
+			&row.NumRaces,
+			&row.NumForfeits,
+			&row.ForfeitPenalty,
+			&row.LowestTime,
+			&row.LastRace,
+		); err != nil {
+			return nil, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
+
+	return leaderboard, nil
+}
+
+/*
+// Make a leaderboard for the seeded format based on all of the users
+func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT
+			username,
+			elo,
+			last_elo_change,
+			num_seeded_races,
+			last_seeded_race
+		FROM
+			users
+		WHERE
+			num_seeded_races > 1
+	`); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowSeeded, 0)
+	for rows.Next() {
+		var row LeaderboardRowSeeded
+		if err := rows.Scan(
+			&row.Name,
+			&row.ELO,
+			&row.LastELOChange,
+			&row.NumSeededRaces,
+			&row.LastSeededRace,
+		); err != nil {
+			return nil, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
+
+	return leaderboard, nil
+}
+*/

@@ -117,7 +117,7 @@ func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, e
 		WHERE race_participants.user_id = ? AND races.ranked = 1 AND races.format = "unseeded"
 		ORDER BY races.datetime_finished DESC
 		LIMIT ?
-	`, userID); err != nil {
+	`, userID, n); err != nil {
 		return nil, err
 	} else {
 		rows = v

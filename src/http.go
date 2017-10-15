@@ -49,6 +49,10 @@ type TemplateData struct {
 	ResultsProfile    models.ProfileData
 	TotalProfileCount int
 	UsersPerPage      int
+
+	// Leaderboard stuff
+	LeaderboardUnseeded []models.LeaderboardRowUnseeded
+	//LeaderboardSeeded []models.LeaderboardRowSeeded
 }
 
 /*
@@ -157,7 +161,7 @@ func httpInit() {
 	httpRouter.GET("/races", httpRaces)
 	httpRouter.GET("/races/:page", httpRaces)
 
-	//	httpRouter.GET("/leaderboards", httpLeaderboards)
+	httpRouter.GET("/leaderboards", httpLeaderboards)
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
 	httpRouter.Static("/public", "../public")

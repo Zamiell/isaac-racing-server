@@ -45,7 +45,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 		FROM
 			races
 		WHERE
-			finished = 1
+			finished = 1 AND solo = 0
 		GROUP BY
 			id
 		ORDER BY
@@ -82,7 +82,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			SELECT
 			    u.username,
 			    rp.place,
-			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),			    
+			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
 			    rp.comment
 			FROM
 			    race_participants rp

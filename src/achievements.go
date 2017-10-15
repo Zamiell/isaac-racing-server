@@ -138,21 +138,18 @@ func achievementsInit() {
 		422: {"Curse of the Full Clear", "Complete a race where you entered every room of The Chest."},
 	}
 
-	// New achievements will have to be added manually
-	/*
-		// Delete every row in the database
-		if err := db.Achievements.DeleteAll(); err != nil {
-			log.Fatal("Failed to delete all of the entries in the achievements table:", err)
-		}
+	// Delete every row in the database
+	if err := db.Achievements.DeleteAll(); err != nil {
+		log.Fatal("Failed to delete all of the entries in the achievements table:", err)
+	}
 
-		// Add the achievement list to the database
-		for id, achievement := range achievementMap {
-			if err := db.Achievements.Insert(id, achievement[0], achievement[1]); err != nil {
-				log.Fatal("Failed to insert the achievements:", err)
-			}
+	// Add the achievement list to the database
+	for id, achievement := range achievementMap {
+		if err := db.Achievements.Insert(id, achievement[0], achievement[1]); err != nil {
+			log.Fatal("Failed to insert the achievements:", err)
 		}
-		log.Info("Added", len(achievementMap), "achievements.")
-	*/
+	}
+	log.Info("Added", len(achievementMap), "achievements.")
 }
 
 func achievementsCheck(userID int, username string) {

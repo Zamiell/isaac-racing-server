@@ -183,7 +183,7 @@ func (race *Race) Start() {
 	}
 
 	// Log the race starting
-	log.Info("Race #"+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
+	log.Info("Race "+strconv.Itoa(race.ID)+" starting in", int(secondsToWait), "seconds.")
 
 	// Change the status for this race to "starting"
 	race.SetStatus("starting")
@@ -359,8 +359,8 @@ func (race *Race) Finish() {
 	}
 
 	if race.Ruleset.Format == "seeded" {
-		leaderboardUpdateUnseeded(race)
-	} else if race.Ruleset.Format == "unseeded" {
 		leaderboardUpdateSeeded(race)
+	} else if race.Ruleset.Format == "unseeded" {
+		leaderboardUpdateUnseeded(race)
 	}
 }

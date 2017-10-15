@@ -123,7 +123,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	*/
 	var raceID int
 	if v, err := db.Races.Insert(); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while inserting the race:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else {
@@ -172,14 +172,14 @@ func ban(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add this username to the ban list in the database
 	if err := db.BannedUsers.Insert(userID, automaticBanAdminID, automaticBanReason); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while userting the banned user:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
 	// Add their IP to the banned IP list
 	if err := db.BannedIPs.InsertUserIP(userID, automaticBanAdminID, automaticBanReason); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while inserting the banned IP:", err)
 		websocketError(s, d.Command, "")
 		return
 	}

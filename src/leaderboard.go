@@ -17,7 +17,7 @@ func leaderboardUpdateUnseeded(race *Race) {
 	for _, racer := range race.Racers {
 		var unseededTimes []models.UnseededTime
 		if v, err := db.RaceParticipants.GetNUnseededTimes(racer.ID, numUnseededRacesForAverage); err != nil {
-			log.Error("Database error:", err)
+			log.Error("Database error while getting the unseeded times:", err)
 			return
 		} else {
 			unseededTimes = v
@@ -35,9 +35,22 @@ func leaderboardUpdateUnseeded(race *Race) {
 			}
 		}
 
+		var averageTime float64
+		var forfeitPenalty float64
 		if len(unseededTimes) == numForfeits {
 			// If they forfeited every race, then we will have a divide by 0 later on,
 			// so arbitrarily set it to a million seconds
+			averageTime = 1000000
+			forfeitPenalty = 1000000
+		} else {
+			averageTime = float64(sumTimes) / float64(len(unseededTimes)-numForfeits)
+			forfeitPenalty = averageTime * float64(numForfeits) / float64(len(unseededTimes))
+		}
+
+		// Update their stats in the database
+		if err := db.Users.SetStatsUnseeded(racer.ID, int(averageTime), numForfeits, int(forfeitPenalty)); err != nil {
+			log.Error("Database error while setting the unseeded stats:", err)
+			return
 		}
 	}
 }

@@ -50,12 +50,14 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/skel/3.0.1/skel.min.js"></script>
 		<script src="/public/js/util.min.js"></script>
 		<script src="/public/js/main.js"></script>
-		{{if eq .Title "Download"}}<script src="/public/js/download.js"></script>{{end}}
+		{{if eq .Title "Home" }}<script src="/public/js/home.js"></script>{{end}}
+		{{if eq .Title "Races" }}<script src="/public/js/races.js"></script>{{end}}
+		{{if eq .Title "Race" }}<script src="/public/js/races.js"></script>{{end}}
 		{{if eq .Title "Profile" }}<script src="/public/js/profile.js"></script>{{end}}
 		{{if eq .Title "Profile" }}<script src="/public/js/races.js"></script>{{end}}
 		{{if eq .Title "Profiles" }}<script src="/public/js/profiles.js"></script>{{end}}
-		{{if eq .Title "Races" }}<script src="/public/js/races.js"></script>{{end}}
-		{{if eq .Title "Race" }}<script src="/public/js/races.js"></script>{{end}}
+		{{if eq .Title "Leaderboards" }}<script src="/public/js/leaderboards.js"></script>{{end}}
+		{{if eq .Title "Download"}}<script src="/public/js/download.js"></script>{{end}}
 	</body>
 </html>
 {{end}}

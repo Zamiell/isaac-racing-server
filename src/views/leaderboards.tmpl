@@ -8,20 +8,19 @@
 
 	<div id="leaderboard-buttons" class="row">
 		<div class="4u 12u">
-			<a id="leaderboard-seeded-button" class="button fit">Seeded</a>
+			<a id="leaderboard-seeded-button" class="button fit inactive disabled">Seeded</a>
 		</div>
 		<div class="4u 12u">
-			<a id="leaderboard-unseeded-button" class="button fit inactive">Unseeded</a>
+			<a id="leaderboard-unseeded-button" class="button fit">Unseeded</a>
 		</div>
 		<div class="4u 12u">
-			<a id="leaderboard-other-button" class="button fit inactive">Other</a>
+			<a id="leaderboard-other-button" class="button fit inactive disabled">Other</a>
 		</div>
 	</div>
 	<br />
 
-	<section id="leaderboard-seeded" class="box">
-		<p>(This page is just a placeholder for now.)</p>
-
+	<!--
+	<section id="leaderboard-seeded" class="box" style="display: none;">
 		<div class="table-wrapper">
 			<table class="alt">
 				<thead>
@@ -58,8 +57,9 @@
 			</table>
 		</div>
 	</section>
+	-->
 
-	<section id="leaderboard-unseeded" class="box" style="display: none;">
+	<section id="leaderboard-unseeded" class="box">
 		<div class="table-wrapper">
 			<table class="alt">
 				<thead>
@@ -73,27 +73,30 @@
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>1</td>
-						<td>Zamiel</td>
-						<td>12:30</td>
-						<td>07/16/16</td>
-						<td>100</td>
-						<td><i class="fa fa-check" aria-hidden="true"></i></td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>Dea1h</td>
-						<td>12:30</td>
-						<td>07/16/16</td>
-						<td>100</td>
-						<td><i class="fa fa-times" aria-hidden="true"></i></td>
-					</tr>
+					{{ range .LeaderboardUnseeded }}
+						<tr>
+							<td>1</td>
+							<td>Zamiel</td>
+							<td>12:30</td>
+							<td>07/16/16</td>
+							<td>100</td>
+							<td><i class="fa fa-check" aria-hidden="true"></i></td>
+						</tr>
+						<tr>
+							<td>2</td>
+							<td>Dea1h</td>
+							<td>12:30</td>
+							<td>07/16/16</td>
+							<td>100</td>
+							<td><i class="fa fa-times" aria-hidden="true"></i></td>
+						</tr>
+					{{- end }}
 				</tbody>
 			</table>
 		</div>
 	</section>
 
+	<!--
 	<div id="leaderboard-other" style="display: none;">
 		<section class="box">
 			<h3>Top 10 Unseeded Times</h3>
@@ -159,6 +162,7 @@
 			</div>
 		</section>
 	</div>
+	-->
 
 </section>
 {{end}}
