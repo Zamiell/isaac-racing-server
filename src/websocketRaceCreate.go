@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	rateLimitRate       = 3  // Number of races created
-	rateLimitPer        = 60 // Per seconds
+	rateLimitRate       = float64(3)  // Number of races created
+	rateLimitPer        = float64(60) // Per seconds
 	automaticBanAdminID = 1
 	automaticBanReason  = "race spamming"
 )
@@ -81,12 +81,8 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		log.Info("User \"" + username + "\" has \"" + strconv.FormatFloat(timePassed, 'f', 2, 64) + "\" time passed since the last race creation.")
 
 		newRateLimitAllowance := rateLimitAllowance + timePassed*(rateLimitRate/rateLimitPer)
-		log.Info("Old rate limit allowance:", rateLimitAllowance)
-		log.Info("Adding:", timePassed*(rateLimitRate/rateLimitPer))
-		log.Info("New rate limit allowance:", newRateLimitAllowance)
 		if newRateLimitAllowance > rateLimitRate {
 			newRateLimitAllowance = rateLimitRate
-			log.Info("Reset rate limit to:", rateLimitRate)
 		}
 
 		if newRateLimitAllowance < 1 {

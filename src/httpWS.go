@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,10 +15,16 @@ func httpWS(c *gin.Context) {
 
 	// The below function will return nil if there is an error or if the user is
 	// not authorized
-	sessionValues := httpValidateSession(c)
-	if sessionValues == nil {
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+	var sessionValues *models.SessionValues
+	if v, err := httpValidateSession(c); err != nil {
+		if err.Error() == "" {
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		} else {
+			http.Error(w, err.Error(), http.StatusUnauthorized)
+		}
 		return
+	} else {
+		sessionValues = v
 	}
 
 	// Transfer the values from the login cookie into WebSocket session variables

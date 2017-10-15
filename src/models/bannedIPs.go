@@ -32,7 +32,7 @@ func (*BannedIPs) InsertUserIP(userID int, adminResponsible int, reason string) 
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
 		INSERT INTO banned_ips (ip, user_id, admin_responsible, reason)
-		VALUES ((SELECT last_ip FROM users WHERE id = ?), ?, ?)
+		VALUES ((SELECT last_ip FROM users WHERE id = ?), ?, ?, ?)
 	`); err != nil {
 		return err
 	} else {

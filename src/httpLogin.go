@@ -39,7 +39,7 @@ func httpLogin(c *gin.Context) {
 		return
 	} else if userIsBanned {
 		log.Info("IP \"" + ip + "\" tried to log in, but they are banned.")
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		http.Error(w, "Your IP address has been banned. Please contact an administrator if you think this is a mistake.", http.StatusUnauthorized)
 		return
 	}
 
@@ -121,7 +121,7 @@ func httpLogin(c *gin.Context) {
 	// Check to see if this user is banned
 	if sessionValues.Banned {
 		log.Info("User \"" + sessionValues.Username + "\" tried to log in, but they are banned.")
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		http.Error(w, "Your user account has been banned. Please contact an administrator if you think this is a mistake.", http.StatusUnauthorized)
 		return
 	}
 
