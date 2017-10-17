@@ -30,6 +30,7 @@ $(document).ready(function () {
         ConvertFastestTime();
         AdjustRank();
         ConvertTimeStamp();
+        ConvertForfeitRate();
         ConvertForfeitPenalty();    
 });
         
@@ -61,6 +62,15 @@ function AdjustRank() {
 
 };
 
+function ConvertForfeitRate() {
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-num-for').each(function(){ 
+        num = $(this).html();
+        total = ($(this).next().html() > 50) ? 50 : $(this).next().html();
+        rate = num / total * 100;
+        $(this).html(rate + "% (" + num + "/" + total + ")");
+    });
+
+};
 function ConvertForfeitPenalty() {
     $('#leaderboard-' + activeLeaderboard + ' td.lb-for-pen').each(function(){ 
         time = $(this).html();
