@@ -75,7 +75,6 @@ type LeaderboardRowUnseeded struct {
 	ForfeitPenalty  int
 	LowestTime      int
 	LastRace        time.Time
-	
 }
 
 /*
@@ -296,8 +295,8 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			users
 		WHERE
 			unseeded_num_races > 0
-		ORDER BY 
-			unseeded_adjusted_average ASC			
+		ORDER BY
+			unseeded_adjusted_average ASC
 	`); err != nil {
 		return nil, err
 	} else {
