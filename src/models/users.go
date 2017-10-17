@@ -329,7 +329,9 @@ func (*Users) SetStatsUnseeded(userID int, realAverage int, numForfeits int, for
 				SELECT COUNT(race_participants.id)
 				FROM race_participants
 					JOIN races ON race_participants.race_id = races.id
-				WHERE race_participants.user_id = ? AND races.ranked = 1 AND races.format = "unseeded"
+				WHERE race_participants.user_id = ?
+					AND races.ranked = 1
+					AND races.format = "unseeded"
 			),
 			unseeded_num_forfeits = ?,
 			unseeded_forfeit_penalty = ?,
@@ -337,7 +339,10 @@ func (*Users) SetStatsUnseeded(userID int, realAverage int, numForfeits int, for
 				SELECT MIN(race_participants.run_time)
 				FROM race_participants
 					JOIN races ON race_participants.race_id = races.id
-				WHERE race_participants.user_id = ? AND races.ranked = 1 AND races.format = "unseeded"
+				WHERE race_participants.user_id = ?
+					AND race_participants.place > 0
+					AND races.ranked = 1
+					AND races.format = "unseeded"
 			),
 			unseeded_last_race = NOW()
 		WHERE id = ?

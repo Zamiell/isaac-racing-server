@@ -39,9 +39,9 @@ func leaderboardUpdateUnseeded(race *Race) {
 		var forfeitPenalty float64
 		if len(unseededTimes) == numForfeits {
 			// If they forfeited every race, then we will have a divide by 0 later on,
-			// so arbitrarily set it to a million seconds
-			averageTime = 1000000
-			forfeitPenalty = 1000000
+			// so arbitrarily set it to 30 minutes (1000 * 60 * 30)
+			averageTime = 1800000
+			forfeitPenalty = 1800000
 		} else {
 			averageTime = float64(sumTimes) / float64(len(unseededTimes)-numForfeits)
 			forfeitPenalty = averageTime * float64(numForfeits) / float64(len(unseededTimes))
