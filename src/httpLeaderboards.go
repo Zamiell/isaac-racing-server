@@ -50,7 +50,6 @@ func httpLeaderboards(c *gin.Context) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	log.Info(leaderboardUnseeded)
 	// Construct the "Top 10 Unseeded Times" leaderboard
 	/*var leaderboardTop10Times string
 	for _, row := range leaderboardUnseeded {
@@ -61,10 +60,7 @@ func httpLeaderboards(c *gin.Context) {
 	// TODO
 
 	// Format the time
-/*	for i := range leaderboardUnseeded {
-		leaderboardUnseeded[i].AdjustedAverage = strconv.Itoa(leaderboardUnseeded[i].AdjustedAverage/1000/60) + ":" //+ strconv.Itoa(leaderboardUnseeded[i].AdjustedAverage/1000%60)
-	}
-*/
+
 	data := TemplateData{
 		Title:               "Leaderboards",
 		LeaderboardUnseeded: leaderboardUnseeded,
