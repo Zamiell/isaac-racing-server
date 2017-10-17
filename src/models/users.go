@@ -319,6 +319,7 @@ func (*Users) SetAdmin(username string, admin int) error {
 func (*Users) SetStatsUnseeded(userID int, realAverage int, numForfeits int, forfeitPenalty int) error {
 	adjustedAverage := realAverage + forfeitPenalty
 
+	// 1800000 is 30 minutes (1000 * 60 * 30)
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
 		UPDATE users
@@ -336,7 +337,7 @@ func (*Users) SetStatsUnseeded(userID int, realAverage int, numForfeits int, for
 			unseeded_num_forfeits = ?,
 			unseeded_forfeit_penalty = ?,
 			unseeded_lowest_time = (
-				SELECT MIN(race_participants.run_time)
+				SELECT IFNULL(MIN(race_participants.run_time), 1800000)
 				FROM race_participants
 					JOIN races ON race_participants.race_id = races.id
 				WHERE race_participants.user_id = ?

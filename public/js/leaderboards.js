@@ -19,99 +19,96 @@ function showLeaderboard(type) {
 }
 
 function pad(n, width, z) {
-  z = z || '0';
-  n = n + '';
-  return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
 }
 
-$(document).ready(function () {
-        ConvertAvgTime();
-        ConvertRealTime();
-        ConvertFastestTime();
-        AdjustRank();
-        ConvertTimeStamp();
-        ConvertForfeitRate();
-        ConvertForfeitPenalty();    
+$(document).ready(function() {
+    ConvertAvgTime();
+    ConvertRealTime();
+    ConvertFastestTime();
+    AdjustRank();
+    ConvertTimeStamp();
+    ConvertForfeitRate();
+    ConvertForfeitPenalty();
 });
-        
+
 function ConvertAvgTime() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-adj-avg').each(function(){ 
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-adj-avg').each(function() {
         time = $(this).html();
-        $(this).html(Math.floor(time/1000/60) + ":" + pad(Math.floor(time/1000%60),2));
+        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
     });
 
 };
+
 function ConvertRealTime() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-real-avg').each(function(){ 
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-real-avg').each(function() {
         time = $(this).html();
-        $(this).html(Math.floor(time/1000/60) + ":" + pad(Math.floor(time/1000%60),2));
+        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
     });
 
 };
-function ConvertFastestTime(){
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-fastest').each(function(){ 
+
+function ConvertFastestTime() {
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-fastest').each(function() {
         time = $(this).html();
-        $(this).html(Math.floor(time/1000/60) + ":" + pad(Math.floor(time/1000%60),2));
+        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
     });
 
 };
+
 function AdjustRank() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-rank').each(function(){ 
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-rank').each(function() {
         $(this).html(parseInt($(this).html()) + 1);
     });
 
 };
 
 function ConvertForfeitRate() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-num-for').each(function(){ 
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-num-for').each(function() {
         num = $(this).html();
         total = ($(this).next().html() > 50) ? 50 : $(this).next().html();
         rate = num / total * 100;
+        rate = Math.round(rate); // Round it to the nearest whole number
         $(this).html(rate + "% (" + num + "/" + total + ")");
     });
 
 };
+
 function ConvertForfeitPenalty() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-for-pen').each(function(){ 
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-for-pen').each(function() {
         time = $(this).html();
-        $(this).html(Math.floor(time/1000/60) + ":" + pad(Math.floor(time/1000%60),2));
+        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
     });
 
 };
+
 function ConvertTimeStamp() {
-        var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
-        var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
+    var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
+    var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
 
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-last-race').each(function(){ 
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-last-race').each(function() {
+        // Miserable hack to help with Safari's strict JS date restrictions
+        dt = new Date($(this).html().replace(/\s/, 'T').replace(' +0000 UTC', ''));
 
-                        // Miserable hack to help with Safari's strict JS date restrictions 
-                        dt = new Date($(this).html().replace(/\s/, 'T').replace(' +0000 UTC', ''));
-                        
-                        var curr_hours = dt.getHours();
-                        var curr_min = dt.getMinutes();
-                        var curr_time = curr_hours + ":" + ((curr_min < 10) ? "0" + curr_min : curr_min);
-                        var curr_date = dt.getDate();
-                        var sup = "";
-                        if (curr_date == 1 || curr_date == 21 || curr_date == 31)
-                           {
-                           sup = "st";
-                           }
-                        else if (curr_date == 2 || curr_date == 22)
-                           {
-                           sup = "nd";
-                           }
-                        else if (curr_date == 3 || curr_date == 23)
-                           {
-                           sup = "rd";
-                           }
-                        else
-                           {
-                           sup = "th";
-                           }
-                         
-                         $(this).html(d_names[dt.getDay()] + ", " + m_names[dt.getMonth()] + " " + dt.getDate() + sup + ", " + dt.getFullYear());
+        var curr_hours = dt.getHours();
+        var curr_min = dt.getMinutes();
+        var curr_time = curr_hours + ":" + ((curr_min < 10) ? "0" + curr_min : curr_min);
+        var curr_date = dt.getDate();
+        var sup = "";
+        if (curr_date == 1 || curr_date == 21 || curr_date == 31) {
+            sup = "st";
+        } else if (curr_date == 2 || curr_date == 22) {
+            sup = "nd";
+        } else if (curr_date == 3 || curr_date == 23) {
+            sup = "rd";
+        } else {
+            sup = "th";
+        }
 
-        });
+        $(this).html(d_names[dt.getDay()] + ", " + m_names[dt.getMonth()] + " " + dt.getDate() + sup + ", " + dt.getFullYear());
+    });
 };
 
 

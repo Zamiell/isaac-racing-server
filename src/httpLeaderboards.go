@@ -2,7 +2,7 @@ package main
 
 import (
 	"net/http"
-	
+
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 )
@@ -58,8 +58,6 @@ func httpLeaderboards(c *gin.Context) {
 
 	// Construct the "Most Races Played" leaderboard
 	// TODO
-
-	// Format the time
 
 	data := TemplateData{
 		Title:               "Leaderboards",

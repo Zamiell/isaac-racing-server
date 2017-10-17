@@ -325,7 +325,6 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
-	print(leaderboard)
 	return leaderboard, nil
 }
 
