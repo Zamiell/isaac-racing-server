@@ -30,6 +30,7 @@ $(document).ready(function () {
         ConvertFastestTime();
         AdjustRank();
         ConvertTimeStamp();
+        ConvertForfeitPenalty();    
 });
         
 function ConvertAvgTime() {
@@ -60,6 +61,13 @@ function AdjustRank() {
 
 };
 
+function ConvertForfeitPenalty() {
+    $('#leaderboard-' + activeLeaderboard + ' td.lb-for-pen').each(function(){ 
+        time = $(this).html();
+        $(this).html(Math.floor(time/1000/60) + ":" + pad(Math.floor(time/1000%60),2));
+    });
+
+};
 function ConvertTimeStamp() {
         var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
         var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
