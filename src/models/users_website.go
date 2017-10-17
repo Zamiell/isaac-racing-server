@@ -294,7 +294,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		FROM
 			users
 		WHERE
-			unseeded_num_races > 0
+			unseeded_num_races >= 5
 		ORDER BY
 			unseeded_adjusted_average ASC
 	`); err != nil {
