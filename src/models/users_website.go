@@ -67,6 +67,7 @@ type LeaderboardRowSeeded struct {
 */
 type LeaderboardRowUnseeded struct {
 	Name            string
+	Verified        int
 	AdjustedAverage int
 	RealAverage     int
 	NumRaces        int
@@ -74,7 +75,7 @@ type LeaderboardRowUnseeded struct {
 	ForfeitPenalty  int
 	LowestTime      int
 	LastRace        time.Time
-	Verified        int
+	
 }
 
 /*
@@ -283,6 +284,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 	if v, err := db.Query(`
 		SELECT
 			username,
+			verified,
 			unseeded_adjusted_average,
 			unseeded_real_average,
 			unseeded_num_races,
@@ -294,6 +296,8 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			users
 		WHERE
 			unseeded_num_races > 0
+		ORDER BY 
+			unseeded_adjusted_average ASC			
 	`); err != nil {
 		return nil, err
 	} else {
@@ -307,6 +311,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		var row LeaderboardRowUnseeded
 		if err := rows.Scan(
 			&row.Name,
+			&row.Verified,
 			&row.AdjustedAverage,
 			&row.RealAverage,
 			&row.NumRaces,
@@ -321,7 +326,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
-
+	print(leaderboard)
 	return leaderboard, nil
 }
 

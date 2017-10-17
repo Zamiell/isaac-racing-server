@@ -1,11 +1,12 @@
 {{define "content"}}
 <!-- Main -->
 <section id="main" class="container">
-	<header>
+	<header class="top">
 		<h2>Leaderboards</h2>
 		<p>The best amongst you</p>
-	</header>
+		
 
+	</header>
 	<div id="leaderboard-buttons" class="row">
 		<div class="4u 12u">
 			<a id="leaderboard-seeded-button" class="button fit inactive disabled">Seeded</a>
@@ -17,8 +18,6 @@
 			<a id="leaderboard-other-button" class="button fit inactive disabled">Other</a>
 		</div>
 	</div>
-	<br />
-
 	<!--
 	<section id="leaderboard-seeded" class="box" style="display: none;">
 		<div class="table-wrapper">
@@ -61,34 +60,35 @@
 
 	<section id="leaderboard-unseeded" class="box">
 		<div class="table-wrapper">
-			<table class="alt">
+			<table class="alt lb">
 				<thead>
 					<tr>
 						<th>Rank</th>
 						<th>Player</th>
 						<th>Average Time</th>
-						<th>Date of Last Race</th>
+						<th>Unadjusted Average</th>
+						<th>Forfeit Penalty</th>
+						<th>Total Forfeits</th>
 						<th>Total Races Played</th>
+						<th>Fastest Time</th>
+						<th>Date of Last Race</th>						
 						<th>Verified</th>
 					</tr>
 				</thead>
 				<tbody>
-					{{ range .LeaderboardUnseeded }}
+					{{ range $index, $results := .LeaderboardUnseeded }}
+						
 						<tr>
-							<td>1</td>
-							<td>Zamiel</td>
-							<td>12:30</td>
-							<td>07/16/16</td>
-							<td>100</td>
-							<td><i class="fa fa-check" aria-hidden="true"></i></td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>Dea1h</td>
-							<td>12:30</td>
-							<td>07/16/16</td>
-							<td>100</td>
-							<td><i class="fa fa-times" aria-hidden="true"></i></td>
+							<td class="lb-rank">{{ $index }}</td>
+							<td class="lb-name">{{ .Name }}</td>
+							<td class="lb-adj-avg">{{ .AdjustedAverage }}</td>
+							<td class="lb-real-avg">{{ .RealAverage }}</td>
+							<td class="lb-for-pen">{{ .ForfeitPenalty }}</td>
+							<td class="lb-num-for">{{ if gt .NumRaces 50 -}} {{ .NumForfeits }} / 50 {{- else -}} {{ .NumForfeits }} / {{ .NumRaces }} {{- end }}</td>
+							<td class="lb-num-races">{{ .NumRaces }}</td>
+							<td class="lb-fastest">{{ .LowestTime }}</td>
+							<td class="lb-last-race">{{ .LastRace }}</td>
+							<td class="lb-status">{{ if eq .Verified 1 -}}<i class="fa fa-check" aria-hidden="true" alt="Verified"></i> {{- else -}} <i class="fa fa-times" aria-hidden="true" alt="Verified"></i>{{- end }}</td>
 						</tr>
 					{{- end }}
 				</tbody>

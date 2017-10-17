@@ -1,0 +1,47 @@
+#main > header p.lb {
+    padding: 0;
+}
+
+#main > header h1.lb {
+    color: white;
+}
+
+
+#leaderboard-unseeded > div table td {
+  padding: 0.15em 0.15em;
+  text-align: center;
+  vertical-align: middle;
+}
+
+#leaderboard-unseeded > div table th {
+  padding: 0 0.25em 0.25em 0.25em;
+  }
+
+#leaderboard-buttons .button {
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+    color: #fff;
+    min-width: 12em;
+    background-color: #202d46; /* blue of the cross is #435D91, this is 5 shades darker */
+    cursor: default;
+}
+
+#leaderboard-buttons .inactive {
+    background-color: transparent;
+    cursor: pointer;
+}
+
+#leaderboard-buttons .inactive:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+#leaderboard-buttons .inactive:active {
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.fa-times {
+    color: rgb(255,0,0);
+}
+
+.fa-check {
+    color: rgb(0,255,0);
+}
