@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"time"
+	"github.com/go-sql-driver/mysql"
 )
 
 /*
@@ -20,7 +21,7 @@ type StatsSeeded struct {
 	LastChange float32
 	Sigma      float32
 	NumRaces   int
-	LastRace   sql.NullInt64
+	LastRace   mysql.NullTime
 }
 
 // StatsUnseeded is used to get all unseeded stats
@@ -31,7 +32,7 @@ type StatsUnseeded struct {
 	NumForfeits     int
 	ForfeitPenalty  int
 	LowestTime      int
-	LastRace        sql.NullInt64
+	LastRace        mysql.NullTime
 }
 
 // ProfilesRow gets each row for all profiles
