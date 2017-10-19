@@ -1806,7 +1806,7 @@
     -webkit-transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
     -ms-transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
     transition: color 0.2s ease-in-out, border-bottom-color 0.2s ease-in-out;
-    border-bottom: dotted 1px;
+    /*border-bottom: dotted 1px;*/
     /*color: #e89980;*/
     color: #25b4c1; /* same as accent7 */
     text-decoration: none;
@@ -3861,6 +3861,14 @@
 
     }
 
+  .small-box {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 0 #e5e5e5;
+    margin: 0 0 2em 0;
+    padding: .5em;
+    text-align: center;
+  }
 
 span#lastEloChange.red {
   color: tomato;
