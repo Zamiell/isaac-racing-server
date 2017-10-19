@@ -3861,6 +3861,14 @@
 
     }
 
+  .small-box {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 0 #e5e5e5;
+    margin: 0 0 2em 0;
+    padding: .5em;
+    text-align: center;
+  }
 
 span#lastEloChange.red {
   color: tomato;
