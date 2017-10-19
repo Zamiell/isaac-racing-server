@@ -30,9 +30,13 @@ func httpProfiles(c *gin.Context) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-
-	// Get total number of pages needed for navigation
-	totalPages := math.Floor(float64(totalProfileCount) / float64(usersPerPage))
+	totalPages := 0
+	// Get total number of pages needed for navigation and remove a page if total is divisible by perPage
+	if (totalProfileCount % usersPerPage == 0) {
+		totalPages = int(math.Floor(float64(totalProfileCount) / float64(usersPerPage)) - 1)
+	} else {
+		totalPages = int(math.Floor(float64(totalProfileCount) / float64(usersPerPage)))
+	}
 
 	// Data to pass to the template
 	data := TemplateData{
