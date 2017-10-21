@@ -32,6 +32,8 @@ $(document).ready(function() {
     ConvertTimeStamp();
     ConvertForfeitRate();
     ConvertForfeitPenalty();
+    $('#myTable').tablesorter(); 
+     
 });
 
 function ConvertAvgTime() {
