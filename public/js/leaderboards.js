@@ -32,7 +32,8 @@ $(document).ready(function() {
     ConvertTimeStamp();
     ConvertForfeitRate();
     ConvertForfeitPenalty();
-    $('#myTable').tablesorter(); 
+    $('#leaderboard-' + activeLeaderboard + '-table').tablesorter(); 
+    
      
 });
 
