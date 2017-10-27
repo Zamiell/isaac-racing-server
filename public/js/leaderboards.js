@@ -25,47 +25,27 @@ function pad(n, width, z) {
 }
 
 $(document).ready(function() {
-    ConvertAvgTime();
-    ConvertRealTime();
-    ConvertFastestTime();
+    $('#leaderboard-' + activeLeaderboard + '-table').tablesorter(); 
+    ConvertTime('lb-adj-avg', );
+    ConvertTime('lb-real-avg');
+    ConvertTime('lb-fastest');
+    ConvertTime('lb-for-pen');
     AdjustRank();
     ConvertTimeStamp();
     ConvertForfeitRate();
-    ConvertForfeitPenalty();
-    $('#leaderboard-' + activeLeaderboard + '-table').tablesorter(); 
-    
-     
 });
 
-function ConvertAvgTime() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-adj-avg').each(function() {
+function ConvertTime(leaderboard) {
+    $('#leaderboard-' + activeLeaderboard + ' td.' + leaderboard).each(function() {
         time = $(this).html();
         $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
     });
-
-};
-
-function ConvertRealTime() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-real-avg').each(function() {
-        time = $(this).html();
-        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
-    });
-
-};
-
-function ConvertFastestTime() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-fastest').each(function() {
-        time = $(this).html();
-        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
-    });
-
 };
 
 function AdjustRank() {
     $('#leaderboard-' + activeLeaderboard + ' td.lb-rank').each(function() {
         $(this).html(parseInt($(this).html()) + 1);
     });
-
 };
 
 function ConvertForfeitRate() {
@@ -76,15 +56,6 @@ function ConvertForfeitRate() {
         rate = Math.round(rate); // Round it to the nearest whole number
         $(this).html(rate + "% (" + num + "/" + total + ")");
     });
-
-};
-
-function ConvertForfeitPenalty() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-for-pen').each(function() {
-        time = $(this).html();
-        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
-    });
-
 };
 
 function ConvertTimeStamp() {
