@@ -74,7 +74,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the user is not creating new races over and over, which will generate an annoying sound effect for everyone in the lobby
 	// Algorithm from: http://stackoverflow.com/questions/667508/whats-a-good-rate-limiting-algorithm
 	// (allow staff/admins to create unlimited races)
-	if admin == 0 && !race.Ruleset.Solo {
+	if admin == 0 && !ruleset.Solo {
 		now := time.Now()
 		timePassed := now.Sub(rateLimitLastCheck).Seconds()
 		s.Set("rateLimitLastCheck", now)
