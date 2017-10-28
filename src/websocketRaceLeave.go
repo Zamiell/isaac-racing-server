@@ -63,7 +63,7 @@ func websocketRaceLeave(s *melody.Session, d *IncomingWebsocketData) {
 
 		// Also delete it from the database
 		if err := db.Races.Delete(d.ID); err != nil {
-			log.Error("Database error:", err)
+			log.Error("Database error when deleting race ID "+strconv.Itoa(d.ID)+":", err)
 			websocketError(s, d.Command, "")
 			return
 		}

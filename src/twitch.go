@@ -65,7 +65,7 @@ func twitchConnect(oauthToken string) {
 	// Figure out which channels to join
 	streamURLs, err := db.Users.GetAllStreamURLs()
 	if err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while getting the stream URLs:", err)
 		return
 	}
 
@@ -174,7 +174,7 @@ func twitchNotMod(channel string) {
 	streamURL := "https://www.twitch.tv/" + channel
 	userID, username, err := db.Users.GetUserFromStreamURL(streamURL)
 	if err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while finding the user associated with the stream URL of \""+streamURL+"\":", err)
 		return
 	} else if userID == 0 {
 		log.Error("Was not able to find the user ID that goes along with the stream URL of: " + streamURL)
@@ -183,7 +183,7 @@ func twitchNotMod(channel string) {
 
 	// Disable the Twitch bot in the database
 	if err := db.Users.SetTwitchBotEnabled(userID, false); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while setting the Twitch bot status for user "+strconv.Itoa(userID)+":", err)
 		return
 	}
 

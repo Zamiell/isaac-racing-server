@@ -34,7 +34,7 @@ func httpLogin(c *gin.Context) {
 
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if IP \""+ip+"\" was banned:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if userIsBanned {
@@ -106,7 +106,7 @@ func httpLogin(c *gin.Context) {
 	// Check to see if this Steam ID exists in the database
 	var sessionValues *models.SessionValues
 	if v, err := db.Users.Login(steamID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if steam ID "+steamID+" exists:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if v == nil {
@@ -131,7 +131,7 @@ func httpLogin(c *gin.Context) {
 
 	// Update the database with datetime_last_login and last_ip
 	if err := db.Users.SetLogin(sessionValues.UserID, ip); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when setting the login values:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

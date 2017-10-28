@@ -21,7 +21,7 @@ func (*Users) GetStatsDiversity(userID int) (StatsDiversity, error) {
 		FROM
 			users
 		WHERE
-			user_id = ?
+			id = ?
 	`, userID).Scan(
 		&stats.TrueSkill,
 		&stats.Sigma,
@@ -80,6 +80,37 @@ func (*Users) SetStatsUnseeded(userID int, realAverage int, numForfeits int, for
 		numForfeits,
 		forfeitPenalty,
 		userID,
+		userID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*Users) SetStatsDiversity(userID int, stats StatsDiversity) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET
+			diversity_trueskill = ?,
+			diversity_trueskill_sigma = ?,
+			diversity_trueskill_change = ?,
+			diversity_num_races = ?,
+			diversity_last_race = NOW()
+		WHERE id = ?
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(
+		stats.NewTrueSkill,
+		stats.Sigma,
+		stats.Change,
+		stats.NumRaces,
 		userID,
 	); err != nil {
 		return err

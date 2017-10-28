@@ -27,8 +27,8 @@ CREATE TABLE users (
     verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitimate player on the leaderboard */
 
     /* Seeded leaderboard values */
-    seeded_trueskill        FLOAT      NOT NULL  DEFAULT 0,
-    seeded_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 0,
+    seeded_trueskill        FLOAT      NOT NULL  DEFAULT 25,
+    seeded_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 8.333,
     seeded_num_races        INT        NOT NULL  DEFAULT 0,
     seeded_last_race        TIMESTAMP  NULL      DEFAULT NULL,
 
@@ -42,8 +42,8 @@ CREATE TABLE users (
     unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Diversity leaderboard values */
-    diversity_trueskill         FLOAT      NOT NULL  DEFAULT 0,
-    diversity_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 0,
+    diversity_trueskill         FLOAT      NOT NULL  DEFAULT 25,
+    diversity_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 8.333,
     diversity_trueskill_change  FLOAT      NOT NULL  DEFAULT 0, /* The amount changed in the last race (can be positive or negative) */
     diversity_num_races         INT        NOT NULL  DEFAULT 0,
     diversity_last_race         TIMESTAMP  NULL      DEFAULT NULL,
@@ -220,7 +220,6 @@ CREATE TABLE user_achievements (
     datetime_achieved  TIMESTAMP  NOT NULL  DEFAULT NOW(),
 
     FOREIGN KEY(user_id) REFERENCES users(id),
-    FOREIGN KEY(achievement_id) REFERENCES achievements(id),
     UNIQUE(user_id, achievement_id)
 );
 CREATE INDEX user_achievements_index_user_id ON user_achievements (user_id);
@@ -244,8 +243,6 @@ CREATE TABLE user_season_stats (
     unseeded_num_races         INT        NOT NULL  DEFAULT 0,
     unseeded_num_forfeits      INT        NOT NULL  DEFAULT 0,
     unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     FOREIGN KEY(user_id) REFERENCES users(id),
     UNIQUE(user_id, season)

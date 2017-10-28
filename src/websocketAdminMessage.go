@@ -61,7 +61,7 @@ func websocketAdminMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add the new message to the database
 	if err := db.ChatLog.Insert("server", userID, message); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while inserting the chat message:", err)
 		websocketError(s, d.Command, "")
 		return
 	}

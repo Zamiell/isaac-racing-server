@@ -24,6 +24,7 @@ type RaceHistory struct {
 
 // RaceHistoryParticipants gets the user stats for each racer in each race
 type RaceHistoryParticipants struct {
+	ID           int
 	RacerName    string
 	RacerPlace   int
 	RacerTime    string
@@ -80,21 +81,21 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 		var rows2 *sql.Rows
 		if v, err := db.Query(`
 			SELECT
-			    u.username,
-			    rp.place,
-			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
-			    rp.comment
+				u.username,
+				rp.place,
+				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.comment
 			FROM
-			    race_participants rp
+				race_participants rp
 			LEFT JOIN
-			    users u
-			    ON u.id = rp.user_id
+				users u
+				ON u.id = rp.user_id
 			WHERE
-			    rp.race_id = ?
+				rp.race_id = ?
 			ORDER BY
-			    CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
-			    rp.place,
-                rp.run_time;
+				CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
+				rp.place,
+				rp.run_time;
 		`, race.RaceID); err != nil {
 			return nil, 0, err
 		} else {
@@ -121,11 +122,11 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 
 	var allRaceCount int
 	if err := db.QueryRow(`
-		SELECT 
+		SELECT
 			count(id)
-		FROM 
+		FROM
 			races
-		WHERE 
+		WHERE
 			finished = 1
 			AND solo = 0
 

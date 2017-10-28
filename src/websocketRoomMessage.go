@@ -83,7 +83,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add the new message to the database
 	if err := db.ChatLog.Insert(d.Room, userID, message); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when inserting a message:", err)
 		websocketError(s, d.Command, "")
 		return
 	}

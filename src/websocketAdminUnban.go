@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
@@ -28,7 +30,7 @@ func websocketAdminUnban(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the requested person exists in the database
 	var recipientID int
 	if userExists, v, err := db.Users.Exists(recipient); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if user \""+recipient+"\" exists:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userExists {
@@ -40,7 +42,7 @@ func websocketAdminUnban(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is banned
 	if userIsBanned, err := db.BannedUsers.Check(recipientID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if user "+strconv.Itoa(recipientID)+" is banned:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userIsBanned {
@@ -51,14 +53,14 @@ func websocketAdminUnban(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Remove this username from the ban list in the database
 	if err := db.BannedUsers.Delete(recipientID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when deleting user "+strconv.Itoa(recipientID)+" from the banned list:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
 	// Remove the user's last IP from the banned IP list, if present
 	if err := db.BannedIPs.DeleteUserIP(recipientID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when deleting the IP for user "+strconv.Itoa(recipientID)+" from the banned IPs list:", err)
 		websocketError(s, d.Command, "")
 		return
 	}

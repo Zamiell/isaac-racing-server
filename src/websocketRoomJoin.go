@@ -112,7 +112,7 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 		// Get all of the history
 		// (in SQLite, LIMIT -1 returns all results)
 		if list, err := db.ChatLog.Get(room, -1); err != nil {
-			log.Error("Database error:", err)
+			log.Error("Database error when getting all of the chat history:", err)
 			return
 		} else {
 			roomHistoryList = list
@@ -120,7 +120,7 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 	} else {
 		// Get only the last 50 entries
 		if list, err := db.ChatLog.Get(room, 50); err != nil {
-			log.Error("Database error:", err)
+			log.Error("Database error when getting the last 50 messages of chat history:", err)
 			return
 		} else {
 			roomHistoryList = list

@@ -79,7 +79,7 @@ func websocketPrivateMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add the new message to the database
 	if err := db.ChatLogPM.Insert(recipientID, userID, message); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while writing the PM to the database:", err)
 		websocketError(s, d.Command, "")
 		return
 	}

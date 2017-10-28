@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
+	"github.com/Zamiell/isaac-racing-server/src/models"
 )
 
 var (
@@ -156,7 +157,7 @@ func achievementsCheck(userID int, username string) {
 	// Get this racer's current achievements
 	userAchievements, err := db.UserAchievements.GetAll(userID)
 	if err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while getting the achievements for user "+strconv.Itoa(userID)+":", err)
 		return
 	}
 
@@ -178,10 +179,12 @@ func achievements1_8(userID int, username string, userAchievements []int) {
 		return
 	}
 
-	finishedList, err := db.RaceParticipants.GetFinishedRaces(userID)
-	if err != nil {
-		log.Error("Database error:", err)
+	var finishedList []models.Race
+	if v, err := db.RaceParticipants.GetFinishedRaces(userID); err != nil {
+		log.Error("Database error while getting the finished races for user "+strconv.Itoa(userID)+":", err)
 		return
+	} else {
+		finishedList = v
 	}
 
 	// Achievement 1 - This Wasn't So Bad - Complete your first race.

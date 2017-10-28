@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"net"
+	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
@@ -26,7 +27,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if IP \""+ip+"\" is banned:", err)
 		return nil, errors.New("")
 	} else if userIsBanned {
 		log.Info("IP \"" + ip + "\" tried to establish a WebSocket connection, but they are banned.")
@@ -88,7 +89,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 
 	// Check for sessions that belong to orphaned accounts
 	if userExists, databaseID, err := db.Users.Exists(username); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if user \""+username+"\" exists:", err)
 		return nil, errors.New("")
 	} else if !userExists {
 		log.Error("User \"" + username + "\" does not exist in the database; they are trying to establish a WebSocket connection with an orphaned account.")
@@ -100,7 +101,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 
 	// Check to see if this user is banned
 	if userIsBanned, err := db.BannedUsers.Check(userID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if user "+strconv.Itoa(userID)+" is banned:", err)
 		return nil, errors.New("")
 	} else if userIsBanned {
 		log.Info("User \"" + username + "\" tried to establish a WebSocket connection, but they are banned.")

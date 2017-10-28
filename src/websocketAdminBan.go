@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
@@ -30,7 +32,7 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the requested person exists in the database
 	var recipientID int
 	if userExists, v, err := db.Users.Exists(recipient); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while checking to see if user "+strconv.Itoa(userID)+" exists:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userExists {
@@ -42,7 +44,7 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is not already banned
 	if userIsBanned, err := db.BannedUsers.Check(recipientID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while checking to see if user "+strconv.Itoa(userID)+" is banned:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if userIsBanned {
@@ -53,7 +55,7 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is not a staff member or an administrator
 	if recipientAdmin, err := db.Users.GetAdmin(recipientID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while checking to see if user "+strconv.Itoa(userID)+" is an administrator:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if recipientAdmin > 0 {
@@ -62,72 +64,38 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	// Add this username to the ban list in the database
+	// Add the player to the ban list in the database
 	if err := db.BannedUsers.Insert(recipientID, userID, reason); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while adding user "+strconv.Itoa(recipientID)+" to the ban list:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
 	// Add their IP to the banned IP list
 	if err := db.BannedIPs.InsertUserIP(recipientID, userID, reason); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error while adding the IP for user "+strconv.Itoa(recipientID)+" to the banned IPs list:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
-	/*
-		// Find out if the banned user is in any races that are currently going on
-		// TODO
+	// Find out if the banned user is in any races that are currently going on
+	for _, race := range races {
+		for _, racer := range race.Racers {
+			if racer.ID == recipientID {
+				/*
+					Disqualify
+				*/
 
-		// Iterate over the races that they are currently in
-		for _, race := range raceList {
-			raceID := race.ID
-
-			// Find out if the race is started
-			if race.Status == "open" {
-				// Remove this user from the participants list for that race
-				// TODO
-
-				// Send everyone a notification that the user left the race
-				for _, conn := range connectionMap.m {
-					conn.Connection.Emit("raceLeft", RaceMessage{raceID, recipient})
-				}
-			} else {
-				// Set this racer's status to disqualified
-				if err := db.RaceParticipants.SetStatus(recipient, raceID, "disqualified"); err != nil {
-					log.Error("Database error:", err)
-					websocketError(s, d.Command, "")
-					return
-				}
-
-				// Set their finish time
-				if err := db.RaceParticipants.SetDatetimeFinished(recipient, raceID, int(makeTimestamp())); err != nil {
-					log.Error("Database error:", err)
-					websocketError(s, d.Command, "")
-					return
-				}
-
-				// Set their (final) place to -2 (which indicates a disqualified status)
-				if err := db.RaceParticipants.SetPlace(username, raceID, -2); err != nil {
-					log.Error("Database error:", err)
-					websocketError(s, d.Command, "")
-					return
-				}
-
-				// Send a notification to all the people in this particular race that the user got disqualified
-				for _, racer := range racerNames {
-					conn, ok := connectionMap.m[racer]
-					if ok { // Not all racers may be online during a race
-						conn.Connection.Emit("racerSetStatus", &RacerSetStatusMessage{raceID, username, "disqualified", -2})
-					}
-				}
+				racer.Place = -2
+				race.SetRacerStatus(username, "disqualified")
+				racer.DatetimeFinished = getTimestamp()
+				racer.RunTime = racer.DatetimeFinished - race.DatetimeStarted
+				race.SetAllPlaceMid()
+				twitchRacerQuit(race, racer)
+				race.CheckFinish()
 			}
-
-			// Check to see if the race should start or finish
-			raceCheckStartFinish(raceID)
 		}
-	*/
+	}
 
 	// Boot them offline if they are currently connected
 	if s2, ok := websocketSessions[recipient]; ok {

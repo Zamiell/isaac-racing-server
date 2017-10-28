@@ -34,11 +34,12 @@ type StatsUnseeded struct {
 }
 
 type StatsDiversity struct {
-	TrueSkill float64
-	Sigma     float64
-	Change    float64
-	NumRaces  int
-	LastRace  mysql.NullTime
+	TrueSkill    float64
+	Sigma        float64
+	Change       float64
+	NumRaces     int
+	LastRace     mysql.NullTime
+	NewTrueSkill float64 // Only used when doing new TrueSkill calculation
 }
 
 // ProfilesRow gets each row for all profiles

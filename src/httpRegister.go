@@ -22,7 +22,7 @@ func httpRegister(c *gin.Context) {
 
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if the IP \""+ip+"\" was banned:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if userIsBanned {
@@ -68,7 +68,7 @@ func httpRegister(c *gin.Context) {
 
 	// Check to see if this Steam ID exists in the database
 	if sessionValues, err := db.Users.Login(steamID); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if the steam ID of \""+steamID+"\" exists:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if sessionValues != nil {
@@ -92,7 +92,7 @@ func httpRegister(c *gin.Context) {
 
 	// Validate that the username is not already taken
 	if userExists, _, err := db.Users.Exists(username); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when checking to see if the username of \""+username+"\" exists:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if userExists {
@@ -107,7 +107,7 @@ func httpRegister(c *gin.Context) {
 	// Add them to the database
 	var userID int
 	if id, err := db.Users.Insert(steamID, username, ip); err != nil {
-		log.Error("Database error:", err)
+		log.Error("Database error when inserting the username of \""+username+"\":", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else {

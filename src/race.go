@@ -37,7 +37,7 @@ type Racer struct {
 	ID                   int
 	Name                 string
 	DatetimeJoined       int64
-	Status               string
+	Status               string /* not ready, ready, finished, quit, disqualified */
 	Seed                 string
 	FloorNum             int
 	StageType            int

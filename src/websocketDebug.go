@@ -48,13 +48,6 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	}
 	log.Debug("--------------")
 
-	/*
-		fmt.Println(connectionMap.m)
-		for _, conn := range connectionMap.m {
-			fmt.Println("on connection:", conn.Username)
-		}
-	*/
-
-	// Test IRC stuff
-	//ircSend("JOIN #zamiell")
+	// Do extra stuff
+	leaderboardDiversityRecalculate()
 }
