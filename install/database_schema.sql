@@ -28,7 +28,6 @@ CREATE TABLE users (
 
     /* Seeded leaderboard values */
     seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
-    seeded_trueskill_change  FLOAT      NOT NULL  DEFAULT 0,
     seeded_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 0,
     seeded_num_races         INT        NOT NULL  DEFAULT 0,
     seeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,

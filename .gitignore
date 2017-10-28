@@ -1,3 +1,7 @@
+# ------------------------------
+# gitignore template from GitHub
+# ------------------------------
+
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
 *.a
@@ -23,9 +27,9 @@ _testmain.go
 *.test
 *.prof
 
-#
+# ----------------------------------
 # isaac-racing-server specific stuff
-#
+# ----------------------------------
 
 # Contains secrets
 .env
@@ -37,5 +41,6 @@ backup
 # The compiled binary
 isaac-racing-server
 
-# A helper script
+# Helper scripts
 database_shell.sh
+make_database_dump.sh
