@@ -1,3 +1,5 @@
+/*@import url("../tablesorter/themes/blue/style.css");*/
+
 #main > header p.lb {
     padding: 0;
 }
@@ -44,4 +46,21 @@
 
 .fa-check {
     color: rgb(0,255,0);
+}
+
+table.tablesorter thead tr .headerSortUp {
+  background-image: url(/public/img/asc.gif);
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  
+}
+table.tablesorter thead tr .headerSortDown {
+  background-image: url(/public/img/desc.gif);
+  background-repeat: no-repeat;
+  background-position: center bottom;
+  
+}
+
+th.header:hover {
+  background-color: rgb(220,220,220);
 }
