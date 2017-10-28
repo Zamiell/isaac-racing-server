@@ -49,8 +49,23 @@ func leaderboardUpdateUnseeded(race *Race) {
 
 		// Update their stats in the database
 		if err := db.Users.SetStatsUnseeded(racer.ID, int(averageTime), numForfeits, int(forfeitPenalty)); err != nil {
-			log.Error("Database error while setting the unseeded stats:", err)
+			log.Error("Database error while setting the unseeded stats for \""+racer.Name+"\":", err)
 			return
 		}
+	}
+}
+
+func leaderboardUpdateDiversity(race *Race) {
+	// Update the stats for every person in the race
+	for _, racer := range race.Racers {
+		var stats models.StatsDiversity
+		if v, err := db.Users.GetStatsDiversity(racer.ID); err != nil {
+			log.Error("Database error while getting the diversity stats for \""+racer.Name+"\":", err)
+			return
+		} else {
+			stats = v
+		}
+
+		log.Info(stats)
 	}
 }

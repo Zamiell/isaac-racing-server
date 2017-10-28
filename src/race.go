@@ -356,11 +356,15 @@ func (race *Race) Finish() {
 		}
 	}
 
-	// Update the leaderboard
+	// Update the diversity leaderboard
+	if race.Ruleset.Format == "diversity" {
+		leaderboardUpdateDiversity(race)
+	}
+
+	// Update the ranked leaderboards
 	if !race.Ruleset.Ranked {
 		return
 	}
-
 	if race.Ruleset.Format == "seeded" {
 		leaderboardUpdateSeeded(race)
 	} else if race.Ruleset.Format == "unseeded" {

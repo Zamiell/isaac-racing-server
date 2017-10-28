@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"time"
+
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -15,16 +16,13 @@ import (
 	Data structures
 */
 
-// StatsSeeded is used to get all seeded stats
 type StatsSeeded struct {
-	TrueSkill  float32
-	LastChange float32
-	Sigma      float32
-	NumRaces   int
-	LastRace   mysql.NullTime
+	TrueSkill float32
+	Sigma     float32
+	NumRaces  int
+	LastRace  mysql.NullTime
 }
 
-// StatsUnseeded is used to get all unseeded stats
 type StatsUnseeded struct {
 	AdjustedAverage int
 	RealAverage     int
@@ -33,6 +31,14 @@ type StatsUnseeded struct {
 	ForfeitPenalty  int
 	LowestTime      int
 	LastRace        mysql.NullTime
+}
+
+type StatsDiversity struct {
+	TrueSkill float64
+	Sigma     float64
+	Change    float64
+	NumRaces  int
+	LastRace  mysql.NullTime
 }
 
 // ProfilesRow gets each row for all profiles
@@ -52,30 +58,8 @@ type ProfileData struct {
 	Verified          bool
 	StatsSeeded       StatsSeeded
 	StatsUnseeded     StatsUnseeded
+	StatsDiversity    StatsDiversity
 	StreamURL         string
-}
-
-// Used in the leaderboards
-/*
-type LeaderboardRowSeeded struct {
-	Name           string
-	ELO            int
-	LastELOChange  int
-	NumSeededRaces int
-	LastSeededRace int
-	Verified       int
-}
-*/
-type LeaderboardRowUnseeded struct {
-	Name            string
-	Verified        int
-	AdjustedAverage int
-	RealAverage     int
-	NumRaces        int
-	NumForfeits     int
-	ForfeitPenalty  int
-	LowestTime      int
-	LastRace        time.Time
 }
 
 /*
@@ -102,7 +86,6 @@ func (*Users) GetStatsSeeded(username string) (StatsSeeded, error) {
 	if err := db.QueryRow(`
 		SELECT
 			seeded_trueskill,
-			seeded_trueskill_change,
 			seeded_trueskill_sigma,
 			seeded_num_races,
 			seeded_last_race
@@ -112,7 +95,6 @@ func (*Users) GetStatsSeeded(username string) (StatsSeeded, error) {
 			username = ?
 	`, username).Scan(
 		&stats.ELO,
-		&stats.LastELOChange,
 		&stats.NumSeededRaces,
 		&stats.LastSeededRace,
 	); err != nil {
@@ -165,7 +147,6 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 			admin,
 			verified,
 			seeded_trueskill,
-			seeded_trueskill_change,
 			seeded_trueskill_sigma,
 			seeded_num_races,
 			seeded_last_race,
@@ -189,7 +170,6 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		&profileData.Admin,
 		&rawVerified,
 		&profileData.StatsSeeded.TrueSkill,
-		&profileData.StatsSeeded.LastChange,
 		&profileData.StatsSeeded.Sigma,
 		&profileData.StatsSeeded.NumRaces,
 		&profileData.StatsSeeded.LastRace,
@@ -279,6 +259,18 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 }
 
 // Make a leaderboard for the unseeded format based on all of the users
+type LeaderboardRowUnseeded struct {
+	Name            string
+	AdjustedAverage int
+	RealAverage     int
+	NumRaces        int
+	NumForfeits     int
+	ForfeitPenalty  int
+	LowestTime      int
+	LastRace        time.Time
+	Verified        int
+}
+
 func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
@@ -329,21 +321,29 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 	return leaderboard, nil
 }
 
-/*
 // Make a leaderboard for the seeded format based on all of the users
+type LeaderboardRowSeeded struct {
+	Name      string
+	TrueSkill float64
+	NumRaces  int
+	LastRace  time.Time
+	Verified  int
+}
+
 func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
 			username,
-			elo,
-			last_elo_change,
-			num_seeded_races,
-			last_seeded_race
+			seeded_trueskill,
+			seeded_trueskill_sigma,
+			seeded_num_races,
+			seeded_last_race,
+			verified,
 		FROM
 			users
 		WHERE
-			num_seeded_races > 1
+			seeded_num_races > 1
 	`); err != nil {
 		return nil, err
 	} else {
@@ -357,10 +357,10 @@ func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
 		var row LeaderboardRowSeeded
 		if err := rows.Scan(
 			&row.Name,
-			&row.ELO,
-			&row.LastELOChange,
-			&row.NumSeededRaces,
-			&row.LastSeededRace,
+			&row.TrueSkill,
+			&row.NumRaces,
+			&row.LastRace,
+			&row.Verified,
 		); err != nil {
 			return nil, err
 		}
@@ -371,4 +371,3 @@ func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
 
 	return leaderboard, nil
 }
-*/

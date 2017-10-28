@@ -27,10 +27,10 @@ CREATE TABLE users (
     verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitimate player on the leaderboard */
 
     /* Seeded leaderboard values */
-    seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
-    seeded_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 0,
-    seeded_num_races         INT        NOT NULL  DEFAULT 0,
-    seeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
+    seeded_trueskill        FLOAT      NOT NULL  DEFAULT 0,
+    seeded_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 0,
+    seeded_num_races        INT        NOT NULL  DEFAULT 0,
+    seeded_last_race        TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Unseeded leaderboard values */
     unseeded_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
@@ -40,6 +40,13 @@ CREATE TABLE users (
     unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
     unseeded_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
     unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
+
+    /* Diversity leaderboard values */
+    diversity_trueskill         FLOAT      NOT NULL  DEFAULT 0,
+    diversity_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 0,
+    diversity_trueskill_change  FLOAT      NOT NULL  DEFAULT 0, /* The amount changed in the last race (can be positive or negative) */
+    diversity_num_races         INT        NOT NULL  DEFAULT 0,
+    diversity_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Stream values */
     stream_url                 NVARCHAR(50)  NOT NULL  DEFAULT "-", /* Their stream URL */
