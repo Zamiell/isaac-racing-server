@@ -96,7 +96,7 @@
 							<td class="lb-num-races">{{ .NumRaces }}</td>
 							<td class="lb-fastest">{{ .LowestTime }}</td>
 							<td class="lb-last-race">{{ .LastRace }}</td>
-							<td class="lb-status">{{ if eq .Verified 1 -}}<i class="fa fa-check" aria-hidden="true" alt="Verified"></i> {{- else -}} <i class="fa fa-times" aria-hidden="true" alt="Verified"></i>{{- end }}</td>
+							<td class="lb-status">{{ if eq .Verified 1 -}}<i class="fa fa-check" aria-hidden="true" alt="Verified"></i> {{- else -}} <i class="fa fa-times" aria-hidden="true" alt="Verified"></i>{{- end }} {{ if ne .StreamURL "-" -}}&nbsp;<a href="{{ .StreamURL }}" target="_blank"><img src="/public/img/Glitch_Purple_RGB.png" width="16px" height="16px"/></a>{{- end -}}</td>
 						</tr>
 					{{- end }}
 				</tbody>

@@ -9,7 +9,7 @@
 }
 
 
-#leaderboard-unseeded > div table td {
+div table td {
   padding: 0.15em 0.15em;
   text-align: center;
   vertical-align: middle;
@@ -48,6 +48,10 @@
     color: rgb(0,255,0);
 }
 
+tr td.lb-status {
+  padding: 0 0 0 0.5em;
+  text-align: left;
+}
 table.tablesorter thead tr .headerSortUp {
   background-image: url(/public/img/asc.gif);
   background-repeat: no-repeat;
