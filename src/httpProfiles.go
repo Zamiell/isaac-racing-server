@@ -80,7 +80,7 @@ func httpProfile(c *gin.Context) {
 		return
 	}
 
-	raceDataAll, err := db.Races.GetRankedRaceProfileHistory(player, racesAllTotal)
+	raceDataAll, err := db.Races.GetAllRaceProfileHistory(player, racesAllTotal)
 	if err != nil {
 		log.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
