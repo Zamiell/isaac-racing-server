@@ -50,6 +50,13 @@ tr td.lb-status {
   padding: 0 0 0 0.5em;
   text-align: left;
 }
+
+
+tr td.lb-last-race {
+  padding: .35em;
+  white-space: nowrap;
+}
+
 table.tablesorter thead tr .headerSortUp {
   background-image: url(/public/img/asc.gif);
   background-repeat: no-repeat;
@@ -65,4 +72,14 @@ table.tablesorter thead tr .headerSortDown {
 th.header:hover {
   background-color: rgb(220,220,220);
   cursor: pointer;
+}
+
+
+span#lastEloChange.red {
+  color: tomato;
+  font-size: .75em;
+}
+span#lastEloChange.green {
+  color: rgb(0, 215, 0);
+  font-size: .75em;
 }

@@ -53,7 +53,8 @@ type TemplateData struct {
 	UsersPerPage      int
 
 	// Leaderboard stuff
-	LeaderboardUnseeded []models.LeaderboardRowUnseeded
+	LeaderboardUnseeded  []models.LeaderboardRowUnseeded
+	LeaderboardDiversity []models.LeaderboardRowDiversity
 	//LeaderboardSeeded []models.LeaderboardRowSeeded
 }
 

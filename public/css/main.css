@@ -3870,10 +3870,3 @@
     padding: .5em;
     text-align: center;
   }
-
-span#lastEloChange.red {
-  color: tomato;
-}
-span#lastEloChange.green {
-  color: rgb(0, 215, 0);
-}

@@ -5,7 +5,7 @@ function showLeaderboard(type) {
     // Header buttons
     $('#leaderboard-seeded-button').addClass('inactive');
     $('#leaderboard-unseeded-button').addClass('inactive');
-    $('#leaderboard-other-button').addClass('inactive');
+    $('#leaderboard-diversity-button').addClass('inactive');
     $('#leaderboard-' + type + '-button').removeClass('inactive');
 
     // Fade out the old leaderboard and fade in the new one
@@ -25,31 +25,38 @@ function pad(n, width, z) {
 }
 
 $(document).ready(function() {
-    $('#leaderboard-' + activeLeaderboard + '-table').tablesorter(); 
-    ConvertTime('lb-adj-avg', );
-    ConvertTime('lb-real-avg');
-    ConvertTime('lb-fastest');
-    ConvertTime('lb-for-pen');
-    AdjustRank();
-    ConvertTimeStamp();
-    ConvertForfeitRate();
+    // Unseeded things
+    $('#leaderboard-unseeded-table').tablesorter(); 
+    AdjustRank('unseeded');
+    ConvertTime('unseeded','lb-adj-avg');
+    ConvertTime('unseeded','lb-real-avg');
+    ConvertTime('unseeded','lb-fastest');
+    ConvertTime('unseeded','lb-for-pen');
+    ConvertTimeStamp('unseeded','lb-last-race');
+    ConvertForfeitRate('unseeded');
+
+    //Diversity things
+    $('#leaderboard-diversity-table').tablesorter(); 
+    AdjustRank('diversity');
+    ConvertTime('diversity','lb-fastest');
+    ConvertTimeStamp('diversity','lb-last-race');
 });
 
-function ConvertTime(leaderboard) {
-    $('#leaderboard-' + activeLeaderboard + ' td.' + leaderboard).each(function() {
+function ConvertTime(leaderboard, tableData) {
+    $('#leaderboard-' + leaderboard + ' td.' + tableData).each(function() {
         time = $(this).html();
         $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
     });
 };
 
-function AdjustRank() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-rank').each(function() {
+function AdjustRank(leaderboard) {
+    $('#leaderboard-' + leaderboard + ' td.lb-rank').each(function() {
         $(this).html(parseInt($(this).html()) + 1);
     });
 };
 
-function ConvertForfeitRate() {
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-num-for').each(function() {
+function ConvertForfeitRate(leaderboard, tableData) {
+    $('#leaderboard-' + leaderboard + ' td.' + tableData).each(function() {
         num = $(this).html();
         total = ($(this).next().html() > 50) ? 50 : $(this).next().html();
         rate = num / total * 100;
@@ -58,11 +65,11 @@ function ConvertForfeitRate() {
     });
 };
 
-function ConvertTimeStamp() {
+function ConvertTimeStamp(leaderboard) {
     var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
     var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
 
-    $('#leaderboard-' + activeLeaderboard + ' td.lb-last-race').each(function() {
+    $('#leaderboard-' + leaderboard + ' td.lb-last-race').each(function() {
         // Miserable hack to help with Safari's strict JS date restrictions
         dt = new Date($(this).html().replace(/\s/, 'T').replace(' +0000 UTC', ''));
 
@@ -86,8 +93,8 @@ function ConvertTimeStamp() {
 };
 
 
-/*
-Disabling this for now since there is only one leaderboard currently
+
+//Disabling this for now since there is only one leaderboard currently
 
 $('#leaderboard-seeded-button').click(function() {
     if (activeLeaderboard !== 'seeded' && transition === false) {
@@ -99,9 +106,9 @@ $('#leaderboard-unseeded-button').click(function() {
         showLeaderboard('unseeded');
     }
 });
-$('#leaderboard-other-button').click(function() {
-    if (activeLeaderboard !== 'other' && transition === false) {
-        showLeaderboard('other');
+$('#leaderboard-diversity-button').click(function() {
+    if (activeLeaderboard !== 'diversity' && transition === false) {
+        showLeaderboard('diversity');
     }
 });
-*/
+

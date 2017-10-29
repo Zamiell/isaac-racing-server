@@ -270,7 +270,7 @@ type LeaderboardRowUnseeded struct {
 	LowestTime      int
 	LastRace        time.Time
 	Verified        int
-	StreamURL       string
+	StreamURL		string
 }
 
 func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
@@ -278,6 +278,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 	if v, err := db.Query(`
 		SELECT
 			username,
+			verified,
 			unseeded_adjusted_average,
 			unseeded_real_average,
 			unseeded_num_races,
@@ -285,7 +286,6 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			unseeded_forfeit_penalty,
 			unseeded_lowest_time,
 			unseeded_last_race,
-			verified,
 			stream_url
 		FROM
 			users
@@ -306,6 +306,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		var row LeaderboardRowUnseeded
 		if err := rows.Scan(
 			&row.Name,
+			&row.Verified,
 			&row.AdjustedAverage,
 			&row.RealAverage,
 			&row.NumRaces,
@@ -313,7 +314,6 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			&row.ForfeitPenalty,
 			&row.LowestTime,
 			&row.LastRace,
-			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
 			return nil, err
@@ -373,5 +373,80 @@ func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
 		leaderboard = append(leaderboard, row)
 	}
 
+	return leaderboard, nil
+}
+
+type LeaderboardRowDiversity struct {
+	Name                string
+	DivTrueSkill        float64
+	DivTrueSkillDelta   float64
+	DivNumRaces         sql.NullInt64
+	DivLowestTime       sql.NullInt64
+	DivLastRace         time.Time
+	Verified            int
+	StreamURL           string
+}
+
+func (*Users) GetLeaderboardDiversity() ([]LeaderboardRowDiversity, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT 
+		    u.username,
+		    u.verified,
+		    u.diversity_trueskill,
+		    ROUND(u.diversity_trueskill_change, 4),
+		    u.diversity_num_races,
+		    (SELECT 
+		            MIN(run_time)
+		        FROM
+		            race_participants
+				LEFT JOIN races
+					ON race_participants.race_id = races.id
+		        WHERE
+		            place > 0 
+		            AND u.id = user_id
+		            AND races.format = 'diversity') as r_time,
+		    u.diversity_last_race,
+		    u.stream_url
+		FROM
+		    users u
+		        LEFT JOIN
+		    race_participants rp ON rp.user_id = u.id
+		        LEFT JOIN
+		    races r ON r.id = rp.race_id
+		WHERE
+		    diversity_num_races >= 5
+		        AND r.format = 'diversity'
+		        AND rp.place > 0
+		GROUP BY u.username
+		ORDER BY u.diversity_trueskill DESC
+            
+	`); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowDiversity, 0)
+	for rows.Next() {
+		var row LeaderboardRowDiversity
+		if err := rows.Scan(
+			&row.Name,
+			&row.Verified,
+			&row.DivTrueSkill,
+			&row.DivTrueSkillDelta,
+			&row.DivNumRaces,
+			&row.DivLowestTime,
+			&row.DivLastRace,
+			&row.StreamURL,
+		); err != nil {
+			return nil, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
 	return leaderboard, nil
 }

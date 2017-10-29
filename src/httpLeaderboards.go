@@ -51,12 +51,26 @@ func httpLeaderboards(c *gin.Context) {
 		return
 	}
 
+	leaderboardDiversity, err := db.Users.GetLeaderboardDiversity()
+	if err != nil {
+		log.Error("Failed to get the diversity leaderboard:", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	
+	// Construct the "Top 10 Unseeded Times" leaderboard
+	/*var leaderboardTop10Times string
+	for _, row := range leaderboardUnseeded {
+
+	}*/
+
 	// Construct the "Most Races Played" leaderboard
 	// TODO
 
 	data := TemplateData{
-		Title:               "Leaderboards",
-		LeaderboardUnseeded: leaderboardUnseeded,
+		Title:                "Leaderboards",
+		LeaderboardUnseeded:  leaderboardUnseeded,
+		LeaderboardDiversity: leaderboardDiversity,
 	}
 
 	httpServeTemplate(w, "leaderboards", data)

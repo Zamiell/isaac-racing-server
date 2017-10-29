@@ -14,7 +14,7 @@
 			<a id="leaderboard-unseeded-button" class="button fit">Unseeded</a>
 		</div>
 		<div class="4u 12u">
-			<a id="leaderboard-other-button" class="button fit inactive disabled">Other</a>
+			<a id="leaderboard-diversity-button" class="button fit inactive">Diversity</a>
 		</div>
 	</div>
 
@@ -114,6 +114,49 @@
 			</table>
 		</div>
 	</section>
+
+	<section id="leaderboard-diversity" class="box">
+		<div class="table-wrapper">
+			<table  id="leaderboard-diversity-table" class="alt lb tablesorter">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Player</th>
+						<th>TrueSkill</th>
+						<th>Total Races Played</th>
+						<th>Fastest Time</th>
+						<th>Date of Last Race</th>
+						<th>Verified</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range $index, $results := .LeaderboardDiversity }}
+
+						<tr>
+							<td class="lb-rank">{{ $index }}</td>
+							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
+							<td class="lb-trueskill">{{ .DivTrueSkill }} <span id="lastEloChange" class="{{ if lt .DivTrueSkillDelta 0.0 -}} red {{- else if gt .DivTrueSkillDelta 0.0}} green {{- end}}">{{if gt .DivTrueSkillDelta 0.0}}+{{end}}{{ if ne .DivTrueSkillDelta 0.0 -}}{{- .DivTrueSkillDelta -}}{{ end -}}</span></td>
+							<td class="lb-num-races">{{ .DivNumRaces.Value }}</td>
+							<td class="lb-fastest">{{ .DivLowestTime.Value }}</td>
+							<td class="lb-last-race">{{ .DivLastRace }}</td>
+							<td class="lb-status">
+								{{ if eq .Verified 1 -}}
+									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
+								{{- else -}}
+									<i class="fa fa-times" aria-hidden="true" alt="Verified"></i>
+								{{- end }}
+								{{ if ne .StreamURL "-" -}}
+									&nbsp;<a href="{{ .StreamURL }}" target="_blank">
+										<img src="/public/img/Glitch_Purple_RGB.png" width="16px" height="16px"/>
+									</a>
+								{{- end -}}
+							</td>
+						</tr>
+					{{- end }}
+				</tbody>
+			</table>
+		</div>
+	</section>	
 
 	<!--
 	<div id="leaderboard-other" style="display: none;">
