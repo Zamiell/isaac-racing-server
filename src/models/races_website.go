@@ -354,7 +354,6 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 
 		WHERE
 			r.finished = 1
-			AND r.ranked = 1
 			AND u.username = ?
 		GROUP BY
 			id
