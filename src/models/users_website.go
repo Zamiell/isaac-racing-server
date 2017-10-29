@@ -270,7 +270,7 @@ type LeaderboardRowUnseeded struct {
 	LowestTime      int
 	LastRace        time.Time
 	Verified        int
-	StreamURL		string
+	StreamURL       string
 }
 
 func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
@@ -278,7 +278,6 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 	if v, err := db.Query(`
 		SELECT
 			username,
-			verified,
 			unseeded_adjusted_average,
 			unseeded_real_average,
 			unseeded_num_races,
@@ -286,6 +285,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			unseeded_forfeit_penalty,
 			unseeded_lowest_time,
 			unseeded_last_race,
+			verified,
 			stream_url
 		FROM
 			users
@@ -306,7 +306,6 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		var row LeaderboardRowUnseeded
 		if err := rows.Scan(
 			&row.Name,
-			&row.Verified,
 			&row.AdjustedAverage,
 			&row.RealAverage,
 			&row.NumRaces,
@@ -314,6 +313,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			&row.ForfeitPenalty,
 			&row.LowestTime,
 			&row.LastRace,
+			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
 			return nil, err
