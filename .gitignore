@@ -36,7 +36,7 @@ _testmain.go
 
 # Directories
 logs
-backup
+backups
 
 # The compiled binary
 isaac-racing-server
