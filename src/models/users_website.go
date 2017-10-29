@@ -270,7 +270,7 @@ type LeaderboardRowUnseeded struct {
 	LowestTime      int
 	LastRace        time.Time
 	Verified        int
-	StreamURL		string
+	StreamURL       string
 }
 
 func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
