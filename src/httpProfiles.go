@@ -54,7 +54,8 @@ func httpProfiles(c *gin.Context) {
 func httpProfile(c *gin.Context) {
 	// Local variables
 	w := c.Writer
-	racesPerPage := 5
+	racesRankedTotal := 50
+	racesAllTotal := 5
 
 	// Parse the player name from the URL
 	player := c.Params.ByName("player")
@@ -72,23 +73,33 @@ func httpProfile(c *gin.Context) {
 	}
 
 	// Get the race data for the last x races
-	raceData, err := db.Races.GetRaceProfileHistory(player, racesPerPage)
+	raceDataRanked, err := db.Races.GetRankedRaceProfileHistory(player, racesRankedTotal)
 	if err != nil {
 		log.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	// Capitalize the RaceFormat data
-	for i := range raceData {
-		raceData[i].RaceFormat = strings.Title(raceData[i].RaceFormat)
-	}
+	raceDataAll, err := db.Races.GetRankedRaceProfileHistory(player, racesAllTotal)
+	if err != nil {
+		log.Error("Failed to get the race data: ", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}	
 
+	// Capitalize the RaceFormat data
+	for i := range raceDataRanked {
+		raceDataRanked[i].RaceFormat = strings.Title(raceDataRanked[i].RaceFormat)
+	}
+	for i := range raceDataAll {
+		raceDataAll[i].RaceFormat = strings.Title(raceDataAll[i].RaceFormat)
+	}
 	// Set data to serve to the template
 	data := TemplateData{
-		Title:          "Profile",
-		ResultsProfile: playerData,
-		RaceResults:    raceData,
+		Title:                "Profile",
+		ResultsProfile:       playerData,
+		RaceResultsRanked:    raceDataRanked,
+		RaceResultsAll:       raceDataAll,
 	}
 
 	httpServeTemplate(w, "profile", data)

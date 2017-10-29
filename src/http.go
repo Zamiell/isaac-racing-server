@@ -37,12 +37,14 @@ type TemplateData struct {
 	Title string
 
 	// Races stuff
-	RaceResults    []models.RaceHistory
-	ResultsRaces   []models.RaceHistory
-	TotalRaceCount int
-	TotalPages     int
-	PreviousPage   int
-	NextPage       int
+	RaceResults          []models.RaceHistory
+	ResultsRaces         []models.RaceHistory
+	TotalRaceCount       int
+	TotalPages           int
+	PreviousPage         int
+	NextPage             int
+	RaceResultsRanked    []models.RaceHistory
+	RaceResultsAll       []models.RaceHistory
 
 	// Profiles/profile stuff
 	ResultsProfiles   []models.ProfilesRow

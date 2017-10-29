@@ -2,6 +2,7 @@
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,300italic,400italic");
 @import url("race.css");
 @import url("leaderboards.css");
+@import url("profiles.css");
 /*
   Alpha by HTML5 UP
   html5up.net | @ajlkn
@@ -3874,5 +3875,5 @@ span#lastEloChange.red {
   color: tomato;
 }
 span#lastEloChange.green {
-  color: chartreuse;
+  color: rgb(0, 215, 0);
 }

@@ -225,7 +225,7 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 }
 
 // GetRaceProfileHistory gets the race data for the profile page
-func (*Races) GetRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
+func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -247,6 +247,114 @@ func (*Races) GetRaceProfileHistory(user string, racesPerPage int) ([]RaceHistor
 
 		WHERE
 			r.finished = 1
+			AND r.ranked = 1
+			AND u.username = ?
+		GROUP BY
+			id
+		ORDER BY
+			datetime_created DESC
+		LIMIT
+			?
+	`, user, racesPerPage); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	raceHistory := make([]RaceHistory, 0)
+	for rows.Next() {
+		var race RaceHistory
+		if err := rows.Scan(
+			&race.RaceID,
+			&race.RaceType,
+			&race.RaceFormat,
+			&race.RaceChar,
+			&race.RaceGoal,
+			&race.RaceDateStart,
+			&race.RaceDateFinished,
+		); err != nil {
+			return nil, err
+		}
+		race.RaceParticipants = nil
+
+		var rows2 *sql.Rows
+		if v, err := db.Query(`
+			SELECT
+			    u.username,
+			    rp.place,
+			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+			    rp.comment
+			FROM
+			    race_participants rp
+			LEFT JOIN
+			    users u
+			    ON u.id = rp.user_id
+			WHERE
+			    rp.race_id = ?
+			ORDER BY
+			    CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
+			    rp.place,
+                rp.run_time;
+		`, race.RaceID); err != nil {
+			return nil, err
+		} else {
+			rows2 = v
+		}
+		defer rows2.Close()
+
+		raceRacers := make([]RaceHistoryParticipants, 0)
+		for rows2.Next() {
+			var racer RaceHistoryParticipants
+			if err := rows2.Scan(
+				&racer.RacerName,
+				&racer.RacerPlace,
+				&racer.RacerTime,
+				&racer.RacerComment,
+			); err != nil {
+				return nil, err
+			}
+			raceRacers = append(raceRacers, racer)
+		}
+		race.RaceParticipants = raceRacers
+		raceHistory = append(raceHistory, race)
+	}
+
+	var allRaceCount int
+	if err := db.QueryRow(`
+		SELECT count(id)
+		FROM races
+		WHERE finished = 1
+	`).Scan(&allRaceCount); err != nil {
+		return nil, err
+	}
+
+	return raceHistory, nil
+}
+
+func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT
+			r.id,
+			r.ranked,
+			r.format,
+			r.player_type,
+			r.goal,
+			r.datetime_created,
+			r.datetime_finished
+		FROM
+			races r
+		LEFT JOIN
+			race_participants rp
+			ON rp.race_id = r.id
+		LEFT JOIN
+			users u
+			ON u.id = rp.user_id
+
+		WHERE
+			r.finished = 1
+			AND r.ranked = 1
 			AND u.username = ?
 		GROUP BY
 			id

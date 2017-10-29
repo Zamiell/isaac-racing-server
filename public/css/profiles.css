@@ -1,0 +1,358 @@
+/* Main */
+  #profile-main {
+    padding: 4em 0;
+  }
+    #profile-main > header.profile {
+      text-align: center;
+      margin: 0 0 0 0;
+      position: relative;
+      top: -50px;
+    }
+
+      #profile-main > header h2 {
+        font-size: 2.75em;
+        margin: 0;
+        color: white;
+      }
+
+      #profile-main > header p {
+        border-top: solid 2px #e5e5e5;
+        /*color: #777;*/
+        color: white;
+        display: inline-block;
+        font-style: normal;
+        margin: 1em 0 0 0;
+        padding: 1em 0 1.25em 0;
+      }
+
+/* Box */
+
+  .profile-box {
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 2px 0 0 #e5e5e5;
+    margin: 0 0 1em 0;
+    padding: 1em;
+  }
+
+    .profile-box > :last-child {
+      margin-bottom: 0;
+    }
+
+    .profile-box.alt {
+      background: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      margin: 0 0 2em 0;
+      padding: 0 !important;
+    }
+
+    .profile-box.features .features-row {
+      border-top: solid 2px #e5e5e5;
+      position: relative;
+    }
+
+      .profile-box.features .features-row:after {
+        clear: both;
+        content: '';
+        display: block;
+      }
+
+      .profile-box.features .features-row section {
+        float: left;
+        padding: 3em;
+        width: 50%;
+      }
+
+        .profile-box.features .features-row section :last-child {
+          margin-bottom: 0;
+        }
+
+        .profile-box.features .features-row section:nth-child(2n) {
+          padding-right: 0;
+        }
+
+          .profile-box.features .features-row section:nth-child(2n):before {
+            background: #e5e5e5;
+            content: '';
+            display: block;
+            height: 100%;
+            margin-left: -3em;
+            position: absolute;
+            top: 0;
+            width: 2px;
+          }
+
+        .profile-box.features .features-row section:nth-child(2n-1) {
+          padding-left: 0;
+        }
+
+      .profile-box.features .features-row:first-child {
+        border-top: 0;
+      }
+
+        .profile-box.features .features-row:first-child section {
+          padding-top: 0;
+        }
+
+      .profile-box.features .features-row:last-child {
+        padding-bottom: 0;
+      }
+
+        .profile-box.features .features-row:last-child section {
+          padding-bottom: 0;
+        }
+
+    .profile-box.special {
+      text-align: center;
+    }
+
+    .profile-box .image.featured {
+      border-radius: 0;
+      display: block;
+      margin: 3em 0 3em -3em;
+      position: relative;
+      width: calc(100% + 6em);
+    }
+
+      .profile-box .image.featured img {
+        border-radius: 0;
+        display: block;
+        width: 100%;
+      }
+
+      .profile-box .image.featured:first-child {
+        border-radius: 6px 6px 0 0;
+        margin-bottom: 3em;
+        margin-top: -3em;
+      }
+
+        .profile-box .image.featured:first-child img {
+          border-radius: 6px 6px 0 0;
+        }
+
+      .profile-box .image.featured:last-child {
+        border-radius: 0 0 6px 6px;
+        margin-bottom: -3em;
+        margin-top: 3em;
+      }
+
+        .profile-box .image.featured:last-child img {
+          border-radius: 0 0 6px 6px;
+        }
+
+/* Headers */
+
+
+  #header .profile  {
+    background: #444;
+    color: #bbb;
+    cursor: default;
+    height: 3.25em;
+    left: 0;
+    line-height: 3.25em;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 10000;
+  }
+
+    #header .profile  h1 {
+      color: inherit;
+      height: inherit;
+      left: 1.25em;
+      line-height: inherit;
+      margin: 0;
+      padding: 0;
+      position: absolute;
+      top: 0;
+    }
+
+      #header .profile  h1 a {
+        color: #fff;
+        font-weight: 400;
+        border: 0;
+      }
+
+        #header .profile  h1 a:hover {
+          color: rgba(255, 255, 255, 0.8);
+        }
+
+    #header .profile  nav {
+      height: inherit;
+      line-height: inherit;
+      position: absolute;
+      right: 0.75em;
+      top: 0;
+      vertical-align: middle;
+    }
+
+      #header .profile  nav > ul {
+        list-style: none;
+        margin: 0;
+        padding-left: 0;
+      }
+
+        #header .profile  nav > ul > li {
+          display: inline-block;
+          padding-left: 0;
+        }
+
+          #header .profile  nav > ul > li > ul {
+            display: none;
+          }
+
+          #header .profile  nav > ul > li a {
+            display: inline-block;
+            height: 2em;
+            line-height: 1.95em;
+            padding: 0 1em;
+            border-radius: 6px;
+          }
+
+            #header .profile  nav > ul > li a:hover {
+              background-color: rgba(255, 255, 255, 0.1);
+            }
+
+          #header .profile  nav > ul > li a:not(.button) {
+            color: #fff;
+            display: inline-block;
+            text-decoration: none;
+            border: 0;
+          }
+
+            #header .profile  nav > ul > li a:not(.button).icon:before {
+              color: #999;
+              margin-right: 0.5em;
+            }
+
+          #header .profile  nav > ul > li:first-child {
+            margin-left: 0;
+          }
+
+          #header .profile  nav > ul > li.active a:not(.button) {
+            background-color: rgba(153, 153, 153, 0.25);
+          }
+
+          #header .profile  nav > ul > li .button {
+            margin: 0 0 0 0.5em;
+            position: relative;
+          }
+
+    #header .profile  input[type="submit"],
+    #header .profile  input[type="reset"],
+    #header .profile  input[type="button"],
+    #header .profile  .button {
+      background-color: transparent;
+      box-shadow: inset 0 0 0 2px #999;
+      color: #fff;
+    }
+
+      #header .profile  input[type="submit"]:hover,
+      #header .profile  input[type="reset"]:hover,
+      #header .profile  input[type="button"]:hover,
+      #header .profile  .button:hover {
+        background-color: rgba(153, 153, 153, 0.25);
+      }
+
+      #header .profile  input[type="submit"]:active,
+      #header .profile  input[type="reset"]:active,
+      #header .profile  input[type="button"]:active,
+      #header .profile  .button:active {
+        background-color: rgba(153, 153, 153, 0.5);
+      }
+
+    #header .profile  .container {
+      position: relative;
+    }
+
+      #header .profile  .container h1 {
+        left: 0;
+      }
+
+      #header .profile  .container nav {
+        right: 0;
+      }
+
+    #header .profile .reveal {
+      -moz-animation: reveal-header 0.5s;
+      -webkit-animation: reveal-header 0.5s;
+      -ms-animation: reveal-header 0.5s;
+      animation: reveal-header 0.5s;
+    }
+
+    #header .profile .alt {
+      -moz-animation: none;
+      -webkit-animation: none;
+      -ms-animation: none;
+      animation: none;
+      background: none;
+      color: rgba(255, 255, 255, 0.75);
+      position: absolute;
+    }
+
+      #header .profile .alt nav > ul > li a:not(.button).icon:before {
+        color: rgba(255, 255, 255, 0.75);
+      }
+
+      #header .profile .alt nav > ul > li.active a:not(.button) {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      #header .profile .alt input[type="submit"],
+      #header .profile .alt input[type="reset"],
+      #header .profile .alt input[type="button"],
+      #header .profile .alt .button {
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+      }
+
+        #header .profile .alt input[type="submit"]:hover,
+        #header .profile .alt input[type="reset"]:hover,
+        #header .profile .alt input[type="button"]:hover,
+        #header .profile .alt .button:hover {
+          background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #header .profile .alt input[type="submit"]:active,
+        #header .profile .alt input[type="reset"]:active,
+        #header .profile .alt input[type="button"]:active,
+        #header .profile .alt .button:active {
+          background-color: rgba(255, 255, 255, 0.2);
+        }
+
+   #profile-listing-buttons .button {
+        box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
+        color: #fff;
+        min-width: 12em;
+        background-color: transparent;
+    }
+
+    #profile-listing-buttons .button:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    #profile-listing-buttons .button:active {
+        background-color: rgba(255, 255, 255, 0.2);
+    }
+
+    #profile-listing-table {
+      font-size: 1em;
+    }
+
+    table#profile-listing-table td {
+      text-align: center;
+      vertical-align: top;
+    }
+    table#profile-listing-table td#profilername {
+      text-align: left;
+      vertical-align: top;
+    }    
+    #profile-listing-table .participants-list {
+
+    }
+
+header.race-header h2.last-race-results {
+  margin: 0 0 .5em 0 !important;
+  text-align: center;  
+
+}
