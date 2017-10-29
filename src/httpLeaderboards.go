@@ -50,11 +50,6 @@ func httpLeaderboards(c *gin.Context) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	// Construct the "Top 10 Unseeded Times" leaderboard
-	/*var leaderboardTop10Times string
-	for _, row := range leaderboardUnseeded {
-
-	}*/
 
 	// Construct the "Most Races Played" leaderboard
 	// TODO
