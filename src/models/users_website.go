@@ -388,7 +388,7 @@ func (*Users) GetLeaderboardDiversity() ([]LeaderboardRowDiversity, error) {
 		    u.username,
 		    u.verified,
 		    u.diversity_trueskill,
-		    ROUND(u.diversity_trueskill_change, 4),
+		    ROUND(u.diversity_trueskill_change, 2),
 		    u.diversity_num_races,
 		    (SELECT 
 		            MIN(run_time)
