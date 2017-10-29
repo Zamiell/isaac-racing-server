@@ -64,12 +64,6 @@ type ProfileData struct {
 }
 
 /*
-type LeaderboardRowTopTimes struct {
-	Name     string
-	Time     int
-	Date     int
-	Verified int
-}
 type LeaderboardRowMostPlayed struct {
 	Name     string
 	Total    int
@@ -290,7 +284,7 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		FROM
 			users
 		WHERE
-			unseeded_num_races >= 5
+			unseeded_num_races >= 20
 		ORDER BY
 			unseeded_adjusted_average ASC
 	`); err != nil {
