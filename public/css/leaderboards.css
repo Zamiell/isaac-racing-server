@@ -52,7 +52,7 @@ tr td.lb-status {
 }
 
 
-tr td.lb-last-race {
+tr td.lb-last-race, td.lb-num-for {
   padding: .35em;
   white-space: nowrap;
 }

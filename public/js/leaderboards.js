@@ -6,16 +6,28 @@ function showLeaderboard(type) {
     $('#leaderboard-seeded-button').addClass('inactive');
     $('#leaderboard-unseeded-button').addClass('inactive');
     $('#leaderboard-diversity-button').addClass('inactive');
+    $('#leaderboard-other-button').addClass('inactive');
     $('#leaderboard-' + type + '-button').removeClass('inactive');
 
     // Fade out the old leaderboard and fade in the new one
     transition = true;
-    $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
-        $('#leaderboard-' + type).fadeIn(350, function() {
-            activeLeaderboard = type;
-            transition = false;
+
+
+    if (type == 'unseeded') {
+        $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
+            $('#leaderboard-' + type).add('#unseeded-notes-banner').add('#unseeded-notes').fadeIn(350, function() {
+                activeLeaderboard = type;
+                transition = false;
+            });
         });
-    });
+    } else {
+        $('#leaderboard-' + activeLeaderboard).add('#unseeded-notes-banner').add('#unseeded-notes').fadeOut(350, function() {
+            $('#leaderboard-' + type).fadeIn(350, function() {
+                activeLeaderboard = type;
+                transition = false;
+            });
+        });        
+    }
 }
 
 function pad(n, width, z) {
@@ -25,6 +37,7 @@ function pad(n, width, z) {
 }
 
 $(document).ready(function() {
+    CheckForHash();
     // Unseeded things
     $('#leaderboard-unseeded-table').tablesorter(); 
     AdjustRank('unseeded');
@@ -92,9 +105,18 @@ function ConvertTimeStamp(leaderboard) {
     });
 };
 
+function CheckForHash() {
+    if (window.location.hash) {
+        //console.log(window.location.hash.substr(1));  
+        type = window.location.hash.substr(1);
+        if (type == 'diversity' || type == 'unseeded') {
+            showLeaderboard(type);
+        } else {
+            showLeaderboard('unseeded');
+        }
+    } 
+}
 
-
-//Disabling this for now since there is only one leaderboard currently
 
 $('#leaderboard-seeded-button').click(function() {
     if (activeLeaderboard !== 'seeded' && transition === false) {
