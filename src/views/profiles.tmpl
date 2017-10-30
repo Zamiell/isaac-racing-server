@@ -45,6 +45,7 @@
 					<tr>
 						<th>Name</th>
 						<th>Joined</th>
+						<th>Total Races</th>
 						<th>Achievements</th>
 					</tr>
 				</thead>
@@ -60,6 +61,7 @@
 						<tr>
 							<td><a href="../profile/{{ .Username }}"> {{ .Username }} </a></td>
 							<td id="date"> {{ .DatetimeCreated }}</td>
+							<td> {{ .TotalRaces }} </td>
 							<td> {{ .NumAchievements }} </td>
 						</tr>
 					{{ end }}

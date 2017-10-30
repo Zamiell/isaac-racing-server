@@ -48,6 +48,7 @@ type ProfilesRow struct {
 	DatetimeCreated time.Time
 	StreamURL       string
 	NumAchievements int
+	TotalRaces      int
 }
 
 // ProfileData has all data for each racer
@@ -198,7 +199,11 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 			u.username,
 			u.datetime_created,
 			u.stream_url,
-			count(ua.achievement_id)
+			count(ua.achievement_id),
+            (SELECT COUNT(id)
+                FROM race_participants
+                WHERE user_id = u.id
+            ) AS num_total_race			
 		FROM
 			users u
 		LEFT JOIN
@@ -233,6 +238,7 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 			&row.DatetimeCreated,
 			&row.StreamURL,
 			&row.NumAchievements,
+			&row.TotalRaces,
 		); err != nil {
 			return nil, 0, err
 		}
