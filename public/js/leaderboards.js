@@ -33,7 +33,7 @@ $(document).ready(function() {
     ConvertTime('unseeded','lb-fastest');
     ConvertTime('unseeded','lb-for-pen');
     ConvertTimeStamp('unseeded','lb-last-race');
-    ConvertForfeitRate('unseeded');
+    ConvertForfeitRate('unseeded','lb-num-for');
 
     //Diversity things
     $('#leaderboard-diversity-table').tablesorter(); 
