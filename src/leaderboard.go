@@ -86,7 +86,6 @@ func leaderboardUpdateDiversity(race *Race) {
 	}
 
 	// Do a 1v1 TrueSkill calculation for everyone in the race
-	ts := trueskill.New()
 	for i, racer1 := range racerNames {
 		p1stats := statsSlice[i]
 
@@ -112,7 +111,7 @@ func leaderboardUpdateDiversity(race *Race) {
 				log.Info("Player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") WINS player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			} else if race.Racers[racer1].Place > race.Racers[racer2].Place {
 				// Player 2 wins
-				p2TrueSkill, p2Sigma, p1TrueSkill, p1Sigma := leaderboardAdjustTrueSkill(
+				p2TrueSkill, p2Sigma, p1TrueSkill, p1Sigma = leaderboardAdjustTrueSkill(
 					p2stats.NewTrueSkill,
 					p2stats.Sigma,
 					p1stats.NewTrueSkill,
@@ -158,7 +157,7 @@ func leaderboardUpdateDiversity(race *Race) {
 }
 
 func leaderboardDiversityRecalculate() {
-	if db.Users.ResetStatsDiversity(); err != nil {
+	if err := db.Users.ResetStatsDiversity(); err != nil {
 		log.Error("Database error while resetting the diversity stats:", err)
 	}
 
