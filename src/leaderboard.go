@@ -201,6 +201,11 @@ func leaderboardDiversityRecalculate() {
 		// Pretend like this race just finished
 		leaderboardUpdateDiversity(race)
 	}
+
+	// Fix the "Date of Last Race" column
+	if err := db.Users.SetAllDiversityLastRace(); err != nil {
+		log.Error("Database error while resetting the diversity stats:", err)
+	}
 }
 
 /*

@@ -200,10 +200,11 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 			u.datetime_created,
 			u.stream_url,
 			count(ua.achievement_id),
-            (SELECT COUNT(id)
-                FROM race_participants
-                WHERE user_id = u.id
-            ) AS num_total_race			
+			(
+				SELECT COUNT(id)
+				FROM race_participants
+				WHERE user_id = u.id
+			) AS num_total_race
 		FROM
 			users u
 		LEFT JOIN
@@ -377,33 +378,33 @@ func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
 }
 
 type LeaderboardRowDiversity struct {
-	Name                string
-	DivTrueSkill        float64
-	DivTrueSkillDelta   float64
-	DivNumRaces         sql.NullInt64
-	DivLowestTime       sql.NullInt64
-	DivLastRace         time.Time
-	Verified            int
-	StreamURL           string
+	Name              string
+	DivTrueSkill      float64
+	DivTrueSkillDelta float64
+	DivNumRaces       sql.NullInt64
+	DivLowestTime     sql.NullInt64
+	DivLastRace       time.Time
+	Verified          int
+	StreamURL         string
 }
 
 func (*Users) GetLeaderboardDiversity() ([]LeaderboardRowDiversity, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
-		SELECT 
+		SELECT
 		    u.username,
 		    u.verified,
 		    u.diversity_trueskill,
 		    ROUND(u.diversity_trueskill_change, 2),
 		    u.diversity_num_races,
-		    (SELECT 
+		    (SELECT
 		            MIN(run_time)
 		        FROM
 		            race_participants
 				LEFT JOIN races
 					ON race_participants.race_id = races.id
 		        WHERE
-		            place > 0 
+		            place > 0
 		            AND u.id = user_id
 		            AND races.format = 'diversity') as r_time,
 		    u.diversity_last_race,
@@ -420,7 +421,7 @@ func (*Users) GetLeaderboardDiversity() ([]LeaderboardRowDiversity, error) {
 		        AND rp.place > 0
 		GROUP BY u.username
 		ORDER BY u.diversity_trueskill DESC
-            
+
 	`); err != nil {
 		return nil, err
 	} else {

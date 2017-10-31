@@ -119,6 +119,34 @@ func (*Users) SetStatsDiversity(userID int, stats StatsDiversity) error {
 	return nil
 }
 
+func (*Users) SetAllDiversityLastRace() error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET diversity_last_race = (
+			SELECT races.datetime_finished
+			FROM race_participants
+				JOIN races ON race_participants.race_id = races.id
+			WHERE
+				user_id = users.id
+				AND races.format = "diversity"
+			ORDER BY races.datetime_finished DESC
+			LIMIT 1
+		)
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (*Users) ResetStatsDiversity() error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
