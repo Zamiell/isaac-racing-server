@@ -98,48 +98,49 @@ func leaderboardUpdateDiversity(race *Race) {
 
 			p2stats := statsSlice[j]
 
-			// Based on code from:
-			// https://godoc.org/github.com/mafredri/go-trueskill
-			tsPlayers := make([]trueskill.Player, 0)
-			p1 := trueskill.NewPlayer(p1stats.NewTrueSkill, p1stats.Sigma)
-			p2 := trueskill.NewPlayer(p2stats.NewTrueSkill, p2stats.Sigma)
+			var p1TrueSkill, p1Sigma, p2TrueSkill, p2Sigma float64
 			if race.Racers[racer1].Place < race.Racers[racer2].Place {
 				// Player 1 wins
-				tsPlayers = append(tsPlayers, p1)
-				tsPlayers = append(tsPlayers, p2)
+				p1TrueSkill, p1Sigma, p2TrueSkill, p2Sigma = leaderboardAdjustTrueSkill(
+					p1stats.NewTrueSkill,
+					p1stats.Sigma,
+					p2stats.NewTrueSkill,
+					p2stats.Sigma,
+					false,
+				)
 
-				// The second argument is "draw"
-				newTsPlayers, _ := ts.AdjustSkills(tsPlayers, false)
-
-				p1stats.NewTrueSkill = newTsPlayers[0].Mu()
-				p1stats.Sigma = newTsPlayers[0].Sigma()
-				p2stats.NewTrueSkill = newTsPlayers[1].Mu()
-				p2stats.Sigma = newTsPlayers[1].Sigma()
+				log.Info("Player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") WINS player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			} else if race.Racers[racer1].Place > race.Racers[racer2].Place {
 				// Player 2 wins
-				tsPlayers = append(tsPlayers, p2)
-				tsPlayers = append(tsPlayers, p1)
-
-				// The second argument is "draw"
-				newTsPlayers, _ := ts.AdjustSkills(tsPlayers, false)
-
-				p2stats.NewTrueSkill = newTsPlayers[0].Mu()
-				p2stats.Sigma = newTsPlayers[0].Sigma()
-				p1stats.NewTrueSkill = newTsPlayers[1].Mu()
-				p1stats.Sigma = newTsPlayers[1].Sigma()
+				p2TrueSkill, p2Sigma, p1TrueSkill, p1Sigma := leaderboardAdjustTrueSkill(
+					p2stats.NewTrueSkill,
+					p2stats.Sigma,
+					p1stats.NewTrueSkill,
+					p1stats.Sigma,
+					false,
+				)
+				log.Info("Player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") LOSES player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			} else {
 				// Player 1 and 2 tied; this can only happen if both players quit
-				tsPlayers = append(tsPlayers, p1)
-				tsPlayers = append(tsPlayers, p2)
-
-				// The second argument is "draw"
-				newTsPlayers, _ := ts.AdjustSkills(tsPlayers, true)
-
-				p1stats.NewTrueSkill = newTsPlayers[0].Mu()
-				p1stats.Sigma = newTsPlayers[0].Sigma()
-				p2stats.NewTrueSkill = newTsPlayers[1].Mu()
-				p2stats.Sigma = newTsPlayers[1].Sigma()
+				p1TrueSkill, p1Sigma, p2TrueSkill, p2Sigma = leaderboardAdjustTrueSkill(
+					p1stats.NewTrueSkill,
+					p1stats.Sigma,
+					p2stats.NewTrueSkill,
+					p2stats.Sigma,
+					true,
+				)
+				log.Info("Player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") TIES player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			}
+
+			p1TrueSkillChange := p1TrueSkill - p1stats.NewTrueSkill
+			log.Info("Player 1 TrueSkill change:", p1TrueSkillChange)
+			p2TrueSkillChange := p2TrueSkill - p2stats.NewTrueSkill
+			log.Info("Player 2 TrueSkill change:", p2TrueSkillChange)
+
+			p1stats.NewTrueSkill = p1TrueSkill
+			p1stats.Sigma = p1Sigma
+			p2stats.NewTrueSkill = p2TrueSkill
+			p2stats.Sigma = p2Sigma
 		}
 	}
 
@@ -157,6 +158,10 @@ func leaderboardUpdateDiversity(race *Race) {
 }
 
 func leaderboardDiversityRecalculate() {
+	if db.Users.ResetStatsDiversity(); err != nil {
+		log.Error("Database error while resetting the diversity stats:", err)
+	}
+
 	var allDivRaces []models.RaceHistory
 	if v, err := db.Races.GetAllDiversityRaces(); err != nil {
 		log.Error("Database error while getting all of the diversity races:", err)
@@ -181,4 +186,20 @@ func leaderboardDiversityRecalculate() {
 		// Pretend like this race just finished
 		leaderboardUpdateDiversity(race)
 	}
+}
+
+/*
+	Subroutines
+*/
+
+func leaderboardAdjustTrueSkill(p1TrueSkill float64, p1Sigma float64, p2TrueSkill float64, p2Sigma float64, draw bool) (float64, float64, float64, float64) {
+	// Based on code from:
+	// https://godoc.org/github.com/mafredri/go-trueskill
+	ts := trueskill.New()
+	p1 := trueskill.NewPlayer(p1TrueSkill, p1Sigma)
+	p2 := trueskill.NewPlayer(p2TrueSkill, p2Sigma)
+	tsPlayers := []trueskill.Player{p1, p2} // The first player that is put into the "tsPlayers" slice is the one who wins
+	newTsPlayers, _ := ts.AdjustSkills(tsPlayers, draw)
+
+	return newTsPlayers[0].Mu(), newTsPlayers[0].Sigma(), newTsPlayers[1].Mu(), newTsPlayers[1].Sigma()
 }

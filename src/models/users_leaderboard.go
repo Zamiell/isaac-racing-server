@@ -118,3 +118,27 @@ func (*Users) SetStatsDiversity(userID int, stats StatsDiversity) error {
 
 	return nil
 }
+
+func (*Users) ResetStatsDiversity() error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET
+			diversity_trueskill = 25,
+			diversity_trueskill_sigma = 8.333
+			diversity_trueskill_change = 0,
+			diversity_num_races = 0,
+			diversity_last_race = NULL
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(); err != nil {
+		return err
+	}
+
+	return nil
+}
