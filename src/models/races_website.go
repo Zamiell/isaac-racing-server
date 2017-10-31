@@ -24,11 +24,12 @@ type RaceHistory struct {
 
 // RaceHistoryParticipants gets the user stats for each racer in each race
 type RaceHistoryParticipants struct {
-	ID           int
-	RacerName    string
-	RacerPlace   int
-	RacerTime    string
-	RacerComment string
+	ID                  int
+	RacerName           string
+	RacerPlace          int
+	RacerTime           string
+	RacerStartingItem   int
+	RacerComment        string
 }
 
 // GetRacesHistory gets all data for all races
@@ -46,7 +47,8 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 		FROM
 			races
 		WHERE
-			finished = 1 AND solo = 0
+			finished = 1 
+			AND solo = 0
 		GROUP BY
 			id
 		ORDER BY
@@ -84,6 +86,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 				u.username,
 				rp.place,
 				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.starting_item,
 				rp.comment
 			FROM
 				race_participants rp
@@ -110,6 +113,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 				&racer.RacerName,
 				&racer.RacerPlace,
 				&racer.RacerTime,
+				&racer.RacerStartingItem,
 				&racer.RacerComment,
 			); err != nil {
 				return nil, 0, err
