@@ -88,6 +88,14 @@ func leaderboardUpdateDiversity(race *Race) {
 	// Do a 1v1 TrueSkill calculation for everyone in the race
 	for i, racer1 := range racerNames {
 		p1stats := statsSlice[i]
+		p1Place := race.Racers[racer1].Place
+		if p1Place == -1 {
+			// Change forfeits to place 999 to simplify the below calculation
+			p1Place = 999
+		} else if p1Place == -2 {
+			// Change disqualifications to place 1000 to simplify the below calculation
+			p1Place = 1000
+		}
 
 		for j, racer2 := range racerNames {
 			// Skip this player if we are facing ourself or we have already done the matchup
@@ -96,9 +104,17 @@ func leaderboardUpdateDiversity(race *Race) {
 			}
 
 			p2stats := statsSlice[j]
+			p2Place := race.Racers[racer2].Place
+			if p2Place == -1 {
+				// Change forfeits to place 999 to simplify the below calculation
+				p2Place = 999
+			} else if p2Place == -2 {
+				// Change disqualifications to place 1000 to simplify the below calculation
+				p2Place = 1000
+			}
 
 			var p1TrueSkill, p1Sigma, p2TrueSkill, p2Sigma float64
-			if race.Racers[racer1].Place < race.Racers[racer2].Place {
+			if p1Place < p2Place {
 				// Player 1 wins
 				p1TrueSkill, p1Sigma, p2TrueSkill, p2Sigma = leaderboardAdjustTrueSkill(
 					p1stats.NewTrueSkill,
@@ -108,8 +124,8 @@ func leaderboardUpdateDiversity(race *Race) {
 					false,
 				)
 
-				log.Info("Player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") WINS player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
-			} else if race.Racers[racer1].Place > race.Racers[racer2].Place {
+				log.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") WINS player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
+			} else if p1Place > p2Place {
 				// Player 2 wins
 				p2TrueSkill, p2Sigma, p1TrueSkill, p1Sigma = leaderboardAdjustTrueSkill(
 					p2stats.NewTrueSkill,
@@ -118,9 +134,10 @@ func leaderboardUpdateDiversity(race *Race) {
 					p1stats.Sigma,
 					false,
 				)
-				log.Info("Player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") LOSES player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
+				log.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") LOSES TO player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			} else {
 				// Player 1 and 2 tied; this can only happen if both players quit
+				// (or they were both disqualified)
 				p1TrueSkill, p1Sigma, p2TrueSkill, p2Sigma = leaderboardAdjustTrueSkill(
 					p1stats.NewTrueSkill,
 					p1stats.Sigma,
@@ -128,13 +145,11 @@ func leaderboardUpdateDiversity(race *Race) {
 					p2stats.Sigma,
 					true,
 				)
-				log.Info("Player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") TIES player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
+				log.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") TIES player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			}
 
-			p1TrueSkillChange := p1TrueSkill - p1stats.NewTrueSkill
-			log.Info("Player 1 TrueSkill change:", p1TrueSkillChange)
-			p2TrueSkillChange := p2TrueSkill - p2stats.NewTrueSkill
-			log.Info("Player 2 TrueSkill change:", p2TrueSkillChange)
+			log.Info("P1 TrueSkill:", toFixed(p1stats.NewTrueSkill, 2), "-->", toFixed(p1TrueSkill, 2), "(change of", toFixed(p1TrueSkill-p1stats.NewTrueSkill, 2), ")")
+			log.Info("P2 TrueSkill:", toFixed(p2stats.NewTrueSkill, 2), "-->", toFixed(p2TrueSkill, 2), "(change of", toFixed(p2TrueSkill-p2stats.NewTrueSkill, 2), ")")
 
 			p1stats.NewTrueSkill = p1TrueSkill
 			p1stats.Sigma = p1Sigma
@@ -172,6 +187,7 @@ func leaderboardDiversityRecalculate() {
 	for _, modelsRace := range allDivRaces {
 		// Convert the "RaceHistory" struct to a "Race" struct
 		race := &Race{}
+		race.ID = modelsRace.RaceID
 		race.Racers = make(map[string]*Racer)
 		for _, modelsRacer := range modelsRace.RaceParticipants {
 			racer := &Racer{

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"strconv"
 	"time"
 	"unicode"
@@ -68,4 +69,14 @@ func getOrdinal(n int) string {
 		ord = s[0]
 	}
 	return strconv.Itoa(n) + ord
+}
+
+// From: https://stackoverflow.com/questions/18390266/how-can-we-truncate-float64-type-to-a-particular-precision-in-golang
+func round(num float64) int {
+	return int(num + math.Copysign(0.5, num))
+}
+
+func toFixed(num float64, precision int) float64 {
+	output := math.Pow(10, float64(precision))
+	return float64(round(num*output)) / output
 }
