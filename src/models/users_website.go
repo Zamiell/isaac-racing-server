@@ -284,7 +284,6 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 	if v, err := db.Query(`
 		SELECT
 			u.username,
-			u.verified,
 			u.unseeded_adjusted_average,
 			u.unseeded_real_average,
 			u.unseeded_num_races,
@@ -293,6 +292,7 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 			u.unseeded_lowest_time,
 			u.unseeded_last_race,
 			MAX(rp.race_id),
+			u.verified,
 			u.stream_url
 		FROM
 			users u
@@ -412,7 +412,6 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int, racesLimit int) ([]Leader
 	if v, err := db.Query(`
 		SELECT
 			u.username,
-			u.verified,
 			u.diversity_trueskill,
 			ROUND(u.diversity_trueskill_change, 2),
 			u.diversity_num_races,
@@ -428,6 +427,7 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int, racesLimit int) ([]Leader
 					AND races.format = 'diversity') as r_time,
 			u.diversity_last_race,
 			MAX(rp.race_id),
+			u.verified,
 			u.stream_url
 		FROM
 			users u
