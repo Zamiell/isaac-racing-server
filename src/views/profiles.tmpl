@@ -3,7 +3,9 @@
 <section id="main" class="container">
 	<header class="top">
 		<h2>Player Profiles</h2>
-		<p>Your fellow racers</p>
+		<p>Your fellow racers<br />
+		<sup>({{ .TotalProfileCount }} in total)</sup></p>
+
 	</header>
 	<div id="race-listing-buttons" class="row">
 		<!-- if statement checks to see where we currently are and only serves the buttons we need to see -->
@@ -50,11 +52,6 @@
 					</tr>
 				</thead>
 				<tfoot>
-					<tr>
-						<td>
-							Total Players: {{ .TotalProfileCount }}
-						</td>
-					</tr>
 				</tfoot>
 				<tbody>
 					{{ range .ResultsProfiles }}
