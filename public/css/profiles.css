@@ -356,3 +356,7 @@ header.race-header h2.last-race-results {
   text-align: center;  
 
 }
+
+#banned {
+  display: none;
+}
