@@ -3,11 +3,12 @@
 <section id="profile-main" class="container">
 	<header class="profile">
 		<!-- This checks for the username and populates it along with the verification badge if verified -->
-		<h2>{{ if ne .ResultsProfile.Username "" }} {{ .ResultsProfile.Username }}'s {{ end }} Profile {{if .ResultsProfile.Verified }} <img height="16px" width="16px" src="../public/img/verified.png" /> {{ end }}</h2>
+		<h2 class="profile-name">{{ if ne .ResultsProfile.Username "" }} {{ .ResultsProfile.Username }}'s {{ end }} Profile {{if .ResultsProfile.Verified }} <img height="16px" width="16px" src="../public/img/verified.png" /> {{ end }}</h2>
 		<!-- This checks for the players Twitch stream and places the Glitch icon with a link to a new window/tab -->
 		{{ if ne .ResultsProfile.StreamURL "-" }} <h1><a href="{{ .ResultsProfile.StreamURL }}" target="_blank" id="twitchUrl"><img height="32px" width="32px" src="../public/img/Glitch_Purple_RGB.png" /></a></h1> {{ end }}
 		<p>Joined on <span id="date">{{ .ResultsProfile.DatetimeCreated }}</span></p>
 	</header>
+	<hidden id="banned">{{ .ResultsProfile.Banned }}</hidden>	
 	<section class="box">
 		<div class="table-wrapper">
 			<table class="alt" id="profiles">
