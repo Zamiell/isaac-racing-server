@@ -98,7 +98,7 @@
 							<td class="lb-num-for">{{ .NumForfeits }}</td>
 							<td class="lb-num-races">{{ .NumRaces }}</td>
 							<td class="lb-fastest">{{ .LowestTime }}</td>
-							<td class="lb-last-race">{{ .LastRace }}</td>
+							<td class="lb-last-race"><a href="/race/{{ .LastRaceId }}">{{ .LastRace }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
@@ -141,7 +141,7 @@
 							<td class="lb-trueskill">{{ .DivTrueSkill }} <span id="lastEloChange" class="{{ if lt .DivTrueSkillDelta 0.0 -}} red {{- else if gt .DivTrueSkillDelta 0.0}} green {{- end}}">{{if gt .DivTrueSkillDelta 0.0}}+{{end}}{{ if ne .DivTrueSkillDelta 0.0 -}}{{- .DivTrueSkillDelta -}}{{ end -}}</span></td>
 							<td class="lb-num-races">{{ .DivNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .DivLowestTime.Value }}</td>
-							<td class="lb-last-race">{{ .DivLastRace }}</td>
+							<td class="lb-last-race"><a href="/race/{{ .DivLastRaceId }}">{{ .DivLastRace }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>

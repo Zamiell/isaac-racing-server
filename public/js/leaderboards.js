@@ -82,7 +82,7 @@ function ConvertTimeStamp(leaderboard) {
     var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
     var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
 
-    $('#leaderboard-' + leaderboard + ' td.lb-last-race').each(function() {
+    $('#leaderboard-' + leaderboard + ' td.lb-last-race a').each(function() {
         // Miserable hack to help with Safari's strict JS date restrictions
         dt = new Date($(this).html().replace(/\s/, 'T').replace(' +0000 UTC', ''));
 
