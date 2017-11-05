@@ -25,7 +25,7 @@
 
 	<div class="12u">
 		<section class="small-box" id="unseeded-notes-banner">
-			More information on leaderboard calculation is listed at <a href="#notes">the bottom of the page</a>.
+			More information on leaderboard calculation is listed at <a href="#unseeded-notes">the bottom of the page</a>.
 		</section>
 	</div>
 
@@ -98,7 +98,7 @@
 							<td class="lb-num-for">{{ .NumForfeits }}</td>
 							<td class="lb-num-races">{{ .NumRaces }}</td>
 							<td class="lb-fastest">{{ .LowestTime }}</td>
-							<td class="lb-last-race">{{ .LastRace }}</td>
+							<td class="lb-last-race"><a href="/race/{{ .LastRaceId }}">{{ .LastRace }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
@@ -141,7 +141,7 @@
 							<td class="lb-trueskill">{{ .DivTrueSkill }} <span id="lastEloChange" class="{{ if lt .DivTrueSkillDelta 0.0 -}} red {{- else if gt .DivTrueSkillDelta 0.0}} green {{- end}}">{{if gt .DivTrueSkillDelta 0.0}}+{{end}}{{ if ne .DivTrueSkillDelta 0.0 -}}{{- .DivTrueSkillDelta -}}{{ end -}}</span></td>
 							<td class="lb-num-races">{{ .DivNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .DivLowestTime.Value }}</td>
-							<td class="lb-last-race">{{ .DivLastRace }}</td>
+							<td class="lb-last-race"><a href="/race/{{ .DivLastRaceId }}">{{ .DivLastRace }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
@@ -231,7 +231,7 @@
 
 	<div class="12u" id="unseeded-notes">
 		<section class="box">
-			<h3>Notes</h3>
+			<h3>Unseeded Leaderboard Notes</h3>
 			<ul>
 				<li>Players that play <strong>ranked</strong> unseeded races will appear on the leaderboard. (Seeded leaderboards are coming soon.)</li>
 				<li>Players with <strong>under 20 races</strong> are <strong>not included</strong> in the leaderboard.</li>

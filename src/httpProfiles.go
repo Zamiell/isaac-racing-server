@@ -14,7 +14,7 @@ func httpProfiles(c *gin.Context) {
 	// Local variables
 	w := c.Writer
 	currentPage := 1
-	usersPerPage := 20
+	usersPerPage := 50
 
 	// Find what page we're currently on and then set it accordingly (always set to 1 otherwise)
 	i, err := strconv.ParseInt(c.Params.ByName("page"), 10, 32)
@@ -32,8 +32,8 @@ func httpProfiles(c *gin.Context) {
 	}
 	totalPages := 0
 	// Get total number of pages needed for navigation and remove a page if total is divisible by perPage
-	if (totalProfileCount % usersPerPage == 0) {
-		totalPages = int(math.Floor(float64(totalProfileCount) / float64(usersPerPage)) - 1)
+	if totalProfileCount%usersPerPage == 0 {
+		totalPages = int(math.Floor(float64(totalProfileCount)/float64(usersPerPage)) - 1)
 	} else {
 		totalPages = int(math.Floor(float64(totalProfileCount) / float64(usersPerPage)))
 	}
@@ -85,7 +85,7 @@ func httpProfile(c *gin.Context) {
 		log.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
-	}	
+	}
 
 	// Capitalize the RaceFormat data
 	for i := range raceDataRanked {
@@ -96,10 +96,10 @@ func httpProfile(c *gin.Context) {
 	}
 	// Set data to serve to the template
 	data := TemplateData{
-		Title:                "Profile",
-		ResultsProfile:       playerData,
-		RaceResultsRanked:    raceDataRanked,
-		RaceResultsAll:       raceDataAll,
+		Title:             "Profile",
+		ResultsProfile:    playerData,
+		RaceResultsRanked: raceDataRanked,
+		RaceResultsAll:    raceDataAll,
 	}
 
 	httpServeTemplate(w, "profile", data)

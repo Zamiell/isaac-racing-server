@@ -62,6 +62,7 @@ type ProfileData struct {
 	StatsUnseeded     StatsUnseeded
 	StatsDiversity    StatsDiversity
 	StreamURL         string
+	Banned            bool
 }
 
 /*
@@ -137,25 +138,27 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 	var rawVerified int
 	if err := db.QueryRow(`
 		SELECT
-			username,
-			datetime_created,
-			datetime_last_login,
-			admin,
-			verified,
-			seeded_trueskill,
-			seeded_trueskill_sigma,
-			seeded_num_races,
-			seeded_last_race,
-			unseeded_adjusted_average,
-			unseeded_real_average,
-			unseeded_num_races,
-			unseeded_num_forfeits,
-			unseeded_forfeit_penalty,
-			unseeded_lowest_time,
-			unseeded_last_race,
-			stream_url
+			u.username,
+			u.datetime_created,
+			u.datetime_last_login,
+			u.admin,
+			u.verified,
+			u.seeded_trueskill,
+			u.seeded_trueskill_sigma,
+			u.seeded_num_races,
+			u.seeded_last_race,
+			u.unseeded_adjusted_average,
+			u.unseeded_real_average,
+			u.unseeded_num_races,
+			u.unseeded_num_forfeits,
+			u.unseeded_forfeit_penalty,
+			u.unseeded_lowest_time,
+			u.unseeded_last_race,
+			u.stream_url,
+			CASE WHEN u.id IN (SELECT user_id FROM banned_users) THEN 1 ELSE 0 END AS BIT
+
 		FROM
-			users
+			users u
 		WHERE
 			steam_id > 0 and
 			username = ?
@@ -177,6 +180,7 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		&profileData.StatsUnseeded.LowestTime,
 		&profileData.StatsUnseeded.LastRace,
 		&profileData.StreamURL,
+		&profileData.Banned,
 	); err == sql.ErrNoRows {
 		return profileData, nil
 	} else if err != nil {
@@ -270,31 +274,41 @@ type LeaderboardRowUnseeded struct {
 	ForfeitPenalty  int
 	LowestTime      int
 	LastRace        time.Time
+	LastRaceId      int
 	Verified        int
 	StreamURL       string
 }
 
-func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
+func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]LeaderboardRowUnseeded, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
-			username,
-			verified,
-			unseeded_adjusted_average,
-			unseeded_real_average,
-			unseeded_num_races,
-			unseeded_num_forfeits,
-			unseeded_forfeit_penalty,
-			unseeded_lowest_time,
-			unseeded_last_race,
-			stream_url
+			u.username,
+			u.unseeded_adjusted_average,
+			u.unseeded_real_average,
+			u.unseeded_num_races,
+			u.unseeded_num_forfeits,
+			u.unseeded_forfeit_penalty,
+			u.unseeded_lowest_time,
+			u.unseeded_last_race,
+			MAX(rp.race_id),
+			u.verified,
+			u.stream_url
 		FROM
-			users
+			users u
+			LEFT JOIN race_participants rp
+				ON rp.user_id = u.id
+			LEFT JOIN races r
+				ON r.id = rp.race_id
 		WHERE
-			unseeded_num_races >= 20
+			u.unseeded_num_races >= ?
+			AND u.id NOT IN (SELECT user_id FROM banned_users)
+		GROUP BY
+			u.username
 		ORDER BY
 			unseeded_adjusted_average ASC
-	`); err != nil {
+		LIMIT ?
+	`, racesNeeded, racesLimit); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -307,7 +321,6 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 		var row LeaderboardRowUnseeded
 		if err := rows.Scan(
 			&row.Name,
-			&row.Verified,
 			&row.AdjustedAverage,
 			&row.RealAverage,
 			&row.NumRaces,
@@ -315,6 +328,8 @@ func (*Users) GetLeaderboardUnseeded() ([]LeaderboardRowUnseeded, error) {
 			&row.ForfeitPenalty,
 			&row.LowestTime,
 			&row.LastRace,
+			&row.LastRaceId,
+			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
 			return nil, err
@@ -335,21 +350,24 @@ type LeaderboardRowSeeded struct {
 	Verified  int
 }
 
-func (*Users) GetLeaderboardSeeded() ([]LeaderboardRowSeeded, error) {
+func (*Users) GetLeaderboardSeeded(racesNeeded int, racesLimit int) ([]LeaderboardRowSeeded, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
-			username,
-			seeded_trueskill,
-			seeded_trueskill_sigma,
-			seeded_num_races,
-			seeded_last_race,
-			verified,
+			u.username,
+			u.seeded_trueskill,
+			u.seeded_trueskill_sigma,
+			u.seeded_num_races,
+			u.seeded_last_race,
+			u.verified,
 		FROM
-			users
+			users u
 		WHERE
-			seeded_num_races > 1
-	`); err != nil {
+			u.seeded_num_races > ?
+			AND u.id NOT IN (SELECT user_id FROM banned_users)
+		GROUP BY u.username
+		LIMIT ?
+	`, racesNeeded, racesLimit); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -384,45 +402,48 @@ type LeaderboardRowDiversity struct {
 	DivNumRaces       sql.NullInt64
 	DivLowestTime     sql.NullInt64
 	DivLastRace       time.Time
+	DivLastRaceId     int
 	Verified          int
 	StreamURL         string
 }
 
-func (*Users) GetLeaderboardDiversity() ([]LeaderboardRowDiversity, error) {
+func (*Users) GetLeaderboardDiversity(racesNeeded int, racesLimit int) ([]LeaderboardRowDiversity, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
-		    u.username,
-		    u.verified,
-		    u.diversity_trueskill,
-		    ROUND(u.diversity_trueskill_change, 2),
-		    u.diversity_num_races,
-		    (SELECT
-		            MIN(run_time)
-		        FROM
-		            race_participants
+			u.username,
+			u.diversity_trueskill,
+			ROUND(u.diversity_trueskill_change, 2),
+			u.diversity_num_races,
+			(SELECT
+					MIN(run_time)
+				FROM
+					race_participants
 				LEFT JOIN races
 					ON race_participants.race_id = races.id
-		        WHERE
-		            place > 0
-		            AND u.id = user_id
-		            AND races.format = 'diversity') as r_time,
-		    u.diversity_last_race,
-		    u.stream_url
+				WHERE
+					place > 0
+					AND u.id = user_id
+					AND races.format = 'diversity') as r_time,
+			u.diversity_last_race,
+			MAX(rp.race_id),
+			u.verified,
+			u.stream_url
 		FROM
-		    users u
-		        LEFT JOIN
-		    race_participants rp ON rp.user_id = u.id
-		        LEFT JOIN
-		    races r ON r.id = rp.race_id
+			users u
+			LEFT JOIN
+				race_participants rp ON rp.user_id = u.id
+			LEFT JOIN
+				races r ON r.id = rp.race_id
 		WHERE
-		    diversity_num_races >= 5
-		        AND r.format = 'diversity'
-		        AND rp.place > 0
+			diversity_num_races >= ?
+				AND r.format = 'diversity'
+				AND rp.place > 0
+				AND u.id NOT IN (SELECT user_id FROM banned_users)
 		GROUP BY u.username
 		ORDER BY u.diversity_trueskill DESC
-
-	`); err != nil {
+		LIMIT ?
+	`, racesNeeded, racesLimit); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -435,12 +456,13 @@ func (*Users) GetLeaderboardDiversity() ([]LeaderboardRowDiversity, error) {
 		var row LeaderboardRowDiversity
 		if err := rows.Scan(
 			&row.Name,
-			&row.Verified,
 			&row.DivTrueSkill,
 			&row.DivTrueSkillDelta,
 			&row.DivNumRaces,
 			&row.DivLowestTime,
 			&row.DivLastRace,
+			&row.DivLastRaceId,
+			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
 			return nil, err
