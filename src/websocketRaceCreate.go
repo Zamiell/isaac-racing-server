@@ -102,7 +102,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Create and set a seed if necessary
 	ruleset.Seed = "-"
-	if ruleset.Format == "seeded" {
+	if ruleset.Format == "seeded" || ruleset.Format == "seeded-hard" {
 		// Create a random Isaac seed
 		// (using the current Epoch timestamp as a seed)
 		ruleset.Seed = isaacGetRandomSeed()

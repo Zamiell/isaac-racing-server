@@ -81,7 +81,11 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Check to see if this is their starting item
-	if race.Ruleset.Format != "seeded" && racer.StartingItem == 0 && len(racer.Rooms) > 1 {
+	if race.Ruleset.Format != "seeded" &&
+		race.Ruleset.Format != "seeded-hard" &&
+		racer.StartingItem == 0 &&
+		len(racer.Rooms) > 1 {
+
 		racer.StartingItem = itemID
 	}
 }

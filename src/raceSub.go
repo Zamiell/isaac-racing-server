@@ -17,6 +17,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		ruleset.Format != "seeded" &&
 		ruleset.Format != "diversity" &&
 		ruleset.Format != "unseeded-lite" &&
+		ruleset.Format != "seeded-hard" &&
 		ruleset.Format != "custom" {
 
 		websocketError(s, d.Command, "That is not a valid ruleset.")
@@ -56,11 +57,25 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	}
 
 	// Validate the starting build
-	if ruleset.Format != "seeded" && ruleset.StartingBuild != -1 {
+	if ruleset.Format != "seeded" &&
+		ruleset.Format != "seeded-hard" &&
+		ruleset.StartingBuild != -1 {
+
 		websocketError(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 		return false
-	} else if ruleset.Format == "seeded" && (ruleset.StartingBuild < 1 || ruleset.StartingBuild > 33) { // There are 33 builds
+	} else if (ruleset.Format == "seeded" || ruleset.Format == "seeded-hard") &&
+		(ruleset.StartingBuild < 1 || ruleset.StartingBuild > 33) { // There are 33 builds
+
 		websocketError(s, d.Command, "That is not a valid starting build.")
+		return false
+	}
+
+	// Validate ranked games
+	if ruleset.Ranked &&
+		ruleset.Format != "seeded" &&
+		ruleset.Format != "unseeded" {
+
+		websocketError(s, d.Command, "Ranked races must be either seeded or unseeded.")
 		return false
 	}
 
