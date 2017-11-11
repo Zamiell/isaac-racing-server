@@ -248,3 +248,12 @@ CREATE TABLE user_season_stats (
     UNIQUE(user_id, season)
 );
 CREATE INDEX user_season_stats_index_user_id ON user_season_stats (user_id);
+
+DROP TABLE IF EXISTS seeded_builds;
+CREATE TABLE seeded_builds (
+    id                 INT        NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
+    item_id            INT        NOT NULL,
+    build_id           INT        NOT NULL
+);
+
+CREATE INDEX seeded_builds_index ON seeded_builds(id);                
