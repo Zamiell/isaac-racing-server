@@ -1,5 +1,6 @@
 {{define "content"}}
 <!-- Main -->
+<div id="banned">{{ .ResultsProfile.Banned }}</div><span id="span-ban"></span>
 <section id="profile-main" class="container">
 	<header class="profile">
 		<!-- This checks for the username and populates it along with the verification badge if verified -->
@@ -8,7 +9,6 @@
 		{{ if ne .ResultsProfile.StreamURL "-" }} <h1><a href="{{ .ResultsProfile.StreamURL }}" target="_blank" id="twitchUrl"><img height="32px" width="32px" src="../public/img/Glitch_Purple_RGB.png" /></a></h1> {{ end }}
 		<p>Joined on <span id="date">{{ .ResultsProfile.DatetimeCreated }}</span></p>
 	</header>
-	<hidden id="banned">{{ .ResultsProfile.Banned }}</hidden>	
 	<section class="box">
 		<div class="table-wrapper">
 			<table class="alt" id="profiles">

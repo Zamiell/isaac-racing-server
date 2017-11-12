@@ -27,19 +27,18 @@ function ConvertTimeProfileStamps() {
 };
 
 function BannedUser() {
-    if ($('#banned').html() == 'true') {
-        $('#banned').css("display","none");
+    if ($('div#banned').html() == "true") {
         var docWidth = $(document).width();
         var docHeight = $(document).height();
         var overlayDiv = "<div id=\"overlay-div\"></div>";
-        $(".profile-name").append(overlayDiv);
-        $("#overlay-div").css("position","absolute", "top","0","left","0","background-color","#000","opacity","0.5", "width", docWidth + "px", "height",docHeight + "px","text-align","center");
+        $("span#span-ban").append(overlayDiv);
+        $("#overlay-div").css({"opacity":"1.0", "position":"fixed","width": docWidth + "px","height":docHeight + "px","text-align":"center","z-index":"10"});
         $("#overlay-div").append("<div id=\"image-div\"></div>");
-        $("#image-div").css("position","absolute", "top",docHeight/4 + "px","left",docWidth/4 + "px","width", docWidth/2, "height",docHeight);
+        $("#image-div").css("position","relative", "left",docWidth/4 + "px","width", docWidth/4);
         $("#image-div").append("<img src=\"/public/img/no.png\"id=\"zoomed-img\" />");
         var imgWidth = $("#image-div").width();
         var imgHeight = $("#image-height").height();
-        $("#image-div").css("position","absolute", "top","10px","left","10px");
+        //$("#image-div").css("position","absolute", "top","10px","left","10px");
     };
 
 };

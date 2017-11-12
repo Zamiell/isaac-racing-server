@@ -358,5 +358,9 @@ header.race-header h2.last-race-results {
 }
 
 #banned {
-  display: none;
+  visibility: hidden; 
+  position: relative;
+  margin-left: auto;
+  margin-right: auto;
 }
+
