@@ -412,7 +412,7 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int, racesLimit int) ([]Leader
 	if v, err := db.Query(`
 		SELECT
 			u.username,
-			u.diversity_trueskill,
+			ROUND(u.diversity_trueskill, 2),
 			ROUND(u.diversity_trueskill_change, 2),
 			u.diversity_num_races,
 			(SELECT
