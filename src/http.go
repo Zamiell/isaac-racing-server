@@ -109,7 +109,7 @@ func httpInit() {
 	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
 
 	// Use the Tollbooth Gin middleware for Google Analytics tracking
-	limiter := tollbooth.NewLimiter(1, time.Second, nil) // Limit each user to 1 request per second
+	limiter := tollbooth.NewLimiter(1, nil) // Limit each user to 1 request per second
 	// When a user requests "/", they will also request the CSS and images;
 	// this middleware is smart enough to know that it is considered part of the first request
 	// However, it is still not possible to spam download CSS or image files
