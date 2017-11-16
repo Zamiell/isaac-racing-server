@@ -117,11 +117,11 @@ function CheckForHash() {
 }
 
 
-$('#leaderboard-seeded-button').click(function() {
+/*$('#leaderboard-seeded-button').click(function() {
     if (activeLeaderboard !== 'seeded' && transition === false) {
         showLeaderboard('seeded');
     }
-});
+});*/
 $('#leaderboard-unseeded-button').click(function() {
     if (activeLeaderboard !== 'unseeded' && transition === false) {
         showLeaderboard('unseeded');
