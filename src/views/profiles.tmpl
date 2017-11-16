@@ -47,8 +47,9 @@
 					<tr>
 						<th>Name</th>
 						<th>Joined</th>
-						<th>Total Races</th>
 						<th>Achievements</th>
+						<th>Total Races</th>
+						<th>Last Race</th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -56,10 +57,11 @@
 				<tbody>
 					{{ range .ResultsProfiles }}
 						<tr>
-							<td><a href="../profile/{{ .Username }}"> {{ .Username }} </a></td>
-							<td id="date"> {{ .DatetimeCreated }}</td>
-							<td> {{ .TotalRaces }} </td>
-							<td> {{ .NumAchievements }} </td>
+							<td class="profile-user"><a href="../profile/{{ .Username }}"> {{ .Username }} </a></td>
+							<td id="date" class="profile-date-created"> {{ .DatetimeCreated }}</td>
+							<td class="profile-achi"> {{ .NumAchievements }} </td>
+							<td class="profile-total-races"> {{ .TotalRaces }} </td>
+							<td class="profile-last-race"><a href="/races/{{ .ProfileLastRaceId.Value }}">{{ .ProfileLastRaceDate.Value }}</a></td>
 						</tr>
 					{{ end }}
 				</tbody>

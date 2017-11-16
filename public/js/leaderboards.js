@@ -45,14 +45,14 @@ $(document).ready(function() {
     ConvertTime('unseeded','lb-real-avg');
     ConvertTime('unseeded','lb-fastest');
     ConvertTime('unseeded','lb-for-pen');
-    ConvertTimeStamp('unseeded','lb-last-race');
+    ConvertTimeStamp('unseeded','td.lb-last-race a');
     ConvertForfeitRate('unseeded','lb-num-for');
 
     //Diversity things
     $('#leaderboard-diversity-table').tablesorter(); 
     AdjustRank('diversity');
     ConvertTime('diversity','lb-fastest');
-    ConvertTimeStamp('diversity','lb-last-race');
+    ConvertTimeStamp('diversity','td.lb-last-race a');
 });
 
 function ConvertTime(leaderboard, tableData) {
@@ -78,14 +78,13 @@ function ConvertForfeitRate(leaderboard, tableData) {
     });
 };
 
-function ConvertTimeStamp(leaderboard) {
+function ConvertTimeStamp(leaderboard, tableData) {
     var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
     var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
 
-    $('#leaderboard-' + leaderboard + ' td.lb-last-race a').each(function() {
+    $('#leaderboard-' + leaderboard + ' ' + tableData).each(function() {
         // Miserable hack to help with Safari's strict JS date restrictions
         dt = new Date($(this).html().replace(/\s/, 'T').replace(' +0000 UTC', ''));
-
         var curr_hours = dt.getHours();
         var curr_min = dt.getMinutes();
         var curr_time = curr_hours + ":" + ((curr_min < 10) ? "0" + curr_min : curr_min);

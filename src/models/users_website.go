@@ -44,11 +44,13 @@ type StatsDiversity struct {
 
 // ProfilesRow gets each row for all profiles
 type ProfilesRow struct {
-	Username        string
-	DatetimeCreated time.Time
-	StreamURL       string
-	NumAchievements int
-	TotalRaces      int
+	Username            string
+	DatetimeCreated     time.Time
+	StreamURL           string
+	NumAchievements     int
+	TotalRaces          int
+	ProfileLastRaceId   sql.NullInt64
+	ProfileLastRaceDate mysql.NullTime
 }
 
 // ProfileData has all data for each racer
@@ -208,13 +210,18 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 				SELECT COUNT(id)
 				FROM race_participants
 				WHERE user_id = u.id
-			) AS num_total_race
+			) AS num_total_race,
+			MAX(rp.race_id),
+			r.datetime_started
 		FROM
 			users u
 		LEFT JOIN
 			user_achievements ua
-			ON
-				u.id = ua.user_id
+			ON u.id = ua.user_id
+		LEFT JOIN race_participants rp
+			ON rp.user_id = u.id
+		LEFT JOIN races r
+			ON r.id = rp.race_id
 		WHERE
 			u.steam_id > 0
 		GROUP BY
@@ -244,6 +251,8 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 			&row.StreamURL,
 			&row.NumAchievements,
 			&row.TotalRaces,
+			&row.ProfileLastRaceId,
+			&row.ProfileLastRaceDate,
 		); err != nil {
 			return nil, 0, err
 		}
