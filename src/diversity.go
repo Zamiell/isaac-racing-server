@@ -110,7 +110,7 @@ var validDiversityTrinkets = [...]int{
 	Diversity helper functions
 */
 
-func diversityGetSeed() string {
+func diversityGetSeed(ruleset Ruleset) string {
 	// Get 1 random unique active item
 	var items []int
 	rand.Seed(time.Now().UnixNano())
@@ -125,11 +125,20 @@ func diversityGetSeed() string {
 			rand.Seed(time.Now().UnixNano())
 			item := validDiversityPassiveItems[rand.Intn(len(validDiversityPassiveItems))]
 
-			// Ensure this item is unique
-			if !intInSlice(item, items) {
-				items = append(items, item)
-				break
+			// Do character specific item bans
+			if ruleset.Character == "Keeper" {
+				if item == 230 { // Abaddon
+					continue
+				}
 			}
+
+			// Ensure this item is unique
+			if intInSlice(item, items) {
+				continue
+			}
+
+			items = append(items, item)
+			break
 		}
 	}
 

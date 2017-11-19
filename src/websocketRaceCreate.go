@@ -107,7 +107,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		// (using the current Epoch timestamp as a seed)
 		ruleset.Seed = isaacGetRandomSeed()
 	} else if ruleset.Format == "diversity" {
-		ruleset.Seed = diversityGetSeed()
+		ruleset.Seed = diversityGetSeed(ruleset)
 	}
 
 	/*
