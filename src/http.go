@@ -147,23 +147,15 @@ func httpInit() {
 
 	// Path handlers (for the website)
 	httpRouter.GET("/", httpHome)
-
-	// Path handlers for single profile
-	httpRouter.GET("/profile", httpProfile)
-	httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
-
-	// Path handlers for all profiles
-	httpRouter.GET("/profiles", httpProfiles)
-	httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
-
-	// Path handlers for race page
-	httpRouter.GET("/race", httpRace)
-	httpRouter.GET("/race/:raceid", httpRace)
-
-	// Path handlers for races page
+	httpRouter.GET("/news", httpNews)
 	httpRouter.GET("/races", httpRaces)
 	httpRouter.GET("/races/:page", httpRaces)
-
+	httpRouter.GET("/race", httpRace)
+	httpRouter.GET("/race/:raceid", httpRace)
+	httpRouter.GET("/profiles", httpProfiles)
+	httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
+	httpRouter.GET("/profile", httpProfile)
+	httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
 	httpRouter.GET("/leaderboards", httpLeaderboards)
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
