@@ -13,13 +13,16 @@ $(document).ready(function() {
 
 function ConvertTime(td) {
     $(td).each(function() {
+      if ($(this).html() > 0) {
         time = $(this).html();
         $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
+      } 
     });
 };
 
 function ConvertTotalTime(td) {
     $(td).each(function() {
+      if ($(this).html() > 0) {
         time = $(this).html();
         seconds = Math.floor(time / 1000 % 60);
         minutes = Math.floor(time / 1000 / 60 % 60);
@@ -27,6 +30,7 @@ function ConvertTotalTime(td) {
         days = Math.floor(time / 1000 / 60 / 60 / 24 );
         elasped = days + ' Day' + ( days != 1 ? 's ' : ' ' ) + hours + ' Hour' + ( hours != 1 ? 's ' : ' ' ) + minutes + ' Minute' + ( minutes != 1 ? 's ' : ' ' ) + seconds + ' Second' + ( seconds != 1 ? 's ' : ' ' );
         $(this).html(elasped);
+      }
     });
 };
 
@@ -56,12 +60,14 @@ function ConvertTimeProfileStamps(td) {
 
 function ConvertForfeitRate(td) {
     $(td).each(function() {
+      if ($(this).html() > 0) {
         num = $(this).html();
         // I have no idea how this works, but somehow it does
         total = ($(this).closest('tr').next('tr').find('#unseeded-numraces-val').html() > 50) ? 50 : $(this).closest('tr').next('tr').find('#unseeded-numraces-val').html();
         rate = num / total * 100;
         rate = Math.round(rate); // Round it to the nearest whole number
         $(this).html(rate + "% (" + num + "/" + total + ")");
+      }
     });
 };
 

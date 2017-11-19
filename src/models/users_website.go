@@ -63,7 +63,7 @@ type ProfileData struct {
 	StatsSeeded       StatsSeeded
 	StatsUnseeded     StatsUnseeded
 	StatsDiversity    StatsDiversity
-	TotalRaces        int
+	TotalRaces        sql.NullInt64
 	StreamURL         string
 	Banned            bool
 }
@@ -136,7 +136,7 @@ func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
 */
 
 // GetProfileData gets player data to populate the player's profile page
-func (*Users) GetProfileData(username string) (ProfileData, int, error) {
+func (*Users) GetProfileData(username string) (ProfileData, error) {
 	var profileData ProfileData
 	var rawVerified int
 	if err := db.QueryRow(`
@@ -203,35 +203,46 @@ func (*Users) GetProfileData(username string) (ProfileData, int, error) {
 		&profileData.StreamURL,
 		&profileData.Banned,
 	); err == sql.ErrNoRows {
-		return profileData, 0, nil
+		return profileData, nil
 	} else if err != nil {
-		return profileData, 0, err
+		return profileData, err
 	} else {
 		// Convert the int to a bool
 		if rawVerified == 1 {
 			profileData.Verified = true
 		}
 	}
+	return profileData, nil
+}
 
-	var totalTime int
+// GetTotalTime gets the total run_time of all races completed regardless of outcome
+func (*Users) GetTotalTime(username string) (int, error) {
+	var totalTime sql.NullInt64
 	if err := db.QueryRow(`
-		SELECT
-			SUM(rp.run_time)
-		FROM
-			users u
-		LEFT JOIN
-			race_participants rp
-			ON rp.user_id = u.id
-		LEFT JOIN
-			races r
-			ON r.id = rp.race_id
-		WHERE
-			r.finished = 1
-			AND u.username = ?
-	`, username).Scan(&totalTime); err != nil {
-		return profileData, 0, err
+	SELECT
+		SUM(rp.run_time)
+	FROM
+		users u
+	LEFT JOIN
+		race_participants rp
+		ON rp.user_id = u.id
+	LEFT JOIN
+		races r
+		ON r.id = rp.race_id
+	WHERE
+		r.finished = 1
+		AND u.username = ?
+`, username).Scan(&totalTime); err == sql.ErrNoRows {
+		return 0, nil
+	} else if err != nil {
+		return 0, err
+	} else if totalTime.Value == nil {
+		return 0, nil
 	}
-	return profileData, totalTime, nil
+	var returnTime int
+	returnTime = int(totalTime.Int64)
+	return returnTime, nil
+
 }
 
 // GetUserProfiles gets players data to populate the profiles page
