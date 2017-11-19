@@ -21,6 +21,7 @@ function ConvertTimeStamp(table, tableData) {
 			} else {
 				sup = "th";
 			}
+			// Write the timestamp back
 			$(this).html(d_names[dt.getDay()] + ", " + m_names[dt.getMonth()] + " " + dt.getDate() + sup + ", " + dt.getFullYear());
 		}
 	});

@@ -32,8 +32,8 @@ func httpRaces(c *gin.Context) {
 	}
 	// Find total number of pages needed for navigation, if divisible by perPage, remove a page.
 	totalPages := 0
-	if ( totalRaces % racesPerPage == 0 ) {
-		totalPages = int(math.Floor(float64(totalRaces) / float64(racesPerPage)) - 1) 
+	if totalRaces%racesPerPage == 0 {
+		totalPages = int(math.Floor(float64(totalRaces)/float64(racesPerPage)) - 1)
 	} else {
 		totalPages = int(math.Floor(float64(totalRaces) / float64(racesPerPage)))
 	}

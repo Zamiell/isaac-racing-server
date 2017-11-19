@@ -13,6 +13,7 @@ import (
 // RaceHistory gets the history for each race in the database
 type RaceHistory struct {
 	RaceID           int
+	RaceSize         int
 	RaceType         string
 	RaceFormat       string
 	RaceChar         string
@@ -24,12 +25,12 @@ type RaceHistory struct {
 
 // RaceHistoryParticipants gets the user stats for each racer in each race
 type RaceHistoryParticipants struct {
-	ID                  int
-	RacerName           string
-	RacerPlace          int
-	RacerTime           string
-	RacerStartingItem   int
-	RacerComment        string
+	ID                int
+	RacerName         string
+	RacerPlace        int
+	RacerTime         string
+	RacerStartingItem int
+	RacerComment      string
 }
 
 // GetRacesHistory gets all data for all races
@@ -38,6 +39,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 	if v, err := db.Query(`
 		SELECT
 			id,
+			solo,
 			ranked,
 			format,
 			player_type,
@@ -47,7 +49,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 		FROM
 			races
 		WHERE
-			finished = 1 
+			finished = 1
 			AND solo = 0
 		GROUP BY
 			id
@@ -69,6 +71,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 		var race RaceHistory
 		if err := rows.Scan(
 			&race.RaceID,
+			&race.RaceSize,
 			&race.RaceType,
 			&race.RaceFormat,
 			&race.RaceChar,

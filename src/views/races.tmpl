@@ -47,7 +47,6 @@
 					<tr>
 						<th class="races-th-id">ID</th>
 						<th class="races-th-date">Date &amp; Time</th>
-						<th class="races-th-ranked">Ranked</th>
 						<th class="races-th-format">Format</th>
 						<th class="races-th-char">Character</th>
 						<th class="races-th-goal">Goal</th>
@@ -55,7 +54,7 @@
 						<th class="races-th-place">Place</th>
 						<th class="races-th-time">Time</th>
 						<th class="races-th-st-item">Starting<br />Item</th>
-						<th class="races-th-comment">Comment</th>
+						<!-- <th class="races-th-comment">Comment</th> -->
 					</tr>
 				</thead>
 				<tfoot>
@@ -69,12 +68,15 @@
 					{{ range .ResultsRaces }}
 						<tr>
 							{{ $racers := len .RaceParticipants }}
-							<td rowspan="{{ $racers }}" class="races-td-id"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
-							<td id="racedate" rowspan="{{ $racers }}" class="races-td-date"> {{ .RaceDateStart }}</td>
-							<td rowspan="{{ $racers }}" class="races-td-ranked"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
-							<td rowspan="{{ $racers }}" class="races-td-format"><img src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
-							<td rowspan="{{ $racers }}" class="races-td-char"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
-							<td rowspan="{{ $racers }}" class="races-td-goal"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
+							<td rowspan="{{ $racers }}" id="race-{{ .RaceID }}" class="races-td-id"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
+							<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID }}" class="races-td-date"> {{ .RaceDateStart }}</td>
+							<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID }}" class="races-td-format">
+								<!-- <span id="racesize-{{ .RaceID }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
+								<span id="racetype-{{ .RaceID }}" class="race-types"><img  height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize 0 -}} -solo {{- end }}.png" /></span>
+								<span id="raceformat-{{ .RaceID }}" class="race-formats"><img  height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" /></span>
+							</td>
+							<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID }}" class="races-td-char"><img src="/public/img/characters/{{ .RaceChar }}.png" /></td>
+							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID }}" class="races-td-goal"><img src="/public/img/goals/{{ .RaceGoal }}.png" /></td>
 
 							{{ range $index, $results := .RaceParticipants }}
 								<td class=racername>
@@ -89,11 +91,11 @@
 									<td class="races-td-time">{{ .RacerTime }}</td>
 									<td class="races-td-st-item"><img src="/public/img/items/ {{- .RacerStartingItem -}} .png" /></td>
 								{{- end }}
-								{{ if ne .RacerComment "-" -}}
+								<!-- {{ if ne .RacerComment "-" -}}
 									<td	title="{{ .RacerComment }}" class="races-td-comment"> {{ .RacerComment }}</td>
 								{{- else}}
 									<td>&nbsp;</td>
-								{{ end }}
+								{{ end }} -->
 							<tr>
 							{{ end }}
 							</tr>

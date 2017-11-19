@@ -8,13 +8,11 @@
       position: relative;
       top: -50px;
     }
-
       #profile-main > header h2 {
         font-size: 2.75em;
         margin: 0;
         color: white;
       }
-
       #profile-main > header p {
         border-top: solid 2px #e5e5e5;
         /*color: #777;*/
@@ -346,21 +344,20 @@
     table#profile-listing-table td#profilername {
       text-align: left;
       vertical-align: top;
-    }    
+    }
     #profile-listing-table .participants-list {
 
     }
 
 header.race-header h2.last-race-results {
   margin: 0 0 .5em 0 !important;
-  text-align: center;  
+  text-align: center;
 
 }
 
 #banned {
-  visibility: hidden; 
+  visibility: hidden;
   position: relative;
   margin-left: auto;
   margin-right: auto;
 }
-

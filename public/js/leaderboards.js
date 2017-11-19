@@ -26,7 +26,7 @@ function showLeaderboard(type) {
                 activeLeaderboard = type;
                 transition = false;
             });
-        });        
+        });
     }
 }
 
@@ -39,7 +39,7 @@ function pad(n, width, z) {
 $(document).ready(function() {
     CheckForHash();
     // Unseeded things
-    $('#leaderboard-unseeded-table').tablesorter(); 
+    $('#leaderboard-unseeded-table').tablesorter();
     AdjustRank('unseeded');
     ConvertTime('unseeded','lb-adj-avg');
     ConvertTime('unseeded','lb-real-avg');
@@ -49,7 +49,7 @@ $(document).ready(function() {
     ConvertForfeitRate('unseeded','lb-num-for');
 
     //Diversity things
-    $('#leaderboard-diversity-table').tablesorter(); 
+    $('#leaderboard-diversity-table').tablesorter();
     AdjustRank('diversity');
     ConvertTime('diversity','lb-fastest');
     ConvertTimeStamp('diversity','td.lb-last-race a');
@@ -106,14 +106,13 @@ function ConvertTimeStamp(leaderboard, tableData) {
 
 function CheckForHash() {
     if (window.location.hash) {
-        //console.log(window.location.hash.substr(1));  
         type = window.location.hash.substr(1);
         if (type == 'diversity' || type == 'unseeded') {
             showLeaderboard(type);
         } else {
             showLeaderboard('unseeded');
         }
-    } 
+    }
 }
 
 
@@ -132,4 +131,3 @@ $('#leaderboard-diversity-button').click(function() {
         showLeaderboard('diversity');
     }
 });
-

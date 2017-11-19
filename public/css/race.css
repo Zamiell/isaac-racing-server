@@ -346,7 +346,17 @@
     table#race-listing-table td#racername {
       text-align: left;
       vertical-align: top;
-    }    
+    }
     #race-listing-table .participants-list {
 
     }
+
+.race-size{
+  text-align: left;
+}
+.race-types {
+  text-align: left;
+}
+.race-formats {
+  text-align: right;
+}

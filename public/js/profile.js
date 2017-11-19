@@ -9,9 +9,7 @@ function ConvertTimeProfileStamps() {
 
     // Miserable hack to help with Safari's strict JS date restrictions
     dt = new Date($('span#date').html().replace(/\s?/, '').replace(/\s/, 'T').replace(' +0000 UTC', ''));
-    var curr_hours = dt.getHours();
-    var curr_min = dt.getMinutes();
-    var curr_time = curr_hours + ":" + ((curr_min < 10) ? "0" + curr_min : curr_min);
+    var curr_time = dt.getHours() + ":" + ((dt.getMinutes() < 10) ? "0" + dt.getMinutes() : dt.getMinutes());
     var curr_date = dt.getDate();
     var sup = "";
     if (curr_date == 1 || curr_date == 21 || curr_date == 31) {
@@ -23,6 +21,7 @@ function ConvertTimeProfileStamps() {
     } else {
         sup = "th";
     }
+    // Write the timestamp back
     $("span#date").html(d_names[dt.getDay()] + ", " + m_names[dt.getMonth()] + " " + curr_date + sup + ", " + curr_time);
 };
 
@@ -38,7 +37,6 @@ function BannedUser() {
         $("#image-div").append("<img src=\"/public/img/no.png\"id=\"zoomed-img\" />");
         var imgWidth = $("#image-div").width();
         var imgHeight = $("#image-height").height();
-        //$("#image-div").css("position","absolute", "top","10px","left","10px");
     };
 
 };
