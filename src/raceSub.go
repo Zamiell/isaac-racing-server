@@ -1,8 +1,35 @@
 package main
 
 import (
+	"math/rand"
+	"time"
+
 	melody "gopkg.in/olahol/melody.v1"
 )
+
+/*
+	Constants
+*/
+
+const numBuilds = 33
+
+var characters = []string{
+	"Isaac",
+	"Magdalene",
+	"Cain",
+	"Judas",
+	"Blue Baby",
+	"Eve",
+	"Samson",
+	"Azazel",
+	"Lazarus",
+	"Eden",
+	"The Lost",
+	"Lilith",
+	"Keeper",
+	"Apollyon",
+	"Samael",
+}
 
 /*
 	Race validation subroutines
@@ -25,24 +52,24 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	}
 
 	// Validate the character
-	if ruleset.Character != "Isaac" &&
-		ruleset.Character != "Magdalene" &&
-		ruleset.Character != "Cain" &&
-		ruleset.Character != "Judas" &&
-		ruleset.Character != "Blue Baby" &&
-		ruleset.Character != "Eve" &&
-		ruleset.Character != "Samson" &&
-		ruleset.Character != "Azazel" &&
-		ruleset.Character != "Lazarus" &&
-		ruleset.Character != "Eden" &&
-		ruleset.Character != "The Lost" &&
-		ruleset.Character != "Lilith" &&
-		ruleset.Character != "Keeper" &&
-		ruleset.Character != "Apollyon" &&
-		ruleset.Character != "Samael" {
-
+	validCharacter := false
+	for _, character := range characters {
+		if ruleset.Character == character {
+			validCharacter = true
+			break
+		}
+	}
+	if ruleset.Character == "random" {
+		validCharacter = true
+	}
+	if !validCharacter {
 		websocketError(s, d.Command, "That is not a valid character.")
 		return false
+	}
+	if ruleset.Character == "random" {
+		ruleset.CharacterRandom = true
+		rand.Seed(time.Now().UnixNano())
+		ruleset.Character = characters[rand.Intn(len(characters))]
 	}
 
 	// Validate the goal
@@ -64,10 +91,15 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		websocketError(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 		return false
 	} else if (ruleset.Format == "seeded" || ruleset.Format == "seeded-hard") &&
-		(ruleset.StartingBuild < 1 || ruleset.StartingBuild > 33) { // There are 33 builds
+		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > numBuilds) { // There are 33 builds (0 is random)
 
 		websocketError(s, d.Command, "That is not a valid starting build.")
 		return false
+	}
+	if ruleset.StartingBuild == 0 {
+		ruleset.StartingBuildRandom = true
+		rand.Seed(time.Now().UnixNano())
+		ruleset.StartingBuild = rand.Intn(numBuilds) + 1 // 1 to numBuilds
 	}
 
 	// Validate ranked games
@@ -76,6 +108,13 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		ruleset.Format != "unseeded" {
 
 		websocketError(s, d.Command, "Ranked races must be either seeded or unseeded.")
+		return false
+	}
+	if ruleset.Ranked &&
+		ruleset.Format == "seeded" &&
+		ruleset.StartingBuild != 0 {
+
+		websocketError(s, d.Command, "Ranked seeded races must have a random starting build.")
 		return false
 	}
 

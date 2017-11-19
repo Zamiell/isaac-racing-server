@@ -25,13 +25,15 @@ type Race struct {
 	Racers          map[string]*Racer
 }
 type Ruleset struct {
-	Ranked        bool   `json:"ranked"`
-	Solo          bool   `json:"solo"`
-	Format        string `json:"format"`
-	Character     string `json:"character"`
-	Goal          string `json:"goal"`
-	StartingBuild int    `json:"startingBuild"`
-	Seed          string `json:"seed"`
+	Ranked              bool   `json:"ranked"`
+	Solo                bool   `json:"solo"`
+	Format              string `json:"format"`
+	Character           string `json:"character"`
+	CharacterRandom     bool   `json:"characterRandom"`
+	Goal                string `json:"goal"`
+	StartingBuild       int    `json:"startingBuild"`
+	StartingBuildRandom bool   `json:"startingBuildRandom"`
+	Seed                string `json:"seed"`
 }
 type Racer struct {
 	ID                   int
