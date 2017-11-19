@@ -221,13 +221,13 @@ func (*Users) GetProfileData(username string) (ProfileData, int, error) {
 			users u
 		LEFT JOIN
 			race_participants rp
-		    ON rp.user_id = u.id
+			ON rp.user_id = u.id
 		LEFT JOIN
 			races r
-		    ON r.id = rp.race_id
+			ON r.id = rp.race_id
 		WHERE
 			r.finished = 1
-		  AND u.username = ?
+			AND u.username = ?
 	`, username).Scan(&totalTime); err != nil {
 		return profileData, 0, err
 	}
