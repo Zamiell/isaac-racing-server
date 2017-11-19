@@ -462,9 +462,10 @@ th.misc-stats {
   text-align: center;
 }
 
-td.misc-td-stats {
+td.misc-td-allraces, td.misc-td-wasted-time {
   border: 0 !important;
   text-align: center !important;
+  background-color: #ffffff !important;
 }
 
 .box {

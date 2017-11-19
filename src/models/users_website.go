@@ -136,7 +136,7 @@ func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
 */
 
 // GetProfileData gets player data to populate the player's profile page
-func (*Users) GetProfileData(username string) (ProfileData, error) {
+func (*Users) GetProfileData(username string) (ProfileData, int, error) {
 	var profileData ProfileData
 	var rawVerified int
 	if err := db.QueryRow(`
@@ -203,16 +203,35 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		&profileData.StreamURL,
 		&profileData.Banned,
 	); err == sql.ErrNoRows {
-		return profileData, nil
+		return profileData, 0, nil
 	} else if err != nil {
-		return profileData, err
+		return profileData, 0, err
 	} else {
 		// Convert the int to a bool
 		if rawVerified == 1 {
 			profileData.Verified = true
 		}
-		return profileData, nil
 	}
+
+	var totalTime int
+	if err := db.QueryRow(`
+		SELECT
+			SUM(rp.run_time)
+		FROM
+			users u
+		LEFT JOIN
+			race_participants rp
+		    ON rp.user_id = u.id
+		LEFT JOIN
+			races r
+		    ON r.id = rp.race_id
+		WHERE
+			r.finished = 1
+		  AND u.username = ?
+	`, username).Scan(&totalTime); err != nil {
+		return profileData, 0, err
+	}
+	return profileData, totalTime, nil
 }
 
 // GetUserProfiles gets players data to populate the profiles page

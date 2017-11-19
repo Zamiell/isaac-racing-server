@@ -65,7 +65,7 @@ func httpProfile(c *gin.Context) {
 	}
 
 	// Get the player data
-	playerData, err := db.Users.GetProfileData(player)
+	playerData, totalTime, err := db.Users.GetProfileData(player)
 	if err != nil {
 		log.Error("Failed to get player data from the database: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -98,6 +98,7 @@ func httpProfile(c *gin.Context) {
 	data := TemplateData{
 		Title:             "Profile",
 		ResultsProfile:    playerData,
+		TotalTime:         totalTime,
 		RaceResultsRanked: raceDataRanked,
 		RaceResultsAll:    raceDataAll,
 	}

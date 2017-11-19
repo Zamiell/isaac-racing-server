@@ -6,6 +6,7 @@ $(document).ready(function() {
     ConvertTime('#unseeded-realavg-val');
     ConvertTime('#unseeded-forpen-val');
     ConvertTime('#unseeded-fastest-val');
+    ConvertTotalTime('#misc-wasted-time');
     ConvertForfeitRate('#unseeded-numfor-val');
     BannedUser();
 });
@@ -17,6 +18,17 @@ function ConvertTime(td) {
     });
 };
 
+function ConvertTotalTime(td) {
+    $(td).each(function() {
+        time = $(this).html();
+        seconds = Math.floor(time / 1000 % 60);
+        minutes = Math.floor(time / 1000 / 60 % 60);
+        hours = Math.floor(time / 1000 / 60 / 60 % 24);
+        days = Math.floor(time / 1000 / 60 / 60 / 24 );
+        elasped = days + ' Day' + ( days != 1 ? 's ' : ' ' ) + hours + ' Hour' + ( hours != 1 ? 's ' : ' ' ) + minutes + ' Minute' + ( minutes != 1 ? 's ' : ' ' ) + seconds + ' Second' + ( seconds != 1 ? 's ' : ' ' );
+        $(this).html(elasped);
+    });
+};
 
 function ConvertTimeProfileStamps(td) {
     var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");

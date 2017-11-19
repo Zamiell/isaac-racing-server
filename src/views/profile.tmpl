@@ -86,11 +86,14 @@
 						<td class="diversity-column left last"></td>
 						<td class="diversity-column right last"></td>
 					</tr>
-					<tr>
+					<tr class="profile-stats">
 						<th colspan="6" id="misc-stats" class="misc-stats">Miscellaneous</td>
 					</tr>
+					<tr class="profile-stats">
+						<td colspan="6" id="misc-td-allraces-{{ .ResultsProfile.Username }}" class="misc-td-allraces">All Races: {{ .ResultsProfile.TotalRaces }}</td>
+					</tr>
 					<tr>
-						<td colspan="6" id="misc-td-stats-{{ .ResultsProfile.Username }}" class="misc-td-stats">All Races: {{ .ResultsProfile.TotalRaces }}</td>
+						<td colspan="6" id="misc-td-wastedtime-{{ .ResultsProfile.Username }}" class="misc-td-wasted-time">Wasted Time: <span id='misc-wasted-time'>{{ .TotalTime }}</span></td>
 					</tr>
 				</tbody>
 			</table>
