@@ -180,15 +180,15 @@
 						{{ range .RaceResultsRanked }}
 							<tr>
 								{{ $racers := len .RaceParticipants }}
-								<td rowspan="{{ $racers }}"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
-								<td id="racedate" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
-								<td rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
+								<td id="ranked-raceid-{{ .RaceID }}" class="ranked-raceid" rowspan="{{ $racers }}"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
+								<td id="ranked-racedate-{{ .RaceID }}" class="ranked-racedate" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
+								<td id="ranked-raceranked-{{ .RaceID }}" class="ranked-raceranked" rowspan="{{ $racers }}"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
+								<td id="ranked-raceformat-{{ .RaceID }}" class="ranked-raceformat" rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
+								<td id="ranked-racechar-{{ .RaceID }}" class="ranked-racechar" rowspan="{{ $racers }}"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
+								<td id="ranked-racegoal-{{ .RaceID }}" class="ranked-racegoal" rowspan="{{ $racers }}"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
 
 								{{ range $index, $results := .RaceParticipants }}
-									<td class=racername>
+									<td id="ranked-racername-{{ .RacerName }}" class="ranked-racername">
 										<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
 									</td>
 									{{ if eq .RacerPlace -1 -}}

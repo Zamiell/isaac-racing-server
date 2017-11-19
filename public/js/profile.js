@@ -1,9 +1,10 @@
 $(document).ready(function() {
-    ConvertTimeProfileStamps('.race-date');
-    ConvertTimeProfileStamps('#join-date');
+    ConvertTimeProfileStamps('td.race-date');
+    ConvertTimeProfileStamps('span#join-date');
+    ConvertTimeProfileStamps('td.ranked-racedate');
     ConvertTime('#unseeded-adjavg-val');
     ConvertTime('#unseeded-realavg-val');
-    ConvertTime('#unseeded-forpen-val');    
+    ConvertTime('#unseeded-forpen-val');
     ConvertTime('#unseeded-fastest-val');
     BannedUser();
 });
