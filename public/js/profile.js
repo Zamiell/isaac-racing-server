@@ -6,6 +6,7 @@ $(document).ready(function() {
     ConvertTime('#unseeded-realavg-val');
     ConvertTime('#unseeded-forpen-val');
     ConvertTime('#unseeded-fastest-val');
+    ConvertForfeitRate('#unseeded-numfor-val');
     BannedUser();
 });
 
@@ -40,6 +41,18 @@ function ConvertTimeProfileStamps(td) {
       $(this).html(d_names[dt.getDay()] + ", " + m_names[dt.getMonth()] + " " + curr_date + sup + ", " + curr_time);
     });
 }
+
+function ConvertForfeitRate(td) {
+    $(td).each(function() {
+        num = $(this).html();
+        // I have no idea how this works, but somehow it does
+        total = ($(this).closest('tr').next('tr').find('#unseeded-numraces-val').html() > 50) ? 50 : $(this).closest('tr').next('tr').find('#unseeded-numraces-val').html();
+        rate = num / total * 100;
+        rate = Math.round(rate); // Round it to the nearest whole number
+        $(this).html(rate + "% (" + num + "/" + total + ")");
+    });
+};
+
 function BannedUser() {
     if ($('div#banned').html() == "true") {
         var docWidth = $(document).width();
