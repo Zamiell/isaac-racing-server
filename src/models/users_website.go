@@ -63,6 +63,7 @@ type ProfileData struct {
 	StatsSeeded       StatsSeeded
 	StatsUnseeded     StatsUnseeded
 	StatsDiversity    StatsDiversity
+	TotalRaces        int
 	StreamURL         string
 	Banned            bool
 }
@@ -145,8 +146,8 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 			u.datetime_last_login,
 			u.admin,
 			u.verified,
-			u.seeded_trueskill,
-			u.seeded_trueskill_sigma,
+			ROUND(u.seeded_trueskill, 2),
+			ROUND(u.seeded_trueskill_sigma, 2),
 			u.seeded_num_races,
 			u.seeded_last_race,
 			u.unseeded_adjusted_average,
@@ -156,14 +157,26 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 			u.unseeded_forfeit_penalty,
 			u.unseeded_lowest_time,
 			u.unseeded_last_race,
+			ROUND(u.diversity_trueskill, 2),
+			ROUND(u.diversity_trueskill_sigma, 2),
+			ROUND(u.diversity_trueskill_change, 2),
+			u.diversity_num_races,
+			u.diversity_last_race,
+			COUNT(rp.race_id),
 			u.stream_url,
 			CASE WHEN u.id IN (SELECT user_id FROM banned_users) THEN 1 ELSE 0 END AS BIT
 
-		FROM
-			users u
+			FROM
+				users u
+			LEFT JOIN
+				race_participants rp
+				ON rp.user_id = u.id
+			LEFT JOIN
+				races r
+				ON r.id = rp.race_id
 		WHERE
-			steam_id > 0 and
-			username = ?
+			steam_id > 0
+			AND username = ?
 	`, username).Scan(
 		&profileData.Username,
 		&profileData.DatetimeCreated,
@@ -181,6 +194,12 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		&profileData.StatsUnseeded.ForfeitPenalty,
 		&profileData.StatsUnseeded.LowestTime,
 		&profileData.StatsUnseeded.LastRace,
+		&profileData.StatsDiversity.TrueSkill,
+		&profileData.StatsDiversity.Sigma,
+		&profileData.StatsDiversity.Change,
+		&profileData.StatsDiversity.NumRaces,
+		&profileData.StatsDiversity.LastRace,
+		&profileData.TotalRaces,
 		&profileData.StreamURL,
 		&profileData.Banned,
 	); err == sql.ErrNoRows {
@@ -368,7 +387,7 @@ func (*Users) GetLeaderboardSeeded(racesNeeded int, racesLimit int) ([]Leaderboa
 			u.seeded_trueskill_sigma,
 			u.seeded_num_races,
 			u.seeded_last_race,
-			u.verified,
+			u.verified
 		FROM
 			users u
 		WHERE

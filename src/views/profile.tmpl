@@ -7,26 +7,90 @@
 		<h2 class="profile-name">{{ if ne .ResultsProfile.Username "" }} {{ .ResultsProfile.Username }}'s {{ end }} Profile {{if .ResultsProfile.Verified }} <img height="16px" width="16px" src="../public/img/verified.png" /> {{ end }}</h2>
 		<!-- This checks for the players Twitch stream and places the Glitch icon with a link to a new window/tab -->
 		{{ if ne .ResultsProfile.StreamURL "-" }} <h1><a href="{{ .ResultsProfile.StreamURL }}" target="_blank" id="twitchUrl"><img height="32px" width="32px" src="../public/img/Glitch_Purple_RGB.png" /></a></h1> {{ end }}
-		<p>Joined on <span id="date">{{ .ResultsProfile.DatetimeCreated }}</span></p>
+		<p>Joined on <span id="join-date">{{ .ResultsProfile.DatetimeCreated }}</span></p>
 	</header>
 	<section class="box">
 		<div class="table-wrapper">
 			<table class="alt" id="profiles">
 				<thead>
 					<tr>
-						<th>TrueSkill</th>
-						<th>Seeded Races</th>
-						<th>Unseeded Races</th>
+						<th class="seeded-th" colspan="2">Seeded Ranked</th>
+						<th class="unseeded-th" colspan="2">Unseeded Ranked</th>
+						<th class="diversity-th" colspan="2">Diversity</th>
 					</tr>
 				</thead>
 				<tbody>
+					<tr class="profile-stats">
+						<!-- First Column -->
+						<td id="seeded-trueskill-label" class="seeded-column left">TrueSkill:</td>
+						<td id="seeded-trueskill-val" class="seeded-column right">{{ .ResultsProfile.StatsSeeded.TrueSkill }}</td>
+						<!-- Second Column -->
+						<td id="unseeded-adjavg-label" class="unseeded-column left">Adjusted Average:</td>
+						<td id="unseeded-adjavg-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.AdjustedAverage }}</td>
+						<!-- Third Column -->
+						<td id="diversity-trueskill-label" class="diversity-column left">TrueSkill:</td>
+						<td id="diversity-trueskil-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.TrueSkill }}<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsDiversity.Change 0.0 -}} red {{- else if gt .ResultsProfile.StatsDiversity.Change 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsDiversity.Change 0.0}}+{{end}}{{ if ne .ResultsProfile.StatsDiversity.Change 0.0 -}}{{- .ResultsProfile.StatsDiversity.Change -}}{{ end -}}</span></td>
+					</tr>
+					<tr class="profile-stats">
+						<!-- First Column -->
+						<td id="seeded-trueskill-sigma-label" class="seeded-column left">TrueSkill Sigma:</td>
+						<td id="seeded-trueskill-sigma-val" class="seeded-column right">{{ .ResultsProfile.StatsSeeded.Sigma }}</td>
+						<!-- Second Column -->
+						<td id="unseeded-realavg-label" class="unseeded-column left">Unadjusted Average:</td>
+						<td id="unseeded-realavg-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.RealAverage }}</td>
+						<!-- Third Column -->
+						<td id="diversity-trueskill-sigma-label" class="diversity-column left">TrueSkill Sigma:</td>
+						<td id="diversity-trueskill-sigma-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.Sigma }}</td>
+					</tr>
+					<tr class="profile-stats">
+						<!-- First Column -->
+						<td id="seeded-numraces-label" class="seeded-column left">Total Races:</td>
+						<td id="seeded-numraces-val" class="seeded-column right">{{ .ResultsProfile.StatsSeeded.NumRaces }}</td>
+						<!-- Second Column -->
+						<td id="unseeded-forpen-label" class="unseeded-column left">Forfeit Penalty:</td>
+						<td id="unseeded-forpen-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.ForfeitPenalty }}</td>
+						<!-- Third Column -->
+						<td id="diversity-numraces-label" class="diversity-column left">Total Races:</td>
+						<td id="diversity-numraces-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.NumRaces }}</td>
+					</tr>
+					<tr class="profile-stats">
+						<!-- First Column -->
+						<td class="seeded-column left"></td>
+						<td class="seeded-column right"></td>
+						<!-- Second Column -->
+						<td id="unseeded-numfor-label" class="unseeded-column left">Forfeit Rate:</td>
+						<td id="unseeded-numfor-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.NumForfeits }}</td>
+						<!-- Third Column -->
+						<td class="diversity-column left"></td>
+						<td class="diversity-column right"></td>
+					</tr>
+					<tr class="profile-stats">
+						<!-- First Column -->
+						<td class="seeded-column left"></td>
+						<td class="seeded-column right"></td>
+						<!-- Second Column -->
+						<td id="unseeded-numraces-label" class="unseeded-column left">Total Races:</td>
+						<td id="unseeded-numraces-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.NumRaces }}</td>
+						<!-- Third Column -->
+						<td class="diversity-column left"></td>
+						<td class="diversity-column right"></td>
+					</tr>
+					<tr class="profile-stats">
+						<!-- First Column -->
+						<td class="seeded-column left last"></td>
+						<td class="seeded-column right last"></td>
+						<!-- Second Column -->
+						<td id="unseeded-fastest-label" class="unseeded-column left last">Fastest Time:</td>
+						<td id="unseeded-fastest-val" class="unseeded-column right last">{{ .ResultsProfile.StatsUnseeded.LowestTime }}</td>
+						<!-- Third Column -->
+						<td class="diversity-column left last"></td>
+						<td class="diversity-column right last"></td>
+					</tr>
 					<tr>
-						<!-- Sets ELO & ELO change with color for +/- -->
-						<td>{{ .ResultsProfile.StatsSeeded.TrueSkill }}
-						<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsSeeded.Sigma 0.0 -}} red {{- else if gt .ResultsProfile.StatsSeeded.Sigma 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsSeeded.Sigma 0.0}}+{{end}}{{ if ne .ResultsProfile.StatsSeeded.Sigma 0.0 -}}{{- .ResultsProfile.StatsSeeded.Sigma -}}{{ end -}}</span>
-						</td>
-						<td>{{ .ResultsProfile.StatsSeeded.NumRaces }}</td>
-						<td>{{ .ResultsProfile.StatsUnseeded.NumRaces }}</td>
+						<th colspan="6" id="misc-stats" class="misc-stats">Miscellaneous</td>
+					</tr>
+					<tr>
+						<td colspan="6" id="misc-td-stats-{{ .ResultsProfile.Username }}" class="misc-td-stats">All Races: {{ .ResultsProfile.TotalRaces }}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -59,11 +123,11 @@
 							<tr>
 								{{ $racers := len .RaceParticipants }}
 								<td rowspan="{{ $racers }}"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
-								<td id="racedate" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
+								<td id="racedate-{{ .RaceID }}" class="race-date" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
+								<td rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
+								<td rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
+								<td rowspan="{{ $racers }}"><img  src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
+								<td rowspan="{{ $racers }}"><img  src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
 
 								{{ range $index, $results := .RaceParticipants }}
 									<td class=racername>
@@ -119,7 +183,7 @@
 								<td rowspan="{{ $racers }}"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
 								<td id="racedate" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
 								<td rowspan="{{ $racers }}"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
-								<td rowspan="{{ $racers }}"><img src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
+								<td rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
 								<td rowspan="{{ $racers }}"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
 								<td rowspan="{{ $racers }}"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
 

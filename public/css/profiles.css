@@ -361,3 +361,112 @@ header.race-header h2.last-race-results {
   margin-left: auto;
   margin-right: auto;
 }
+
+tr.profile-stats {
+  background-color: #ffffff !important;
+}
+
+th.seeded-th {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 1px inset black;
+  text-align: center;
+  width: 33%;
+}
+
+th.unseeded-th {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 1px outset black;
+  border-right: 1px inset black;
+  text-align: center;
+  width: 33%;
+}
+
+th.diversity-th {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 1px outset black;
+  border-right: 0;
+  text-align: center;
+  width: 33%;
+}
+
+td.seeded-column.left {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0 !important;
+  border-right: 0;
+  text-align: right;
+  width: 20%;
+}
+
+td.seeded-column.right {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 1px inset black;
+  text-align: left;
+  width: 13%;
+}
+
+td.unseeded-column.left {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 1px outset black;
+  border-right: 0;
+  text-align: right;
+  width: 20%;
+}
+
+td.unseeded-column.right {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 1px inset black;
+  text-align: left;
+  width: 13%;
+}
+
+td.diversity-column.left {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 1px outset black;
+  border-right: 0;
+  text-align: right;
+  width: 20%;
+}
+
+td.diversity-column.right {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 0;
+  text-align: left;
+  width: 14%
+}
+
+td.last {
+  padding-bottom: 2em;
+}
+
+th.misc-stats {
+  border-top: 1px outset black !important;
+  border-bottom: 0 !important;
+  border-left: 0 !important;
+  border-right: 0 !important;
+  background-color: #ffffff !important;
+  padding-top: 1em;
+  padding-bottom: .25em;
+  text-align: center;
+}
+
+td.misc-td-stats {
+  border: 0 !important;
+  text-align: center !important;
+}
+
+.box {
+  padding: 1.5em !important;
+}
