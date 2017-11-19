@@ -1,9 +1,6 @@
 package main
 
 import (
-	"math/rand"
-	"time"
-
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -66,11 +63,6 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		websocketError(s, d.Command, "That is not a valid character.")
 		return false
 	}
-	if ruleset.Character == "random" {
-		ruleset.CharacterRandom = true
-		rand.Seed(time.Now().UnixNano())
-		ruleset.Character = characters[rand.Intn(len(characters))]
-	}
 
 	// Validate the goal
 	if ruleset.Goal != "Blue Baby" &&
@@ -91,15 +83,10 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		websocketError(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 		return false
 	} else if (ruleset.Format == "seeded" || ruleset.Format == "seeded-hard") &&
-		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > numBuilds) { // There are 33 builds (0 is random)
+		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > numBuilds) { // 0 is random
 
 		websocketError(s, d.Command, "That is not a valid starting build.")
 		return false
-	}
-	if ruleset.StartingBuild == 0 {
-		ruleset.StartingBuildRandom = true
-		rand.Seed(time.Now().UnixNano())
-		ruleset.StartingBuild = rand.Intn(numBuilds) + 1 // 1 to numBuilds
 	}
 
 	// Validate ranked games

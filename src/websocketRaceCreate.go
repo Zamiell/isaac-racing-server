@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"strconv"
 	"time"
 	"unicode/utf8"
@@ -61,6 +62,20 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate the submitted ruleset
 	if !raceValidateRuleset(s, d) {
 		return
+	}
+
+	// Pick a random character, if necessary
+	if ruleset.Character == "random" {
+		ruleset.CharacterRandom = true
+		rand.Seed(time.Now().UnixNano())
+		ruleset.Character = characters[rand.Intn(len(characters))]
+	}
+
+	// Pick a random starting build, if necessary
+	if ruleset.StartingBuild == 0 {
+		ruleset.StartingBuildRandom = true
+		rand.Seed(time.Now().UnixNano())
+		ruleset.StartingBuild = rand.Intn(numBuilds) + 1 // 1 to numBuilds
 	}
 
 	// Check if there are any ongoing races with this name
