@@ -160,6 +160,8 @@ func httpInit() {
 	httpRouter.GET("/leaderboards", httpLeaderboards)
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
+	httpRouter.GET("/halloffame", httpHallOfFame)
+	httpRouter.GET("/hof", httpHallOfFame)
 	httpRouter.Static("/public", "../public")
 
 	// Figure out the port that we are using for the HTTP server
