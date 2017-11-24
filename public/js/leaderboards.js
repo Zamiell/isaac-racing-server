@@ -1,6 +1,12 @@
 let activeLeaderboard = 'unseeded';
 let transition = false;
 
+function hideAllNotes() {
+  $('#unseeded-notes-banner').css("display","none");
+  $('#unseeded-notes').css("display","none");
+  $('#diversity-notes-banner').css("display","none");
+  $('#diversity-notes').css("display","none");
+}
 function showLeaderboard(type) {
     // Header buttons
     $('#leaderboard-seeded-button').addClass('inactive');
@@ -8,11 +14,10 @@ function showLeaderboard(type) {
     $('#leaderboard-diversity-button').addClass('inactive');
     $('#leaderboard-other-button').addClass('inactive');
     $('#leaderboard-' + type + '-button').removeClass('inactive');
-
     // Fade out the old leaderboard and fade in the new one
     transition = true;
 
-
+    hideAllNotes();
     if (type == 'unseeded') {
         $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
             $('#leaderboard-' + type).add('#unseeded-notes-banner').add('#unseeded-notes').fadeIn(350, function() {
@@ -20,13 +25,20 @@ function showLeaderboard(type) {
                 transition = false;
             });
         });
+    } else if (type == 'diversity') {
+      $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
+          $('#leaderboard-' + type).add('#diversity-notes-banner').add('#diversity-notes').fadeIn(350, function() {
+              activeLeaderboard = type;
+              transition = false;
+          });
+      });
     } else {
-        $('#leaderboard-' + activeLeaderboard).add('#unseeded-notes-banner').add('#unseeded-notes').fadeOut(350, function() {
-            $('#leaderboard-' + type).fadeIn(350, function() {
-                activeLeaderboard = type;
-                transition = false;
-            });
-        });
+      $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
+          $('#leaderboard-' + type).add('#unseeded-notes-banner').add('#unseeded-notes').fadeIn(350, function() {
+              activeLeaderboard = type;
+              transition = false;
+          });
+      });
     }
 }
 
@@ -37,7 +49,8 @@ function pad(n, width, z) {
 }
 
 $(document).ready(function() {
-    CheckForHash();
+
+    hideAllNotes();
     // Unseeded things
     $('#leaderboard-unseeded-table').tablesorter();
     AdjustRank('unseeded');
@@ -53,6 +66,9 @@ $(document).ready(function() {
     AdjustRank('diversity');
     ConvertTime('diversity','lb-fastest');
     ConvertTimeStamp('diversity','td.lb-last-race a');
+    showLeaderboard('unseeded');
+    CheckForHash();
+
 });
 
 function ConvertTime(leaderboard, tableData) {

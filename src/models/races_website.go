@@ -25,12 +25,13 @@ type RaceHistory struct {
 
 // RaceHistoryParticipants gets the user stats for each racer in each race
 type RaceHistoryParticipants struct {
-	ID                int
-	RacerName         string
-	RacerPlace        int
-	RacerTime         string
-	RacerStartingItem int
-	RacerComment      string
+	ID                 int
+	RacerName          string
+	RacerPlace         int
+	RacerTime          string
+	RacerStartingItem  int
+	RacerStartingBuild int
+	RacerComment       string
 }
 
 // GetRacesHistory gets all data for all races
@@ -90,12 +91,16 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 				rp.place,
 				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
 				rp.starting_item,
+				r.starting_build,
 				rp.comment
 			FROM
 				race_participants rp
 			LEFT JOIN
 				users u
-				ON u.id = rp.user_id
+					ON u.id = rp.user_id
+			LEFT JOIN
+				races r
+					ON r.id = rp.race_id
 			WHERE
 				rp.race_id = ?
 			ORDER BY
@@ -117,6 +122,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 				&racer.RacerPlace,
 				&racer.RacerTime,
 				&racer.RacerStartingItem,
+				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
 				return nil, 0, err
@@ -190,21 +196,26 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 		var rows2 *sql.Rows
 		if v, err := db.Query(`
 			SELECT
-			    u.username,
-			    rp.place,
-			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
-			    rp.comment
+				u.username,
+				rp.place,
+				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.starting_item,
+				r.starting_build,
+				rp.comment
 			FROM
-			    race_participants rp
+				race_participants rp
 			LEFT JOIN
-			    users u
-			    ON u.id = rp.user_id
+				users u
+					ON u.id = rp.user_id
+			LEFT JOIN
+				races r
+					ON r.id = rp.race_id
 			WHERE
-			    rp.race_id = ?
+				rp.race_id = ?
 			ORDER BY
-			    CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
-			    rp.place,
-                rp.run_time;
+				CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
+				rp.place,
+				rp.run_time;
 		`, race.RaceID); err != nil {
 			return nil, err
 		} else {
@@ -219,6 +230,8 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 				&racer.RacerName,
 				&racer.RacerPlace,
 				&racer.RacerTime,
+				&racer.RacerStartingItem,
+				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
 				return nil, err
@@ -247,11 +260,10 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 			races r
 		LEFT JOIN
 			race_participants rp
-			ON rp.race_id = r.id
+				ON rp.race_id = r.id
 		LEFT JOIN
 			users u
-			ON u.id = rp.user_id
-
+				ON u.id = rp.user_id
 		WHERE
 			r.finished = 1
 			AND r.ranked = 1
@@ -288,21 +300,26 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 		var rows2 *sql.Rows
 		if v, err := db.Query(`
 			SELECT
-			    u.username,
-			    rp.place,
-			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
-			    rp.comment
+				u.username,
+				rp.place,
+				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.starting_item,
+				r.starting_build,
+				rp.comment
 			FROM
-			    race_participants rp
+				race_participants rp
 			LEFT JOIN
-			    users u
-			    ON u.id = rp.user_id
+				users u
+					ON u.id = rp.user_id
+			LEFT JOIN
+				races r
+					ON r.id = rp.race_id
 			WHERE
-			    rp.race_id = ?
+				rp.race_id = ?
 			ORDER BY
-			    CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
-			    rp.place,
-                rp.run_time;
+				CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
+				rp.place,
+				rp.run_time;
 		`, race.RaceID); err != nil {
 			return nil, err
 		} else {
@@ -317,6 +334,8 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 				&racer.RacerName,
 				&racer.RacerPlace,
 				&racer.RacerTime,
+				&racer.RacerStartingItem,
+				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
 				return nil, err
@@ -354,11 +373,10 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 			races r
 		LEFT JOIN
 			race_participants rp
-			ON rp.race_id = r.id
+				ON rp.race_id = r.id
 		LEFT JOIN
 			users u
-			ON u.id = rp.user_id
-
+				ON u.id = rp.user_id
 		WHERE
 			r.finished = 1
 			AND u.username = ?
@@ -394,21 +412,26 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 		var rows2 *sql.Rows
 		if v, err := db.Query(`
 			SELECT
-			    u.username,
-			    rp.place,
-			    CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
-			    rp.comment
+				u.username,
+				rp.place,
+				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.starting_item,
+				r.starting_build,
+				rp.comment
 			FROM
-			    race_participants rp
+				race_participants rp
 			LEFT JOIN
-			    users u
-			    ON u.id = rp.user_id
+				users u
+					ON u.id = rp.user_id
+			LEFT JOIN
+				races r
+					ON r.id = rp.race_id
 			WHERE
-			    rp.race_id = ?
+				rp.race_id = ?
 			ORDER BY
-			    CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
-			    rp.place,
-                rp.run_time;
+				CASE WHEN rp.place = -1 THEN 1 ELSE 0 END,
+				rp.place,
+				rp.run_time;
 		`, race.RaceID); err != nil {
 			return nil, err
 		} else {
@@ -423,6 +446,8 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 				&racer.RacerName,
 				&racer.RacerPlace,
 				&racer.RacerTime,
+				&racer.RacerStartingItem,
+				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
 				return nil, err

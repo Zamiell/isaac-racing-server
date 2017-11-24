@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    ConvertTimeProfileStamps('td.race-date');
+    ConvertTimeProfileStamps('td.races-td-date');
     ConvertTimeProfileStamps('span#join-date');
     ConvertTimeProfileStamps('td.ranked-racedate');
     ConvertTime('#unseeded-adjavg-val');
@@ -16,7 +16,7 @@ function ConvertTime(td) {
       if ($(this).html() > 0) {
         time = $(this).html();
         $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
-      } 
+      }
     });
 };
 

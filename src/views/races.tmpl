@@ -53,7 +53,7 @@
 						<th class="races-th-racer">Racer</th>
 						<th class="races-th-place">Place</th>
 						<th class="races-th-time">Time</th>
-						<th class="races-th-st-item">Starting<br />Item</th>
+						<th class="races-th-st-item">Start</th>
 						<!-- <th class="races-th-comment">Comment</th> -->
 					</tr>
 				</thead>
@@ -82,14 +82,23 @@
 								<td class=racername>
 									<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
 								</td>
-								{{ if eq .RacerPlace -1 -}}
+
+								{{ if eq .RacerPlace -1 -}} <!-- They quit -->
 									<td class="races-td-place">Quit</td>
 									<td class="races-td-time">&nbsp;</td>
-									<td class="races-td-st-item"><img src="/public/img/items/ {{- .RacerStartingItem -}} .png" /></td>
-								{{- else}}
+									{{ if lt .RacerStartingBuild 1 -}}
+										<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+									{{- else -}}
+										<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+									{{- end -}}
+								{{- else}} <!-- They finished, yes this is backwards hehe -->
 									<td class="races-td-place">{{ .RacerPlace }}</td>
 									<td class="races-td-time">{{ .RacerTime }}</td>
-									<td class="races-td-st-item"><img src="/public/img/items/ {{- .RacerStartingItem -}} .png" /></td>
+									{{ if lt .RacerStartingBuild 1 -}}
+										<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+									{{- else -}}
+										<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+									{{- end -}}
 								{{- end }}
 								<!-- {{ if ne .RacerComment "-" -}}
 									<td	title="{{ .RacerComment }}" class="races-td-comment"> {{ .RacerComment }}</td>

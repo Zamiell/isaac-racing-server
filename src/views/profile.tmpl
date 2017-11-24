@@ -109,45 +109,58 @@
 				<table id="race-listing-table">
 					<thead>
 						<tr>
-							<th>ID</th>
-							<th>Date &amp; Time</th>
-							<th>Ranked</th>
-							<th>Format</th>
-							<th>Character</th>
-							<th>Goal</th>
-							<th>Racer</th>
-							<th>Place</th>
-							<th>Time</th>
-							<th>Comment</th>
+							<th class="races-th-id">ID</th>
+							<th class="races-th-date">Date &amp; Time</th>
+							<th class="races-th-format">Format</th>
+							<th class="races-th-char">Character</th>
+							<th class="races-th-goal">Goal</th>
+							<th class="races-th-racer">Racer</th>
+							<th class="races-th-place">Place</th>
+							<th class="races-th-time">Time</th>
+							<th class="races-th-st-item">Start</th>
+							<!-- <th class="races-th-comment">Comment</th> -->
 						</tr>
 					</thead>
 					<tbody>
 						{{ range .RaceResultsAll }}
-							<tr>
-								{{ $racers := len .RaceParticipants }}
-								<td rowspan="{{ $racers }}"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
-								<td id="racedate-{{ .RaceID }}" class="race-date" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
-								<td rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
-								<td rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
-								<td rowspan="{{ $racers }}"><img  src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
-								<td rowspan="{{ $racers }}"><img  src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
+						<tr>
+							{{ $racers := len .RaceParticipants }}
+							<td rowspan="{{ $racers }}" id="race-{{ .RaceID }}" class="races-td-id"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
+							<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID }}" class="races-td-date"> {{ .RaceDateStart }}</td>
+							<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID }}" class="races-td-format">
+								<!-- <span id="racesize-{{ .RaceID }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
+								<span id="racetype-{{ .RaceID }}" class="race-types"><img  height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize 0 -}} -solo {{- end }}.png" /></span>
+								<span id="raceformat-{{ .RaceID }}" class="race-formats"><img  height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" /></span>
+							</td>
+							<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID }}" class="races-td-char"><img src="/public/img/characters/{{ .RaceChar }}.png" /></td>
+							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID }}" class="races-td-goal"><img src="/public/img/goals/{{ .RaceGoal }}.png" /></td>
 
 								{{ range $index, $results := .RaceParticipants }}
-									<td class=racername>
-										<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
-									</td>
-									{{ if eq .RacerPlace -1 -}}
-										<td>Quit</td>
-										<td>&nbsp;</td>
-									{{- else}}
-										<td>{{ .RacerPlace }}</td>
-										<td>{{ .RacerTime }}</td>
+									<td class=racername><a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a></td>
+									{{ if eq .RacerPlace -1 -}} <!-- They quit -->
+										<td class="races-td-place">Quit</td>
+										<td class="races-td-time">&nbsp;</td>
+										{{ if lt .RacerStartingBuild 1 -}}
+											<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+										{{- else -}}
+											<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+										{{- end -}}
+									{{- else}} <!-- They finished, yes this is backwards hehe -->
+										<td class="races-td-place">{{ .RacerPlace }}</td>
+										<td class="races-td-time">{{ .RacerTime }}</td>
+										{{ if lt .RacerStartingBuild 1 -}}
+											<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+										{{- else -}}
+											<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+										{{- end -}}
 									{{- end }}
+									<!--
 									{{ if ne .RacerComment "-" -}}
 										<td	title="{{ .RacerComment }}"> {{ .RacerComment }}</td>
 									{{- else}}
 										<td>&nbsp;</td>
 									{{ end }}
+									-->
 								<tr>
 								{{ end }}
 								</tr>
@@ -167,54 +180,67 @@
 				<table id="race-listing-table">
 					<thead>
 						<tr>
-							<th>ID</th>
-							<th>Date &amp; Time</th>
-							<th>Ranked</th>
-							<th>Format</th>
-							<th>Character</th>
-							<th>Goal</th>
-							<th>Racer</th>
-							<th>Place</th>
-							<th>Time</th>
-							<th>Comment</th>
+							<th class="races-th-id">ID</th>
+							<th class="races-th-date">Date &amp; Time</th>
+							<th class="races-th-format">Format</th>
+							<th class="races-th-char">Character</th>
+							<th class="races-th-goal">Goal</th>
+							<th class="races-th-racer">Racer</th>
+							<th class="races-th-place">Place</th>
+							<th class="races-th-time">Time</th>
+							<th class="races-th-st-item">Start</th>
+							<!-- <th class="races-th-comment">Comment</th> -->
 						</tr>
 					</thead>
 					<tbody>
 						{{ range .RaceResultsRanked }}
-							<tr>
-								{{ $racers := len .RaceParticipants }}
-								<td id="ranked-raceid-{{ .RaceID }}" class="ranked-raceid" rowspan="{{ $racers }}"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
-								<td id="ranked-racedate-{{ .RaceID }}" class="ranked-racedate" rowspan="{{ $racers }}"> {{ .RaceDateStart }}</td>
-								<td id="ranked-raceranked-{{ .RaceID }}" class="ranked-raceranked" rowspan="{{ $racers }}"><img src="/public/img/ranked/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}.png" title="{{ if eq .RaceType "0" -}} Unranked {{- else -}} Ranked {{- end }}" /></td>
-								<td id="ranked-raceformat-{{ .RaceID }}" class="ranked-raceformat" rowspan="{{ $racers }}"><img height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" title="{{ .RaceFormat }}" /></td>
-								<td id="ranked-racechar-{{ .RaceID }}" class="ranked-racechar" rowspan="{{ $racers }}"><img src="/public/img/characters/{{ .RaceChar }}.png" title="{{ .RaceChar }}" /></td>
-								<td id="ranked-racegoal-{{ .RaceID }}" class="ranked-racegoal" rowspan="{{ $racers }}"><img src="/public/img/goals/{{ .RaceGoal }}.png" title="{{ .RaceGoal }}" /></td>
+						<tr>
+							{{ $racers := len .RaceParticipants }}
+							<td rowspan="{{ $racers }}" id="race-{{ .RaceID }}" class="races-td-id"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
+							<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID }}" class="races-td-date"> {{ .RaceDateStart }}</td>
+							<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID }}" class="races-td-format">
+								<!-- <span id="racesize-{{ .RaceID }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
+								<span id="racetype-{{ .RaceID }}" class="race-types"><img  height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize 0 -}} -solo {{- end }}.png" /></span>
+								<span id="raceformat-{{ .RaceID }}" class="race-formats"><img  height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" /></span>
+							</td>
+							<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID }}" class="races-td-char"><img src="/public/img/characters/{{ .RaceChar }}.png" /></td>
+							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID }}" class="races-td-goal"><img src="/public/img/goals/{{ .RaceGoal }}.png" /></td>
 
-								{{ range $index, $results := .RaceParticipants }}
-									<td id="ranked-racername-{{ .RacerName }}" class="ranked-racername">
-										<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
-									</td>
-									{{ if eq .RacerPlace -1 -}}
-										<td>Quit</td>
-										<td>&nbsp;</td>
-									{{- else}}
-										<td>{{ .RacerPlace }}</td>
-										<td>{{ .RacerTime }}</td>
-									{{- end }}
-									{{ if ne .RacerComment "-" -}}
-										<td	title="{{ .RacerComment }}"> {{ .RacerComment }}</td>
-									{{- else}}
-										<td>&nbsp;</td>
-									{{ end }}
-								<tr>
-								{{ end }}
-								</tr>
+							{{ range $index, $results := .RaceParticipants }}
+							<td class=racername><a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a></td>
+							{{ if eq .RacerPlace -1 -}} <!-- They quit -->
+								<td class="races-td-place">Quit</td>
+								<td class="races-td-time">&nbsp;</td>
+								{{ if lt .RacerStartingBuild 1 -}}
+									<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+								{{- else -}}
+									<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+								{{- end -}}
+							{{- else}} <!-- They finished, yes this is backwards hehe -->
+								<td class="races-td-place">{{ .RacerPlace }}</td>
+								<td class="races-td-time">{{ .RacerTime }}</td>
+								{{ if lt .RacerStartingBuild 1 -}}
+									<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+								{{- else -}}
+									<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+								{{- end -}}
+							{{- end }}
+							<!--
+							{{ if ne .RacerComment "-" -}}
+								<td	title="{{ .RacerComment }}"> {{ .RacerComment }}</td>
+							{{- else}}
+								<td>&nbsp;</td>
+							{{ end }}
+							-->
+							<tr>
+							{{ end }}
 							</tr>
-						{{- end }}
-					</tbody>
-				</table>
-			</div>
-		</section>
-	{{ end }}
+						</tr>
+					{{- end }}
+				</tbody>
+			</table>
+		</div>
+	</section>
+{{ end }}
 </section>
 {{end}}

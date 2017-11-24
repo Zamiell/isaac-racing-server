@@ -1,4 +1,10 @@
 /* Treasure Room Builds */
+CREATE TABLE seeded_builds (
+  id        int NOT NULL  PRIMARY KEY AUTO_INCREMENT,
+  item_id   int NOT NULL,
+  build_id  int NOT NULL
+);
+
 INSERT INTO seeded_builds (item_id, build_id) VALUES(245, 1);
 INSERT INTO  seeded_builds (item_id, build_id) VALUES (69,2);
 INSERT INTO  seeded_builds (item_id, build_id) VALUES (224,3);
