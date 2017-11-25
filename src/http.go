@@ -57,6 +57,12 @@ type TemplateData struct {
 	LeaderboardUnseeded  []models.LeaderboardRowUnseeded
 	LeaderboardDiversity []models.LeaderboardRowDiversity
 	//LeaderboardSeeded []models.LeaderboardRowSeeded
+
+	// Hall of Fame stuff
+	Season1r9  []models.SpeedRun
+	Season1r14 []models.SpeedRun
+	Season2r7  []models.SpeedRun
+	Season3r7  []models.SpeedRun
 }
 
 /*

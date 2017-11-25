@@ -56,18 +56,6 @@ tr td.lb-last-race, td.lb-num-for {
   white-space: nowrap;
 }
 
-table.tablesorter thead tr .headerSortUp {
-  background-image: url(/public/img/asc.gif);
-  background-repeat: no-repeat;
-  background-position: center bottom;
-}
-
-table.tablesorter thead tr .headerSortDown {
-  background-image: url(/public/img/desc.gif);
-  background-repeat: no-repeat;
-  background-position: center bottom;
-}
-
 th.header:hover {
   background-color: rgb(220,220,220);
   cursor: pointer;

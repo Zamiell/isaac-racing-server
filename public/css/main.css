@@ -3,6 +3,7 @@
 @import url("race.css");
 @import url("leaderboards.css");
 @import url("profiles.css");
+@import url("halloffame.css");
 /*
   Alpha by HTML5 UP
   html5up.net | @ajlkn
@@ -1816,7 +1817,7 @@
     a:hover {
       border-bottom-color: transparent;
     }
-    
+
     a#twitchUrl:link {
       border-bottom-color: transparent;
     }
@@ -3869,4 +3870,16 @@
     margin: 0 0 2em 0;
     padding: .5em;
     text-align: center;
+  }
+
+  table.tablesorter thead tr .headerSortUp {
+    background-image: url(/public/img/asc.gif);
+    background-repeat: no-repeat;
+    background-position: center bottom;
+  }
+
+  table.tablesorter thead tr .headerSortDown {
+    background-image: url(/public/img/desc.gif);
+    background-repeat: no-repeat;
+    background-position: center bottom;
   }

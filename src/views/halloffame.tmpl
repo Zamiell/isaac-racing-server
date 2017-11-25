@@ -1,7 +1,39 @@
 {{define "content"}}
 <!-- Main -->
 
-<section id="profile-main" class="container">
-  hi
+<section id="main" class="container">
+  <header class="top">
+    <h2>Hall Of Fame</h2>
+    <p>The very best amongst you</p>
+  </header>
+
+  <section id="hof-season1r9" class="box">
+    <div class="table-wrapper">
+      <table id="season1r9-table" class="alt lb tablesorter">
+        <thead>
+          <tr>
+            <th class="s1r9-th-rank">Rank</th>
+            <th class="s1r9-th-racer">Player</th>
+            <th class="s1r9-th-time">Time</th>
+            <th class="s1r9-th-date" data-sorter="false">Date</th>
+            <th class="s1r9-th-proof" data-sorter="false">Highlight</th>
+          </tr>
+        </thead>
+        <tfooter>
+        </tfooter>
+        <tbody>
+          {{ range .Season1r9 }}
+            <tr>
+              <td id="s1r9-rank-{{ .Racer }}" class="s1r9-td-rank"> {{ .Rank }} </td>
+              <td id="s1r9-racer-{{ .Racer }}" class="s1r9-td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+              <td id="s1r9-time-{{ .Racer }}" class="s1r9-td-time">{{ .Time }}</td>
+              <td id="s1r9-date-{{ .Racer }}" class="s1r9-td-date">{{ .Date }}</td>
+              <td id="s1r9-proof-{{ .Racer }}" class="s1r9-td-proof"><a href="{{ .Proof }}"><img height="16px" width="16px" src="public/img/Glitch_Purple_RGB.png" /></a></td>
+            </tr>
+          {{ end }}
+        </tbody>
+      </table>
+    </div>
+  </section>
 </section>
 {{ end }}
