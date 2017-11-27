@@ -183,7 +183,7 @@ func httpHallOfFame(c *gin.Context) {
 		models.SpeedRun{
 			Rank:        4,
 			Racer:       "yamayamadingdong",
-			ProfileName: "yamayamadingdong",
+			ProfileName: "yama",
 			Time:        9837,
 			Version:     "",
 			Date:        "2017-09-15",
