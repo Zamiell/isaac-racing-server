@@ -1,7 +1,10 @@
+let activeLeaderboard = 'season1r9';
+let transition = false;
+
 $(document).ready(function () {
+        ConvertTimeStamps('td.td-date');
+        ConvertTimes('td.td-time');
         // Season 1 R+9 functions
-        ConvertTimeStamps('td.s1r9-td-date');
-        ConvertTimes('td.s1r9-td-time');
         $('#season1r9-table').tablesorter({
           headers:{
             '.hof-th-date, .hof-th-proof' : {
@@ -10,8 +13,33 @@ $(document).ready(function () {
           }
         });
         // Season 1 R+14 functions
+        $('#season1r14-table').tablesorter({
+          headers:{
+            '.hof-th-date, .hof-th-proof' : {
+              sorter: false
+            }
+          }
+        });
         // Season 2 R+7 functions
+        $('#season2r7-table').tablesorter({
+          headers:{
+            '.hof-th-date, .hof-th-proof' : {
+              sorter: false
+            }
+          }
+        });
         // Season 3 R+7 functions
+        /*
+        $('#season3r7-table').tablesorter({
+          headers:{
+            '.hof-th-date, .hof-th-proof' : {
+              sorter: false
+            }
+          }
+        });
+        */
+        hideAllBoards();
+        selectLeaderboard(activeLeaderboard);
 });
 
 function pad(n, width, z) {
@@ -53,3 +81,44 @@ function ConvertTimes (td) {
     $(this).html(h + "h " + m + "m " + s + "s")
   });
 };
+
+function hideAllBoards() {
+  $('#hof-season1r9').css("display","none");
+  $('#hof-season1r14').css("display","none");
+  $('#hof-season2r7').css("display","none");
+  //$('#hof-season3r7').css("display","none");
+}
+
+function selectLeaderboard(type) {
+  transition = true;
+
+  if (type == 'season1r9') {
+      $('#hof-' + activeLeaderboard).fadeOut(350, function() {
+          $('#hof-' + type).fadeIn(350, function() {
+              activeLeaderboard = type;
+              transition = false;
+          });
+      });
+  } else if (type == 'season1r14') {
+    $('#hof-' + activeLeaderboard).fadeOut(350, function() {
+        $('#hof-' + type).fadeIn(350, function() {
+            activeLeaderboard = type;
+            transition = false;
+        });
+    });
+  } else if (type == 'season2r7') {
+    $('#hof-' + activeLeaderboard).fadeOut(350, function() {
+        $('#hof-' + type).fadeIn(350, function() {
+            activeLeaderboard = type;
+            transition = false;
+        });
+    });
+  } else if (type == 'season3r7') {
+      $('#hof-' + activeLeaderboard).fadeOut(350, function() {
+          $('#hof-' + type).fadeIn(350, function() {
+              activeLeaderboard = type;
+              transition = false;
+          });
+      });
+  }
+}

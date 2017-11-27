@@ -8,38 +8,32 @@ function hideAllNotes() {
   $('#diversity-notes').css("display","none");
 }
 function showLeaderboard(type) {
-    // Header buttons
-    $('#leaderboard-seeded-button').addClass('inactive');
-    $('#leaderboard-unseeded-button').addClass('inactive');
-    $('#leaderboard-diversity-button').addClass('inactive');
-    $('#leaderboard-other-button').addClass('inactive');
-    $('#leaderboard-' + type + '-button').removeClass('inactive');
-    // Fade out the old leaderboard and fade in the new one
-    transition = true;
+  console.log(type);
+  transition = true;
 
-    hideAllNotes();
-    if (type == 'unseeded') {
-        $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
-            $('#leaderboard-' + type).add('#unseeded-notes-banner').add('#unseeded-notes').fadeIn(350, function() {
-                activeLeaderboard = type;
-                transition = false;
-            });
+  hideAllNotes();
+  if (type == 'season1r9') {
+      $(type).fadeOut(350, function() {
+          $(type).add(type).fadeIn(350, function() {
+              activeLeaderboard = type;
+              transition = false;
+          });
+      });
+  } else if (type == 'season1r14') {
+    $(type).fadeOut(350, function() {
+        $(type).fadeIn(350, function() {
+            activeLeaderboard = type;
+            transition = false;
         });
-    } else if (type == 'diversity') {
-      $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
-          $('#leaderboard-' + type).add('#diversity-notes-banner').add('#diversity-notes').fadeIn(350, function() {
-              activeLeaderboard = type;
-              transition = false;
-          });
-      });
-    } else {
-      $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
-          $('#leaderboard-' + type).add('#unseeded-notes-banner').add('#unseeded-notes').fadeIn(350, function() {
-              activeLeaderboard = type;
-              transition = false;
-          });
-      });
-    }
+    });
+  } else {
+    $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
+        $('#leaderboard-' + type).add('#unseeded-notes-banner').add('#unseeded-notes').fadeIn(350, function() {
+            activeLeaderboard = type;
+            transition = false;
+        });
+    });
+  }
 }
 
 function pad(n, width, z) {

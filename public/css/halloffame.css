@@ -1,2 +1,11 @@
-.s1r9-td-proof {
+.td-proof {
   width: 50px;
+  padding-top: 0.5em;
+  vertical-align: middle;
+}
+
+.be-half {
+  width: 50% !important;
+  display: block;
+  margin: 0 auto;
+}
