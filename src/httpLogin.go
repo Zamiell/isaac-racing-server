@@ -72,28 +72,19 @@ func httpLogin(c *gin.Context) {
 		return
 	}
 
-	// Validate that the version is the latest version
-	// (unless this is a test account)
-	if steamIDint, err := strconv.Atoi(steamID); err != nil {
+	// Validate that the provided Steam ID is sane
+	var steamIDint int
+	if v, err := strconv.Atoi(steamID); err != nil {
 		log.Error("Failed to convert the steam ID to an integer.")
 		http.Error(w, "You provided an invalid \"steamID\".", http.StatusUnauthorized)
 		return
-	} else if steamIDint > 0 {
-		latestVersionRaw, err := ioutil.ReadFile(path.Join(projectPath, "latest_client_version.txt"))
-		if err != nil {
-			log.Error("Failed to read the \"latest_client_version.txt\" file:", err)
-			return
-		}
-		latestVersion := string(latestVersionRaw)
-		latestVersion = strings.TrimSpace(latestVersion)
-		if len(latestVersion) == 0 {
-			log.Error("The \"latest_client_version.txt\" file is empty, so users will not be able to login to the WebSocket server.")
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-		if version != latestVersion {
-			errorMsg := "Your client version is <strong>" + version + "</strong> and the latest version is <strong>" + latestVersion + "</strong>.<br /><br />Please restart the Racing+ program and it should automatically update to the latest version. If that does not work, you can try manually downloading the latest version from the Racing+ website."
-			http.Error(w, errorMsg, http.StatusUnauthorized)
+	} else {
+		steamIDint = v
+	}
+
+	// Validate that the Racing+ client version is the latest version
+	if steamIDint > 0 {
+		if !validateLatestVersion(version, w) {
 			return
 		}
 	}
@@ -268,6 +259,34 @@ func validateSteamTicket(steamID string, ticket string, ip string, w http.Respon
 	} else if ticketSteamID != steamID {
 		log.Warning("A user from IP \"" + ip + "\" submitted a Steam ticket that does not match their submitted Steam ID.")
 		http.Error(w, invalidMessage, http.StatusUnauthorized)
+		return false
+	}
+
+	return true
+}
+
+func validateLatestVersion(version string, w http.ResponseWriter) bool {
+	// Make an exception for users on macOS
+	if version == "macOS" {
+		return true
+	}
+
+	latestVersionRaw, err := ioutil.ReadFile(path.Join(projectPath, "latest_client_version.txt"))
+	if err != nil {
+		log.Error("Failed to read the \"latest_client_version.txt\" file:", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return false
+	}
+	latestVersion := string(latestVersionRaw)
+	latestVersion = strings.TrimSpace(latestVersion)
+	if len(latestVersion) == 0 {
+		log.Error("The \"latest_client_version.txt\" file is empty, so users will not be able to login to the WebSocket server.")
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return false
+	}
+	if version != latestVersion {
+		errorMsg := "Your client version is <strong>" + version + "</strong> and the latest version is <strong>" + latestVersion + "</strong>.<br /><br />Please restart the Racing+ program and it should automatically update to the latest version. If that does not work, you can try manually downloading the latest version from the Racing+ website."
+		http.Error(w, errorMsg, http.StatusUnauthorized)
 		return false
 	}
 
