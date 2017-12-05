@@ -206,12 +206,13 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		return profileData, nil
 	} else if err != nil {
 		return profileData, err
-	} else {
-		// Convert the int to a bool
-		if rawVerified == 1 {
-			profileData.Verified = true
-		}
 	}
+
+	// Convert the int to a bool
+	if rawVerified == 1 {
+		profileData.Verified = true
+	}
+
 	return profileData, nil
 }
 
