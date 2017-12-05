@@ -1,6 +1,6 @@
-# ------------------------------
-# gitignore template from GitHub
-# ------------------------------
+# --------------------------
+# GitHub .gitignore Template
+# --------------------------
 
 # Compiled Object files, Static and Dynamic libs (Shared Objects)
 *.o
@@ -27,9 +27,9 @@ _testmain.go
 *.test
 *.prof
 
-# ----------------------------------
-# isaac-racing-server specific stuff
-# ----------------------------------
+# -------------------------
+# isaac-racing-server stuff
+# -------------------------
 
 # Contains secrets
 .env
