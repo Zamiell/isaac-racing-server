@@ -229,8 +229,6 @@ func (*Users) GetTotalTime(username string) (int, error) {
 		return 0, nil
 	} else if err != nil {
 		return 0, err
-	} else if totalTime.Value == nil {
-		return 0, nil
 	}
 	var returnTime int
 	returnTime = int(totalTime.Int64)
