@@ -52,6 +52,7 @@ type TemplateData struct {
 	TotalProfileCount int
 	UsersPerPage      int
 	TotalTime         int
+	MissingPlayer     string
 
 	// Leaderboard stuff
 	LeaderboardUnseeded  []models.LeaderboardRowUnseeded

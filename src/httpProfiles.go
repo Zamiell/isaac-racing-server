@@ -67,8 +67,13 @@ func httpProfile(c *gin.Context) {
 	// Get the player data
 	playerData, err := db.Users.GetProfileData(player)
 	if err != nil {
-		log.Error("Failed to get player '", player, "' data from the database: ", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		log.Error("Failed to get player data from the database: ", err)
+		// http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		data := TemplateData{
+			Title:         "Profile Missing",
+			MissingPlayer: player,
+		}
+		httpServeTemplate(w, "noprofile", data)
 		return
 	}
 
