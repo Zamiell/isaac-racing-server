@@ -136,7 +136,7 @@ func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
 */
 
 // GetProfileData gets player data to populate the player's profile page
-func (*Users) GetProfileData(username string) (ProfileData, error) {
+func (*Users) GetProfileData(userID int) (ProfileData, error) {
 	var profileData ProfileData
 	if err := db.QueryRow(`
 		SELECT
@@ -174,9 +174,8 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 				races r
 				ON r.id = rp.race_id
 		WHERE
-			steam_id > 0
-			AND username = ?
-	`, username).Scan(
+			u.id = ?
+	`, userID).Scan(
 		&profileData.Username,
 		&profileData.DatetimeCreated,
 		&profileData.DatetimeLastLogin,
