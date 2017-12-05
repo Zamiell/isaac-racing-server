@@ -55,16 +55,16 @@ type ProfilesRow struct {
 
 // ProfileData has all data for each racer
 type ProfileData struct {
-	Username          string
+	Username          sql.NullString
 	DatetimeCreated   time.Time
 	DatetimeLastLogin time.Time
-	Admin             int
+	Admin             sql.NullInt64
 	Verified          bool
 	StatsSeeded       StatsSeeded
 	StatsUnseeded     StatsUnseeded
 	StatsDiversity    StatsDiversity
 	TotalRaces        sql.NullInt64
-	StreamURL         string
+	StreamURL         sql.NullString
 	Banned            bool
 }
 
@@ -138,7 +138,6 @@ func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
 // GetProfileData gets player data to populate the player's profile page
 func (*Users) GetProfileData(username string) (ProfileData, error) {
 	var profileData ProfileData
-	var rawVerified int
 	if err := db.QueryRow(`
 		SELECT
 			u.username,
@@ -165,7 +164,6 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 			COUNT(rp.race_id),
 			u.stream_url,
 			CASE WHEN u.id IN (SELECT user_id FROM banned_users) THEN 1 ELSE 0 END AS BIT
-
 			FROM
 				users u
 			LEFT JOIN
