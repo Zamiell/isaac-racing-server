@@ -163,7 +163,8 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 			u.diversity_last_race,
 			COUNT(rp.race_id),
 			u.stream_url,
-			CASE WHEN u.id IN (SELECT user_id FROM banned_users) THEN 1 ELSE 0 END AS BIT
+			CASE WHEN u.id IN (SELECT user_id FROM banned_users) THEN 1 ELSE 0 END
+
 			FROM
 				users u
 			LEFT JOIN
@@ -180,7 +181,7 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		&profileData.DatetimeCreated,
 		&profileData.DatetimeLastLogin,
 		&profileData.Admin,
-		&rawVerified,
+		&profileData.Verified,
 		&profileData.StatsSeeded.TrueSkill,
 		&profileData.StatsSeeded.Sigma,
 		&profileData.StatsSeeded.NumRaces,
@@ -202,11 +203,6 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		&profileData.Banned,
 	); err != nil {
 		return profileData, err
-	}
-
-	// Convert the int to a bool
-	if rawVerified == 1 {
-		profileData.Verified = true
 	}
 
 	return profileData, nil
