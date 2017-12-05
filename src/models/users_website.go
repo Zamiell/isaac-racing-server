@@ -202,9 +202,7 @@ func (*Users) GetProfileData(username string) (ProfileData, error) {
 		&profileData.TotalRaces,
 		&profileData.StreamURL,
 		&profileData.Banned,
-	); err == sql.ErrNoRows {
-		return profileData, nil
-	} else if err != nil {
+	); err != nil {
 		return profileData, err
 	}
 

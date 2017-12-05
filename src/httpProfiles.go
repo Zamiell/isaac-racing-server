@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"math"
 	"net/http"
 	"strconv"
@@ -24,7 +25,6 @@ func httpProfiles(c *gin.Context) {
 
 	// Get profile data from the database
 	userProfiles, totalProfileCount, err := db.Users.GetUserProfiles(currentPage, usersPerPage)
-
 	if err != nil {
 		log.Error("Failed to get the user profile data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -66,15 +66,17 @@ func httpProfile(c *gin.Context) {
 
 	// Get the player data
 	playerData, err := db.Users.GetProfileData(player)
-	if err != nil {
-		// Only log an info warning about which link they tried
-		log.Info("Failed to get player, '", player, "' data from the database: ", err)
+	if err == sql.ErrNoRows {
 		// Create data template and serve
 		data := TemplateData{
 			Title:         "Profile Missing",
 			MissingPlayer: player,
 		}
 		httpServeTemplate(w, "noprofile", data)
+		return
+	} else if err != nil {
+		log.Error("Failed to get player, '" + player + "' data from the database: " + err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
