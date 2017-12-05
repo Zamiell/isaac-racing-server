@@ -55,16 +55,16 @@ type ProfilesRow struct {
 
 // ProfileData has all data for each racer
 type ProfileData struct {
-	Username          sql.NullString
+	Username          string
 	DatetimeCreated   time.Time
 	DatetimeLastLogin time.Time
-	Admin             sql.NullInt64
+	Admin             int
 	Verified          bool
 	StatsSeeded       StatsSeeded
 	StatsUnseeded     StatsUnseeded
 	StatsDiversity    StatsDiversity
 	TotalRaces        sql.NullInt64
-	StreamURL         sql.NullString
+	StreamURL         string
 	Banned            bool
 }
 
