@@ -28,10 +28,6 @@ var (
 	commandMutex = new(sync.Mutex)
 )
 
-/*
-	Initialization function
-*/
-
 func websocketInit() {
 	/*
 		Define all of the WebSocket commands
@@ -75,7 +71,7 @@ func websocketInit() {
 
 	*/
 
-	// Miscellaneous
+	// Miscellaneous commands
 	commandHandlerMap["debug"] = websocketDebug
 
 	// Define a new Melody router and attach a message handler

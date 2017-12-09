@@ -116,7 +116,7 @@ func httpInit() {
 	sessionStore.Options(options)
 	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
 
-	// Use the Tollbooth Gin middleware for Google Analytics tracking
+	// Use the Tollbooth Gin middleware for rate limiting
 	limiter := tollbooth.NewLimiter(1, nil) // Limit each user to 1 request per second
 	// When a user requests "/", they will also request the CSS and images;
 	// this middleware is smart enough to know that it is considered part of the first request
