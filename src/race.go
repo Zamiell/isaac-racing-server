@@ -368,8 +368,16 @@ func (race *Race) Finish() {
 		return
 	}
 	if race.Ruleset.Format == "seeded" {
-		leaderboardUpdateSeeded(race)
+		if race.Ruleset.Solo {
+			leaderboardUpdateSoloSeeded(race)
+		} else {
+			leaderboardUpdateSeeded(race)
+		}
 	} else if race.Ruleset.Format == "unseeded" {
-		leaderboardUpdateUnseeded(race)
+		if race.Ruleset.Solo {
+			leaderboardUpdateSoloUnseeded(race)
+		} else {
+			leaderboardUpdateUnseeded(race)
+		}
 	}
 }

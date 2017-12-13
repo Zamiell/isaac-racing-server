@@ -55,16 +55,16 @@ type ProfilesRow struct {
 
 // ProfileData has all data for each racer
 type ProfileData struct {
-	Username          string
+	Username          sql.NullString
 	DatetimeCreated   time.Time
 	DatetimeLastLogin time.Time
-	Admin             int
+	Admin             sql.NullInt64
 	Verified          bool
 	StatsSeeded       StatsSeeded
 	StatsUnseeded     StatsUnseeded
 	StatsDiversity    StatsDiversity
 	TotalRaces        sql.NullInt64
-	StreamURL         string
+	StreamURL         sql.NullString
 	Banned            bool
 }
 
@@ -78,61 +78,6 @@ type LeaderboardRowMostPlayed struct {
 
 /*
 	Functions
-*/
-
-/*
-func (*Users) GetStatsSeeded(username string) (StatsSeeded, error) {
-	var stats StatsSeeded
-	if err := db.QueryRow(`
-		SELECT
-			seeded_trueskill,
-			seeded_trueskill_sigma,
-			seeded_num_races,
-			seeded_last_race
-		FROM
-			users
-		WHERE
-			username = ?
-	`, username).Scan(
-		&stats.ELO,
-		&stats.NumSeededRaces,
-		&stats.LastSeededRace,
-	); err != nil {
-		return stats, err
-	} else {
-		return stats, nil
-	}
-}
-
-func (*Users) GetStatsUnseeded(username string) (StatsUnseeded, error) {
-	var stats StatsUnseeded
-	if err := db.QueryRow(`
-		SELECT
-			unseeded_adjusted_average,
-			unseeded_real_average,
-			num_unseeded_races,
-			num_forfeits,
-			forfeit_penalty,
-			lowest_unseeded_time,
-			last_unseeded_race
-		FROM
-			users
-		WHERE
-			username = ?
-	`, username).Scan(
-		&stats.UnseededAdjustedAverage,
-		&stats.UnseededRealAverage,
-		&stats.NumUnseededRaces,
-		&stats.NumForfeits,
-		&stats.ForfeitPenalty,
-		&stats.LowestUnseededTime,
-		&stats.LastUnseededRace,
-	); err != nil {
-		return stats, err
-	} else {
-		return stats, nil
-	}
-}
 */
 
 // GetProfileData gets player data to populate the player's profile page
@@ -149,13 +94,13 @@ func (*Users) GetProfileData(userID int) (ProfileData, error) {
 			ROUND(u.seeded_trueskill_sigma, 2),
 			u.seeded_num_races,
 			u.seeded_last_race,
-			u.unseeded_adjusted_average,
-			u.unseeded_real_average,
-			u.unseeded_num_races,
-			u.unseeded_num_forfeits,
-			u.unseeded_forfeit_penalty,
-			u.unseeded_lowest_time,
-			u.unseeded_last_race,
+			u.unseeded_solo_adjusted_average,
+			u.unseeded_solo_real_average,
+			u.unseeded_solo_num_races,
+			u.unseeded_solo_num_forfeits,
+			u.unseeded_solo_forfeit_penalty,
+			u.unseeded_solo_lowest_time,
+			u.unseeded_solo_last_race,
 			ROUND(u.diversity_trueskill, 2),
 			ROUND(u.diversity_trueskill_sigma, 2),
 			ROUND(u.diversity_trueskill_change, 2),
@@ -163,8 +108,7 @@ func (*Users) GetProfileData(userID int) (ProfileData, error) {
 			u.diversity_last_race,
 			COUNT(rp.race_id),
 			u.stream_url,
-			CASE WHEN u.id IN (SELECT user_id FROM banned_users) THEN 1 ELSE 0 END
-
+			CASE WHEN u.id IN (SELECT user_id FROM banned_users) THEN 1 ELSE 0 END AS BIT
 			FROM
 				users u
 			LEFT JOIN
@@ -228,6 +172,8 @@ func (*Users) GetTotalTime(username string) (int, error) {
 		return 0, nil
 	} else if err != nil {
 		return 0, err
+	} else if totalTime.Value == nil {
+		return 0, nil
 	}
 	var returnTime int
 	returnTime = int(totalTime.Int64)
@@ -332,13 +278,13 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 	if v, err := db.Query(`
 		SELECT
 			u.username,
-			u.unseeded_adjusted_average,
-			u.unseeded_real_average,
-			u.unseeded_num_races,
-			u.unseeded_num_forfeits,
-			u.unseeded_forfeit_penalty,
-			u.unseeded_lowest_time,
-			u.unseeded_last_race,
+			u.unseeded_solo_adjusted_average,
+			u.unseeded_solo_real_average,
+			u.unseeded_solo_num_races,
+			u.unseeded_solo_num_forfeits,
+			u.unseeded_solo_forfeit_penalty,
+			u.unseeded_solo_lowest_time,
+			u.unseeded_solo_last_race,
 			MAX(rp.race_id),
 			u.verified,
 			u.stream_url
@@ -354,7 +300,7 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 		GROUP BY
 			u.username
 		ORDER BY
-			unseeded_adjusted_average ASC
+			unseeded_solo_adjusted_average ASC
 		LIMIT ?
 	`, racesNeeded, racesLimit); err != nil {
 		return nil, err

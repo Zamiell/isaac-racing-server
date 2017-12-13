@@ -27,19 +27,34 @@ CREATE TABLE users (
     verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitimate player on the leaderboard */
 
     /* Seeded leaderboard values */
-    seeded_trueskill        FLOAT      NOT NULL  DEFAULT 25,
+    seeded_trueskill        FLOAT      NOT NULL  DEFAULT 0,
+    seeded_trueskill_mu     FLOAT      NOT NULL  DEFAULT 25,
     seeded_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 8.333,
     seeded_num_races        INT        NOT NULL  DEFAULT 0,
     seeded_last_race        TIMESTAMP  NULL      DEFAULT NULL,
 
+    /* Seeded solo leaderboard values */
+    seeded_solo_trueskill        FLOAT      NOT NULL  DEFAULT 0,
+    seeded_solo_trueskill_mu     FLOAT      NOT NULL  DEFAULT 25,
+    seeded_solo_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 8.333,
+    seeded_solo_num_races        INT        NOT NULL  DEFAULT 0,
+    seeded_solo_last_race        TIMESTAMP  NULL      DEFAULT NULL,
+
     /* Unseeded leaderboard values */
-    unseeded_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_num_races         INT        NOT NULL  DEFAULT 0,
-    unseeded_num_forfeits      INT        NOT NULL  DEFAULT 0,
-    unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
+    unseeded_trueskill        FLOAT      NOT NULL  DEFAULT 0,
+    unseeded_trueskill_mu     FLOAT      NOT NULL  DEFAULT 25,
+    unseeded_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 8.333,
+    unseeded_num_races        INT        NOT NULL  DEFAULT 0,
+    unseeded_last_race        TIMESTAMP  NULL      DEFAULT NULL,
+
+    /* Unseeded solo leaderboard values */
+    unseeded_solo_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_solo_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_solo_num_races         INT        NOT NULL  DEFAULT 0,
+    unseeded_solo_num_forfeits      INT        NOT NULL  DEFAULT 0,
+    unseeded_solo_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_solo_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_solo_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Diversity leaderboard values */
     diversity_trueskill         FLOAT      NOT NULL  DEFAULT 25,
@@ -248,12 +263,3 @@ CREATE TABLE user_season_stats (
     UNIQUE(user_id, season)
 );
 CREATE INDEX user_season_stats_index_user_id ON user_season_stats (user_id);
-
-DROP TABLE IF EXISTS seeded_builds;
-CREATE TABLE seeded_builds (
-    id                 INT        NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
-    item_id            INT        NOT NULL,
-    build_id           INT        NOT NULL
-);
-
-CREATE INDEX seeded_builds_index ON seeded_builds(id);                

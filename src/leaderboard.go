@@ -14,9 +14,24 @@ const (
 )
 
 func leaderboardUpdateSeeded(race *Race) {
+	// Update the stats for every person in the race
+	for _, racer := range race.Racers {
+	}
+}
+
+func leaderboardUpdateSoloSeeded(race *Race) {
+	// Update the stats for every person in the race
+	for _, racer := range race.Racers {
+	}
 }
 
 func leaderboardUpdateUnseeded(race *Race) {
+	// Update the stats for every person in the race
+	for _, racer := range race.Racers {
+	}
+}
+
+func leaderboardUpdateSoloUnseeded(race *Race) {
 	// Update the stats for every person in the race
 	for _, racer := range race.Racers {
 		var unseededTimes []models.UnseededTime
@@ -52,7 +67,7 @@ func leaderboardUpdateUnseeded(race *Race) {
 		}
 
 		// Update their stats in the database
-		if err := db.Users.SetStatsUnseeded(racer.ID, int(averageTime), numForfeits, int(forfeitPenalty)); err != nil {
+		if err := db.Users.SetStatsSoloUnseeded(racer.ID, int(averageTime), numForfeits, int(forfeitPenalty)); err != nil {
 			log.Error("Database error while setting the unseeded stats for \""+racer.Name+"\":", err)
 			return
 		}
