@@ -241,7 +241,7 @@ type LeaderboardRowUnseeded struct {
 	NumForfeits     int
 	ForfeitPenalty  int
 	LowestTime      int
-	LastRace        time.Time
+	LastRace        mysql.NullTime
 	LastRaceId      int
 	Verified        int
 	StreamURL       string
