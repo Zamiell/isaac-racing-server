@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 )
 
 /*
@@ -9,27 +10,60 @@ import (
 	but these functions are only used in "leaderboard.go"
 */
 
-func (*Races) GetAllDiversityRaces() ([]RaceHistory, error) {
+func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
+	var SQLString string
+	if format == "seeded" {
+		SQLString = `
+			SELECT
+				id
+			FROM
+				races
+			WHERE
+				format = "seeded"
+				AND finished = 1
+				AND solo = 0
+			ORDER BY
+				id
+		`
+	} else if format == "unseeded" {
+		SQLString = `
+			SELECT
+				id
+			FROM
+				races
+			WHERE
+				format = "unseeded"
+				AND finished = 1
+				AND solo = 0
+			ORDER BY
+				id
+		`
+	} else if format == "diversity" {
+		SQLString = `
+			SELECT
+				id
+			FROM
+				races
+			WHERE
+				format = "diversity"
+				AND finished = 1
+				AND solo = 0
+			ORDER BY
+				id
+		`
+	} else {
+		return nil, errors.New("unknown format")
+	}
+
 	var rows *sql.Rows
-	if v, err := db.Query(`
-		SELECT
-			id
-		FROM
-			races
-		WHERE
-			format = "diversity"
-			AND finished = 1
-			AND solo = 0
-		ORDER BY
-			id
-	`); err != nil {
+	if v, err := db.Query(SQLString); err != nil {
 		return nil, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	allDivRaces := make([]RaceHistory, 0)
+	allRaces := make([]RaceHistory, 0)
 	for rows.Next() {
 		var race RaceHistory
 		if err := rows.Scan(
@@ -71,8 +105,8 @@ func (*Races) GetAllDiversityRaces() ([]RaceHistory, error) {
 			racers = append(racers, racer)
 		}
 		race.RaceParticipants = racers
-		allDivRaces = append(allDivRaces, race)
+		allRaces = append(allRaces, race)
 	}
 
-	return allDivRaces, nil
+	return allRaces, nil
 }

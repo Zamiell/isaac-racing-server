@@ -92,10 +92,10 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	// Validate multiplayer ranked games
 	if !ruleset.Solo {
 		if ruleset.Ranked {
-			return true
-		} else {
-			websocketError(s, d.Command, "Multiplayer races must be ranked.")
+			websocketError(s, d.Command, "Multiplayer races must not be ranked.")
 			return false
+		} else {
+			return true
 		}
 	}
 

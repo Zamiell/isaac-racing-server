@@ -211,21 +211,56 @@ func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) erro
 	return nil
 }
 
-func (*Users) SetAllDiversityLastRace() error {
+func (*Users) SetTrueSkillLastRace(format string) error {
+	var SQLString string
+	if format == "seeded" {
+		SQLString = `
+			UPDATE users
+			SET seeded_last_race = (
+				SELECT races.datetime_finished
+				FROM race_participants
+					JOIN races ON race_participants.race_id = races.id
+				WHERE
+					user_id = users.id
+					AND races.format = "seeded"
+				ORDER BY races.datetime_finished DESC
+				LIMIT 1
+			)
+		`
+	} else if format == "unseeded" {
+		SQLString = `
+			UPDATE users
+			SET unseeded_last_race = (
+				SELECT races.datetime_finished
+				FROM race_participants
+					JOIN races ON race_participants.race_id = races.id
+				WHERE
+					user_id = users.id
+					AND races.format = "unseeded"
+				ORDER BY races.datetime_finished DESC
+				LIMIT 1
+			)
+		`
+	} else if format == "diversity" {
+		SQLString = `
+			UPDATE users
+			SET diversity_last_race = (
+				SELECT races.datetime_finished
+				FROM race_participants
+					JOIN races ON race_participants.race_id = races.id
+				WHERE
+					user_id = users.id
+					AND races.format = "diversity"
+				ORDER BY races.datetime_finished DESC
+				LIMIT 1
+			)
+		`
+	} else {
+		return errors.New("unknown format")
+	}
+
 	var stmt *sql.Stmt
-	if v, err := db.Prepare(`
-		UPDATE users
-		SET diversity_last_race = (
-			SELECT races.datetime_finished
-			FROM race_participants
-				JOIN races ON race_participants.race_id = races.id
-			WHERE
-				user_id = users.id
-				AND races.format = "diversity"
-			ORDER BY races.datetime_finished DESC
-			LIMIT 1
-		)
-	`); err != nil {
+	if v, err := db.Prepare(SQLString); err != nil {
 		return err
 	} else {
 		stmt = v
@@ -239,17 +274,42 @@ func (*Users) SetAllDiversityLastRace() error {
 	return nil
 }
 
-func (*Users) ResetStatsDiversity() error {
+func (*Users) ResetTrueSkill(format string) error {
+	var SQLString string
+	if format == "seeded" {
+		SQLString = `
+			UPDATE users
+			SET
+				seeded_trueskill = 25,
+				seeded_trueskill_sigma = 8.333,
+				seeded_trueskill_change = 0,
+				seeded_num_races = 0,
+				seeded_last_race = NULL
+		`
+	} else if format == "unseeded" {
+		SQLString = `
+			UPDATE users
+			SET
+				unseeded_trueskill = 25,
+				unseeded_trueskill_sigma = 8.333,
+				unseeded_trueskill_change = 0,
+				unseeded_num_races = 0,
+				unseeded_last_race = NULL
+		`
+	} else if format == "diversity" {
+		SQLString = `
+			UPDATE users
+			SET
+				diversity_trueskill = 25,
+				diversity_trueskill_sigma = 8.333,
+				diversity_trueskill_change = 0,
+				diversity_num_races = 0,
+				diversity_last_race = NULL
+		`
+	}
+
 	var stmt *sql.Stmt
-	if v, err := db.Prepare(`
-		UPDATE users
-		SET
-			diversity_trueskill = 25,
-			diversity_trueskill_sigma = 8.333
-			diversity_trueskill_change = 0,
-			diversity_num_races = 0,
-			diversity_last_race = NULL
-	`); err != nil {
+	if v, err := db.Prepare(SQLString); err != nil {
 		return err
 	} else {
 		stmt = v
