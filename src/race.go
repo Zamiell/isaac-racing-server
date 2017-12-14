@@ -367,6 +367,11 @@ func (race *Race) Finish() {
 			}
 		}
 	} else {
-		leaderboardUpdateTrueSkill(race)
+		if race.Ruleset.Format == "seeded" ||
+			race.Ruleset.Format == "seeded" ||
+			race.Ruleset.Format == "diversity" {
+
+			leaderboardUpdateTrueSkill(race)
+		}
 	}
 }
