@@ -358,26 +358,15 @@ func (race *Race) Finish() {
 		}
 	}
 
-	// Update the diversity leaderboard
-	if race.Ruleset.Format == "diversity" {
-		leaderboardUpdateDiversity(race)
-	}
-
-	// Update the ranked leaderboards
-	if !race.Ruleset.Ranked {
-		return
-	}
-	if race.Ruleset.Format == "seeded" {
-		if race.Ruleset.Solo {
-			leaderboardUpdateSoloSeeded(race)
-		} else {
-			leaderboardUpdateSeeded(race)
+	if race.Ruleset.Solo {
+		if race.Ruleset.Ranked {
+			if race.Ruleset.Format == "seeded" {
+				leaderboardUpdateSoloSeeded(race)
+			} else if race.Ruleset.Format == "unseeded" {
+				leaderboardUpdateSoloUnseeded(race)
+			}
 		}
-	} else if race.Ruleset.Format == "unseeded" {
-		if race.Ruleset.Solo {
-			leaderboardUpdateSoloUnseeded(race)
-		} else {
-			leaderboardUpdateUnseeded(race)
-		}
+	} else {
+		leaderboardUpdateTrueSkill(race)
 	}
 }

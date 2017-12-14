@@ -89,28 +89,38 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		return false
 	}
 
-	// Validate ranked games
-	if ruleset.Ranked &&
-		ruleset.Format != "seeded" &&
+	// Validate multiplayer ranked games
+	if !ruleset.Solo {
+		if ruleset.Ranked {
+			return true
+		} else {
+			websocketError(s, d.Command, "Multiplayer races must be ranked.")
+			return false
+		}
+	}
+
+	// Validate solo ranked games
+	if !ruleset.Ranked {
+		return true
+	}
+	if ruleset.Format != "seeded" &&
 		ruleset.Format != "unseeded" {
 
-		websocketError(s, d.Command, "Ranked races must be either seeded or unseeded.")
+		websocketError(s, d.Command, "Solo ranked races must be either seeded or unseeded.")
 		return false
 	}
-	if ruleset.Ranked &&
-		ruleset.Format == "seeded" &&
+	if ruleset.Character != "Judas" {
+		websocketError(s, d.Command, "Solo ranked races must have a character of Judas.")
+		return false
+	}
+	if ruleset.Goal != "Blue Baby" {
+		websocketError(s, d.Command, "Solo ranked races must have a goal of Blue Baby.")
+		return false
+	}
+	if ruleset.Format == "seeded" &&
 		ruleset.StartingBuild != 0 {
 
-		websocketError(s, d.Command, "Ranked seeded races must have a random starting build.")
-		return false
-	}
-
-	// Validate unseeded ranked games
-	if ruleset.Ranked && ruleset.Format == "unseeded" && ruleset.Character != "Judas" {
-		websocketError(s, d.Command, "Ranked unseeded races must have a character of Judas.")
-		return false
-	} else if ruleset.Ranked && ruleset.Format == "unseeded" && ruleset.Goal != "Blue Baby" {
-		websocketError(s, d.Command, "Ranked unseeded races must have a goal of Blue Baby.")
+		websocketError(s, d.Command, "Solo ranked seeded races must have a random starting build.")
 		return false
 	}
 

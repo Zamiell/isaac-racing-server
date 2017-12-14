@@ -16,32 +16,6 @@ import (
 	Data structures
 */
 
-type StatsSeeded struct {
-	TrueSkill float32
-	Sigma     float32
-	NumRaces  int
-	LastRace  mysql.NullTime
-}
-
-type StatsUnseeded struct {
-	AdjustedAverage int
-	RealAverage     int
-	NumRaces        int
-	NumForfeits     int
-	ForfeitPenalty  int
-	LowestTime      int
-	LastRace        mysql.NullTime
-}
-
-type StatsDiversity struct {
-	TrueSkill    float64
-	Sigma        float64
-	Change       float64
-	NumRaces     int
-	LastRace     mysql.NullTime
-	NewTrueSkill float64 // Only used when doing new TrueSkill calculation
-}
-
 // ProfilesRow gets each row for all profiles
 type ProfilesRow struct {
 	Username            string
@@ -60,9 +34,9 @@ type ProfileData struct {
 	DatetimeLastLogin time.Time
 	Admin             sql.NullInt64
 	Verified          bool
-	StatsSeeded       StatsSeeded
+	StatsSeeded       StatsTrueSkill
 	StatsUnseeded     StatsUnseeded
-	StatsDiversity    StatsDiversity
+	StatsDiversity    StatsTrueSkill
 	TotalRaces        sql.NullInt64
 	StreamURL         sql.NullString
 	Banned            bool

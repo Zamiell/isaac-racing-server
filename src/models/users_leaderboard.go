@@ -1,29 +1,88 @@
-package models
-
-import (
-	"database/sql"
-)
-
 /*
 	These are more functions for querying the "users" table,
 	but these functions are only used in "leaderboard.go"
 */
 
-func (*Users) GetStatsDiversity(userID int) (StatsDiversity, error) {
-	var stats StatsDiversity
-	if err := db.QueryRow(`
-		SELECT
-			diversity_trueskill,
-			diversity_trueskill_sigma,
-			diversity_trueskill_change,
-			diversity_num_races,
-			diversity_last_race
-		FROM
-			users
-		WHERE
-			id = ?
-	`, userID).Scan(
+package models
+
+import (
+	"database/sql"
+	"errors"
+
+	"github.com/go-sql-driver/mysql"
+)
+
+type StatsUnseeded struct {
+	AdjustedAverage int
+	RealAverage     int
+	NumRaces        int
+	NumForfeits     int
+	ForfeitPenalty  int
+	LowestTime      int
+	LastRace        mysql.NullTime
+}
+
+type StatsTrueSkill struct {
+	TrueSkill float64
+	Mu        float64
+	Sigma     float64
+	Change    float64
+	NumRaces  int
+	LastRace  mysql.NullTime
+}
+
+func (*Users) GetTrueSkill(userID int, format string) (StatsTrueSkill, error) {
+	var stats StatsTrueSkill
+	var SQLString string
+	if format == "seeded" {
+		SQLString = `
+			SELECT
+				seeded_trueskill,
+				seeded_trueskill_mu,
+				seeded_trueskill_sigma,
+				seeded_trueskill_change,
+				seeded_num_races,
+				seeded_last_race
+			FROM
+				users
+			WHERE
+				id = ?
+		`
+	} else if format == "unseeded" {
+		SQLString = `
+			SELECT
+				unseeded_trueskill,
+				unseeded_trueskill_mu,
+				unseeded_trueskill_sigma,
+				unseeded_trueskill_change,
+				unseeded_num_races,
+				unseeded_last_race
+			FROM
+				users
+			WHERE
+				id = ?
+		`
+	} else if format == "diversity" {
+		SQLString = `
+			SELECT
+				diversity_trueskill,
+				diversity_trueskill_mu,
+				diversity_trueskill_sigma,
+				diversity_trueskill_change,
+				diversity_num_races,
+				diversity_last_race
+			FROM
+				users
+			WHERE
+				id = ?
+		`
+	} else {
+		return stats, errors.New("unknown format")
+	}
+
+	if err := db.QueryRow(SQLString, userID).Scan(
 		&stats.TrueSkill,
+		&stats.Mu,
 		&stats.Sigma,
 		&stats.Change,
 		&stats.NumRaces,
@@ -88,18 +147,50 @@ func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int,
 	return nil
 }
 
-func (*Users) SetStatsDiversity(userID int, stats StatsDiversity) error {
+func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) error {
+	var SQLString string
+	if format == "seeded" {
+		SQLString = `
+			UPDATE users
+			SET
+				seeded_trueskill = ?,
+				seeded_trueskill_mu = ?,
+				seeded_trueskill_sigma = ?,
+				seeded_trueskill_change = ?,
+				seeded_num_races = ?,
+				seeded_last_race = NOW()
+			WHERE id = ?
+		`
+	} else if format == "unseeded" {
+		SQLString = `
+			UPDATE users
+			SET
+				unseeded_trueskill = ?,
+				unseeded_trueskill_mu = ?,
+				unseeded_trueskill_sigma = ?,
+				unseeded_trueskill_change = ?,
+				unseeded_num_races = ?,
+				unseeded_last_race = NOW()
+			WHERE id = ?
+		`
+	} else if format == "diversity" {
+		SQLString = `
+			UPDATE users
+			SET
+				diversity_trueskill = ?,
+				diversity_trueskill_mu = ?,
+				diversity_trueskill_sigma = ?,
+				diversity_trueskill_change = ?,
+				diversity_num_races = ?,
+				diversity_last_race = NOW()
+			WHERE id = ?
+		`
+	} else {
+		return errors.New("unknown format")
+	}
+
 	var stmt *sql.Stmt
-	if v, err := db.Prepare(`
-		UPDATE users
-		SET
-			diversity_trueskill = ?,
-			diversity_trueskill_sigma = ?,
-			diversity_trueskill_change = ?,
-			diversity_num_races = ?,
-			diversity_last_race = NOW()
-		WHERE id = ?
-	`); err != nil {
+	if v, err := db.Prepare(SQLString); err != nil {
 		return err
 	} else {
 		stmt = v
@@ -107,7 +198,8 @@ func (*Users) SetStatsDiversity(userID int, stats StatsDiversity) error {
 	defer stmt.Close()
 
 	if _, err := stmt.Exec(
-		stats.NewTrueSkill,
+		stats.TrueSkill,
+		stats.Mu,
 		stats.Sigma,
 		stats.Change,
 		stats.NumRaces,

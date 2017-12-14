@@ -27,11 +27,12 @@ CREATE TABLE users (
     verified             TINYINT(1)    NOT NULL  DEFAULT 0, /* Used to show who is a legitimate player on the leaderboard */
 
     /* Seeded leaderboard values */
-    seeded_trueskill        FLOAT      NOT NULL  DEFAULT 0,
-    seeded_trueskill_mu     FLOAT      NOT NULL  DEFAULT 25,
-    seeded_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 8.333,
-    seeded_num_races        INT        NOT NULL  DEFAULT 0,
-    seeded_last_race        TIMESTAMP  NULL      DEFAULT NULL,
+    seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
+    seeded_trueskill_mu      FLOAT      NOT NULL  DEFAULT 25,
+    seeded_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 8.333,
+    seeded_trueskill_change  FLOAT      NOT NULL  DEFAULT 0, /* The amount changed in the last race (can be positive or negative) */
+    seeded_num_races         INT        NOT NULL  DEFAULT 0,
+    seeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Seeded solo leaderboard values */
     seeded_solo_trueskill        FLOAT      NOT NULL  DEFAULT 0,
@@ -41,23 +42,25 @@ CREATE TABLE users (
     seeded_solo_last_race        TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Unseeded leaderboard values */
-    unseeded_trueskill        FLOAT      NOT NULL  DEFAULT 0,
-    unseeded_trueskill_mu     FLOAT      NOT NULL  DEFAULT 25,
-    unseeded_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 8.333,
-    unseeded_num_races        INT        NOT NULL  DEFAULT 0,
-    unseeded_last_race        TIMESTAMP  NULL      DEFAULT NULL,
+    unseeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
+    unseeded_trueskill_mu      FLOAT      NOT NULL  DEFAULT 25,
+    unseeded_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 8.333,
+    unseeded_trueskill_change  FLOAT      NOT NULL  DEFAULT 0, /* The amount changed in the last race (can be positive or negative) */
+    unseeded_num_races         INT        NOT NULL  DEFAULT 0,
+    unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Unseeded solo leaderboard values */
     unseeded_solo_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
     unseeded_solo_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_solo_num_races         INT        NOT NULL  DEFAULT 0,
     unseeded_solo_num_forfeits      INT        NOT NULL  DEFAULT 0,
     unseeded_solo_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
     unseeded_solo_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    unseeded_solo_num_races         INT        NOT NULL  DEFAULT 0,
     unseeded_solo_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Diversity leaderboard values */
-    diversity_trueskill         FLOAT      NOT NULL  DEFAULT 25,
+    diversity_trueskill         FLOAT      NOT NULL  DEFAULT 0,
+    diversity_trueskill_mu      FLOAT      NOT NULL  DEFAULT 25,
     diversity_trueskill_sigma   FLOAT      NOT NULL  DEFAULT 8.333,
     diversity_trueskill_change  FLOAT      NOT NULL  DEFAULT 0, /* The amount changed in the last race (can be positive or negative) */
     diversity_num_races         INT        NOT NULL  DEFAULT 0,
