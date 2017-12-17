@@ -64,33 +64,39 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	}
 	racer.Items = append(racer.Items, item)
 
-	type RacerAddItemMessage struct {
-		ID   int    `json:"id"`
-		Name string `json:"name"`
-		Item *Item  `json:"item"`
-	}
-	for racerName := range race.Racers {
-		// Not all racers may be online during a race
-		if s, ok := websocketSessions[racerName]; ok {
-			websocketEmit(s, "racerAddItem", &RacerAddItemMessage{
-				raceID,
-				username,
-				item,
-			})
-		}
-	}
-
 	// Check to see if this is their starting item
+	startingItem := false
 	if race.Ruleset.Format != "seeded" &&
 		race.Ruleset.Format != "seeded-hard" &&
 		racer.StartingItem == 0 &&
 		len(racer.Rooms) > 1 {
 
 		racer.StartingItem = itemID
-		websocketEmit(s, "racerSetStartingItem", &RacerAddItemMessage{
-			raceID,
-			username,
-			item,
-		})
+		startingItem = true
+	}
+
+	for racerName := range race.Racers {
+		// Not all racers may be online during a race
+		if s, ok := websocketSessions[racerName]; ok {
+			// Send the message about the item
+			type RacerAddItemMessage struct {
+				ID   int    `json:"id"`
+				Name string `json:"name"`
+				Item *Item  `json:"item"`
+			}
+			websocketEmit(s, "racerAddItem", &RacerAddItemMessage{
+				raceID,
+				username,
+				item,
+			})
+
+			if startingItem {
+				websocketEmit(s, "racerSetStartingItem", &RacerAddItemMessage{
+					raceID,
+					username,
+					item,
+				})
+			}
+		}
 	}
 }
