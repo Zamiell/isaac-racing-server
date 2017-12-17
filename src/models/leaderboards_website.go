@@ -3,8 +3,31 @@ package models
 import (
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
-	"time"
 )
+
+type LeaderboardRowSeeded struct {
+	Name                 string
+	SeededTrueSkill      float64
+	SeededTrueSkillDelta float64
+	SeededNumRaces       sql.NullInt64
+	SeededLowestTime     sql.NullInt64
+	SeededLastRace       mysql.NullTime
+	SeededLastRaceID     int
+	Verified             int
+	StreamURL            string
+}
+
+type LeaderboardRowSeededSolo struct {
+	Name                     string
+	SeededSoloTrueSkill      float64
+	SeededSoloTrueSkillDelta float64
+	SeededSoloNumRaces       sql.NullInt64
+	SeededSoloLowestTime     sql.NullInt64
+	SeededSoloLastRace       mysql.NullTime
+	SeededSoloLastRaceID     int
+	Verified                 int
+	StreamURL                string
+}
 
 type LeaderboardRowUnseeded struct {
 	Name                   string
@@ -12,8 +35,8 @@ type LeaderboardRowUnseeded struct {
 	UnseededTrueSkillDelta float64
 	UnseededNumRaces       sql.NullInt64
 	UnseededLowestTime     sql.NullInt64
-	UnseededLastRace       time.Time
-	UnseededLastRaceId     int
+	UnseededLastRace       mysql.NullTime
+	UnseededLastRaceID     int
 	Verified               int
 	StreamURL              string
 }
@@ -27,7 +50,7 @@ type LeaderboardRowUnseededSolo struct {
 	ForfeitPenalty  int
 	LowestTime      int
 	LastRace        mysql.NullTime
-	LastRaceId      int
+	LastRaceID      int
 	Verified        int
 	StreamURL       string
 }
@@ -38,18 +61,145 @@ type LeaderboardRowDiversity struct {
 	DivTrueSkillDelta float64
 	DivNumRaces       sql.NullInt64
 	DivLowestTime     sql.NullInt64
-	DivLastRace       time.Time
-	DivLastRaceId     int
+	DivLastRace       mysql.NullTime
+	DivLastRaceID     int
 	Verified          int
 	StreamURL         string
 }
 
-type LeaderboardRowSeeded struct {
-	Name      string
-	TrueSkill float64
-	NumRaces  int
-	LastRace  time.Time
-	Verified  int
+func (*Users) GetLeaderboardSeeded(racesNeeded int, racesLimit int) ([]LeaderboardRowSeeded, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT
+			u.username,
+			ROUND(u.seeded_trueskill, 2),
+			ROUND(u.seeded_trueskill_change, 2),
+			u.seeded_num_races,
+			(SELECT
+					MIN(run_time)
+				FROM
+					race_participants
+				LEFT JOIN races
+					ON race_participants.race_id = races.id
+				WHERE
+					place > 0
+					AND u.id = user_id
+					AND races.format = 'seeded') as r_time,
+			u.seeded_last_race,
+			MAX(rp.race_id),
+			u.verified,
+			u.stream_url
+		FROM
+			users u
+			LEFT JOIN
+				race_participants rp ON rp.user_id = u.id
+			LEFT JOIN
+				races r ON r.id = rp.race_id
+		WHERE
+			seeded_num_races >= ?
+				AND r.format = 'seeded'
+				AND rp.place > 0
+				AND u.id NOT IN (SELECT user_id FROM banned_users)
+		GROUP BY u.username
+		ORDER BY u.seeded_trueskill DESC
+		LIMIT ?
+	`, racesNeeded, racesLimit); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowSeeded, 0)
+	for rows.Next() {
+		var row LeaderboardRowSeeded
+		if err := rows.Scan(
+			&row.Name,
+			&row.SeededTrueSkill,
+			&row.SeededTrueSkillDelta,
+			&row.SeededNumRaces,
+			&row.SeededLowestTime,
+			&row.SeededLastRace,
+			&row.SeededLastRaceID,
+			&row.Verified,
+			&row.StreamURL,
+		); err != nil {
+			return nil, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
+	return leaderboard, nil
+}
+
+func (*Users) GetLeaderboardSeededSolo(racesNeeded int, racesLimit int) ([]LeaderboardRowSeededSolo, error) {
+	var rows *sql.Rows
+	// Readd -- ROUND(u.seeded_solo_trueskill_change, 2),
+	if v, err := db.Query(`
+		SELECT
+			u.username,
+			ROUND(u.seeded_solo_trueskill, 2),
+			ROUND(u.seeded_solo_trueskill, 2),
+			u.seeded_solo_num_races,
+			(SELECT
+					MIN(run_time)
+				FROM
+					race_participants
+				LEFT JOIN races
+					ON race_participants.race_id = races.id
+				WHERE
+					place > 0
+					AND u.id = user_id
+					AND races.format = 'seeded-solo') as r_time,
+			u.seeded_solo_last_race,
+			MAX(rp.race_id),
+			u.verified,
+			u.stream_url
+		FROM
+			users u
+			LEFT JOIN
+				race_participants rp ON rp.user_id = u.id
+			LEFT JOIN
+				races r ON r.id = rp.race_id
+		WHERE
+			seeded_num_races >= ?
+				AND r.format = 'seeded-solo'
+				AND rp.place > 0
+				AND u.id NOT IN (SELECT user_id FROM banned_users)
+		GROUP BY u.username
+		ORDER BY u.seeded_solo_trueskill DESC
+		LIMIT ?
+	`, racesNeeded, racesLimit); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowSeededSolo, 0)
+	for rows.Next() {
+		var row LeaderboardRowSeededSolo
+		if err := rows.Scan(
+			&row.Name,
+			&row.SeededSoloTrueSkill,
+			&row.SeededSoloTrueSkillDelta,
+			&row.SeededSoloNumRaces,
+			&row.SeededSoloLowestTime,
+			&row.SeededSoloLastRace,
+			&row.SeededSoloLastRaceID,
+			&row.Verified,
+			&row.StreamURL,
+		); err != nil {
+			return nil, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
+	return leaderboard, nil
 }
 
 func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]LeaderboardRowUnseeded, error) {
@@ -106,7 +256,7 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 			&row.UnseededNumRaces,
 			&row.UnseededLowestTime,
 			&row.UnseededLastRace,
-			&row.UnseededLastRaceId,
+			&row.UnseededLastRaceID,
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
@@ -169,7 +319,7 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]Lea
 			&row.ForfeitPenalty,
 			&row.LowestTime,
 			&row.LastRace,
-			&row.LastRaceId,
+			&row.LastRaceID,
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
@@ -179,52 +329,6 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]Lea
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
-	return leaderboard, nil
-}
-
-// Make a leaderboard for the seeded format based on all of the users
-func (*Users) GetLeaderboardSeeded(racesNeeded int, racesLimit int) ([]LeaderboardRowSeeded, error) {
-	var rows *sql.Rows
-	if v, err := db.Query(`
-		SELECT
-			u.username,
-			u.seeded_trueskill,
-			u.seeded_trueskill_sigma,
-			u.seeded_num_races,
-			u.seeded_last_race,
-			u.verified
-		FROM
-			users u
-		WHERE
-			u.seeded_num_races > ?
-			AND u.id NOT IN (SELECT user_id FROM banned_users)
-		GROUP BY u.username
-		LIMIT ?
-	`, racesNeeded, racesLimit); err != nil {
-		return nil, err
-	} else {
-		rows = v
-	}
-	defer rows.Close()
-
-	// Iterate over the users
-	leaderboard := make([]LeaderboardRowSeeded, 0)
-	for rows.Next() {
-		var row LeaderboardRowSeeded
-		if err := rows.Scan(
-			&row.Name,
-			&row.TrueSkill,
-			&row.NumRaces,
-			&row.LastRace,
-			&row.Verified,
-		); err != nil {
-			return nil, err
-		}
-
-		// Append this row to the leaderboard
-		leaderboard = append(leaderboard, row)
-	}
-
 	return leaderboard, nil
 }
 
@@ -282,7 +386,7 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int, racesLimit int) ([]Leader
 			&row.DivNumRaces,
 			&row.DivLowestTime,
 			&row.DivLastRace,
-			&row.DivLastRaceId,
+			&row.DivLastRaceID,
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {

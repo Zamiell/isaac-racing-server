@@ -35,21 +35,30 @@ type LeaderboardUnseeded []models.LeaderboardRowUnseeded
 func httpLeaderboards(c *gin.Context) {
 	// Local variables
 	w := c.Writer
-
+	seededRacesNeeded := 5
+	seededRacesLimit := 1000
+	seededSoloRacesNeeded := 5
+	seededSoloRacesLimit := 1000
 	unseededRacesNeeded := 5
 	unseededRacesLimit := 1000
 	unseededSoloRacesNeeded := 20
 	unseededSoloRacesLimit := 1000
 	diversityRacesNeeded := 10
 	diversityRacesLimit := 1000
-	/*
-		leaderboardSeeded, err := db.Users.GetLeaderboardSeeded()
-		if err != nil {
-			log.Error("Failed to get the seeded leaderboard:", err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
-	*/
+
+	leaderboardSeeded, err := db.Users.GetLeaderboardSeeded(seededRacesNeeded, seededRacesLimit)
+	if err != nil {
+		log.Error("Failed to get the seeded leaderboard:", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	leaderboardSeededSolo, err := db.Users.GetLeaderboardSeededSolo(seededSoloRacesNeeded, seededSoloRacesLimit)
+	if err != nil {
+		log.Error("Failed to get the seeded solo leaderboard:", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseeded(unseededRacesNeeded, unseededRacesLimit)
 	if err != nil {
@@ -83,6 +92,8 @@ func httpLeaderboards(c *gin.Context) {
 
 	data := TemplateData{
 		Title:                   "Leaderboards",
+		LeaderboardSeeded:       leaderboardSeeded,
+		LeaderboardSeededSolo:   leaderboardSeededSolo,
 		LeaderboardUnseeded:     leaderboardUnseeded,
 		LeaderboardUnseededSolo: leaderboardUnseededSolo,
 		LeaderboardDiversity:    leaderboardDiversity,

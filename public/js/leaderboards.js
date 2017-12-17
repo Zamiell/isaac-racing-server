@@ -1,4 +1,4 @@
-let activeLeaderboard = 'unseeded-solo';
+let activeLeaderboard = 'unseeded';
 let transition = false;
 let button_array = ['seeded', 'seeded-solo', 'unseeded', 'unseeded-solo', 'diversity', 'other'];
 const fadeTime = 350;
@@ -45,6 +45,18 @@ function pad(n, width, z) {
 $(document).ready(function() {
     hideAllNotes();
     hideAllBoards();
+
+    // Seeded things
+    $('#leaderboard-seeded-table').tablesorter();
+    AdjustRank('seeded');
+    ConvertTime('seeded','lb-fastest');
+    ConvertTimeStamp('seeded','td.lb-last-race a');
+
+    // Seeded things
+    $('#leaderboard-seeded-solo-table').tablesorter();
+    AdjustRank('seeded-solo');
+    ConvertTime('seeded-solo','lb-fastest');
+    ConvertTimeStamp('seeded-solo','td.lb-last-race a');
 
     // Unseeded things
     $('#leaderboard-unseeded-table').tablesorter();
@@ -138,8 +150,18 @@ function CheckForHash() {
             showLeaderboard('unseeded');
         }
     }
-}
+};
 
+$('#leaderboard-seeded-button').click(function() {
+    if (activeLeaderboard !== 'seeded' && transition === false) {
+        showLeaderboard('seeded');
+    }
+});
+$('#leaderboard-seeded-solo-button').click(function() {
+    if (activeLeaderboard !== 'seeded-solo' && transition === false) {
+        showLeaderboard('seeded-solo');
+    }
+});
 $('#leaderboard-unseeded-button').click(function() {
     if (activeLeaderboard !== 'unseeded' && transition === false) {
         showLeaderboard('unseeded');

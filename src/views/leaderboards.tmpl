@@ -9,7 +9,7 @@
 
 	<div id="leaderboard-buttons-row1" class="row">
 		<div class="4u 12u">
-			<a id="leaderboard-seeded-button" class="button fit inactive disabled">Multiplayer Seeded</a>
+			<a id="leaderboard-seeded-button" class="button fit inactive">Multiplayer Seeded</a>
 		</div>
 		<div class="4u 12u">
 			<a id="leaderboard-unseeded-button" class="button fit inactive">Multiplayer Unseeded</a>
@@ -20,7 +20,7 @@
 	</div>
 	<div id="leaderboard-buttons-row2" class="row">
 		<div class="4u 12u">
-			<a id="leaderboard-seeded-solo-button" class="button fit inactive disabled ">Solo Seeded</a>
+			<a id="leaderboard-seeded-solo-button" class="button fit inactive disabled">Solo Seeded</a>
 		</div>
 		<div class="4u 12u">
 			<a id="leaderboard-unseeded-solo-button" class="button fit inactive">Solo Unseeded</a>
@@ -38,45 +38,90 @@
 		</section>
 	</div>
 
-	<!--
-	<section id="leaderboard-seeded" class="box" style="display: none;">
+	<section id="leaderboard-seeded" class="box">
 		<div class="table-wrapper">
-			<table class="alt">
+			<table  id="leaderboard-seeded-table" class="alt lb tablesorter">
 				<thead>
 					<tr>
 						<th>Rank</th>
 						<th>Player</th>
-						<th>MMR</th>
-						<th>Last MMR Change</th>
-						<th>Date of Last Race</th>
+						<th>TrueSkill</th>
 						<th>Total Races Played</th>
+						<th>Fastest Time</th>
+						<th>Date of Last Race</th>
 						<th>Verified</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr>
-						<td>1</td>
-						<td>Zamiel</td>
-						<td>500</td>
-						<td>-5</td>
-						<td>07/16/16</td>
-						<td>100</td>
-						<td><i class="fa fa-check" aria-hidden="true"></i></td>
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>Dea1h</td>
-						<td>500</td>
-						<td>-5</td>
-						<td>07/16/16</td>
-						<td>100</td>
-						<td><i class="fa fa-times" aria-hidden="true"></i></td>
-					</tr>
+					{{ range $index, $results := .LeaderboardSeeded }}
+
+						<tr>
+							<td class="lb-rank">{{ $index }}</td>
+							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
+							<td class="lb-trueskill">{{ .SeededTrueSkill }} <span id="lastEloChange" class="{{ if lt .SeededTrueSkillDelta 0.0 -}} red {{- else if gt .SeededTrueSkillDelta 0.0}} green {{- end}}">{{if gt .SeededTrueSkillDelta 0.0}}+{{end}}{{ if ne .SeededTrueSkillDelta 0.0 -}}{{- .SeededTrueSkillDelta -}}{{ end -}}</span></td>
+							<td class="lb-num-races">{{ .SeededNumRaces.Value }}</td>
+							<td class="lb-fastest">{{ .SeededLowestTime.Value }}</td>
+							<td class="lb-last-race"><a href="/race/{{ .SeededLastRaceID }}">{{ .SeededLastRace.Value }}</a></td>
+							<td class="lb-status">
+								{{ if eq .Verified 1 -}}
+									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
+								{{- else -}}
+									<i class="fa fa-times" aria-hidden="true" alt="Verified"></i>
+								{{- end }}
+								{{ if ne .StreamURL "-" -}}
+									&nbsp;<a href="{{ .StreamURL }}" target="_blank">
+										<img src="/public/img/Glitch_Purple_RGB.png" width="16px" height="16px"/>
+									</a>
+								{{- end -}}
+							</td>
+						</tr>
+					{{- end }}
 				</tbody>
 			</table>
 		</div>
 	</section>
-	-->
+	<section id="leaderboard-seeded-solo" class="box">
+		<div class="table-wrapper">
+			<table  id="leaderboard-seeded-solo-table" class="alt lb tablesorter">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Player</th>
+						<th>TrueSkill</th>
+						<th>Total Races Played</th>
+						<th>Fastest Time</th>
+						<th>Date of Last Race</th>
+						<th>Verified</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range $index, $results := .LeaderboardSeededSolo }}
+
+						<tr>
+							<td class="lb-rank">{{ $index }}</td>
+							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
+							<td class="lb-trueskill">{{ .SeededSoloTrueSkill }} <span id="lastEloChange" class="{{ if lt .SeededSoloTrueSkillDelta 0.0 -}} red {{- else if gt .SeededSoloTrueSkillDelta 0.0}} green {{- end}}">{{if gt .SeededSoloTrueSkillDelta 0.0}}+{{end}}{{ if ne .SeededSoloTrueSkillDelta 0.0 -}}{{- .SeededSoloTrueSkillDelta -}}{{ end -}}</span></td>
+							<td class="lb-num-races">{{ .SeededSoloNumRaces.Value }}</td>
+							<td class="lb-fastest">{{ .SeededSoloLowestTime.Value }}</td>
+							<td class="lb-last-race"><a href="/race/{{ .SeededSoloLastRaceID }}">{{ .SeededSoloLastRace.Value }}</a></td>
+							<td class="lb-status">
+								{{ if eq .Verified 1 -}}
+									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
+								{{- else -}}
+									<i class="fa fa-times" aria-hidden="true" alt="Verified"></i>
+								{{- end }}
+								{{ if ne .StreamURL "-" -}}
+									&nbsp;<a href="{{ .StreamURL }}" target="_blank">
+										<img src="/public/img/Glitch_Purple_RGB.png" width="16px" height="16px"/>
+									</a>
+								{{- end -}}
+							</td>
+						</tr>
+					{{- end }}
+				</tbody>
+			</table>
+		</div>
+	</section>
 	<section id="leaderboard-unseeded" class="box">
 		<div class="table-wrapper">
 			<table  id="leaderboard-unseeded-table" class="alt lb tablesorter">
@@ -100,7 +145,7 @@
 							<td class="lb-trueskill">{{ .UnseededTrueSkill }} <span id="lastEloChange" class="{{ if lt .UnseededTrueSkillDelta 0.0 -}} red {{- else if gt .UnseededTrueSkillDelta 0.0}} green {{- end}}">{{if gt .UnseededTrueSkillDelta 0.0}}+{{end}}{{ if ne .UnseededTrueSkillDelta 0.0 -}}{{- .UnseededTrueSkillDelta -}}{{ end -}}</span></td>
 							<td class="lb-num-races">{{ .UnseededNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .UnseededLowestTime.Value }}</td>
-							<td class="lb-last-race"><a href="/race/{{ .UnseededLastRaceId }}">{{ .UnseededLastRace }}</a></td>
+							<td class="lb-last-race"><a href="/race/{{ .UnseededLastRaceID }}">{{ .UnseededLastRace.Value }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
@@ -148,7 +193,7 @@
 							<td class="lb-num-for">{{ .NumForfeits }}</td>
 							<td class="lb-num-races">{{ .NumRaces }}</td>
 							<td class="lb-fastest">{{ .LowestTime }}</td>
-							<td class="lb-last-race"><a href="/race/{{ .LastRaceId }}">{{ .LastRace.Value }}</a></td>
+							<td class="lb-last-race"><a href="/race/{{ .LastRaceID }}">{{ .LastRace.Value }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
@@ -191,7 +236,7 @@
 							<td class="lb-trueskill">{{ .DivTrueSkill }} <span id="lastEloChange" class="{{ if lt .DivTrueSkillDelta 0.0 -}} red {{- else if gt .DivTrueSkillDelta 0.0}} green {{- end}}">{{if gt .DivTrueSkillDelta 0.0}}+{{end}}{{ if ne .DivTrueSkillDelta 0.0 -}}{{- .DivTrueSkillDelta -}}{{ end -}}</span></td>
 							<td class="lb-num-races">{{ .DivNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .DivLowestTime.Value }}</td>
-							<td class="lb-last-race"><a href="/race/{{ .DivLastRaceId }}">{{ .DivLastRace }}</a></td>
+							<td class="lb-last-race"><a href="/race/{{ .DivLastRaceID }}">{{ .DivLastRace.Value }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
