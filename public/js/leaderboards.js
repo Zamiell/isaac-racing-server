@@ -100,7 +100,6 @@ function ConvertForfeitRate(leaderboard, tableData) {
 function ConvertTimeStamp(leaderboard, tableData) {
     var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
     var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
-    console.log(leaderboard + ' ' + tableData);
     $('#leaderboard-' + leaderboard + ' ' + tableData).each(function() {
         // Miserable hack to help with Safari's strict JS date restrictions
         dt = new Date($(this).html().replace(' +0000 UTC', '').replace(/\s/, 'T'));
