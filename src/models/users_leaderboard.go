@@ -92,20 +92,42 @@ func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) erro
 }
 
 func (*Users) SetLastRace(format string) error {
+	var SQLString string
+	if format == "unseeded_solo" {
+		SQLString = `
+			UPDATE users
+			SET ` + format + `_last_race = (
+				SELECT races.datetime_finished
+				FROM race_participants
+					JOIN races ON race_participants.race_id = races.id
+				WHERE
+					user_id = users.id
+					AND races.format = "unseeded"
+					AND races.ranked = 1
+					AND races.solo = 1
+				ORDER BY races.datetime_finished DESC
+				LIMIT 1
+			)
+		`
+	} else {
+		SQLString = `
+			UPDATE users
+			SET ` + format + `_last_race = (
+				SELECT races.datetime_finished
+				FROM race_participants
+					JOIN races ON race_participants.race_id = races.id
+				WHERE
+					user_id = users.id
+					AND races.format = "` + format + `"
+					AND races.solo = 0
+				ORDER BY races.datetime_finished DESC
+				LIMIT 1
+			)
+		`
+	}
+
 	var stmt *sql.Stmt
-	if v, err := db.Prepare(`
-		UPDATE users
-		SET ` + format + `_last_race = (
-			SELECT races.datetime_finished
-			FROM race_participants
-				JOIN races ON race_participants.race_id = races.id
-			WHERE
-				user_id = users.id
-				AND races.format = "` + format + `"
-			ORDER BY races.datetime_finished DESC
-			LIMIT 1
-		)
-	`); err != nil {
+	if v, err := db.Prepare(SQLString); err != nil {
 		return err
 	} else {
 		stmt = v
@@ -159,6 +181,7 @@ func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int,
 					JOIN races ON race_participants.race_id = races.id
 				WHERE race_participants.user_id = ?
 					AND races.ranked = 1
+					AND races.solo = 1
 					AND races.format = "unseeded"
 			),
 			unseeded_solo_num_forfeits = ?,
@@ -170,6 +193,7 @@ func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int,
 				WHERE race_participants.user_id = ?
 					AND race_participants.place > 0
 					AND races.ranked = 1
+					AND races.solo = 1
 					AND races.format = "unseeded"
 			),
 			unseeded_solo_last_race = NOW()

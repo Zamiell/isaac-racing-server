@@ -49,5 +49,5 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	log.Debug("--------------")
 
 	// Do extra stuff
-	leaderboardRecalculateSoloUnseeded()
+	//leaderboardRecalculateSoloUnseeded()
 }
