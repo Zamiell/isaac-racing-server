@@ -7,6 +7,18 @@ import (
 )
 
 type LeaderboardRowUnseeded struct {
+	Name                   string
+	UnseededTrueSkill      float64
+	UnseededTrueSkillDelta float64
+	UnseededNumRaces       sql.NullInt64
+	UnseededLowestTime     sql.NullInt64
+	UnseededLastRace       time.Time
+	UnseededLastRaceId     int
+	Verified               int
+	StreamURL              string
+}
+
+type LeaderboardRowUnseededSolo struct {
 	Name            string
 	AdjustedAverage int
 	RealAverage     int
@@ -40,8 +52,75 @@ type LeaderboardRowSeeded struct {
 	Verified  int
 }
 
-// Make a leaderboard for the unseeded format based on all of the users
-func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]LeaderboardRowUnseeded, error) {
+func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]LeaderboardRowUnseeded, error) {
+	var rows *sql.Rows
+	if v, err := db.Query(`
+		SELECT
+			u.username,
+			ROUND(u.unseeded_trueskill, 2),
+			ROUND(u.unseeded_trueskill_change, 2),
+			u.unseeded_num_races,
+			(SELECT
+					MIN(run_time)
+				FROM
+					race_participants
+				LEFT JOIN races
+					ON race_participants.race_id = races.id
+				WHERE
+					place > 0
+					AND u.id = user_id
+					AND races.format = 'unseeded') as r_time,
+			u.unseeded_last_race,
+			MAX(rp.race_id),
+			u.verified,
+			u.stream_url
+		FROM
+			users u
+			LEFT JOIN
+				race_participants rp ON rp.user_id = u.id
+			LEFT JOIN
+				races r ON r.id = rp.race_id
+		WHERE
+			unseeded_num_races >= ?
+				AND r.format = 'unseeded'
+				AND rp.place > 0
+				AND u.id NOT IN (SELECT user_id FROM banned_users)
+		GROUP BY u.username
+		ORDER BY u.unseeded_trueskill DESC
+		LIMIT ?
+	`, racesNeeded, racesLimit); err != nil {
+		return nil, err
+	} else {
+		rows = v
+	}
+	defer rows.Close()
+
+	// Iterate over the users
+	leaderboard := make([]LeaderboardRowUnseeded, 0)
+	for rows.Next() {
+		var row LeaderboardRowUnseeded
+		if err := rows.Scan(
+			&row.Name,
+			&row.UnseededTrueSkill,
+			&row.UnseededTrueSkillDelta,
+			&row.UnseededNumRaces,
+			&row.UnseededLowestTime,
+			&row.UnseededLastRace,
+			&row.UnseededLastRaceId,
+			&row.Verified,
+			&row.StreamURL,
+		); err != nil {
+			return nil, err
+		}
+
+		// Append this row to the leaderboard
+		leaderboard = append(leaderboard, row)
+	}
+	return leaderboard, nil
+}
+
+// Make a leaderboard for the unseeded solo format based on all of the users
+func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]LeaderboardRowUnseededSolo, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -63,7 +142,7 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]Lea
 			LEFT JOIN races r
 				ON r.id = rp.race_id
 		WHERE
-			u.unseeded_num_races >= ?
+			u.unseeded_solo_num_races >= ?
 			AND u.id NOT IN (SELECT user_id FROM banned_users)
 		GROUP BY
 			u.username
@@ -78,9 +157,9 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]Lea
 	defer rows.Close()
 
 	// Iterate over the users
-	leaderboard := make([]LeaderboardRowUnseeded, 0)
+	leaderboard := make([]LeaderboardRowUnseededSolo, 0)
 	for rows.Next() {
-		var row LeaderboardRowUnseeded
+		var row LeaderboardRowUnseededSolo
 		if err := rows.Scan(
 			&row.Name,
 			&row.AdjustedAverage,

@@ -28,26 +28,26 @@ div table td {
   padding: 0 0.25em 0.25em 0.25em;
   }
 
-#leaderboard-buttons .button {
+[id^="leaderboard-buttons"] .button {
     box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.5);
     color: #fff;
     min-width: 12em;
     background-color: #202d46; /* blue of the cross is #435D91, this is 5 shades darker */
     cursor: default;
 }
-#leaderboard-buttons .inactive {
+[id^="leaderboard-buttons"] .inactive {
     background-color: transparent;
   }
 
-#leaderboard-buttons :not(.disabled).button {
+[id^="leaderboard-buttons"] :not(.disabled).button {
     cursor: pointer;
 }
 
-#leaderboard-buttons .inactive:hover {
+[id^="leaderboard-buttons"] .inactive:hover {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
-#leaderboard-buttons .inactive:active {
+[id^="leaderboard-buttons"] .inactive:active {
     background-color: rgba(255, 255, 255, 0.2);
 }
 

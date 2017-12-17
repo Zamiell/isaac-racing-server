@@ -55,8 +55,9 @@ type TemplateData struct {
 	MissingPlayer     string
 
 	// Leaderboard stuff
-	LeaderboardUnseeded  []models.LeaderboardRowUnseeded
-	LeaderboardDiversity []models.LeaderboardRowDiversity
+	LeaderboardUnseeded     []models.LeaderboardRowUnseeded
+	LeaderboardUnseededSolo []models.LeaderboardRowUnseededSolo
+	LeaderboardDiversity    []models.LeaderboardRowDiversity
 	//LeaderboardSeeded []models.LeaderboardRowSeeded
 
 	// Hall of Fame stuff

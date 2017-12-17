@@ -80,16 +80,16 @@ func leaderboardRecalculateSoloUnseeded() {
 	for _, modelsRace := range allRaces {
 		// Convert the "RaceHistory" struct to a "Race" struct
 		race := &Race{}
-		race.ID = modelsRace.RaceID
+		race.ID = int(modelsRace.RaceID.Int64)
 		race.Ruleset.Format = format
 		race.Racers = make(map[string]*Racer)
 		for _, modelsRacer := range modelsRace.RaceParticipants {
 			racer := &Racer{
-				ID:    modelsRacer.ID,
-				Name:  modelsRacer.RacerName,
-				Place: modelsRacer.RacerPlace,
+				ID:    int(modelsRacer.ID.Int64),
+				Name:  modelsRacer.RacerName.String,
+				Place: int(modelsRacer.RacerPlace.Int64),
 			}
-			race.Racers[modelsRacer.RacerName] = racer
+			race.Racers[modelsRacer.RacerName.String] = racer
 		}
 
 		// Pretend like this race just finished

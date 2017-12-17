@@ -35,10 +35,13 @@ type LeaderboardUnseeded []models.LeaderboardRowUnseeded
 func httpLeaderboards(c *gin.Context) {
 	// Local variables
 	w := c.Writer
-	unseededRacesNeeded := 20
-	unseededRacesLimit := 50
+
+	unseededRacesNeeded := 5
+	unseededRacesLimit := 1000
+	unseededSoloRacesNeeded := 20
+	unseededSoloRacesLimit := 1000
 	diversityRacesNeeded := 10
-	diversityRacesLimit := 200
+	diversityRacesLimit := 1000
 	/*
 		leaderboardSeeded, err := db.Users.GetLeaderboardSeeded()
 		if err != nil {
@@ -47,9 +50,17 @@ func httpLeaderboards(c *gin.Context) {
 			return
 		}
 	*/
-	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseededSolo(unseededRacesNeeded, unseededRacesLimit)
+
+	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseeded(unseededRacesNeeded, unseededRacesLimit)
 	if err != nil {
 		log.Error("Failed to get the unseeded leaderboard:", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	leaderboardUnseededSolo, err := db.Users.GetLeaderboardUnseededSolo(unseededSoloRacesNeeded, unseededSoloRacesLimit)
+	if err != nil {
+		log.Error("Failed to get the unseeded solo leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -71,9 +82,10 @@ func httpLeaderboards(c *gin.Context) {
 	// TODO
 
 	data := TemplateData{
-		Title:                "Leaderboards",
-		LeaderboardUnseeded:  leaderboardUnseeded,
-		LeaderboardDiversity: leaderboardDiversity,
+		Title:                   "Leaderboards",
+		LeaderboardUnseeded:     leaderboardUnseeded,
+		LeaderboardUnseededSolo: leaderboardUnseededSolo,
+		LeaderboardDiversity:    leaderboardDiversity,
 	}
 
 	httpServeTemplate(w, "leaderboards", data)

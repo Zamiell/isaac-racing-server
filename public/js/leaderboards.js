@@ -5,18 +5,26 @@ let button_array = ["seeded","seeded-solo","unseeded","unseeded-solo","diversity
 function hideAllNotes() {
   $('#unseeded-notes-banner').css("display","none");
   $('#unseeded-notes').css("display","none");
+  $('#unseeded-solo-notes-banner').css("display","none");
+  $('#unseeded-solo-notes').css("display","none");
   $('#diversity-notes-banner').css("display","none");
   $('#diversity-notes').css("display","none");
 }
 
+function hideAllBoards() {
+  for (var i = 0, len = button_array.length; i < len; i++) {
+    $('#leaderboard-' + button_array[i]).css("display","none");
+  }
+}
+
 function showLeaderboard(type) {
   transition = true;
-  console.log(type);
   hideAllNotes();
-
+  // Set all the buttons inactive
   for (var i = 0, len = button_array.length; i < len; i++) {
     $('#leaderboard-' + button_array[i] + '-button').addClass('inactive');
   }
+  // Show the current leaderboard button
   $('#leaderboard-' + type + '-button').removeClass('inactive');
   $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
     $('#leaderboard-' + type).add('#' + type + '-notes-banner').add('#' + type + '-notes').fadeIn(350, function() {
@@ -35,8 +43,16 @@ function pad(n, width, z) {
 $(document).ready(function() {
 
     hideAllNotes();
+    hideAllBoards();
+
     // Unseeded things
 
+    $('#leaderboard-unseeded-table').tablesorter();
+    AdjustRank('unseeded');
+    ConvertTime('unseeded','lb-fastest');
+    ConvertTimeStamp('unseeded','td.lb-last-race a');
+
+    // Unseeded Solo things
     $('#leaderboard-unseeded-solo-table').tablesorter();
     AdjustRank('unseeded-solo');
     ConvertTime('unseeded-solo','lb-adj-avg');
@@ -53,7 +69,7 @@ $(document).ready(function() {
     ConvertTimeStamp('diversity','td.lb-last-race a');
 
     // Starting functions
-    showLeaderboard('unseeded-solo');
+    showLeaderboard('unseeded');
     CheckForHash();
 
 });
@@ -84,10 +100,10 @@ function ConvertForfeitRate(leaderboard, tableData) {
 function ConvertTimeStamp(leaderboard, tableData) {
     var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
     var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
-
+    console.log(leaderboard + ' ' + tableData);
     $('#leaderboard-' + leaderboard + ' ' + tableData).each(function() {
         // Miserable hack to help with Safari's strict JS date restrictions
-        dt = new Date($(this).html().replace(/\s/, 'T').replace(' +0000 UTC', ''));
+        dt = new Date($(this).html().replace(' +0000 UTC', '').replace(/\s/, 'T'));
         var curr_hours = dt.getHours();
         var curr_min = dt.getMinutes();
         var curr_time = curr_hours + ":" + ((curr_min < 10) ? "0" + curr_min : curr_min);
@@ -110,10 +126,17 @@ function ConvertTimeStamp(leaderboard, tableData) {
 function CheckForHash() {
     if (window.location.hash) {
         type = window.location.hash.substr(1);
-        if (type == 'diversity' || type == 'unseeded' || type == 'unseeded-solo') {
+        if (
+               type == 'seeded'
+            || type == 'seeded-solo'
+            || type == 'diversity'
+            || type == 'unseeded'
+            || type == 'unseeded-solo'
+            || type == 'other'
+          ) {
             showLeaderboard(type);
         } else {
-            showLeaderboard('unseeded-solo');
+            showLeaderboard('unseeded');
         }
     }
 }
