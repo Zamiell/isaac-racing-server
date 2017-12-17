@@ -68,40 +68,40 @@
 					{{ range .ResultsRaces }}
 						<tr>
 							{{ $racers := len .RaceParticipants }}
-							<td rowspan="{{ $racers }}" id="race-{{ .RaceID }}" class="races-td-id"><a href="/race/{{ .RaceID }}">{{ .RaceID }}</a></td>
-							<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID }}" class="races-td-date"> {{ .RaceDateStart }}</td>
-							<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID }}" class="races-td-format">
-								<!-- <span id="racesize-{{ .RaceID }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
-								<span id="racetype-{{ .RaceID }}" class="race-types"><img  height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize 0 -}} -solo {{- end }}.png" /></span>
-								<span id="raceformat-{{ .RaceID }}" class="race-formats"><img  height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat }}.png" /></span>
+							<td rowspan="{{ $racers }}" id="race-{{ .RaceID.Int64 }}" class="races-td-id"><a href="/race/{{ .RaceID.Int64 }}">{{ .RaceID.Int64 }}</a></td>
+							<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID.Int64 }}" class="races-td-date"> {{ .RaceDateStart.Value }}</td>
+							<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID.Int64 }}" class="races-td-format">
+								<!-- <span id="racesize-{{ .RaceID.Int64 }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize.Int64 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
+								<span id="racetype-{{ .RaceID.Int64 }}" class="race-types"><img  height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType.String "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize.Int64 0 -}} -solo {{- end }}.png" /></span>
+								<span id="raceformat-{{ .RaceID.Int64 }}" class="race-formats"><img  height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat.String }}.png" /></span>
 							</td>
-							<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID }}" class="races-td-char"><img src="/public/img/characters/{{ .RaceChar }}.png" /></td>
-							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID }}" class="races-td-goal"><img src="/public/img/goals/{{ .RaceGoal }}.png" /></td>
+							<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID }}" class="races-td-char"><img src="/public/img/characters/{{ .RaceChar.String }}.png" /></td>
+							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID }}" class="races-td-goal"><img src="/public/img/goals/{{ .RaceGoal.String }}.png" /></td>
 
 							{{ range $index, $results := .RaceParticipants }}
 								<td class=racername>
-									<a href="../profile/{{ .RacerName }}">{{ .RacerName }}</a>
+									<a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a>
 								</td>
 
-								{{ if eq .RacerPlace -1 -}} <!-- They quit -->
+								{{ if eq .RacerPlace.Int64 -1 -}} <!-- They quit -->
 									<td class="races-td-place">Quit</td>
 									<td class="races-td-time">&nbsp;</td>
-									{{ if lt .RacerStartingBuild 1 -}}
-										<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+									{{ if lt .RacerStartingBuild.Int64 1 -}}
+										<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem.Int64 -}}.png" /></td>
 									{{- else -}}
-										<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+										<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
 									{{- end -}}
 								{{- else}} <!-- They finished, yes this is backwards hehe -->
-									<td class="races-td-place">{{ .RacerPlace }}</td>
-									<td class="races-td-time">{{ .RacerTime }}</td>
-									{{ if lt .RacerStartingBuild 1 -}}
-										<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem -}}.png" /></td>
+									<td class="races-td-place">{{ .RacerPlace.Int64 }}</td>
+									<td class="races-td-time">{{ .RacerTime.Value }}</td>
+									{{ if lt .RacerStartingBuild.Int64 1 -}}
+										<td class="races-td-start"><img src="/public/img/items/{{- .RacerStartingItem.Int64 -}}.png" /></td>
 									{{- else -}}
-										<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild -}}.png" /></td>
+										<td class="races-td-start"><img src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
 									{{- end -}}
 								{{- end }}
-								<!-- {{ if ne .RacerComment "-" -}}
-									<td	title="{{ .RacerComment }}" class="races-td-comment"> {{ .RacerComment }}</td>
+								<!-- {{ if ne .RacerComment.String "-" -}}
+									<td	title="{{ .RacerComment.String }}" class="races-td-comment"> {{ .RacerComment.String }}</td>
 								{{- else}}
 									<td>&nbsp;</td>
 								{{ end }} -->

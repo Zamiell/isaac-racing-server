@@ -6,6 +6,18 @@
     color: white;
 }
 
+
+.float_center {
+  float: right;
+  position: relative;
+  left: -50%
+  text-align: center;
+}
+.float_center > .child {
+  position: relative;
+  left: 50%;
+}
+
 div table td {
   padding: 0.15em 0.15em;
   text-align: center;
@@ -23,9 +35,11 @@ div table td {
     background-color: #202d46; /* blue of the cross is #435D91, this is 5 shades darker */
     cursor: default;
 }
-
 #leaderboard-buttons .inactive {
     background-color: transparent;
+  }
+
+#leaderboard-buttons :not(.disabled).button {
     cursor: pointer;
 }
 

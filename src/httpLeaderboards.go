@@ -47,7 +47,7 @@ func httpLeaderboards(c *gin.Context) {
 			return
 		}
 	*/
-	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseeded(unseededRacesNeeded, unseededRacesLimit)
+	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseededSolo(unseededRacesNeeded, unseededRacesLimit)
 	if err != nil {
 		log.Error("Failed to get the unseeded leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

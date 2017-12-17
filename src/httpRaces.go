@@ -40,7 +40,7 @@ func httpRaces(c *gin.Context) {
 
 	// Capitalize the RaceFormat data
 	for i := range raceData {
-		raceData[i].RaceFormat = strings.Title(raceData[i].RaceFormat)
+		raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
 	}
 
 	// Build template data for serving to the template
@@ -75,7 +75,7 @@ func httpRace(c *gin.Context) {
 	}
 
 	for i := range raceData {
-		raceData[i].RaceFormat = strings.Title(raceData[i].RaceFormat)
+		raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
 	}
 
 	data := TemplateData{

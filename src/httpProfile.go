@@ -23,7 +23,7 @@ func httpProfile(c *gin.Context) {
 
 	// Check if the player exists
 	exists, playerID, err := db.Users.Exists(player)
-	if (!exists) {
+	if !exists {
 		data := TemplateData{
 			Title:         "Profile Missing",
 			MissingPlayer: player,
@@ -64,11 +64,12 @@ func httpProfile(c *gin.Context) {
 
 	// Capitalize the RaceFormat data
 	for i := range raceDataRanked {
-		raceDataRanked[i].RaceFormat = strings.Title(raceDataRanked[i].RaceFormat)
+		raceDataRanked[i].RaceFormat.String = strings.Title(raceDataRanked[i].RaceFormat.String)
 	}
 	for i := range raceDataAll {
-		raceDataAll[i].RaceFormat = strings.Title(raceDataAll[i].RaceFormat)
+		raceDataAll[i].RaceFormat.String = strings.Title(raceDataAll[i].RaceFormat.String)
 	}
+
 	// Set data to serve to the template
 	data := TemplateData{
 		Title:             "Profile",

@@ -57,11 +57,11 @@
 				<tbody>
 					{{ range .ResultsProfiles }}
 						<tr>
-							<td class="profile-user"><a href="../profile/{{ .Username }}"> {{ .Username }} </a></td>
-							<td id="date" class="profile-date-created"> {{ .DatetimeCreated }}</td>
-							<td class="profile-achi"> {{ .NumAchievements }} </td>
-							<td class="profile-total-races"> {{ .TotalRaces }} </td>
-							<td class="profile-last-race"><a href="/races/{{ .ProfileLastRaceId.Value }}">{{ .ProfileLastRaceDate.Value }}</a></td>
+							<td class="profile-user"><a href="../profile/{{ .Username.String }}"> {{ .Username.String }} </a></td>
+							<td id="date" class="profile-date-created"> {{ .DatetimeCreated.Value }}</td>
+							<td class="profile-achi"> {{ .NumAchievements.Int64 }} </td>
+							<td class="profile-total-races"> {{ .TotalRaces.Int64 }} </td>
+							<td class="profile-last-race"><a href="/races/{{ .ProfileLastRaceID.Value }}">{{ .ProfileLastRaceDate.Value }}</a></td>
 						</tr>
 					{{ end }}
 				</tbody>

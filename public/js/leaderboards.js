@@ -1,5 +1,6 @@
-let activeLeaderboard = 'unseeded';
+let activeLeaderboard = 'unseeded-solo';
 let transition = false;
+let button_array = ["seeded","seeded-solo","unseeded","unseeded-solo","diversity","other"];
 
 function hideAllNotes() {
   $('#unseeded-notes-banner').css("display","none");
@@ -7,34 +8,23 @@ function hideAllNotes() {
   $('#diversity-notes-banner').css("display","none");
   $('#diversity-notes').css("display","none");
 }
-function showLeaderboard(type) {
-  console.log(type);
-  transition = true;
 
+function showLeaderboard(type) {
+  transition = true;
+  console.log(type);
   hideAllNotes();
-  if (type == 'season1r9') {
-      $(type).fadeOut(350, function() {
-          $(type).add(type).fadeIn(350, function() {
-              activeLeaderboard = type;
-              transition = false;
-          });
-      });
-  } else if (type == 'season1r14') {
-    $(type).fadeOut(350, function() {
-        $(type).fadeIn(350, function() {
-            activeLeaderboard = type;
-            transition = false;
-        });
-    });
-  } else {
-    $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
-        $('#leaderboard-' + type).add('#unseeded-notes-banner').add('#unseeded-notes').fadeIn(350, function() {
-            activeLeaderboard = type;
-            transition = false;
-        });
-    });
+
+  for (var i = 0, len = button_array.length; i < len; i++) {
+    $('#leaderboard-' + button_array[i] + '-button').addClass('inactive');
   }
-}
+  $('#leaderboard-' + type + '-button').removeClass('inactive');
+  $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
+    $('#leaderboard-' + type).add('#' + type + '-notes-banner').add('#' + type + '-notes').fadeIn(350, function() {
+      activeLeaderboard = type;
+      transition = false;
+    });
+  });
+};
 
 function pad(n, width, z) {
     z = z || '0';
@@ -46,21 +36,24 @@ $(document).ready(function() {
 
     hideAllNotes();
     // Unseeded things
-    $('#leaderboard-unseeded-table').tablesorter();
-    AdjustRank('unseeded');
-    ConvertTime('unseeded','lb-adj-avg');
-    ConvertTime('unseeded','lb-real-avg');
-    ConvertTime('unseeded','lb-fastest');
-    ConvertTime('unseeded','lb-for-pen');
-    ConvertTimeStamp('unseeded','td.lb-last-race a');
-    ConvertForfeitRate('unseeded','lb-num-for');
+
+    $('#leaderboard-unseeded-solo-table').tablesorter();
+    AdjustRank('unseeded-solo');
+    ConvertTime('unseeded-solo','lb-adj-avg');
+    ConvertTime('unseeded-solo','lb-real-avg');
+    ConvertTime('unseeded-solo','lb-fastest');
+    ConvertTime('unseeded-solo','lb-for-pen');
+    ConvertTimeStamp('unseeded-solo','td.lb-last-race a');
+    ConvertForfeitRate('unseeded-solo','lb-num-for');
 
     //Diversity things
     $('#leaderboard-diversity-table').tablesorter();
     AdjustRank('diversity');
     ConvertTime('diversity','lb-fastest');
     ConvertTimeStamp('diversity','td.lb-last-race a');
-    showLeaderboard('unseeded');
+
+    // Starting functions
+    showLeaderboard('unseeded-solo');
     CheckForHash();
 
 });
@@ -117,23 +110,37 @@ function ConvertTimeStamp(leaderboard, tableData) {
 function CheckForHash() {
     if (window.location.hash) {
         type = window.location.hash.substr(1);
-        if (type == 'diversity' || type == 'unseeded') {
+        if (type == 'diversity' || type == 'unseeded' || type == 'unseeded-solo') {
             showLeaderboard(type);
         } else {
-            showLeaderboard('unseeded');
+            showLeaderboard('unseeded-solo');
         }
     }
 }
 
 
-/*$('#leaderboard-seeded-button').click(function() {
+/*
+$('#leaderboard-seeded-button').click(function() {
     if (activeLeaderboard !== 'seeded' && transition === false) {
         showLeaderboard('seeded');
     }
-});*/
+});
+*/
+/*
+$('#leaderboard-seeded-solo-button').click(function() {
+    if (activeLeaderboard !== 'seeded-solo' && transition === false) {
+        showLeaderboard('seeded-solo');
+    }
+});
+*/
 $('#leaderboard-unseeded-button').click(function() {
     if (activeLeaderboard !== 'unseeded' && transition === false) {
         showLeaderboard('unseeded');
+    }
+});
+$('#leaderboard-unseeded-solo-button').click(function() {
+    if (activeLeaderboard !== 'unseeded-solo' && transition === false) {
+        showLeaderboard('unseeded-solo');
     }
 });
 $('#leaderboard-diversity-button').click(function() {

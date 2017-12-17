@@ -2,7 +2,7 @@ package models
 
 import (
 	"database/sql"
-	"time"
+	"github.com/go-sql-driver/mysql"
 )
 
 /*
@@ -12,26 +12,26 @@ import (
 
 // RaceHistory gets the history for each race in the database
 type RaceHistory struct {
-	RaceID           int
-	RaceSize         int
-	RaceType         string
-	RaceFormat       string
-	RaceChar         string
-	RaceGoal         string
-	RaceDateStart    time.Time
-	RaceDateFinished time.Time
+	RaceID           sql.NullInt64
+	RaceSize         sql.NullInt64
+	RaceType         sql.NullString
+	RaceFormat       sql.NullString
+	RaceChar         sql.NullString
+	RaceGoal         sql.NullString
+	RaceDateStart    mysql.NullTime
+	RaceDateFinished mysql.NullTime
 	RaceParticipants []RaceHistoryParticipants
 }
 
 // RaceHistoryParticipants gets the user stats for each racer in each race
 type RaceHistoryParticipants struct {
-	ID                 int
-	RacerName          string
-	RacerPlace         int
-	RacerTime          string
-	RacerStartingItem  int
-	RacerStartingBuild int
-	RacerComment       string
+	ID                 sql.NullInt64
+	RacerName          sql.NullString
+	RacerPlace         sql.NullInt64
+	RacerTime          sql.NullString
+	RacerStartingItem  sql.NullInt64
+	RacerStartingBuild sql.NullInt64
+	RacerComment       sql.NullString
 }
 
 // GetRacesHistory gets all data for all races
