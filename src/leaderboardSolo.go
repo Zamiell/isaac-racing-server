@@ -9,14 +9,6 @@ const (
 	numUnseededRacesForAverage = 50
 )
 
-func leaderboardUpdateSeeded(race *Race) {
-	// Update the stats for every person in the race
-	/*
-		for _, racer := range race.Racers {
-		}
-	*/
-}
-
 func leaderboardUpdateSoloSeeded(race *Race) {
 	// Update the stats for every person in the race
 	/*
@@ -25,16 +17,9 @@ func leaderboardUpdateSoloSeeded(race *Race) {
 	*/
 }
 
-func leaderboardUpdateUnseeded(race *Race) {
-	// Update the stats for every person in the race
-	/*
-		for _, racer := range race.Racers {
-		}
-	*/
-}
-
 func leaderboardUpdateSoloUnseeded(race *Race) {
-	// Update the stats for every person in the race
+	// Update the stats for the solo racer
+	// (we still have to iterate over the map to get the racer)
 	for _, racer := range race.Racers {
 		var unseededTimes []models.UnseededTime
 		if v, err := db.RaceParticipants.GetNUnseededTimes(racer.ID, numUnseededRacesForAverage); err != nil {
@@ -74,4 +59,48 @@ func leaderboardUpdateSoloUnseeded(race *Race) {
 			return
 		}
 	}
+}
+
+func leaderboardRecalculateSoloUnseeded() {
+	format := "unseeded_solo"
+	if err := db.Users.ResetSoloUnseeded(); err != nil {
+		log.Error("Database error while resetting the unseeded solo stats:", err)
+		return
+	}
+
+	var allRaces []models.RaceHistory
+	if v, err := db.Races.GetAllRaces(format); err != nil {
+		log.Error("Database error while getting all of the races:", err)
+		return
+	} else {
+		allRaces = v
+	}
+
+	// Go through every race for this particular format in the database
+	for _, modelsRace := range allRaces {
+		// Convert the "RaceHistory" struct to a "Race" struct
+		race := &Race{}
+		race.ID = modelsRace.RaceID
+		race.Ruleset.Format = format
+		race.Racers = make(map[string]*Racer)
+		for _, modelsRacer := range modelsRace.RaceParticipants {
+			racer := &Racer{
+				ID:    modelsRacer.ID,
+				Name:  modelsRacer.RacerName,
+				Place: modelsRacer.RacerPlace,
+			}
+			race.Racers[modelsRacer.RacerName] = racer
+		}
+
+		// Pretend like this race just finished
+		leaderboardUpdateSoloUnseeded(race)
+	}
+
+	// Fix the "Date of Last Race" column
+	if err := db.Users.SetLastRace(format); err != nil {
+		log.Error("Database error while setting the last race:", err)
+		return
+	}
+
+	log.Info("Successfully reset the leaderboard for " + format + ".")
 }

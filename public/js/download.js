@@ -11,7 +11,7 @@ function GetLatestReleaseInfo() {
         // 3 - RacingPlus-WebSetup-#.##.##.exe
 
         // Make the Windows download button
-        let windowsURL = '#';
+        let windowsURL = '';
         for (const asset of json.assets) {
             const url = asset.browser_download_url;
             if (url.endsWith('.exe')) {
@@ -19,11 +19,12 @@ function GetLatestReleaseInfo() {
                 break;
             }
         }
-        $('#download-button-windows').attr('href', windowsURL);
+        if (windowsURL !== '') {
+            $('#download-button-windows').attr('href', windowsURL);
+        }
 
         // Make the macOS download button
-        /*
-        let macOSURL = '#';
+        let macOSURL = '';
         for (const asset of json.assets) {
             const url = asset.browser_download_url;
             if (url.endsWith('.dmg')) {
@@ -31,8 +32,9 @@ function GetLatestReleaseInfo() {
                 break;
             }
         }
-        $('#download-button-macos').attr('href', macOSURL);
-        */
+        if (macOSURL !== '') {
+            $('#download-button-macos').attr('href', macOSURL);
+        }
 
         // Set the current version and release date
         $('#version').html(json.tag_name);

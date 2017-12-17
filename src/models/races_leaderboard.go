@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 )
 
 /*
@@ -12,20 +11,7 @@ import (
 
 func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 	var SQLString string
-	if format == "seeded" {
-		SQLString = `
-			SELECT
-				id
-			FROM
-				races
-			WHERE
-				format = "seeded"
-				AND finished = 1
-				AND solo = 0
-			ORDER BY
-				id
-		`
-	} else if format == "unseeded" {
+	if format == "unseeded_solo" {
 		SQLString = `
 			SELECT
 				id
@@ -34,25 +20,24 @@ func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 			WHERE
 				format = "unseeded"
 				AND finished = 1
-				AND solo = 0
+				AND ranked = 1
+				AND solo = 1
 			ORDER BY
 				id
 		`
-	} else if format == "diversity" {
+	} else {
 		SQLString = `
 			SELECT
 				id
 			FROM
 				races
 			WHERE
-				format = "diversity"
+				format = "` + format + `"
 				AND finished = 1
 				AND solo = 0
 			ORDER BY
 				id
 		`
-	} else {
-		return nil, errors.New("unknown format")
 	}
 
 	var rows *sql.Rows

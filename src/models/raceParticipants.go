@@ -107,7 +107,7 @@ type UnseededTime struct {
 }
 
 // Get a list of the a player's times for ranked unseeded races
-// Used in the "leaderboardUpdateUnseeded()" function
+// Used in the "leaderboardUpdateSoloUnseeded()" function
 func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`

@@ -151,8 +151,8 @@ func leaderboardRecalculateTrueSkill(format string) {
 	}
 
 	// Fix the "Date of Last Race" column
-	if err := db.Users.SetTrueSkillLastRace(format); err != nil {
-		log.Error("Database error while setting the Trueskill last race:", err)
+	if err := db.Users.SetLastRace(format); err != nil {
+		log.Error("Database error while setting the last race:", err)
 		return
 	}
 

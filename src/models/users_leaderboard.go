@@ -7,7 +7,6 @@ package models
 
 import (
 	"database/sql"
-	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -33,54 +32,19 @@ type StatsTrueSkill struct {
 
 func (*Users) GetTrueSkill(userID int, format string) (StatsTrueSkill, error) {
 	var stats StatsTrueSkill
-	var SQLString string
-	if format == "seeded" {
-		SQLString = `
-			SELECT
-				seeded_trueskill,
-				seeded_trueskill_mu,
-				seeded_trueskill_sigma,
-				seeded_trueskill_change,
-				seeded_num_races,
-				seeded_last_race
-			FROM
-				users
-			WHERE
-				id = ?
-		`
-	} else if format == "unseeded" {
-		SQLString = `
-			SELECT
-				unseeded_trueskill,
-				unseeded_trueskill_mu,
-				unseeded_trueskill_sigma,
-				unseeded_trueskill_change,
-				unseeded_num_races,
-				unseeded_last_race
-			FROM
-				users
-			WHERE
-				id = ?
-		`
-	} else if format == "diversity" {
-		SQLString = `
-			SELECT
-				diversity_trueskill,
-				diversity_trueskill_mu,
-				diversity_trueskill_sigma,
-				diversity_trueskill_change,
-				diversity_num_races,
-				diversity_last_race
-			FROM
-				users
-			WHERE
-				id = ?
-		`
-	} else {
-		return stats, errors.New("unknown format")
-	}
-
-	if err := db.QueryRow(SQLString, userID).Scan(
+	if err := db.QueryRow(`
+		SELECT
+			`+format+`_trueskill,
+			`+format+`_trueskill_mu,
+			`+format+`_trueskill_sigma,
+			`+format+`_trueskill_change,
+			`+format+`_num_races,
+			`+format+`_last_race
+		FROM
+			users
+		WHERE
+			id = ?
+	`, userID).Scan(
 		&stats.TrueSkill,
 		&stats.Mu,
 		&stats.Sigma,
@@ -92,6 +56,91 @@ func (*Users) GetTrueSkill(userID int, format string) (StatsTrueSkill, error) {
 	}
 
 	return stats, nil
+}
+
+func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET
+			` + format + `_trueskill = ?,
+			` + format + `_trueskill_mu = ?,
+			` + format + `_trueskill_sigma = ?,
+			` + format + `_trueskill_change = ?,
+			` + format + `_num_races = ?,
+			` + format + `_last_race = NOW()
+		WHERE id = ?
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(
+		stats.TrueSkill,
+		stats.Mu,
+		stats.Sigma,
+		stats.Change,
+		stats.NumRaces,
+		userID,
+	); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*Users) SetLastRace(format string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET ` + format + `_last_race = (
+			SELECT races.datetime_finished
+			FROM race_participants
+				JOIN races ON race_participants.race_id = races.id
+			WHERE
+				user_id = users.id
+				AND races.format = "` + format + `"
+			ORDER BY races.datetime_finished DESC
+			LIMIT 1
+		)
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*Users) ResetTrueSkill(format string) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET
+			` + format + `_trueskill = 25,
+			` + format + `_trueskill_sigma = 8.333,
+			` + format + `_trueskill_change = 0,
+			` + format + `_num_races = 0,
+			` + format + `_last_race = NULL
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int, forfeitPenalty int) error {
@@ -147,169 +196,19 @@ func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int,
 	return nil
 }
 
-func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) error {
-	var SQLString string
-	if format == "seeded" {
-		SQLString = `
-			UPDATE users
-			SET
-				seeded_trueskill = ?,
-				seeded_trueskill_mu = ?,
-				seeded_trueskill_sigma = ?,
-				seeded_trueskill_change = ?,
-				seeded_num_races = ?,
-				seeded_last_race = NOW()
-			WHERE id = ?
-		`
-	} else if format == "unseeded" {
-		SQLString = `
-			UPDATE users
-			SET
-				unseeded_trueskill = ?,
-				unseeded_trueskill_mu = ?,
-				unseeded_trueskill_sigma = ?,
-				unseeded_trueskill_change = ?,
-				unseeded_num_races = ?,
-				unseeded_last_race = NOW()
-			WHERE id = ?
-		`
-	} else if format == "diversity" {
-		SQLString = `
-			UPDATE users
-			SET
-				diversity_trueskill = ?,
-				diversity_trueskill_mu = ?,
-				diversity_trueskill_sigma = ?,
-				diversity_trueskill_change = ?,
-				diversity_num_races = ?,
-				diversity_last_race = NOW()
-			WHERE id = ?
-		`
-	} else {
-		return errors.New("unknown format")
-	}
-
+func (*Users) ResetSoloUnseeded() error {
 	var stmt *sql.Stmt
-	if v, err := db.Prepare(SQLString); err != nil {
-		return err
-	} else {
-		stmt = v
-	}
-	defer stmt.Close()
-
-	if _, err := stmt.Exec(
-		stats.TrueSkill,
-		stats.Mu,
-		stats.Sigma,
-		stats.Change,
-		stats.NumRaces,
-		userID,
-	); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*Users) SetTrueSkillLastRace(format string) error {
-	var SQLString string
-	if format == "seeded" {
-		SQLString = `
-			UPDATE users
-			SET seeded_last_race = (
-				SELECT races.datetime_finished
-				FROM race_participants
-					JOIN races ON race_participants.race_id = races.id
-				WHERE
-					user_id = users.id
-					AND races.format = "seeded"
-				ORDER BY races.datetime_finished DESC
-				LIMIT 1
-			)
-		`
-	} else if format == "unseeded" {
-		SQLString = `
-			UPDATE users
-			SET unseeded_last_race = (
-				SELECT races.datetime_finished
-				FROM race_participants
-					JOIN races ON race_participants.race_id = races.id
-				WHERE
-					user_id = users.id
-					AND races.format = "unseeded"
-				ORDER BY races.datetime_finished DESC
-				LIMIT 1
-			)
-		`
-	} else if format == "diversity" {
-		SQLString = `
-			UPDATE users
-			SET diversity_last_race = (
-				SELECT races.datetime_finished
-				FROM race_participants
-					JOIN races ON race_participants.race_id = races.id
-				WHERE
-					user_id = users.id
-					AND races.format = "diversity"
-				ORDER BY races.datetime_finished DESC
-				LIMIT 1
-			)
-		`
-	} else {
-		return errors.New("unknown format")
-	}
-
-	var stmt *sql.Stmt
-	if v, err := db.Prepare(SQLString); err != nil {
-		return err
-	} else {
-		stmt = v
-	}
-	defer stmt.Close()
-
-	if _, err := stmt.Exec(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (*Users) ResetTrueSkill(format string) error {
-	var SQLString string
-	if format == "seeded" {
-		SQLString = `
-			UPDATE users
-			SET
-				seeded_trueskill = 25,
-				seeded_trueskill_sigma = 8.333,
-				seeded_trueskill_change = 0,
-				seeded_num_races = 0,
-				seeded_last_race = NULL
-		`
-	} else if format == "unseeded" {
-		SQLString = `
-			UPDATE users
-			SET
-				unseeded_trueskill = 25,
-				unseeded_trueskill_sigma = 8.333,
-				unseeded_trueskill_change = 0,
-				unseeded_num_races = 0,
-				unseeded_last_race = NULL
-		`
-	} else if format == "diversity" {
-		SQLString = `
-			UPDATE users
-			SET
-				diversity_trueskill = 25,
-				diversity_trueskill_sigma = 8.333,
-				diversity_trueskill_change = 0,
-				diversity_num_races = 0,
-				diversity_last_race = NULL
-		`
-	}
-
-	var stmt *sql.Stmt
-	if v, err := db.Prepare(SQLString); err != nil {
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET
+			unseeded_solo_adjusted_average = 0,
+			unseeded_solo_real_average = 0,
+			unseeded_solo_num_forfeits = 0,
+			unseeded_solo_forfeit_penalty = 0,
+			unseeded_solo_lowest_time = 0,
+			unseeded_solo_num_races = 0,
+			unseeded_solo_last_race = NULL
+	`); err != nil {
 		return err
 	} else {
 		stmt = v

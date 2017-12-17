@@ -64,14 +64,14 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	}
 	racer.Items = append(racer.Items, item)
 
+	type RacerAddItemMessage struct {
+		ID   int    `json:"id"`
+		Name string `json:"name"`
+		Item *Item  `json:"item"`
+	}
 	for racerName := range race.Racers {
 		// Not all racers may be online during a race
 		if s, ok := websocketSessions[racerName]; ok {
-			type RacerAddItemMessage struct {
-				ID   int    `json:"id"`
-				Name string `json:"name"`
-				Item *Item  `json:"item"`
-			}
 			websocketEmit(s, "racerAddItem", &RacerAddItemMessage{
 				raceID,
 				username,
@@ -87,5 +87,10 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 		len(racer.Rooms) > 1 {
 
 		racer.StartingItem = itemID
+		websocketEmit(s, "racerSetStartingItem", &RacerAddItemMessage{
+			raceID,
+			username,
+			item,
+		})
 	}
 }
