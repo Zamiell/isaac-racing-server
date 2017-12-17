@@ -9,21 +9,21 @@
 
 	<div id="leaderboard-buttons-row1" class="row">
 		<div class="4u 12u">
-			<a id="leaderboard-seeded-button" class="button fit inactive disabled ">Seeded</a>
+			<a id="leaderboard-seeded-button" class="button fit inactive disabled">Multiplayer Seeded</a>
 		</div>
 		<div class="4u 12u">
-			<a id="leaderboard-unseeded-button" class="button fit inactive">Unseeded</a>
+			<a id="leaderboard-unseeded-button" class="button fit inactive">Multiplayer Unseeded</a>
 		</div>
 		<div class="4u 12u">
-			<a id="leaderboard-diversity-button" class="button fit inactive">Diversity</a>
+			<a id="leaderboard-diversity-button" class="button fit inactive">Multiplayer Diversity</a>
 		</div>
 	</div>
 	<div id="leaderboard-buttons-row2" class="row">
 		<div class="4u 12u">
-			<a id="leaderboard-seeded-solo-button" class="button fit inactive disabled ">Seeded Solo</a>
+			<a id="leaderboard-seeded-solo-button" class="button fit inactive disabled ">Solo Seeded</a>
 		</div>
 		<div class="4u 12u">
-			<a id="leaderboard-unseeded-solo-button" class="button fit inactive">Unseeded Solo</a>
+			<a id="leaderboard-unseeded-solo-button" class="button fit inactive">Solo Unseeded</a>
 		</div>
 		<div class="4u 12u">
 			<a id="leaderboard-other-button" class="button fit inactive disabled">Other</a>
@@ -33,18 +33,8 @@
 	<p>&nbsp;</p>
 
 	<div class="12u">
-		<section class="small-box" id="unseeded-notes-banner" style="display: none;">
-			More information on this leaderboard calculation is listed at <a href="#unseeded-notes">the bottom of the page</a>.
-		</section>
-	</div>
-	<div class="12u">
-		<section class="small-box" id="unseeded-solo-notes-banner" style="display: none;">
-			More information on this leaderboard calculation is listed at <a href="#unseeded-solo-notes">the bottom of the page</a>.
-		</section>
-	</div>
-	<div class="12u">
-		<section class="small-box" id="diversity-notes-banner" style="display: none;">
-			More information on this leaderboard calculation is listed at <a href="#diversity-notes">the bottom of the page</a>.
+		<section class="small-box" id="notes-banner">
+			More information on leaderboard calculation is listed at <a href="#notes">the bottom of the page</a>.
 		</section>
 	</div>
 
@@ -289,25 +279,24 @@
 	</div>
 	-->
 
-	<div class="12u" id="unseeded-notes" style="display: none;">
+	<!-- Anchor for the notes link -->
+	<div id="notes"></div>
+
+	<div class="12u" id="notes-multiplayer" style="display: none;">
 		<section class="box">
-			<h3>Unseeded Leaderboard Notes</h3>
+			<h3>Multiplayer Leaderboard Notes</h3>
 			<ul>
-				<li>Players that play <strong>ranked</strong> unseeded races will appear on the leaderboard. (Seeded leaderboards are coming soon.)</li>
-				<li>Players with <strong>under 20 races</strong> are <strong>not included</strong> in the leaderboard.</li>
-				<li>Only the last 50 races are used for players with over 50 races.</li>
-				<li>A penalty is added to the average time based on: <code>average time * number of forfeits / number of races</code></li>
-				<li>This means that it is only advantageous to forfeit if your finishing time will be more than double your current average (approximately).</li>
-				<li>This formula is derived from <a href="https://en.wikipedia.org/wiki/Risk_assessment">risk assessment</a>.</li>
+				<li>Players with <strong>under 5 races</strong> in the particular format <strong>not included</strong> in the leaderboard.</li>
+				<li><a href="http://trueskill.org/">TrueSkill</a> is a ranking system designed by Microsoft.</li>
 				<li>Verified racers have agreed to stream every race they play for cheat-verification purposes. To request verification, please contact an administrator.</li>
 			</ul>
 		</section>
 	</div>
-	<div class="12u" id="unseeded-solo-notes" style="display: none;">
+	<div class="12u" id="notes-unseeded-solo" style="display: none;">
 		<section class="box">
 			<h3>Solo Unseeded Leaderboard Notes</h3>
 			<ul>
-				<li>Players that play <strong>ranked</strong> unseeded races will appear on the leaderboard. (Seeded leaderboards are coming soon.)</li>
+				<li>Players that play <strong>ranked</strong> solo unseeded races will appear on the leaderboard.</li>
 				<li>Players with <strong>under 20 races</strong> are <strong>not included</strong> in the leaderboard.</li>
 				<li>Only the last 50 races are used for players with over 50 races.</li>
 				<li>A penalty is added to the average time based on: <code>average time * number of forfeits / number of races</code></li>
@@ -317,13 +306,13 @@
 			</ul>
 		</section>
 	</div>
-	<div class="12u" id="diversity-notes" style="display: none;">
+	<div class="12u" id="notes-seeded-solo" style="display: none;">
 		<section class="box">
-			<h3>Diversity Leaderboard Notes</h3>
+			<h3>Solo Seeded Leaderboard Notes</h3>
 			<ul>
-				<li>All Diversity races will appear on this leaderboard.</li>
-				<li>Players with <strong>under 10 races</strong> are <strong>not included</strong> in the leaderboard.</li>
-				<li>This formula is derived from Microsoft's <a href="http://trueskill.org/">TrueSkill</a>.</li>
+				<li>Players that play <strong>ranked</strong> solo seeded races will appear on the leaderboard.</li>
+				<li>Players with <strong>under 5 races</strong> are <strong>not included</strong> in the leaderboard.</li>
+				<li><a href="http://trueskill.org/">TrueSkill</a> is a ranking system designed by Microsoft.</li>
 				<li>Verified racers have agreed to stream every race they play for cheat-verification purposes. To request verification, please contact an administrator.</li>
 			</ul>
 		</section>

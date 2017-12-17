@@ -1,37 +1,39 @@
 let activeLeaderboard = 'unseeded-solo';
 let transition = false;
-let button_array = ["seeded","seeded-solo","unseeded","unseeded-solo","diversity","other"];
+let button_array = ['seeded', 'seeded-solo', 'unseeded', 'unseeded-solo', 'diversity', 'other'];
+const fadeTime = 350;
 
 function hideAllNotes() {
-  $('#unseeded-notes-banner').css("display","none");
-  $('#unseeded-notes').css("display","none");
-  $('#unseeded-solo-notes-banner').css("display","none");
-  $('#unseeded-solo-notes').css("display","none");
-  $('#diversity-notes-banner').css("display","none");
-  $('#diversity-notes').css("display","none");
+    $('#notes-multiplayer').hide(0);
+    $('#notes-unseeded-solo').hide(0);
+    $('#notes-seeded-solo').hide(0);
 }
 
 function hideAllBoards() {
-  for (var i = 0, len = button_array.length; i < len; i++) {
-    $('#leaderboard-' + button_array[i]).css("display","none");
-  }
+    for (const button of button_array) {
+        $(`#leaderboard-${button}`).hide(0);
+    }
 }
 
 function showLeaderboard(type) {
-  transition = true;
-  hideAllNotes();
-  // Set all the buttons inactive
-  for (var i = 0, len = button_array.length; i < len; i++) {
-    $('#leaderboard-' + button_array[i] + '-button').addClass('inactive');
-  }
-  // Show the current leaderboard button
-  $('#leaderboard-' + type + '-button').removeClass('inactive');
-  $('#leaderboard-' + activeLeaderboard).fadeOut(350, function() {
-    $('#leaderboard-' + type).add('#' + type + '-notes-banner').add('#' + type + '-notes').fadeIn(350, function() {
-      activeLeaderboard = type;
-      transition = false;
+    transition = true;
+    hideAllNotes();
+
+    // Set all the buttons inactive
+    for (const button of button_array) {
+        $(`#leaderboard-${button}-button`).addClass('inactive');
+    }
+
+    // Show the current leaderboard button
+    $(`#leaderboard-${type}-button`).removeClass('inactive');
+    $(`#leaderboard-${activeLeaderboard}`).fadeOut(fadeTime, function() {
+        $(`#leaderboard-${type}`).fadeIn(fadeTime);
+        const notesID = `#notes-${(type.endsWith('-solo') ? type : 'multiplayer')}`;
+        $(notesID).fadeIn(fadeTime, function() {
+            activeLeaderboard = type;
+            transition = false;
+        });
     });
-  });
 };
 
 function pad(n, width, z) {
@@ -41,12 +43,10 @@ function pad(n, width, z) {
 }
 
 $(document).ready(function() {
-
     hideAllNotes();
     hideAllBoards();
 
     // Unseeded things
-
     $('#leaderboard-unseeded-table').tablesorter();
     AdjustRank('unseeded');
     ConvertTime('unseeded','lb-fastest');
@@ -62,7 +62,7 @@ $(document).ready(function() {
     ConvertTimeStamp('unseeded-solo','td.lb-last-race a');
     ConvertForfeitRate('unseeded-solo','lb-num-for');
 
-    //Diversity things
+    // Diversity things
     $('#leaderboard-diversity-table').tablesorter();
     AdjustRank('diversity');
     ConvertTime('diversity','lb-fastest');
@@ -77,7 +77,7 @@ $(document).ready(function() {
 function ConvertTime(leaderboard, tableData) {
     $('#leaderboard-' + leaderboard + ' td.' + tableData).each(function() {
         time = $(this).html();
-        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
+        $(this).html(Math.floor(time / 1000 / 60) + ':' + pad(Math.floor(time / 1000 % 60), 2));
     });
 };
 
@@ -93,32 +93,32 @@ function ConvertForfeitRate(leaderboard, tableData) {
         total = ($(this).next().html() > 50) ? 50 : $(this).next().html();
         rate = num / total * 100;
         rate = Math.round(rate); // Round it to the nearest whole number
-        $(this).html(rate + "% (" + num + "/" + total + ")");
+        $(this).html(rate + '% (' + num + '/' + total + ')');
     });
 };
 
 function ConvertTimeStamp(leaderboard, tableData) {
-    var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
-    var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
+    var m_names = new Array('Jan', 'Feb', 'Mar', 'Apr', 'May', 'June', 'July', 'Aug', 'Sept', 'Oct', 'Nov', 'Dec');
+    var d_names = new Array('Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat');
     $('#leaderboard-' + leaderboard + ' ' + tableData).each(function() {
         // Miserable hack to help with Safari's strict JS date restrictions
         dt = new Date($(this).html().replace(' +0000 UTC', '').replace(/\s/, 'T'));
         var curr_hours = dt.getHours();
         var curr_min = dt.getMinutes();
-        var curr_time = curr_hours + ":" + ((curr_min < 10) ? "0" + curr_min : curr_min);
+        var curr_time = curr_hours + ':' + ((curr_min < 10) ? '0' + curr_min : curr_min);
         var curr_date = dt.getDate();
-        var sup = "";
+        var sup = '';
         if (curr_date == 1 || curr_date == 21 || curr_date == 31) {
-            sup = "st";
+            sup = 'st';
         } else if (curr_date == 2 || curr_date == 22) {
-            sup = "nd";
+            sup = 'nd';
         } else if (curr_date == 3 || curr_date == 23) {
-            sup = "rd";
+            sup = 'rd';
         } else {
-            sup = "th";
+            sup = 'th';
         }
 
-        $(this).html(d_names[dt.getDay()] + ", " + m_names[dt.getMonth()] + " " + dt.getDate() + sup + ", " + dt.getFullYear());
+        $(this).html(d_names[dt.getDay()] + ', ' + m_names[dt.getMonth()] + ' ' + dt.getDate() + sup + ', ' + dt.getFullYear());
     });
 };
 
@@ -140,21 +140,6 @@ function CheckForHash() {
     }
 }
 
-
-/*
-$('#leaderboard-seeded-button').click(function() {
-    if (activeLeaderboard !== 'seeded' && transition === false) {
-        showLeaderboard('seeded');
-    }
-});
-*/
-/*
-$('#leaderboard-seeded-solo-button').click(function() {
-    if (activeLeaderboard !== 'seeded-solo' && transition === false) {
-        showLeaderboard('seeded-solo');
-    }
-});
-*/
 $('#leaderboard-unseeded-button').click(function() {
     if (activeLeaderboard !== 'unseeded' && transition === false) {
         showLeaderboard('unseeded');
