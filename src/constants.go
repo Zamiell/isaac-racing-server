@@ -87,8 +87,7 @@ type JSONItem struct {
 }
 
 func loadAllItems() {
-
-	// Open the json file and verify it was good
+	// Open the JSON file and verify it was good
 	jsonFile, err := ioutil.ReadFile("../public/items.json")
 	if err != nil {
 		log.Error("Couldn't open items.json")

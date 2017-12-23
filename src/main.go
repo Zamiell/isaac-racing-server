@@ -69,7 +69,9 @@ func main() {
 	// (in websocket.go)
 	websocketInit()
 
+	// Initalize the needed static maps for items (in constants.go)
 	loadAllItems()
+
 	// Initialize an HTTP router using the Gin framework (in http.go)
 	// (the "ListenAndServe" functions located inside here are blocking)
 
