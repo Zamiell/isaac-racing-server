@@ -44,12 +44,8 @@ var (
 		"Mega Blast + more",         // 33
 	}
 	allItems     = make(map[string]*JSONItem)
-	allItemNames = make(map[int]AllItems)
+	allItemNames = make(map[int]string)
 )
-
-type AllItems struct {
-	Name string
-}
 
 // JSONItem is a struct for reading in all the json items
 type JSONItem struct {
@@ -105,6 +101,6 @@ func loadAllItems() {
 	// Create 2nd map of just item names
 	for k, v := range allItems {
 		itemid, _ := strconv.Atoi(k)
-		allItemNames[itemid] = AllItems{v.Name}
+		allItemNames[itemid] = v.Name
 	}
 }
