@@ -328,7 +328,9 @@
     #profile-listing-buttons .button:hover {
         background-color: rgba(255, 255, 255, 0.1);
     }
-
+    #profile-listing-buttons.row {
+        margin: -3em 0 -1px -2em;
+    }
     #profile-listing-buttons .button:active {
         background-color: rgba(255, 255, 255, 0.2);
     }

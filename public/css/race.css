@@ -31,7 +31,7 @@
     background: #fff;
     border-radius: 6px;
     box-shadow: 0 2px 0 0 #e5e5e5;
-    margin: 0 0 1em 0;
+    margin: -1em 0 1em 0;
     padding: 1em;
   }
 
@@ -334,7 +334,9 @@
     #race-listing-buttons .button:active {
         background-color: rgba(255, 255, 255, 0.2);
     }
-
+    #race-listing-buttons.row {
+        margin: -3em 0 -1px -2em;
+    }
     #race-listing-table {
       font-size: 1em;
     }
