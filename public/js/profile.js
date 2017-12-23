@@ -81,14 +81,13 @@ function BannedUser() {
         var navHeight = $('#header').height();
         var winHeight = $(window).height();
         var winPercent = navHeight / winHeight;
-        var banHeight = $('#banned').height();
         var overlayDiv = "<div id=\"overlay-div\"></div>";
         $("span#span-ban").append(overlayDiv);
-        $("#overlay-div").css({"opacity":"1.0", "position":"fixed","width": docWidth + "px","height":docHeight + "px","text-align":"center","z-index":"10"});
+        $("#overlay-div").css({"opacity":"1.0", "position":"fixed","width": docWidth + "px","height":docHeight + "px","text-align":"center","z-index":"10","margin-top":"0.3em"});
         $("#overlay-div").append("<div id=\"image-div\"></div>");
         $("#image-div").css("position","relative", "left",docWidth/4 + "px","width", docWidth/4);
         $("#image-div").append("<img src=\"/public/img/no.png\"id=\"zoomed-img\" />");
-        $("#zoomed-img").css({"height": (winHeight - (winHeight * winPercent )) - banHeight + "px"});
+        $("#zoomed-img").css({"height": (winHeight - (winHeight * winPercent )) + "px"});
         var imgWidth = $("#image-div").width();
         var imgHeight = $("#image-height").height();
     };

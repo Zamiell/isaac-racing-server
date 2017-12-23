@@ -74,6 +74,5 @@ func main() {
 
 	// Initialize an HTTP router using the Gin framework (in http.go)
 	// (the "ListenAndServe" functions located inside here are blocking)
-
 	httpInit()
 }
