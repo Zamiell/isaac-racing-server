@@ -143,7 +143,7 @@
 										{{ if lt .RacerStartingBuild.Int64 1 -}}
 											<td class="races-td-start"><img class="tooltip" title="{{ .RacerStartingItemName }}" src="/public/img/items/{{- .RacerStartingItem.Int64 -}}.png" /></td>
 										{{- else -}}
-											<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}" src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
+											<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}: {{ .RacerStartingBuildName }}"  src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
 										{{- end -}}
 									{{- else}} <!-- They finished, yes this is backwards hehe -->
 										<td class="races-td-place">{{ .RacerPlace.Int64 }}</td>
@@ -151,7 +151,7 @@
 										{{ if lt .RacerStartingBuild.Int64 1 -}}
 											<td class="races-td-start"><img class="tooltip" title="{{ .RacerStartingItemName }}" src="/public/img/items/{{- .RacerStartingItem.Int64 -}}.png" /></td>
 										{{- else -}}
-											<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}" src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
+											<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}: {{ .RacerStartingBuildName }}"  src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
 										{{- end -}}
 									{{- end }}
 									<!--
@@ -214,7 +214,7 @@
 								{{ if lt .RacerStartingBuild.Int64 1 -}}
 									<td class="races-td-start"><img class="tooltip" title="{{ .RacerStartingItemName }}" src="/public/img/items/{{- .RacerStartingItem.Int64 -}}.png" /></td>
 								{{- else -}}
-									<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}" src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
+									<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}: {{ .RacerStartingBuildName }}"  src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
 								{{- end -}}
 							{{- else}} <!-- They finished, yes this is backwards hehe -->
 								<td class="races-td-place">{{ .RacerPlace.Int64 }}</td>
@@ -222,7 +222,7 @@
 								{{ if lt .RacerStartingBuild.Int64 1 -}}
 									<td class="races-td-start"><img class="tooltip" title="{{ .RacerStartingItemName }}" src="/public/img/items/{{- .RacerStartingItem.Int64 -}}.png" /></td>
 								{{- else -}}
-									<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}" src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
+									<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}: {{ .RacerStartingBuildName }}"  src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
 								{{- end -}}
 							{{- end }}
 							<!--

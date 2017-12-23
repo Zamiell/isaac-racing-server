@@ -62,17 +62,23 @@ func httpProfile(c *gin.Context) {
 		return
 	}
 
-	// Capitalize the RaceFormat data
+	// Do special things on the race datas
 	for i := range raceDataRanked {
 		raceDataRanked[i].RaceFormat.String = strings.Title(raceDataRanked[i].RaceFormat.String)
 		for p := range raceDataRanked[i].RaceParticipants {
 			raceDataRanked[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataRanked[i].RaceParticipants[p].RacerStartingItem.Int64)].Name
+			if raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
+				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+			}
 		}
 	}
 	for i := range raceDataAll {
 		raceDataAll[i].RaceFormat.String = strings.Title(raceDataAll[i].RaceFormat.String)
 		for p := range raceDataAll[i].RaceParticipants {
 			raceDataAll[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataAll[i].RaceParticipants[p].RacerStartingItem.Int64)].Name
+			if raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
+				raceDataAll[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+			}
 		}
 	}
 
