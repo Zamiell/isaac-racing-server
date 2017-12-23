@@ -1,11 +1,8 @@
 package main // In Go, executable commands must always use package main
 
 import (
-	"encoding/json"
-	"io/ioutil"
 	"os"
 	"path"
-	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
@@ -17,8 +14,6 @@ var (
 	projectPath  = path.Join(os.Getenv("GOPATH"), "src", "github.com", "Zamiell", "isaac-racing-server")
 	db           *models.Models
 	races        = make(map[int]*Race)
-	allItems     = make(map[string]*JSONItem)
-	allItemNames = make(map[int]AllItems)
 	shutdownMode = 0
 )
 
@@ -79,23 +74,4 @@ func main() {
 	// (the "ListenAndServe" functions located inside here are blocking)
 
 	httpInit()
-}
-
-func loadAllItems() {
-
-	// Open the json file and verify it was good
-	jsonFile, err := ioutil.ReadFile("../public/items.json")
-	if err != nil {
-		log.Error("Couldn't open items.json")
-	}
-	log.Info("Opened items.json successfully")
-
-	// Create all the items
-	json.Unmarshal(jsonFile, &allItems)
-
-	// Create 2nd map of just item names
-	for k, v := range allItems {
-		itemid, _ := strconv.Atoi(k)
-		allItemNames[itemid] = AllItems{v.Name}
-	}
 }

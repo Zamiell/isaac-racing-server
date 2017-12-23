@@ -83,6 +83,7 @@ func httpRace(c *gin.Context) {
 			raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)].Name
 		}
 	}
+	log.Info(seededBuilds)
 
 	data := TemplateData{
 		Title:       "Race",
