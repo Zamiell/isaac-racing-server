@@ -34,11 +34,11 @@
 						<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID.Int64 }}" class="races-td-date"> {{ .RaceDateStart.Value }}</td>
 						<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID.Int64 }}" class="races-td-format">
 							<!-- <span id="racesize-{{ .RaceID.Int64 }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize.Int64 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
-							<span id="racetype-{{ .RaceID.Int64 }}" class="race-types"><img  height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType.String "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize.Int64 0 -}} -solo {{- end }}.png" /></span>
-							<span id="raceformat-{{ .RaceID.Int64 }}" class="race-formats"><img  height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat.String }}.png" /></span>
+							<span id="racetype-{{ .RaceID.Int64 }}" class="race-types"><img class="tooltip" title="{{ if eq .RaceType.String "0" -}} Unranked {{- else -}} Ranked {{- end }}" height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType.String "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize.Int64 0 -}} -solo {{- end }}.png" /></span>
+							<span id="raceformat-{{ .RaceID.Int64 }}" class="race-formats"><img class="tooltip" title="{{ .RaceFormat.String }}" height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat.String }}.png" /></span>
 						</td>
-						<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID.Int64 }}" class="races-td-char"><img src="/public/img/characters/{{ .RaceChar.String }}.png" /></td>
-						<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID.Int64 }}" class="races-td-goal"><img src="/public/img/goals/{{ .RaceGoal.String }}.png" /></td>
+						<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID.Int64 }}" class="races-td-char"><img class="tooltip" title="{{ .RaceChar.String }}" src="/public/img/characters/{{ .RaceChar.String }}.png" /></td>
+						<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID.Int64 }}" class="races-td-goal"><img class="tooltip" title="{{ .RaceGoal.String }}" src="/public/img/goals/{{ .RaceGoal.String }}.png" /></td>
 
 							{{ range $index, $results := .RaceParticipants }}
 								<td class=racername><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
