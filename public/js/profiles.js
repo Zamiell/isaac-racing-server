@@ -1,6 +1,9 @@
 $(document).ready(function () {
 	ConvertTimeStamp('profiles', 'td.profile-date-created');
 	ConvertTimeStamp('profiles', 'td.profile-last-race a');
+	$('.tooltip').tooltipster({
+		theme: 'tooltipster-shadow'
+	});
 });
 
 function ConvertTimeStamp(table, tableData) {

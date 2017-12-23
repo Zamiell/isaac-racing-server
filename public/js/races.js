@@ -1,5 +1,9 @@
 $(document).ready(function () {
         ConvertTimeRaceStamps();
+        $('.tooltip').tooltipster({
+          theme: 'tooltipster-shadow'
+        });
+
 });
 
 function ConvertTimeRaceStamps() {

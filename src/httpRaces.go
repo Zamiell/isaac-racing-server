@@ -41,6 +41,9 @@ func httpRaces(c *gin.Context) {
 	// Capitalize the RaceFormat data
 	for i := range raceData {
 		raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
+		for p := range raceData[i].RaceParticipants {
+			raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)].Name
+		}
 	}
 
 	// Build template data for serving to the template
@@ -76,6 +79,9 @@ func httpRace(c *gin.Context) {
 
 	for i := range raceData {
 		raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
+		for p := range raceData[i].RaceParticipants {
+			raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)].Name
+		}
 	}
 
 	data := TemplateData{

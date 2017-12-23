@@ -8,7 +8,10 @@ $(document).ready(function() {
     ConvertTime('#unseeded-fastest-val');
     ConvertTotalTime('#misc-wasted-time');
     ConvertForfeitRate('#unseeded-numfor-val');
-    BannedUser();
+    BannedUser
+    $('.tooltip').tooltipster({
+      theme: 'tooltipster-shadow'
+    });
 });
 
 function ConvertTime(td) {

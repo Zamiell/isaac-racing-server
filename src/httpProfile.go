@@ -65,9 +65,15 @@ func httpProfile(c *gin.Context) {
 	// Capitalize the RaceFormat data
 	for i := range raceDataRanked {
 		raceDataRanked[i].RaceFormat.String = strings.Title(raceDataRanked[i].RaceFormat.String)
+		for p := range raceDataRanked[i].RaceParticipants {
+			raceDataRanked[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataRanked[i].RaceParticipants[p].RacerStartingItem.Int64)].Name
+		}
 	}
 	for i := range raceDataAll {
 		raceDataAll[i].RaceFormat.String = strings.Title(raceDataAll[i].RaceFormat.String)
+		for p := range raceDataAll[i].RaceParticipants {
+			raceDataAll[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataAll[i].RaceParticipants[p].RacerStartingItem.Int64)].Name
+		}
 	}
 
 	// Set data to serve to the template
