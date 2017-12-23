@@ -38,7 +38,7 @@ func httpRaces(c *gin.Context) {
 		totalPages = int(math.Floor(float64(totalRaces) / float64(racesPerPage)))
 	}
 
-	// Capitalize the RaceFormat data
+	// Do special things on the race things with fancy things
 	for i := range raceData {
 		raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
 		for p := range raceData[i].RaceParticipants {
