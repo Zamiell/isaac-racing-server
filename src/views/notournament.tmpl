@@ -1,0 +1,13 @@
+{{ define "content" }}
+<section id="main" class="container">
+	<section class="small-box">
+		<header class="tournament">
+			{{ if .TournamentInfos.TournamentName }}
+				Tournament "{{ .TournamentInfos.TournamentName }}" does not exist.
+			{{ else }}
+				<a href="https://github.com/Krakenos/BoIR-trueskill">See Krakenos' page for more tournament info</a>
+			{{ end }}
+		</header>
+	</section>
+</section>
+{{ end }}

@@ -28,6 +28,7 @@ type Models struct {
 	RaceParticipants
 	Races
 	MutedUsers
+	Tournament
 	UserAchievements
 	Users
 }

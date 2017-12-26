@@ -67,6 +67,10 @@ type TemplateData struct {
 	Season1r14 []models.SpeedRun
 	Season2r7  []models.SpeedRun
 	Season3r7  []models.SpeedRun
+
+	// Tournament Stuff
+	TournamentRaces []models.TournamentRace
+	TournamentInfo  TournamentStats
 }
 
 /*
@@ -167,6 +171,8 @@ func httpInit() {
 	httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
 	httpRouter.GET("/profile", httpProfile)
 	httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
+	httpRouter.GET("/tournament", httpTournament)
+	httpRouter.GET("/tournament/:tourn_name", httpTournament) // Handles profile username
 	httpRouter.GET("/leaderboards", httpLeaderboards)
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
