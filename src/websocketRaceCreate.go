@@ -72,6 +72,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Pick a random starting build, if necessary
+	// (StartingBuild will be -1 in non-seeded races)
 	if ruleset.StartingBuild == 0 {
 		ruleset.StartingBuildRandom = true
 		rand.Seed(time.Now().UnixNano())
@@ -123,6 +124,13 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		ruleset.Seed = isaacGetRandomSeed()
 	} else if ruleset.Format == "diversity" {
 		ruleset.Seed = diversityGetSeed(ruleset)
+	}
+
+	// Populate the starting items field
+	if ruleset.Format == "seeded" || ruleset.Format == "seeded-hard" {
+		ruleset.StartingItems = 1
+	} else if ruleset.Format == "diversity" {
+
 	}
 
 	/*

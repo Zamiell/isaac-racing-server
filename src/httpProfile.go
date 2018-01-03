@@ -68,7 +68,7 @@ func httpProfile(c *gin.Context) {
 		for p := range raceDataRanked[i].RaceParticipants {
 			raceDataRanked[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataRanked[i].RaceParticipants[p].RacerStartingItem.Int64)]
 			if raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64-1].Name
 			}
 		}
 	}
