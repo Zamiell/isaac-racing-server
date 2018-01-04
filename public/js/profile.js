@@ -2,25 +2,40 @@ $(document).ready(function() {
     ConvertTimeProfileStamps('td.races-td-date');
     ConvertTimeProfileStamps('span#join-date');
     ConvertTimeProfileStamps('td.ranked-racedate');
-    ConvertTime('#unseeded-adjavg-val');
-    ConvertTime('#unseeded-realavg-val');
-    ConvertTime('#unseeded-forpen-val');
-    ConvertTime('#unseeded-fastest-val');
     ConvertTotalTime('#misc-wasted-time');
     ConvertForfeitRate('#unseeded-numfor-val');
+    ConvertRaceTime('#unseeded-adjavg-val');
+    ConvertRaceTime('#unseeded-realavg-val');
+    ConvertRaceTime('#unseeded-forpen-val');
+    ConvertRaceTime('#unseeded-fastest-val');
+    ConvertRaceTime('.races-td-time');
     BannedUser();
     $('.tooltip').tooltipster({
       theme: 'tooltipster-shadow'
     });
 });
 
-function ConvertTime(td) {
-    $(td).each(function() {
-      if ($(this).html() > 0) {
-        time = $(this).html();
-        $(this).html(Math.floor(time / 1000 / 60) + ":" + pad(Math.floor(time / 1000 % 60), 2));
-      }
-    });
+function pad(n, width, z) {
+    z = z || '0';
+    n = n + '';
+    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
+};
+
+function ConvertRaceTime(td) {
+  $(td).each(function(){
+      runtime = Math.floor($(this).html()/ 1000);
+      if (runtime) {
+        sec = Math.floor(runtime % 60);
+        min = Math.floor(runtime / 60 % 60);
+        hour = Math.floor(runtime / 60 / 60 % 24);
+        time_converted = '';
+        if (hour > 0) {
+          time_converted = hour + ':';
+        }
+        time_converted = time_converted + ((hour > 0) ? pad(min, 2) : min) + ':' + pad(sec, 2);
+        $(this).html(time_converted);
+      };
+  });
 };
 
 function ConvertTotalTime(td) {
