@@ -42,12 +42,6 @@ $(document).ready(function () {
         selectLeaderboard(activeLeaderboard);
 });
 
-function pad(n, width, z) {
-    z = z || '0';
-    n = n + '';
-    return n.length >= width ? n : new Array(width - n.length + 1).join(z) + n;
-}
-
 function ConvertTimeStamps(td) {
     var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");
     var d_names = new Array("Sun", "Mon", "Tue", "Wed", "Thur", "Fri", "Sat");
