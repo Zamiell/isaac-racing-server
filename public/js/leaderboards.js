@@ -47,25 +47,44 @@ $(document).ready(function() {
     hideAllBoards();
 
     // Seeded things
-    $('#leaderboard-seeded-table').tablesorter();
+    $('#leaderboard-seeded-table').tablesorter({
+      headers: {
+          2: { sorter: false },
+          6: { sorter: false }
+      }
+    });
     AdjustRank('seeded');
     ConvertTime('seeded','lb-fastest');
     ConvertTimeStamp('seeded','td.lb-last-race a');
 
     // Seeded things
-    $('#leaderboard-seeded-solo-table').tablesorter();
+    $('#leaderboard-seeded-solo-table').tablesorter({
+      headers: {
+          2: { sorter: false },
+          6: { sorter: false }
+      }
+    });
     AdjustRank('seeded-solo');
     ConvertTime('seeded-solo','lb-fastest');
     ConvertTimeStamp('seeded-solo','td.lb-last-race a');
 
     // Unseeded things
-    $('#leaderboard-unseeded-table').tablesorter();
+    $('#leaderboard-unseeded-table').tablesorter({
+      headers: {
+          2: { sorter: false },
+          6: { sorter: false }
+      }
+    });
     AdjustRank('unseeded');
     ConvertTime('unseeded','lb-fastest');
     ConvertTimeStamp('unseeded','td.lb-last-race a');
 
     // Unseeded Solo things
-    $('#leaderboard-unseeded-solo-table').tablesorter();
+    $('#leaderboard-unseeded-solo-table').tablesorter({
+      headers: {
+          9: { sorter: false }
+      }
+    });
     AdjustRank('unseeded-solo');
     ConvertTime('unseeded-solo','lb-adj-avg');
     ConvertTime('unseeded-solo','lb-real-avg');
@@ -75,7 +94,12 @@ $(document).ready(function() {
     ConvertForfeitRate('unseeded-solo','lb-num-for');
 
     // Diversity things
-    $('#leaderboard-diversity-table').tablesorter();
+    $('#leaderboard-diversity-table').tablesorter({
+      headers: {
+          2: { sorter: false },
+          6: { sorter: false }
+      }
+    });
     AdjustRank('diversity');
     ConvertTime('diversity','lb-fastest');
     ConvertTimeStamp('diversity','td.lb-last-race a');
