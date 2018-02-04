@@ -33,7 +33,7 @@ func httpTournament(c *gin.Context) {
 		14,
 	}
 
-	// Get the tournament race data
+	// Get the tournament race data or serve a blank page if no tournaments found
 	tournamentRaces, err := db.Tournament.GetTournamentRaces(tournamentName)
 	if err != nil {
 		log.Error("Failed to get tournament, '" + tournamentName + "' data from the database: " + err.Error())

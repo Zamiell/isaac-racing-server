@@ -70,7 +70,7 @@ type TemplateData struct {
 
 	// Tournament Stuff
 	TournamentRaces []models.TournamentRace
-	TournamentInfo  TournamentStats
+	TournamentInfos TournamentStats
 }
 
 /*
