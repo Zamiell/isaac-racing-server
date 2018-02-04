@@ -76,6 +76,7 @@ $(document).ready(function() {
     // Unseeded Solo things
     $('#leaderboard-unseeded-solo-table').tablesorter({
       headers: {
+          5: { sorter: false },
           9: { sorter: false }
       }
     });
