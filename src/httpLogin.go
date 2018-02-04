@@ -223,7 +223,7 @@ func validateSteamTicket(steamID string, ticket string, ip string, w http.Respon
 	// Unmarshall the JSON of the body from the response
 	var steamAPIReply SteamAPIReply
 	if err := json.Unmarshal(raw, &steamAPIReply); err != nil {
-		log.Error("Failed to unmarshall the body of the response:", err)
+		log.Error("Failed to unmarshall the body of the response from the Steam web API for IP \""+ip+":", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return false
 	}

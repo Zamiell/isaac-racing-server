@@ -56,7 +56,7 @@ type IsaacItem struct {
 
 var (
 	seededBuilds = []string{
-		"20/20",
+		"20/20",                     // 1
 		"Chocolate Milk",            // 2
 		"Cricket's Body",            // 3
 		"Cricket's Head",            // 4
@@ -115,11 +115,11 @@ func loadAllItems() {
 
 func loadAllBuilds() {
 	// Open the JSON file and verify it was good
-	jsonFile, err := ioutil.ReadFile("../public/builds.json")
-	if err != nil {
-		log.Fatal("Failed to open \""+JSONPath+"\":", err)
+	jsonFilePath := path.Join(projectPath, "public", "builds.json")
+	if jsonFile, err := ioutil.ReadFile(jsonFilePath); err != nil {
+		log.Fatal("Failed to open \""+jsonFilePath+"\":", err)
+	} else {
+		// Create all the items
+		json.Unmarshal(jsonFile, &allBuilds)
 	}
-
-	// Create all the items
-	json.Unmarshal(jsonFile, &allBuilds)
 }

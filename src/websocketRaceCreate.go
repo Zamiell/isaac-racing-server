@@ -128,9 +128,9 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Populate the starting items field
 	if ruleset.Format == "seeded" || ruleset.Format == "seeded-hard" {
-		ruleset.StartingItems = 1
+		ruleset.StartingItems = make([]int, 0)
 	} else if ruleset.Format == "diversity" {
-
+		ruleset.StartingItems = make([]int, 0)
 	}
 
 	/*
