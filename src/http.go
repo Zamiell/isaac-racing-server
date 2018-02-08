@@ -171,8 +171,7 @@ func httpInit() {
 	httpRouter.GET("/profiles/:page", httpProfiles) // Handles extra pages for profiles
 	httpRouter.GET("/profile", httpProfile)
 	httpRouter.GET("/profile/:player", httpProfile) // Handles profile username
-	httpRouter.GET("/tournament", httpTournament)
-	httpRouter.GET("/tournament/:tourn_name", httpTournament) // Handles profile username
+	httpRouter.GET("/tournaments", httpTournament)
 	httpRouter.GET("/leaderboards", httpLeaderboards)
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)

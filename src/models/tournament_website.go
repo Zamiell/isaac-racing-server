@@ -14,20 +14,23 @@ import (
 
 // TournamentRace holds data for a single race
 type TournamentRace struct {
-	RaceID       sql.NullInt64
-	Racer1       sql.NullString
-	Racer2       sql.NullString
-	RaceState    sql.NullString
-	RaceDateTime mysql.NullTime
-	ChallongeID  sql.NullInt64
-	RaceCaster   sql.NullString
+	TournamentName sql.NullString
+	TournamentType string
+	RaceID         sql.NullInt64
+	Racer1         sql.NullString
+	Racer2         sql.NullString
+	RaceState      sql.NullString
+	RaceDateTime   mysql.NullTime
+	ChallongeID    sql.NullInt64
+	RaceCaster     sql.NullString
 }
 
 // GetTournamentRaces gets all data for all races
-func (*Tournament) GetTournamentRaces(tournamentName string) ([]TournamentRace, error) {
+func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
+				tr.tournament_name,
 				tr.id,
 				trs1.username,
 				trs2.username,
@@ -45,9 +48,8 @@ func (*Tournament) GetTournamentRaces(tournamentName string) ([]TournamentRace, 
 							isaac.tournament_racers c ON c.id = tr.caster
 		WHERE
 				tr.state = 'scheduled'
-				AND tr.tournament_name = ?
 		ORDER BY datetime_scheduled ASC
-	`, tournamentName); err != nil {
+	`); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -58,6 +60,7 @@ func (*Tournament) GetTournamentRaces(tournamentName string) ([]TournamentRace, 
 	for rows.Next() {
 		var race TournamentRace
 		if err := rows.Scan(
+			&race.TournamentName,
 			&race.RaceID,
 			&race.Racer1,
 			&race.Racer2,

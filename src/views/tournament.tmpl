@@ -1,24 +1,15 @@
 {{ define "content" }}
 <section id="main" class="container">
-	<section class="small-box">
-		<header class="tournament">
-			<h2>{{ .TournamentInfo.TournamentName }}</h2>
-			<div>Hosted By {{ .TournamentInfo.TournamentHost }}</div>
-			<div>From {{ .TournamentInfo.TournamentStartDate }} to {{ .TournamentInfo.TournamentEndDate }}<div>
-		</header>
-	</section>
-	<section class="small-box">
-		Click <a href="https://challonge.com/{{ .TournamentInfos.TournamentName }}">here</a> to view the bracket.
-	</section>
 	<section class="box">
 		<div class="table-wrapper">
-			<table class="alt" id="table-tournament-{{ .TournamentInfos.TournamentName }}">
+			<table class="alt" id="table-tournament">
 				<thead>
 					<tr>
+						<th id="th-tournname" class="th-tournname">Tournament</th>
 						<th id="th-racer1" class="th-racer">Racer #1</th>
 						<th id="th-racer2" class="th-racer">Racer #2</th>
 						<th id="th-startdate" class="th-startdate">Scheduled Time</th>
-						<th id="th-caster" class="th-caster">Cast</th>
+						<th id="th-caster" class="th-caster">Caster</th>
 					</tr>
 				</thead>
 				<tfoot>
@@ -26,6 +17,7 @@
 				<tbody>
 					{{ range .TournamentRaces }}
 					<tr id="tr-race-{{ .RaceID.Int64 }}" class="tr-race">
+						<td id="td-tournname-{{ .RaceID.Int64 }}" class="td-tournname"><a href="http://challonge.com/{{ .TournamentName.String }}" target="_blank"><img width="16px" height="16px" src="/public/img/challonge.png" /></td>
 						<td id="td-racer1-{{ .RaceID.Int64 }}" class="td-racer">{{ .Racer1.String }}</td>
 						<td id="td-racer2-{{ .RaceID.Int64 }}" class="td-racer">{{ .Racer2.String }}</td>
 						<td id="td-startdate-{{ .RaceID.Int64 }}" class="td-startdate">{{ .RaceDateTime.Time }}</td>
