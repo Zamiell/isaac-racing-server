@@ -45,8 +45,8 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the item number is sane
 	// The the base game there are over 500 items and the Racing+ mod has a bunch of custom items
-	// So just check for over 700 to be safe
-	if itemID < 1 || itemID > 700 {
+	// So just check for over 999 to be safe
+	if itemID < 1 || itemID > 999 {
 		log.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
 		websocketError(s, d.Command, "That is not a valid item ID.")
 		return
@@ -68,11 +68,14 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	startingItem := false
 	if race.Ruleset.Format != "seeded" &&
 		race.Ruleset.Format != "seeded-hard" &&
-		racer.StartingItem == 0 &&
-		len(racer.Rooms) > 1 {
+		racer.StartingItem == 0 {
 
-		racer.StartingItem = itemID
-		startingItem = true
+		// Check to see if this item was already given to them at the start
+		alreadyGiven := false
+		if !alreadyGiven {
+			racer.StartingItem = itemID
+			startingItem = true
+		}
 	}
 
 	for racerName := range race.Racers {

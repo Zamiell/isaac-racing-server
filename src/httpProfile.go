@@ -62,7 +62,6 @@ func httpProfile(c *gin.Context) {
 		return
 	}
 
-	// Do special things on the race things with fancy things
 	for i := range raceDataRanked {
 		raceDataRanked[i].RaceFormat.String = strings.Title(raceDataRanked[i].RaceFormat.String)
 		for p := range raceDataRanked[i].RaceParticipants {

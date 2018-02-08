@@ -1,10 +1,28 @@
 $(document).ready(function () {
         ConvertTimeRaceStamps();
+        ConvertRaceTime('.races-td-time');
         $('.tooltip').tooltipster({
           theme: 'tooltipster-shadow'
         });
 
 });
+
+function ConvertRaceTime(td) {
+  $(td).each(function(){
+      runtime = Math.floor($(this).html() / 1000);
+      if (runtime) {
+        sec = Math.floor(runtime % 60);
+        min = Math.floor(runtime / 60 % 60);
+        hour = Math.floor(runtime / 60 / 60 % 24);
+        time_converted = '';
+        if (hour > 0) {
+          time_converted = hour + ':';
+        }
+        time_converted = time_converted + ((hour > 0) ? pad(min, 2) : min) + ':' + pad(sec, 2);
+        $(this).html(time_converted);
+      };
+  });
+};
 
 function ConvertTimeRaceStamps() {
         var m_names = new Array("Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sept", "Oct", "Nov", "Dec");

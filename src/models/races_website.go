@@ -91,7 +91,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			SELECT
 				u.username,
 				rp.place,
-				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.run_time,
 				rp.starting_item,
 				r.starting_build,
 				rp.comment
@@ -200,7 +200,7 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 			SELECT
 				u.username,
 				rp.place,
-				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.run_time,
 				rp.starting_item,
 				r.starting_build,
 				rp.comment
@@ -304,7 +304,7 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 			SELECT
 				u.username,
 				rp.place,
-				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.run_time,
 				rp.starting_item,
 				r.starting_build,
 				rp.comment
@@ -416,7 +416,7 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 			SELECT
 				u.username,
 				rp.place,
-				CONCAT(LPAD(FLOOR(rp.run_time/1000/60),2,0), ":", LPAD(FLOOR(rp.run_time/1000%60),2,0)),
+				rp.run_time,
 				rp.starting_item,
 				r.starting_build,
 				rp.comment
