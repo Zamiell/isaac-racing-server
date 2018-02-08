@@ -17,11 +17,11 @@
 				<tbody>
 					{{ range .TournamentRaces }}
 					<tr id="tr-race-{{ .RaceID.Int64 }}" class="tr-race">
-						<td id="td-tournname-{{ .RaceID.Int64 }}" class="td-tournname"><a href="http://challonge.com/{{ .TournamentName.String }}" target="_blank"><img width="16px" height="16px" src="/public/img/challonge.png" /></td>
+						<td id="td-tournname-{{ .RaceID.Int64 }}" class="td-tournname"><a href="http://challonge.com/{{ .TournamentName.String }}" target="_blank">{{ .TournamentName.String }}</td>
 						<td id="td-racer1-{{ .RaceID.Int64 }}" class="td-racer">{{ .Racer1.String }}</td>
 						<td id="td-racer2-{{ .RaceID.Int64 }}" class="td-racer">{{ .Racer2.String }}</td>
 						<td id="td-startdate-{{ .RaceID.Int64 }}" class="td-startdate">{{ .RaceDateTime.Time }}</td>
-						<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster">{{ if .RaceCaster.String }}<a href="https://twitch.tv/{{ .RaceCaster.String }}"><img height="16px" width="16px" src="/public/img/Glitch_Purple_RGB.png"></a>{{ end }}</td>
+						<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster">{{ if .RaceCaster.String }}<a href="https://twitch.tv/{{ .RaceCaster.String }}">{{ .RaceCaster.String }} <span style="vertical-align: middle;"><img height="16px" width="16px" src="/public/img/Glitch_Purple_RGB.png"></a>{{ end }}</span></td>
 					</tr>
 					{{ end }}
 				</tbody>
