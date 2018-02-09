@@ -40,6 +40,7 @@ latest_client_version.txt
 # Directories
 logs
 backups
+tournaments
 
 # The compiled binary
 isaac-racing-server
