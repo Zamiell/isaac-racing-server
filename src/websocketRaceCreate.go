@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	rateLimitRate       = float64(3)  // Number of races created
+	rateLimitRate       = float64(4)  // Number of races created
 	rateLimitPer        = float64(60) // Per seconds
 	automaticBanAdminID = 1
 	automaticBanReason  = "race spamming"
