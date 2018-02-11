@@ -1,3 +1,7 @@
+#-@import url("race.css");
+-@import url("leaderboards.css");
+-@import url("profiles.css");
+-@import url("halloffame.css");
 {{define "layout"}}
 <!DOCTYPE html>
 <!--
@@ -54,15 +58,48 @@
 		<script src="/public/js/common_functions.js"></script>
 		<script src="/public/tablesorter/jquery.tablesorter.min.js"></script>
 		<script src="/public/tablesorter/jquery.metadata.js"></script>
-		{{if eq .Title "Home" }}<script src="/public/js/home.js"></script>{{end}}
-		{{if eq .Title "Races" }}<script src="/public/js/races.js"></script>{{end}}
-		{{if eq .Title "Race" }}<script src="/public/js/races.js"></script>{{end}}
-		{{if eq .Title "Profile" }}<script src="/public/js/profile.js"></script>{{end}}
-		{{if eq .Title "Profiles" }}<script src="/public/js/profiles.js"></script>{{end}}
-		{{if eq .Title "Leaderboards" }}<script src="/public/js/leaderboards.js"></script>{{end}}
-		{{if eq .Title "Tournaments" }}<script src="/public/js/tournaments.js"></script>{{end}}
-		{{if eq .Title "Hall Of Fame" }}<script src="/public/js/halloffame.js"></script>{{end}}
-		{{if eq .Title "Download"}}<script src="/public/js/download.js"></script>{{end}}
+		{{if eq .Title "Home" }}
+			<script src="/public/js/home.js"></script>
+			{{end}}
+		{{if eq .Title "Races" }}
+			<script src="/public/js/races.js"></script>
+			<link rel="stylesheet" href="/public/css/race.css" />
+		{{end}}
+		{{if eq .Title "Race" }}
+			<script src="/public/js/races.js"></script>
+			<link rel="stylesheet" href="/public/css/race.css" />
+		{{end}}
+		{{if eq .Title "Profile" }}
+			<script src="/public/js/profile.js"></script>
+			<link rel="stylesheet" href="/public/css/profiles.css" />
+			<link rel="stylesheet" href="/public/css/race.css" />
+		{{end}}
+		{{if eq .Title "Profiles" }}
+			<script src="/public/js/profiles.js"></script>
+			<link rel="stylesheet" href="/public/css/profiles.css" />
+			<link rel="stylesheet" href="/public/css/race.css" />
+		{{end}}
+		{{if eq .Title "Leaderboards" }}
+			<script src="/public/js/leaderboards.js"></script>
+			<link rel="stylesheet" href="/public/css/leaderboards.css" />
+			<link rel="stylesheet" href="/public/css/profiles.css" />
+			<link rel="stylesheet" href="/public/css/race.css" />
+		{{end}}
+		{{if eq .Title "Tournaments" }}
+			<script src="/public/js/tournaments.js"></script>
+			<link rel="stylesheet" href="/public/css/tournaments.css" />
+			<link rel="stylesheet" href="/public/css/profiles.css" />
+			<link rel="stylesheet" href="/public/css/race.css" />
+		{{end}}
+		{{if eq .Title "Hall Of Fame" }}
+			<script src="/public/js/halloffame.js"></script>
+			<link rel="stylesheet" href="/public/css/halloffame.css" />
+			<link rel="stylesheet" href="/public/css/profiles.css" />
+			<link rel="stylesheet" href="/public/css/race.css" />
+		{{end}}
+		{{if eq .Title "Download"}}
+			<script src="/public/js/download.js"></script>
+		{{end}}
 	</body>
 </html>
 {{end}}
