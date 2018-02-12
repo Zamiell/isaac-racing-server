@@ -23,6 +23,6 @@ function ConvertTimeStamp(tableData) {
             sup = 'th';
         }
 
-        $(this).html(d_names[dt.getDay()] + ', ' + m_names[dt.getMonth()] + ' ' + dt.getDate() + sup + ', ' + dt.getFullYear() + " @ " + pad(dt.getHours(),2) + ":" + pad(dt.getMinutes(),2));
+        $(this).html(d_names[dt.getDay()] + ', ' + m_names[dt.getMonth()] + ' ' + dt.getDate() + sup + ', ' + dt.getFullYear() + " @ " + pad(dt.getHours(),2) + ":" + pad(dt.getMinutes(),2) + " UTC");
     });
 };

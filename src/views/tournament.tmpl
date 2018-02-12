@@ -8,6 +8,7 @@
 						<th id="th-tournname" class="th-tournname">Tournament</th>
 						<th id="th-racer1" class="th-racer">Racer #1</th>
 						<th id="th-racer2" class="th-racer">Racer #2</th>
+						<!--<th id="th-bracket" class="th-bracket">Bracket Round</th>-->
 						<th id="th-startdate" class="th-startdate">Scheduled Time</th>
 						<th id="th-caster" class="th-caster">Caster</th>
 					</tr>
@@ -17,9 +18,10 @@
 				<tbody>
 					{{ range .TournamentRaces }}
 					<tr id="tr-race-{{ .RaceID.Int64 }}" class="tr-race">
-						<td id="td-tournname-{{ .RaceID.Int64 }}" class="td-tournname"><a href="http://challonge.com/{{ .TournamentName.String }}" target="_blank">{{ .TournamentName.String }}</td>
+						<td id="td-tournname-{{ .RaceID.Int64 }}" class="td-tournname"><a href="http://challonge.com/{{ .TournamentID.String }}" target="_blank">{{ .TournamentName.String }}</td>
 						<td id="td-racer1-{{ .RaceID.Int64 }}" class="td-racer">{{ .Racer1.String }}</td>
 						<td id="td-racer2-{{ .RaceID.Int64 }}" class="td-racer">{{ .Racer2.String }}</td>
+						<!--<td id="td-bracket-{{ .RaceID.Int64 }}" class="td-racer">Round #{{ .TournamentRound.Int64 }}</td>-->
 						<td id="td-startdate-{{ .RaceID.Int64 }}" class="td-startdate">{{ .RaceDateTime.Time }}</td>
 						<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster">{{ if .RaceCaster.String }}<a href="https://twitch.tv/{{ .RaceCaster.String }}">{{ .RaceCaster.String }} <span style="vertical-align: middle;"><img height="16px" width="16px" src="/public/img/Glitch_Purple_RGB.png"></a>{{ end }}</span></td>
 					</tr>
