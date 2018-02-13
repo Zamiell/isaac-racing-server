@@ -51,7 +51,7 @@ func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 					LEFT JOIN
 							isaac.tournament_racers c ON c.id = tr.caster
 		WHERE
-				tr.state = 'scheduled'
+				tr.state in ('scheduled', 'inProgress')
 		ORDER BY datetime_scheduled ASC
 	`); err != nil {
 		return nil, err
