@@ -24,9 +24,9 @@
 						<!--<td id="td-bracket-{{ .RaceID.Int64 }}" class="td-racer">Round #{{ .TournamentRound.Int64 }}</td>-->
 						<td id="td-startdate-{{ .RaceID.Int64 }}" class="td-startdate">{{ .RaceDateTime.Time }}</td>
 						{{ if .RaceCaster.String }}
-							<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster"><a href="https://twitch.tv/{{ .RaceCaster.String }}">{{ .RaceCaster.String }} <span style="vertical-align: middle;"><img height="16px" width="16px" src="/public/img/Glitch_Purple_RGB.png"></a></span></td>
+							<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster"><a href="https://twitch.tv/{{ .RaceCaster.String }}" target="_blank">{{ .RaceCaster.String }} <span style="vertical-align: middle;"><img height="16px" width="16px" src="/public/img/Glitch_Purple_RGB.png"></a></span></td>
 						{{ else }}
-							<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster"><a href="https://kadgar.net/live/{{ .Racer1.String }}/{{ .Racer2.String }}">Kadgar</a></td>
+							<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster"><a href="https://kadgar.net/live/{{ .Racer1.String }}/{{ .Racer2.String }}" target="_blank">Kadgar</a></td>
 						{{ end }}
 					</tr>
 					{{ end }}
