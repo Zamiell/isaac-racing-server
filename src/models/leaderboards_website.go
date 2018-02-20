@@ -235,6 +235,7 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 				AND r.format = 'unseeded'
 				AND rp.place > 0
 				AND u.id NOT IN (SELECT user_id FROM banned_users)
+				AND u.username not like "TestAccount%"				
 		GROUP BY u.username
 		ORDER BY u.unseeded_trueskill DESC
 		LIMIT ?
