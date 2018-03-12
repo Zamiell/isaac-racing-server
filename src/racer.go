@@ -22,7 +22,7 @@ func racerListMessage(s *melody.Session, race *Race) {
 		Place                int     `json:"place"`
 		PlaceMid             int     `json:"placeMid"`
 		DatetimeFinished     int64   `json:"datetimeFinished"`
-		RunTime              int64   `json:"runTime"`
+		RunTime              int64   `json:"runTime"` // In milliseconds, reported by the mod
 		Comment              string  `json:"comment"`
 	}
 	racers := make([]RacerMessage, 0)

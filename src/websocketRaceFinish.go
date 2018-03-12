@@ -39,14 +39,19 @@ func websocketRaceFinish(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
+	// Validate that they sent a coherant time
+	if d.Time <= 0 {
+		return
+	}
+
 	/*
 		Finish
 	*/
 
 	racer.Place = race.GetCurrentPlace()
-	race.SetRacerStatus(username, "finished")
+	racer.RunTime = d.Time
 	racer.DatetimeFinished = getTimestamp()
-	racer.RunTime = racer.DatetimeFinished - race.DatetimeStarted
+	race.SetRacerStatus(username, "finished")
 	race.SetAllPlaceMid()
 	twitchRacerFinish(race, racer)
 	race.CheckFinish()

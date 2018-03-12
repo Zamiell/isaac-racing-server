@@ -111,9 +111,11 @@ var validDiversityTrinkets = [...]int{
 */
 
 func diversityGetSeed(ruleset Ruleset) string {
+	// Seed the random number generator
+	rand.Seed(time.Now().UnixNano())
+
 	// Get 1 random unique active item
 	var items []int
-	rand.Seed(time.Now().UnixNano())
 	item := validDiversityActiveItems[rand.Intn(len(validDiversityActiveItems))]
 	items = append(items, item)
 
@@ -122,7 +124,6 @@ func diversityGetSeed(ruleset Ruleset) string {
 		for {
 			// Initialize the PRNG and get a random element from the slice
 			// (if we don't do this, it will use a seed of 1)
-			rand.Seed(time.Now().UnixNano())
 			item := validDiversityPassiveItems[rand.Intn(len(validDiversityPassiveItems))]
 
 			// Do character specific item bans
@@ -143,7 +144,6 @@ func diversityGetSeed(ruleset Ruleset) string {
 	}
 
 	// Get 1 random trinket
-	rand.Seed(time.Now().UnixNano())
 	trinket := validDiversityTrinkets[rand.Intn(len(validDiversityTrinkets))]
 	items = append(items, trinket)
 

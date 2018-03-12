@@ -5,7 +5,6 @@ import (
 	"path"
 	"sort"
 	"strconv"
-	"time"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
@@ -69,8 +68,6 @@ func websocketHandleConnect(s *melody.Session) {
 		StreamURL:        streamURL,
 		TwitchBotEnabled: twitchBotEnabled,
 		TwitchBotDelay:   twitchBotDelay,
-		// Send them the current time so that they can calculate the local offset
-		Time: getTimestamp(),
 	})
 
 	// Prepare some data about all of the ongoing races to send to the newly
@@ -125,14 +122,13 @@ func websocketHandleConnect(s *melody.Session) {
 
 		// If the race is currently in the 10 second countdown
 		if race.Status == "starting" {
-			// Get the time 10 seconds in the future
-			startTime := time.Now().Add(10*time.Second).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
-			// This will technically put them behind the other racers by some amount of seconds, but it gives them 10 seconds to get ready after a disconnect
-
-			// Send them a message describing exactly when it will start
+			// Send them a message describing when it will start
 			websocketEmit(s, "raceStart", &RaceStartMessage{
-				race.ID,
-				startTime,
+				ID:            race.ID,
+				SecondsToWait: 10,
+				// This will make them start behind the other racers,
+				// but it gives them 10 seconds to get ready after a disconnect;
+				// times are reported via client side start and finish anyway
 			})
 		}
 	}

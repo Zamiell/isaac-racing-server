@@ -2,6 +2,7 @@ package main
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
@@ -68,11 +69,35 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	startingItem := false
 	if race.Ruleset.Format != "seeded" &&
 		race.Ruleset.Format != "seeded-hard" &&
-		racer.StartingItem == 0 {
+		racer.StartingItem == 0 &&
+		len(racer.Rooms) > 1 {
 
-		// Check to see if this item was already given to them at the start
-		alreadyGiven := false
-		if !alreadyGiven {
+		// Every character starts with the D6
+		startedWithThis := false
+		if itemID == 105 {
+			startedWithThis = true
+		}
+
+		// For Diversity races, check to see if this item was already given to them at the start
+		if race.Ruleset.Format == "diversity" {
+			for i, startingItem := range strings.Split(race.Ruleset.Seed, ",") {
+				if i == 4 {
+					// We don't want to compare to the trinket
+					continue
+				}
+				if startingItemInt, err := strconv.Atoi(startingItem); err != nil {
+					log.Error("Failed to parse the Diversity seed when checking for the starting item:", err)
+					continue
+				} else {
+					if itemID == startingItemInt {
+						startedWithThis = true
+						break
+					}
+				}
+			}
+		}
+
+		if !startedWithThis {
 			racer.StartingItem = itemID
 			startingItem = true
 		}

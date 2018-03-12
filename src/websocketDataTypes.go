@@ -24,6 +24,7 @@ type IncomingWebsocketData struct {
 	IP        string                `json:"ip"`
 	Enabled   bool                  `json:"enabled"`
 	Value     int                   `json:"value"`
+	Time      int64                 `json:"time"`
 	Command   string                // Added by the server after demarshaling
 	v         *models.SessionValues // Added by the server after demarshaling
 }
@@ -69,8 +70,8 @@ type RaceCreatedMessage struct {
 
 // Sent in the "raceStart" command (in the "raceCheckStart()" and "websocketHandleConnect()" functions)
 type RaceStartMessage struct {
-	ID   int   `json:"id"`
-	Time int64 `json:"time"`
+	ID            int `json:"id"`
+	SecondsToWait int `json:"secondsToWait"`
 }
 
 /*

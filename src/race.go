@@ -124,16 +124,18 @@ func (race *Race) SetRacerStatus(username string, status string) {
 		// Not all racers may be online during a race
 		if s, ok := websocketSessions[racerName]; ok {
 			type RacerSetStatusMessage struct {
-				ID     int    `json:"id"`
-				Name   string `json:"name"`
-				Status string `json:"status"`
-				Place  int    `json:"place"`
+				ID      int    `json:"id"`
+				Name    string `json:"name"`
+				Status  string `json:"status"`
+				Place   int    `json:"place"`
+				RunTime int64  `json:"runTime"`
 			}
 			websocketEmit(s, "racerSetStatus", &RacerSetStatusMessage{
 				race.ID,
 				username,
 				status,
 				racer.Place,
+				racer.RunTime,
 			})
 		}
 	}
@@ -178,7 +180,7 @@ func (race *Race) SetAllPlaceMid() {
 
 // Called from the "CheckStart" function
 func (race *Race) Start() {
-	var secondsToWait time.Duration
+	var secondsToWait int
 	if race.Ruleset.Solo {
 		secondsToWait = 3
 	} else {
@@ -186,21 +188,18 @@ func (race *Race) Start() {
 	}
 
 	// Log the race starting
-	log.Info("Race "+strconv.Itoa(race.ID)+" starting in", int(secondsToWait), "seconds.")
+	log.Info("Race "+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
 
 	// Change the status for this race to "starting"
 	race.SetStatus("starting")
-
-	// Get the time X seconds in the future
-	startTime := time.Now().Add(secondsToWait*time.Second).UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
 
 	// Send everyone in the race a message specifying exactly when it will start
 	for racerName := range race.Racers {
 		// A racer might go offline the moment before it starts, so check just in case
 		if s, ok := websocketSessions[racerName]; ok {
 			websocketEmit(s, "raceStart", &RaceStartMessage{
-				race.ID,
-				startTime,
+				ID:            race.ID,
+				SecondsToWait: secondsToWait,
 			})
 		}
 	}
