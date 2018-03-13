@@ -5,6 +5,9 @@
 			{{ if .TournamentInfos.TournamentName }}
 				Tournament "{{ .TournamentInfos.TournamentName }}" does not exist.
 			{{ else }}
+				{{ range AllTournaments }}
+
+				{{ end }}
 				<a href="https://github.com/Krakenos/BoIR-trueskill">See Krakenos' page for more tournament info</a>
 			{{ end }}
 		</header>

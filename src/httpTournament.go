@@ -21,7 +21,7 @@ func httpTournament(c *gin.Context) {
 	tournamentRaces, err := db.Tournament.GetTournamentRaces()
 	if err != nil {
 		log.Error("Failed to get tournament data from the database: " + err.Error())
-		httpServeTemplate(w, "notournament", TemplateData{Title: "No Tournament"})
+		httpServeTemplate(w, "notournament", TemplateData{Title: "No Tournament", AllTournaments: allTournaments})
 		return
 	}
 
@@ -29,6 +29,7 @@ func httpTournament(c *gin.Context) {
 	data := TemplateData{
 		Title:           "Tournaments",
 		TournamentRaces: tournamentRaces,
+		AllTournaments:  allTournaments,
 	}
 
 	httpServeTemplate(w, "tournament", data)
