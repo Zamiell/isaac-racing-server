@@ -334,8 +334,11 @@
     #race-listing-buttons .button:active {
         background-color: rgba(255, 255, 255, 0.2);
     }
-    #race-listing-buttons.row {
+    #race-listing-buttons.row.top {
         margin: -3em 0 -1px -2em;
+    }
+    #race-listing-buttons.row.bottom {
+        margin: 0 0 -1px -2em;
     }
     #race-listing-table {
       font-size: 1em;
