@@ -126,12 +126,8 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		ruleset.Seed = diversityGetSeed(ruleset)
 	}
 
-	// Populate the starting items field
-	if ruleset.Format == "seeded" || ruleset.Format == "seeded-hard" {
-		ruleset.StartingItems = make([]int, 0)
-	} else if ruleset.Format == "diversity" {
-		ruleset.StartingItems = make([]int, 0)
-	}
+	// Zero out the starting items field
+	ruleset.StartingItems = make([]int, 0)
 
 	/*
 		Create the race in the database
