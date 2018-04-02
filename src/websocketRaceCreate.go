@@ -64,6 +64,11 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
+	// Fix the ranking for multiplayer races
+	if !ruleset.Solo {
+		ruleset.Ranked = true
+	}
+
 	// Pick a random character, if necessary
 	if ruleset.Character == "random" {
 		ruleset.CharacterRandom = true
@@ -76,7 +81,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	if ruleset.StartingBuild == 0 {
 		ruleset.StartingBuildRandom = true
 		rand.Seed(time.Now().UnixNano())
-		ruleset.StartingBuild = rand.Intn(numBuilds) + 1 // 1 to numBuilds
+		ruleset.StartingBuild = rand.Intn(len(seededBuilds)) + 1 // 1 to numBuilds
 	}
 
 	// Check if there are any ongoing races with this name

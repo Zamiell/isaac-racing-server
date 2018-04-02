@@ -103,7 +103,7 @@ var validDiversityTrinkets = [...]int{
 	111, 112, 113, 114, 115, 116, 117, 118, 119,
 
 	// Booster pack trinkets
-	120, 121, 122, 123,
+	120, 121, 122, 123, 124, 125,
 }
 
 /*
