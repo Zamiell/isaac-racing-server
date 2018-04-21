@@ -67,6 +67,7 @@ type TemplateData struct {
 	Season1r14 []models.SpeedRun
 	Season2r7  []models.SpeedRun
 	Season3r7  []models.SpeedRun
+	// Season4r7 []models.SpeedRun
 
 	// Tournament Stuff
 	TournamentRaces []models.TournamentRace
