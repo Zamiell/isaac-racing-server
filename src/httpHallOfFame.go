@@ -496,7 +496,7 @@ func httpHallOfFame(c *gin.Context) {
 		models.SpeedRun{
 			Rank:        6,
 			Racer:       "SapphireHX",
-			ProfileName: "SapphireHX",
+			ProfileName: "Sapphire",
 			Time:        4249,
 			Version:     "",
 			Date:        "2018-02-06",
@@ -509,7 +509,7 @@ func httpHallOfFame(c *gin.Context) {
 		models.SpeedRun{
 			Rank:        7,
 			Racer:       "Moucheron_Quipet",
-			ProfileName: "Moucheron_Quipet",
+			ProfileName: "MoucheronQuipet",
 			Time:        4269,
 			Version:     "",
 			Date:        "2018-03-14",
