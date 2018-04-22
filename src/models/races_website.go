@@ -269,6 +269,7 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 		WHERE
 			r.finished = 1
 			AND r.ranked = 1
+			AND r.solo = 1
 			AND u.username = ?
 		GROUP BY
 			id

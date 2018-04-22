@@ -116,6 +116,7 @@ func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, e
 			JOIN races ON race_participants.race_id = races.id
 		WHERE race_participants.user_id = ?
 			AND races.ranked = 1
+			AND races.solo = 1
 			AND races.format = "unseeded"
 			AND races.datetime_finished > "`+rankedUnseededSoloSeasonStartDatetime+`"
 		ORDER BY races.datetime_finished DESC
