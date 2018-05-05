@@ -23,6 +23,7 @@ var characters = []string{
 	"Lilith",
 	"Keeper",
 	"Apollyon",
+	"The Forgotten",
 	"Samael",
 }
 
