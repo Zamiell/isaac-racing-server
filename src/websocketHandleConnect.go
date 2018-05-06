@@ -85,13 +85,14 @@ func websocketHandleConnect(s *melody.Session) {
 	for _, id := range raceIDs {
 		race := races[id]
 		msg := RaceCreatedMessage{
-			ID:              race.ID,
-			Name:            race.Name,
-			Status:          race.Status,
-			Ruleset:         race.Ruleset,
-			Captain:         race.Captain,
-			DatetimeCreated: race.DatetimeCreated,
-			DatetimeStarted: race.DatetimeStarted,
+			ID:                  race.ID,
+			Name:                race.Name,
+			Status:              race.Status,
+			Ruleset:             race.Ruleset,
+			Captain:             race.Captain,
+			IsPasswordProtected: len(race.Password)>0,
+			DatetimeCreated:     race.DatetimeCreated,
+			DatetimeStarted:     race.DatetimeStarted,
 		}
 		racers := make([]string, 0)
 		for racerName := range race.Racers {
