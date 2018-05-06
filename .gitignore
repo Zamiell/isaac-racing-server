@@ -27,6 +27,9 @@ _testmain.go
 *.test
 *.prof
 
+# JetBrains GoLand
+.idea
+
 # -------------------------
 # isaac-racing-server stuff
 # -------------------------
