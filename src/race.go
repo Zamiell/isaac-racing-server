@@ -19,6 +19,7 @@ type Race struct {
 	Status          string /* open, starting, in progress, finished */
 	Ruleset         Ruleset
 	Captain         string
+	Password        string
 	SoundPlayed     bool
 	DatetimeCreated int64
 	DatetimeStarted int64

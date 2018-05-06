@@ -43,6 +43,12 @@ func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
+	// Validate the password if the race is password protected
+	if len(race.Password) > 0 && race.Password != d.Password {
+		websocketWarning(s, d.Command, "Failed to join race: wrong password.")
+		return
+	}
+
 	/*
 		Join
 	*/

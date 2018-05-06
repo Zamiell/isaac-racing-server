@@ -25,6 +25,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	rateLimitLastCheck := d.v.RateLimitLastCheck
 	name := d.Name
 	ruleset := d.Ruleset
+	password := d.Password
 
 	/*
 		Validation
@@ -67,6 +68,8 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Fix the ranking for multiplayer races
 	if !ruleset.Solo {
 		ruleset.Ranked = true
+	} else {
+		password = ""
 	}
 
 	// Pick a random character, if necessary
@@ -161,6 +164,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		Status:          "open",
 		Ruleset:         ruleset,
 		Captain:         username,
+		Password:        password,
 		SoundPlayed:     false,
 		DatetimeCreated: getTimestamp(),
 		DatetimeStarted: 0,
@@ -171,14 +175,15 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Send everyone a notification that a new race has been started
 	for _, s := range websocketSessions {
 		websocketEmit(s, "raceCreated", &RaceCreatedMessage{
-			ID:              race.ID,
-			Name:            race.Name,
-			Status:          race.Status,
-			Ruleset:         race.Ruleset,
-			Captain:         race.Captain,
-			DatetimeCreated: race.DatetimeCreated,
-			DatetimeStarted: race.DatetimeStarted,
-			Racers:          make([]string, 0),
+			ID:                  race.ID,
+			Name:                race.Name,
+			Status:              race.Status,
+			Ruleset:             race.Ruleset,
+			Captain:             race.Captain,
+			IsPasswordProtected: len(race.Password)>0,
+			DatetimeCreated:     race.DatetimeCreated,
+			DatetimeStarted:     race.DatetimeStarted,
+			Racers:              make([]string, 0),
 		})
 	}
 
