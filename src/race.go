@@ -243,7 +243,7 @@ func (race *Race) Start3() {
 	if race.Ruleset.Format == "custom" {
 		time.Sleep(4 * time.Hour) // We need to make the timeout longer to accomodate multi-character speedrun races
 	} else {
-		time.Sleep(30 * time.Minute)
+		time.Sleep(90 * time.Minute) // An hour and a half to accomodate players that are not as good at the game
 	}
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
