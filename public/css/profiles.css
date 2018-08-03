@@ -367,35 +367,49 @@ header.race-header h2.last-race-results {
   margin-right: auto;
 }
 
+table#profiles td {
+  padding: .25em .25em .25em .25em;
+}
+table#profiles {
+  margin: 0;
+}
 tr.profile-stats {
   background-color: #ffffff !important;
 }
 
-th.seeded-th {
+th.m-seeded-th {
   border-top: 0;
   border-bottom: 0;
   border-left: 0;
   border-right: 1px inset black;
   text-align: center;
-  width: 33%;
+  width: 25%;
 }
 
-th.unseeded-th {
+th.m-unseeded-th {
   border-top: 0;
   border-bottom: 0;
   border-left: 1px outset black;
   border-right: 1px inset black;
   text-align: center;
-  width: 33%;
+  width: 25%;
+}
+th.s-unseeded-th {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 1px outset black;
+  border-right: 1px inset black;
+  text-align: center;
+  width: 25%;
 }
 
-th.diversity-th {
+th.m-diversity-th {
   border-top: 0;
   border-bottom: 0;
   border-left: 1px outset black;
   border-right: 0;
   text-align: center;
-  width: 33%;
+  width: 25%;
 }
 
 td.seeded-column.left {
@@ -404,7 +418,7 @@ td.seeded-column.left {
   border-left: 0 !important;
   border-right: 0;
   text-align: right;
-  width: 20%;
+  width: 15%;
 }
 
 td.seeded-column.right {
@@ -413,7 +427,7 @@ td.seeded-column.right {
   border-left: 0;
   border-right: 1px inset black;
   text-align: left;
-  width: 13%;
+  width: 10%;
 }
 
 td.unseeded-column.left {
@@ -422,7 +436,7 @@ td.unseeded-column.left {
   border-left: 1px outset black;
   border-right: 0;
   text-align: right;
-  width: 20%;
+  width: 15%;
 }
 
 td.unseeded-column.right {
@@ -431,16 +445,32 @@ td.unseeded-column.right {
   border-left: 0;
   border-right: 1px inset black;
   text-align: left;
-  width: 13%;
+  width: 10%;
+}
+td.unseeded-solo-column.left {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 1px outset black;
+  border-right: 0;
+  text-align: right;
+  width: 15%;
 }
 
+td.unseeded-solo-column.right {
+  border-top: 0;
+  border-bottom: 0;
+  border-left: 0;
+  border-right: 1px inset black;
+  text-align: left;
+  width: 10%;
+}
 td.diversity-column.left {
   border-top: 0;
   border-bottom: 0;
   border-left: 1px outset black;
   border-right: 0;
   text-align: right;
-  width: 20%;
+  width: 15%;
 }
 
 td.diversity-column.right {
@@ -449,7 +479,7 @@ td.diversity-column.right {
   border-left: 0;
   border-right: 0;
   text-align: left;
-  width: 14%
+  width: 10%
 }
 
 td.last {
@@ -475,4 +505,13 @@ td.misc-td-allraces, td.misc-td-wasted-time {
 
 .box {
   padding: 1.5em !important;
+}
+
+#lastEloChange.red {
+  color: red;
+  font-size: .95em;
+}
+#lastEloChange.green {
+  color: #36d12e;
+  font-size: .95em;
 }

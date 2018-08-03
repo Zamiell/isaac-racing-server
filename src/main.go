@@ -73,6 +73,9 @@ func main() {
 	loadAllItems()
 	loadAllBuilds()
 
+	// Initialize the needed static maps for tournaments (in constants.go)
+	loadAllTournaments()
+
 	// Initialize an HTTP router using the Gin framework (in http.go)
 	// (the "ListenAndServe" functions located inside here are blocking)
 	httpInit()

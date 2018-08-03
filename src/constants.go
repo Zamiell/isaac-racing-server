@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"path"
+	"sort"
 	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
@@ -54,6 +56,23 @@ type IsaacItem struct {
 	Name string
 }
 
+type TournamentInfo struct {
+	Name         string `json:"name"`
+	ChallongeID  string `json:"challonge_id"`
+	ChallongeURL string `json:"challonge"`
+	Date         string `json:"date"`
+	Notability   string `json:"notability"`
+	Organizer    string `json:"organizer"`
+	Ruleset      string `json:"ruleset"`
+	Description  string `json:"description"`
+}
+
+type NameSorter []os.FileInfo
+
+func (a NameSorter) Len() int           { return len(a) }
+func (a NameSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a NameSorter) Less(i, j int) bool { return a[i].Name() > a[j].Name() }
+
 var (
 	seededBuilds = []string{
 		"20/20",                     // 1
@@ -91,20 +110,21 @@ var (
 		"Mega Blast + more",         // 33
 	}
 
-	allItems     = make(map[string]*JSONItem)
-	allItemNames = make(map[int]string)
-	allBuilds    = make([]IsaacItem, 0)
+	allItems       = make(map[string]*JSONItem)
+	allItemNames   = make(map[int]string)
+	allBuilds      = make([]IsaacItem, 0)
+	allTournaments = make([]TournamentInfo, 0)
 )
 
 func loadAllItems() {
-	JSONPath := path.Join(projectPath, "public", "items.json")
-	JSONFile, err := ioutil.ReadFile(JSONPath)
+	jsonFilePath := path.Join(projectPath, "public", "items.json")
+	jsonFile, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
-		log.Fatal("Failed to open \""+JSONPath+"\":", err)
+		log.Fatal("Failed to open \""+jsonFilePath+"\":", err)
 	}
 
 	// Create all the items
-	json.Unmarshal(JSONFile, &allItems)
+	json.Unmarshal(jsonFile, &allItems)
 
 	// Create 2nd map of just item names
 	for k, v := range allItems {
@@ -121,5 +141,32 @@ func loadAllBuilds() {
 	} else {
 		// Create all the items
 		json.Unmarshal(jsonFile, &allBuilds)
+	}
+}
+
+func loadAllTournaments() {
+
+	// Temporary var for each tournament
+	var tournament TournamentInfo
+	// Open the JSON files for tournaments and load them into TournamentInfo
+	jsonFolderPath := path.Join(projectPath, "BoIR-trueskill/tournaments")
+	fileList, err := ioutil.ReadDir(jsonFolderPath)
+	if err != nil {
+		log.Error("Could not read the files in ", jsonFolderPath)
+	}
+	log.Info(fileList[0].Name())
+	sort.Sort(NameSorter(fileList))
+	log.Info(fileList[0].Name())
+	for _, file := range fileList {
+		// Create the full file path
+		filePath := path.Join(jsonFolderPath, file.Name())
+		if jsonFile, err := ioutil.ReadFile(filePath); err != nil {
+			// Fatal error if we cannot open a file
+			log.Fatal("Failed to open \""+filePath+"\":", err)
+		} else {
+			// Create all the tournament vars
+			json.Unmarshal(jsonFile, &tournament)
+			allTournaments = append(allTournaments, tournament)
+		}
 	}
 }
