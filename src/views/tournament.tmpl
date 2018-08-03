@@ -32,8 +32,8 @@
 						<td id="td-racer2-{{ .RaceID.Int64 }}" class="td-racer">{{ .Racer2.String }}</td>
 						<!--<td id="td-bracket-{{ .RaceID.Int64 }}" class="td-racer">Round #{{ .TournamentRound.Int64 }}</td>-->
 						<td id="td-startdate-{{ .RaceID.Int64 }}" class="td-startdate">{{ .RaceDateTime.Time }}</td>
-						{{ if .RaceCasterName.String }}
-							<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster"><a href="{{ .RaceCasterURL.String }}" target="_blank">{{ .RaceCasterName.String }} <span style="vertical-align: middle;"><img height="16px" width="16px" src="/public/img/Glitch_Purple_RGB.png"></a></span></td>
+						{{ if .RaceCaster.String }}
+							<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster"><a href="https://twitch.tv/{{ .RaceCaster.String }}" target="_blank">{{ .RaceCaster.String }} <span style="vertical-align: middle;"><img height="16px" width="16px" src="/public/img/Glitch_Purple_RGB.png"></a></span></td>
 						{{ else }}
 							<td id="td-caster-{{ .RaceID.Int64 }}" class="td-caster"><a href="https://kadgar.net/live/{{ .Racer1.String }}/{{ .Racer2.String }}" target="_blank">Kadgar</a></td>
 						{{ end }}
@@ -59,6 +59,7 @@
 			<table class="alt" id="table-all-tournaments">
 				<thead>
 					<th id="th-all-tournaments-name" class="th-all-tournaments-name">Name</th>
+					<th id="th-all-tournaments-date" class="th-all-tournaments-date">Start Date</th>
 					<th id="th-all-tournaments-info" class="th-all-tournaments-info">Info</th>
 				</thead>
 				<tbody>
@@ -67,12 +68,16 @@
 						<td id="td-all-tournaments-name-{{ $index }}" class="td-all-tournaments-name">
 							<a href="{{ .ChallongeURL }}" target="_blank">{{ .Name }}</a>
 						</td>
+						<td id="td-date-{{ $index }}" class="td-all-tournaments-date">
+							{{ .Date }}
+						</td>
 						<td id="td-all-tournaments-info-{{ $index }}" class="td-all-tournaments-info">
-							<div id="div-date-{{ $index }}" class="div-all-tournaments-date">Start Date: {{ .Date }}</div>
-							<div id="div-organizer-{{ $index }}" class="div-all-tournaments-organizer" >Organizer: {{ .Organizer }}</div>
-							<div id="div-notability-{{ $index }}" class="div-all-tournaments-notability" >Notability: {{ .Notability }}</div>
-							<div id="div-ruleset-{{ $index }}" class="div-all-tournaments-ruleset" >Ruleset: {{ .Ruleset }}</div>
-							<div id="div-description-{{ $index }}" class="div-all-tournaments-description" >Description: {{ .Description }}</div>
+							<div id="div-organizer-{{ $index }}" class="div-all-tournaments-organizer div-tournament-left" ><strong>Organizer:</strong> {{ .Organizer }}</div>
+							<div id="div-notability-{{ $index }}" class="div-all-tournaments-notability div-tournament-left" ><strong>Notability:</strong> {{ .Notability }}</div>
+							<div id="div-ruleset-{{ $index }}" class="div-all-tournaments-ruleset div-tournament-left" ><strong>Ruleset:</strong> {{ .Ruleset }}</div>
+							{{ if ne .Description  "" }}
+								<div id="div-description-{{ $index }}" class="div-all-tournaments-description div-tournament-left" ><strong>Description:</strong> {{ .Description }}</div>
+							{{ end }}
 						</td>
 					</tr>
 					{{ end }}

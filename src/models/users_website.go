@@ -33,7 +33,8 @@ type ProfileData struct {
 	Admin             sql.NullInt64
 	Verified          bool
 	StatsSeeded       StatsTrueSkill
-	StatsUnseeded     StatsUnseeded
+	StatsUnseeded     StatsTrueSkill
+	StatsSoloUnseeded StatsUnseeded
 	StatsDiversity    StatsTrueSkill
 	TotalRaces        sql.NullInt64
 	StreamURL         sql.NullString
@@ -63,9 +64,15 @@ func (*Users) GetProfileData(userID int) (ProfileData, error) {
 			u.admin,
 			u.verified,
 			ROUND(u.seeded_trueskill, 2),
+			ROUND(u.seeded_trueskill_change, 2),
 			ROUND(u.seeded_trueskill_sigma, 2),
 			u.seeded_num_races,
 			u.seeded_last_race,
+			ROUND(u.unseeded_trueskill,2),
+			ROUND(u.unseeded_trueskill_change, 2),
+			ROUND(u.unseeded_trueskill_sigma, 2),
+			u.unseeded_num_races,
+			u.unseeded_last_race,
 			u.unseeded_solo_adjusted_average,
 			u.unseeded_solo_real_average,
 			u.unseeded_solo_num_races,
@@ -74,8 +81,8 @@ func (*Users) GetProfileData(userID int) (ProfileData, error) {
 			u.unseeded_solo_lowest_time,
 			u.unseeded_solo_last_race,
 			ROUND(u.diversity_trueskill, 2),
-			ROUND(u.diversity_trueskill_sigma, 2),
 			ROUND(u.diversity_trueskill_change, 2),
+			ROUND(u.diversity_trueskill_sigma, 2),
 			u.diversity_num_races,
 			u.diversity_last_race,
 			COUNT(rp.race_id),
@@ -90,7 +97,7 @@ func (*Users) GetProfileData(userID int) (ProfileData, error) {
 				races r
 				ON r.id = rp.race_id
 		WHERE
-			u.id = ?
+			u.id =?
 	`, userID).Scan(
 		&profileData.Username,
 		&profileData.DatetimeCreated,
@@ -98,19 +105,25 @@ func (*Users) GetProfileData(userID int) (ProfileData, error) {
 		&profileData.Admin,
 		&profileData.Verified,
 		&profileData.StatsSeeded.TrueSkill,
+		&profileData.StatsSeeded.Change,
 		&profileData.StatsSeeded.Sigma,
 		&profileData.StatsSeeded.NumRaces,
 		&profileData.StatsSeeded.LastRace,
-		&profileData.StatsUnseeded.AdjustedAverage,
-		&profileData.StatsUnseeded.RealAverage,
+		&profileData.StatsUnseeded.TrueSkill,
+		&profileData.StatsUnseeded.Change,
+		&profileData.StatsUnseeded.Sigma,
 		&profileData.StatsUnseeded.NumRaces,
-		&profileData.StatsUnseeded.NumForfeits,
-		&profileData.StatsUnseeded.ForfeitPenalty,
-		&profileData.StatsUnseeded.LowestTime,
 		&profileData.StatsUnseeded.LastRace,
+		&profileData.StatsSoloUnseeded.AdjustedAverage,
+		&profileData.StatsSoloUnseeded.RealAverage,
+		&profileData.StatsSoloUnseeded.NumRaces,
+		&profileData.StatsSoloUnseeded.NumForfeits,
+		&profileData.StatsSoloUnseeded.ForfeitPenalty,
+		&profileData.StatsSoloUnseeded.LowestTime,
+		&profileData.StatsSoloUnseeded.LastRace,
 		&profileData.StatsDiversity.TrueSkill,
-		&profileData.StatsDiversity.Sigma,
 		&profileData.StatsDiversity.Change,
+		&profileData.StatsDiversity.Sigma,
 		&profileData.StatsDiversity.NumRaces,
 		&profileData.StatsDiversity.LastRace,
 		&profileData.TotalRaces,

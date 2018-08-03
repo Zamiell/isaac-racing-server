@@ -14,31 +14,38 @@
 			<table class="alt" id="profiles">
 				<thead>
 					<tr>
-						<th class="seeded-th" colspan="2">Seeded Ranked</th>
-						<th class="unseeded-th" colspan="2">Unseeded Ranked</th>
-						<th class="diversity-th" colspan="2">Diversity</th>
-					</tr>
+						<th class="m-seeded-th" colspan="2"><u>Multiplayer Seeded</u></th>
+						<th class="m-unseeded-th" colspan="2"><u>Multiplayer Unseeded</u></th>
+						<th class="s-unseeded-th" colspan="2"><u>Solo Unseeded</u></th>
+						<th class="m-diversity-th" colspan="2"><u>Multiplayer Diversity</u></th>
+						</tr>
 				</thead>
 				<tbody>
 					<tr class="profile-stats">
 						<!-- First Column -->
 						<td id="seeded-trueskill-label" class="seeded-column left">TrueSkill:</td>
-						<td id="seeded-trueskill-val" class="seeded-column right">{{ .ResultsProfile.StatsSeeded.TrueSkill }}</td>
+						<td id="seeded-trueskill-val" class="seeded-column right">{{ .ResultsProfile.StatsSeeded.TrueSkill }}<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsSeeded.Change 0.0 -}} red {{- else if gt .ResultsProfile.StatsSeeded.Change 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsSeeded.Change 0.0}}<sup>+</sup>{{end}}{{ if ne .ResultsProfile.StatsSeeded.Change 0.0 -}}<sup>{{- .ResultsProfile.StatsSeeded.Change -}}</sup>{{ end -}}</td>
 						<!-- Second Column -->
-						<td id="unseeded-adjavg-label" class="unseeded-column left">Adjusted Average:</td>
-						<td id="unseeded-adjavg-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.AdjustedAverage }}</td>
+						<td id="unseeded-trueskill-label" class="unseeded-column left">TrueSkill:</td>
+						<td id="unseeded-trueskill-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.TrueSkill }}<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsUnseeded.Change 0.0 -}} red {{- else if gt .ResultsProfile.StatsUnseeded.Change 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsUnseeded.Change 0.0}}<sup>+</sup>{{end}}{{ if ne .ResultsProfile.StatsUnseeded.Change 0.0 -}}<sup>{{- .ResultsProfile.StatsUnseeded.Change -}}</sup>{{ end -}}</td></td>
 						<!-- Third Column -->
+						<td id="unseeded-solo-adjavg-label" class="unseeded-solo-column left">Adjusted Avg:</td>
+						<td id="unseeded-solo-adjavg-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.AdjustedAverage }}</td>
+						<!-- Fourth Column -->
 						<td id="diversity-trueskill-label" class="diversity-column left">TrueSkill:</td>
-						<td id="diversity-trueskil-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.TrueSkill }}<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsDiversity.Change 0.0 -}} red {{- else if gt .ResultsProfile.StatsDiversity.Change 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsDiversity.Change 0.0}}+{{end}}{{ if ne .ResultsProfile.StatsDiversity.Change 0.0 -}}{{- .ResultsProfile.StatsDiversity.Change -}}{{ end -}}</span></td>
+						<td id="diversity-trueskil-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.TrueSkill }}<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsDiversity.Change 0.0 -}} red {{- else if gt .ResultsProfile.StatsDiversity.Change 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsDiversity.Change 0.0}}<sup>+</sup>{{end}}{{ if ne .ResultsProfile.StatsDiversity.Change 0.0 -}}<sup>{{- .ResultsProfile.StatsDiversity.Change -}}</sup>{{ end -}}</span></td>
 					</tr>
 					<tr class="profile-stats">
 						<!-- First Column -->
 						<td id="seeded-trueskill-sigma-label" class="seeded-column left">TrueSkill Sigma:</td>
 						<td id="seeded-trueskill-sigma-val" class="seeded-column right">{{ .ResultsProfile.StatsSeeded.Sigma }}</td>
 						<!-- Second Column -->
-						<td id="unseeded-realavg-label" class="unseeded-column left">Unadjusted Average:</td>
-						<td id="unseeded-realavg-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.RealAverage }}</td>
+						<td id="unseeded-trueskill-sigma-label" class="unseeded-column left">TrueSkill Sigma:</td>
+						<td id="unseeded-trueskill-sigma-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.Sigma }}</td>
 						<!-- Third Column -->
+						<td id="unseeded-solo-realavg-label" class="unseeded-solo-column left">Unadjusted Avg:</td>
+						<td id="unseeded-solo-realavg-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.RealAverage }}</td>
+						<!-- Fourth Column -->
 						<td id="diversity-trueskill-sigma-label" class="diversity-column left">TrueSkill Sigma:</td>
 						<td id="diversity-trueskill-sigma-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.Sigma }}</td>
 					</tr>
@@ -47,9 +54,12 @@
 						<td id="seeded-numraces-label" class="seeded-column left">Total Races:</td>
 						<td id="seeded-numraces-val" class="seeded-column right">{{ .ResultsProfile.StatsSeeded.NumRaces }}</td>
 						<!-- Second Column -->
-						<td id="unseeded-forpen-label" class="unseeded-column left">Forfeit Penalty:</td>
-						<td id="unseeded-forpen-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.ForfeitPenalty }}</td>
+						<td id="unseeded-numraces-label" class="unseeded-column left">Total Races:</td>
+						<td id="unseeded-numraces-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.NumRaces }}</td>
 						<!-- Third Column -->
+						<td id="unseeded-solo-forpen-label" class="unseeded-column left">Forfeit Penalty:</td>
+						<td id="unseeded-solo-forpen-val" class="unseeded-column right">{{ .ResultsProfile.StatsSoloUnseeded.ForfeitPenalty }}</td>
+						<!-- Fourth Column -->
 						<td id="diversity-numraces-label" class="diversity-column left">Total Races:</td>
 						<td id="diversity-numraces-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.NumRaces }}</td>
 					</tr>
@@ -58,9 +68,12 @@
 						<td class="seeded-column left"></td>
 						<td class="seeded-column right"></td>
 						<!-- Second Column -->
-						<td id="unseeded-numfor-label" class="unseeded-column left">Forfeit Rate:</td>
-						<td id="unseeded-numfor-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.NumForfeits }}</td>
+						<td class="unseeded-column left"></td>
+						<td class="unseeded-column right"></td>
 						<!-- Third Column -->
+						<td id="unseeded-solo-numfor-label" class="unseeded-solo-column left">Forfeit Rate:</td>
+						<td id="unseeded-solo-numfor-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.NumForfeits }}</td>
+						<!-- Fourth Column -->
 						<td class="diversity-column left"></td>
 						<td class="diversity-column right"></td>
 					</tr>
@@ -69,9 +82,12 @@
 						<td class="seeded-column left"></td>
 						<td class="seeded-column right"></td>
 						<!-- Second Column -->
-						<td id="unseeded-numraces-label" class="unseeded-column left">Total Races:</td>
-						<td id="unseeded-numraces-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.NumRaces }}</td>
+						<td class="unseeded-column left"></td>
+						<td class="unseeded-column right"></td>
 						<!-- Third Column -->
+						<td id="unseeded-solo-numraces-label" class="unseeded-solo-column left">Total Races:</td>
+						<td id="unseeded-solo-numraces-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.NumRaces }}</td>
+						<!-- Fourth Column -->
 						<td class="diversity-column left"></td>
 						<td class="diversity-column right"></td>
 					</tr>
@@ -80,20 +96,23 @@
 						<td class="seeded-column left last"></td>
 						<td class="seeded-column right last"></td>
 						<!-- Second Column -->
-						<td id="unseeded-fastest-label" class="unseeded-column left last">Fastest Time:</td>
-						<td id="unseeded-fastest-val" class="unseeded-column right last">{{ .ResultsProfile.StatsUnseeded.LowestTime }}</td>
+						<td class="unseeded-column left last"></td>
+						<td class="unseeded-column right last"></td>
 						<!-- Third Column -->
+						<td id="unseeded-solo-fastest-label" class="unseeded-solo-column left last">Fastest Time:</td>
+						<td id="unseeded-solo-fastest-val" class="unseeded-solo-column right last">{{ .ResultsProfile.StatsSoloUnseeded.LowestTime }}</td>
+						<!-- Fourth Column -->
 						<td class="diversity-column left last"></td>
 						<td class="diversity-column right last"></td>
 					</tr>
 					<tr class="profile-stats">
-						<th colspan="6" id="misc-stats" class="misc-stats">Miscellaneous</td>
+						<th colspan="8" id="misc-stats" class="misc-stats"><u>Miscellaneous</u></td>
 					</tr>
 					<tr class="profile-stats">
-						<td colspan="6" id="misc-td-allraces-{{ .ResultsProfile.Username }}" class="misc-td-allraces">All Races: {{ .ResultsProfile.TotalRaces.Value }}</td>
+						<td colspan="8" id="misc-td-allraces-{{ .ResultsProfile.Username }}" class="misc-td-allraces"><strong>Total Number of Races:</strong> {{ .ResultsProfile.TotalRaces.Value }}</td>
 					</tr>
 					<tr>
-						<td colspan="6" id="misc-td-wastedtime-{{ .ResultsProfile.Username }}" class="misc-td-wasted-time">Wasted Time: <span id='misc-wasted-time'>{{ .TotalTime }}</span></td>
+						<td colspan="8" id="misc-td-wastedtime-{{ .ResultsProfile.Username }}" class="misc-td-wasted-time"><strong>Wasted Time:</strong> <span id='misc-wasted-time'>{{ .TotalTime }}</span></td>
 					</tr>
 				</tbody>
 			</table>
