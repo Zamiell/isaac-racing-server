@@ -1,0 +1,3 @@
+[submodule "BoIR-trueskill"]
+	path = BoIR-trueskill
+	url = https://github.com/Krakenos/BoIR-trueskill/

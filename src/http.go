@@ -69,6 +69,7 @@ type TemplateData struct {
 	Season3r7  []models.SpeedRun
 
 	// Tournament Stuff
+	CurrentTourn    bool
 	TournamentRaces []models.TournamentRace
 	TournamentInfos TournamentStats
 	AllTournaments  []TournamentInfo

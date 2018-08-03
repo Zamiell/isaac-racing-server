@@ -3,7 +3,9 @@ package main
 import (
 	"encoding/json"
 	"io/ioutil"
+	"os"
 	"path"
+	"sort"
 	"strconv"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
@@ -64,6 +66,12 @@ type TournamentInfo struct {
 	Ruleset      string `json:"ruleset"`
 	Description  string `json:"description"`
 }
+
+type NameSorter []os.FileInfo
+
+func (a NameSorter) Len() int           { return len(a) }
+func (a NameSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
+func (a NameSorter) Less(i, j int) bool { return a[i].Name() > a[j].Name() }
 
 var (
 	seededBuilds = []string{
@@ -137,15 +145,18 @@ func loadAllBuilds() {
 }
 
 func loadAllTournaments() {
+
 	// Temporary var for each tournament
 	var tournament TournamentInfo
 	// Open the JSON files for tournaments and load them into TournamentInfo
-	jsonFolderPath := path.Join(projectPath, "tournaments")
+	jsonFolderPath := path.Join(projectPath, "BoIR-trueskill/tournaments")
 	fileList, err := ioutil.ReadDir(jsonFolderPath)
 	if err != nil {
 		log.Error("Could not read the files in ", jsonFolderPath)
 	}
-
+	log.Info(fileList[0].Name())
+	sort.Sort(NameSorter(fileList))
+	log.Info(fileList[0].Name())
 	for _, file := range fileList {
 		// Create the full file path
 		filePath := path.Join(jsonFolderPath, file.Name())

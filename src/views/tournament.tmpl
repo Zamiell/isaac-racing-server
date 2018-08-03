@@ -1,5 +1,11 @@
 {{ define "content" }}
 <section id="main" class="container">
+	{{ if .CurrentTourn }}
+	<div class="12u">
+		<section class="small-box" id="prior-tournaments-banner">
+			<a href="#all-prior-tournaments">Prior Tournaments</a>
+		</section>
+	</div>
 	<section class="box">
 		<header>
 			<h2><center>Current Isaac Tournaments</center></h2>
@@ -36,7 +42,15 @@
 				</tbody>
 			</table>
 		</div>
-	</section>
+	{{ else }}
+		<div class="12u">
+			<section id="no-tournaments" class="small-box">
+				There are no tournaments currently being tracked.
+			</section>
+		</div>
+	{{ end }}
+
+	<div id="all-prior-tournaments"></div>
 	<section id="section-all-tournaments" class="box">
 		<header>
 			<h2><center>Prior Isaac Tournaments</center></h2>
