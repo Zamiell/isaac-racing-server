@@ -17,6 +17,7 @@ func httpTournament(c *gin.Context) {
 	// Local variables
 	w := c.Writer
 	currentTournament := true
+
 	// Get the tournament race db data or serve a blank page if no tournaments found
 	tournamentRaces, err := db.Tournament.GetTournamentRaces()
 	if err != nil {
@@ -25,7 +26,7 @@ func httpTournament(c *gin.Context) {
 		//return
 		currentTournament = false
 	}
-	log.Info(currentTournament)
+
 	// Set data to serve to the template
 	data := TemplateData{
 		Title:           "Tournaments",
