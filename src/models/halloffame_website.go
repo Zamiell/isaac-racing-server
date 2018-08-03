@@ -1,5 +1,6 @@
 package models
 
+// SpeedRun struct contains data about a single runners run
 type SpeedRun struct {
 	Rank        int
 	Racer       string
@@ -8,4 +9,5 @@ type SpeedRun struct {
 	Version     string
 	Date        string
 	Proof       string
+	Site        string
 }

@@ -39,6 +39,12 @@ func websocketRaceSeed(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
+	// Validate that they did not save and continue
+	// (by checking to see if they are on the same seed that they were on before)
+	if racer.Seed == seed {
+		return
+	}
+
 	/*
 		Add the seed
 	*/

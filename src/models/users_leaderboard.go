@@ -11,6 +11,10 @@ import (
 	"github.com/go-sql-driver/mysql"
 )
 
+const (
+	rankedUnseededSoloSeasonStartDatetime = "2018-03-18 23:00:00"
+)
+
 type StatsUnseeded struct {
 	AdjustedAverage int
 	RealAverage     int
@@ -183,6 +187,7 @@ func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int,
 					AND races.ranked = 1
 					AND races.solo = 1
 					AND races.format = "unseeded"
+					AND races.datetime_finished > "` + rankedUnseededSoloSeasonStartDatetime + `"
 			),
 			unseeded_solo_num_forfeits = ?,
 			unseeded_solo_forfeit_penalty = ?,

@@ -24,7 +24,8 @@ type TournamentRace struct {
 	TournamentRound sql.NullInt64
 	RaceDateTime    mysql.NullTime
 	ChallongeID     sql.NullInt64
-	RaceCaster      sql.NullString
+	RaceCasterName  sql.NullString
+	RaceCasterURL   sql.NullString
 }
 
 // GetTournamentRaces gets all data for all races
@@ -41,7 +42,8 @@ func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 				tr.bracket_round,
 				tr.datetime_scheduled,
 				tr.challonge_match_id,
-				c.username
+				c.username,
+				c.stream_url
 		FROM
 			isaac.tournament_races tr
 					LEFT JOIN
@@ -73,7 +75,8 @@ func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 			&race.TournamentRound,
 			&race.RaceDateTime,
 			&race.ChallongeID,
-			&race.RaceCaster,
+			&race.RaceCasterName,
+			&race.RaceCasterURL,
 		); err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows
 		} else if err != nil {

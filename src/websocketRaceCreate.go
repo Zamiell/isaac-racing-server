@@ -25,6 +25,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	rateLimitLastCheck := d.v.RateLimitLastCheck
 	name := d.Name
 	ruleset := d.Ruleset
+	password := d.Password
 
 	/*
 		Validation
@@ -64,6 +65,13 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
+	// Fix the ranking for multiplayer races
+	if !ruleset.Solo {
+		ruleset.Ranked = true
+	} else {
+		password = ""
+	}
+
 	// Pick a random character, if necessary
 	if ruleset.Character == "random" {
 		ruleset.CharacterRandom = true
@@ -76,7 +84,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	if ruleset.StartingBuild == 0 {
 		ruleset.StartingBuildRandom = true
 		rand.Seed(time.Now().UnixNano())
-		ruleset.StartingBuild = rand.Intn(numBuilds) + 1 // 1 to numBuilds
+		ruleset.StartingBuild = rand.Intn(len(seededBuilds)) + 1 // 1 to numBuilds
 	}
 
 	// Check if there are any ongoing races with this name
@@ -126,12 +134,8 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		ruleset.Seed = diversityGetSeed(ruleset)
 	}
 
-	// Populate the starting items field
-	if ruleset.Format == "seeded" || ruleset.Format == "seeded-hard" {
-		ruleset.StartingItems = make([]int, 0)
-	} else if ruleset.Format == "diversity" {
-		ruleset.StartingItems = make([]int, 0)
-	}
+	// Zero out the starting items field
+	ruleset.StartingItems = make([]int, 0)
 
 	/*
 		Create the race in the database
@@ -160,6 +164,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		Status:          "open",
 		Ruleset:         ruleset,
 		Captain:         username,
+		Password:        password,
 		SoundPlayed:     false,
 		DatetimeCreated: getTimestamp(),
 		DatetimeStarted: 0,
@@ -170,14 +175,15 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Send everyone a notification that a new race has been started
 	for _, s := range websocketSessions {
 		websocketEmit(s, "raceCreated", &RaceCreatedMessage{
-			ID:              race.ID,
-			Name:            race.Name,
-			Status:          race.Status,
-			Ruleset:         race.Ruleset,
-			Captain:         race.Captain,
-			DatetimeCreated: race.DatetimeCreated,
-			DatetimeStarted: race.DatetimeStarted,
-			Racers:          make([]string, 0),
+			ID:                  race.ID,
+			Name:                race.Name,
+			Status:              race.Status,
+			Ruleset:             race.Ruleset,
+			Captain:             race.Captain,
+			IsPasswordProtected: len(race.Password)>0,
+			DatetimeCreated:     race.DatetimeCreated,
+			DatetimeStarted:     race.DatetimeStarted,
+			Racers:              make([]string, 0),
 		})
 	}
 

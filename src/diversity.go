@@ -31,7 +31,7 @@ var validDiversityActiveItems = [...]int{
 	485, 486, 487, 488, 490, 504, 507, 510, // D Infinity (489) is banned
 
 	// Booster Pack items
-	512, 515, 516, 521, 522, 523, 527,
+	512, 515, 516, 521, 522, 523, 527, 536, 545,
 }
 
 var validDiversityPassiveItems = [...]int{
@@ -79,8 +79,21 @@ var validDiversityPassiveItems = [...]int{
 	474, 491, 492, 493, 494, 495, 496, 497, 498, 499,
 	500, 501, 502, 503, 505, 506, 508, 509,
 
-	// Booster pack items
-	511, 513, 514, 517, 518, 519, 520, 524, 525, 526, 528, 529, 530, 531, 532, 533, // Schoolbag (534) is given on every run already
+	// Booster Pack #1 items
+	511, 513, 514, 517, 518, 519,
+
+	// Boster Pack #2 items
+	520, 524, 525,
+
+	// Booster Pack #3 items
+	526, 528, 529,
+
+	// Booster Pack #4 items
+	530, 531, 532, 533, // Schoolbag (534) is given on every run already
+
+	// Booster Pack #5 items
+	535, 537, 538, 539, 540, 541, 542, 543, 544, 546,
+	547, 548, 549,
 }
 
 var validDiversityTrinkets = [...]int{
@@ -103,7 +116,7 @@ var validDiversityTrinkets = [...]int{
 	111, 112, 113, 114, 115, 116, 117, 118, 119,
 
 	// Booster pack trinkets
-	120, 121, 122, 123,
+	120, 121, 122, 123, 124, 125, 126, 127, 128,
 }
 
 /*

@@ -29,8 +29,16 @@ $(document).ready(function () {
           }
         });
         // Season 3 R+7 functions
-        /*
         $('#season3r7-table').tablesorter({
+          headers:{
+            '.hof-th-date, .hof-th-proof' : {
+              sorter: false
+            }
+          }
+        });
+        // Season 4 R+7 functions
+        /*
+        $('#season4r7-table').tablesorter({
           headers:{
             '.hof-th-date, .hof-th-proof' : {
               sorter: false
@@ -80,7 +88,8 @@ function hideAllBoards() {
   $('#hof-season1r9').css("display","none");
   $('#hof-season1r14').css("display","none");
   $('#hof-season2r7').css("display","none");
-  //$('#hof-season3r7').css("display","none");
+  $('#hof-season3r7').css("display","none");
+  //$('#hof-season4r7').css("display","none");
 }
 
 function selectLeaderboard(type) {
@@ -114,5 +123,12 @@ function selectLeaderboard(type) {
               transition = false;
           });
       });
+  } else if (type == 'season4r7') {
+    $('#hof-' + activeLeaderboard).fadeOut(350, function() {
+        $('#hof-' + type).fadeIn(350, function() {
+            activeLeaderboard = type;
+            transition = false;
+        });
+    });
   }
 }
