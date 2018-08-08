@@ -140,7 +140,33 @@ func diversityGetSeed(ruleset Ruleset) string {
 			item := validDiversityPassiveItems[rand.Intn(len(validDiversityPassiveItems))]
 
 			// Do character specific item bans
-			if ruleset.Character == "Keeper" {
+			if ruleset.Character == "Cain" {
+				if item == 46 { // Lucky Foot
+					continue
+				}
+			} else if ruleset.Character == "Eve" {
+				if item == 117 { // Dead Bird
+					continue
+				} else if item == 122 { // Whore of Babylon
+					continue
+				}
+			} else if ruleset.Character == "Samson" {
+				if item == 157 { // Bloody Lust
+					continue
+				}
+			} else if ruleset.Character == "Lazarus" {
+				if item == 214 { // Anemic
+					continue
+				}
+			} else if ruleset.Character == "The Lost" {
+				if item == 313 { // Holy Mantle
+					continue
+				}
+			} else if ruleset.Character == "Lilith" {
+				if item == 412 { // Cambion Conception
+					continue
+				}
+			} else if ruleset.Character == "Keeper" {
 				if item == 230 { // Abaddon
 					continue
 				}
