@@ -145,7 +145,6 @@ func loadAllBuilds() {
 }
 
 func loadAllTournaments() {
-
 	// Temporary var for each tournament
 	var tournament TournamentInfo
 	// Open the JSON files for tournaments and load them into TournamentInfo
@@ -154,9 +153,7 @@ func loadAllTournaments() {
 	if err != nil {
 		log.Error("Could not read the files in ", jsonFolderPath)
 	}
-	log.Info(fileList[0].Name())
 	sort.Sort(NameSorter(fileList))
-	log.Info(fileList[0].Name())
 	for _, file := range fileList {
 		// Create the full file path
 		filePath := path.Join(jsonFolderPath, file.Name())
