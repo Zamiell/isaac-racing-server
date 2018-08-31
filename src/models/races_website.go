@@ -18,6 +18,7 @@ type RaceHistory struct {
 	RaceFormat       sql.NullString
 	RaceChar         sql.NullString
 	RaceGoal         sql.NullString
+	RaceSeed         sql.NullString
 	RaceDateStart    mysql.NullTime
 	RaceDateFinished mysql.NullTime
 	RaceParticipants []RaceHistoryParticipants
@@ -47,6 +48,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			format,
 			player_type,
 			goal,
+			seed,
 			datetime_created,
 			datetime_finished
 		FROM
@@ -79,6 +81,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			&race.RaceFormat,
 			&race.RaceChar,
 			&race.RaceGoal,
+			&race.RaceSeed,
 			&race.RaceDateStart,
 			&race.RaceDateFinished,
 		); err != nil {
@@ -162,6 +165,7 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 			format,
 			player_type,
 			goal,
+			seed,
 			datetime_created,
 			datetime_finished
 		FROM
@@ -188,6 +192,7 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 			&race.RaceFormat,
 			&race.RaceChar,
 			&race.RaceGoal,
+			&race.RaceSeed,
 			&race.RaceDateStart,
 			&race.RaceDateFinished,
 		); err != nil {

@@ -12,7 +12,7 @@
 			<table  border=1 id="race-listing-table">
 				<thead>
 					<tr>
-						<th class="races-th-id">ID</th>
+						<th class="races-th-seed">Seed</th>
 						<th class="races-th-date">Date &amp; Time</th>
 						<th class="races-th-format">Format</th>
 						<th class="races-th-char">Character</th>
@@ -30,7 +30,7 @@
 					{{ range .RaceResults }}
 					<tr>
 						{{ $racers := len .RaceParticipants }}
-						<td rowspan="{{ $racers }}" id="race-{{ .RaceID.Int64 }}" class="races-td-id"><a href="/race/{{ .RaceID.Int64 }}">{{ .RaceID.Int64 }}</a></td>
+						<td rowspan="{{ $racers }}" id="race-{{ .RaceID.Int64 }}" class="races-td-seed">{{ .RaceSeed.Value }}</td>
 						<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID.Int64 }}" class="races-td-date"> {{ .RaceDateStart.Value }}</td>
 						<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID.Int64 }}" class="races-td-format">
 							<!-- <span id="racesize-{{ .RaceID.Int64 }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize.Int64 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
