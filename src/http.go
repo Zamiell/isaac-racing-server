@@ -38,6 +38,8 @@ type TemplateData struct {
 
 	// Races stuff
 	RaceResults       []models.RaceHistory
+	SingleRaceResults models.RaceHistory
+	SingleRaceFormat  string
 	ResultsRaces      []models.RaceHistory
 	TotalRaceCount    int
 	TotalPages        int

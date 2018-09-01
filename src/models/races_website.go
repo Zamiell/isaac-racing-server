@@ -18,7 +18,6 @@ type RaceHistory struct {
 	RaceFormat       sql.NullString
 	RaceChar         sql.NullString
 	RaceGoal         sql.NullString
-	RaceSeed         sql.NullString
 	RaceDateStart    mysql.NullTime
 	RaceDateFinished mysql.NullTime
 	RaceParticipants []RaceHistoryParticipants
@@ -30,6 +29,7 @@ type RaceHistoryParticipants struct {
 	RacerName              sql.NullString
 	RacerPlace             sql.NullInt64
 	RacerTime              sql.NullString
+	RacerSeed              sql.NullString
 	RacerStartingItem      sql.NullInt64
 	RacerStartingItemName  string
 	RacerStartingBuild     sql.NullInt64
@@ -42,24 +42,23 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
-			id,
-			solo,
-			ranked,
-			format,
-			player_type,
-			goal,
-			seed,
-			datetime_created,
-			datetime_finished
+			r.id,
+			r.solo,
+			r.ranked,
+			r.format,
+			r.player_type,
+			r.goal,
+			r.datetime_created,
+			r.datetime_finished
 		FROM
-			races
+			races r
 		WHERE
-			finished = 1
-			AND solo = 0
+			r.finished = 1
+			AND r.solo = 0
 		GROUP BY
-			id
+			r.id
 		ORDER BY
-			datetime_created DESC
+			r.datetime_created DESC
 		LIMIT
 			?
 		OFFSET
@@ -81,7 +80,6 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			&race.RaceFormat,
 			&race.RaceChar,
 			&race.RaceGoal,
-			&race.RaceSeed,
 			&race.RaceDateStart,
 			&race.RaceDateFinished,
 		); err != nil {
@@ -93,6 +91,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 		if v, err := db.Query(`
 			SELECT
 				u.username,
+				rp.seed,
 				rp.place,
 				rp.run_time,
 				rp.starting_item,
@@ -124,6 +123,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			var racer RaceHistoryParticipants
 			if err := rows2.Scan(
 				&racer.RacerName,
+				&racer.RacerSeed,
 				&racer.RacerPlace,
 				&racer.RacerTime,
 				&racer.RacerStartingItem,
@@ -156,47 +156,48 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 }
 
 // GetRaceHistory gets race history for a single race
-func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
+func (*Races) GetRaceHistory(raceID int) (RaceHistory, error) {
+	var race RaceHistory
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
-			id,
-			ranked,
-			format,
-			player_type,
-			goal,
-			seed,
-			datetime_created,
-			datetime_finished
+			r.id,
+			r.ranked,
+			r.format,
+			r.player_type,
+			r.goal,
+			r.datetime_created,
+			r.datetime_finished
 		FROM
-			races
+			races r
 		WHERE
-			id = ?
+			r.id = ?
 		GROUP BY
-			id
+			r.id
 		ORDER BY
-			datetime_created DESC
+			r.datetime_created DESC
+		LIMIT
+			1
 	`, raceID); err != nil {
-		return nil, err
+		return race, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	raceHistory := make([]RaceHistory, 0)
+	//raceHistory := make([]RaceHistory, 0)
+
 	for rows.Next() {
-		var race RaceHistory
 		if err := rows.Scan(
 			&race.RaceID,
 			&race.RaceType,
 			&race.RaceFormat,
 			&race.RaceChar,
 			&race.RaceGoal,
-			&race.RaceSeed,
 			&race.RaceDateStart,
 			&race.RaceDateFinished,
 		); err != nil {
-			return nil, err
+			return race, err
 		}
 		race.RaceParticipants = nil
 
@@ -204,6 +205,7 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 		if v, err := db.Query(`
 			SELECT
 				u.username,
+				rp.seed,
 				rp.place,
 				rp.run_time,
 				rp.starting_item,
@@ -224,7 +226,7 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 				rp.place,
 				rp.run_time;
 		`, race.RaceID); err != nil {
-			return nil, err
+			return race, err
 		} else {
 			rows2 = v
 		}
@@ -235,20 +237,22 @@ func (*Races) GetRaceHistory(raceID int) ([]RaceHistory, error) {
 			var racer RaceHistoryParticipants
 			if err := rows2.Scan(
 				&racer.RacerName,
+				&racer.RacerSeed,
 				&racer.RacerPlace,
 				&racer.RacerTime,
 				&racer.RacerStartingItem,
 				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
-				return nil, err
+				return race, err
 			}
 			raceRacers = append(raceRacers, racer)
 		}
+		//race.RaceParticipants = raceRacers
 		race.RaceParticipants = raceRacers
-		raceHistory = append(raceHistory, race)
+		//raceHistory = append(raceHistory, race)
 	}
-	return raceHistory, nil
+	return race, nil
 }
 
 // GetRaceProfileHistory gets the race data for the profile page

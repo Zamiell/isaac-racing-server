@@ -1,8 +1,9 @@
 {{define "content"}}
+{{ $RaceFormat := .SingleRaceFormat }}
 <!-- Main -->
 <section id="race-main" class="container">
 	<header class=race>
-		<h2>Race Results for #{{ (index .RaceResults 0).RaceID.Int64 }}</h2>
+		<h2>Race Results for #{{ .SingleRaceResults.RaceID.Int64 }}</h2>
 		<p></p>
 
 	</header>
@@ -12,7 +13,6 @@
 			<table  border=1 id="race-listing-table">
 				<thead>
 					<tr>
-						<th class="races-th-seed">Seed</th>
 						<th class="races-th-date">Date &amp; Time</th>
 						<th class="races-th-format">Format</th>
 						<th class="races-th-char">Character</th>
@@ -21,26 +21,24 @@
 						<th class="races-th-place">Place</th>
 						<th class="races-th-time">Time</th>
 						<th class="races-th-st-item">Start</th>
+						<th class="races-th-seed">Seed</th>
 						<!-- <th class="races-th-comment">Comment</th> -->
 					</tr>
 				</thead>
 				<tfoot>
 				</tfoot>
 				<tbody>
-					{{ range .RaceResults }}
 					<tr>
-						{{ $racers := len .RaceParticipants }}
-						<td rowspan="{{ $racers }}" id="race-{{ .RaceID.Int64 }}" class="races-td-seed">{{ .RaceSeed.Value }}</td>
-						<td rowspan="{{ $racers }}" id="racedate-{{ .RaceID.Int64 }}" class="races-td-date"> {{ .RaceDateStart.Value }}</td>
-						<td rowspan="{{ $racers }}" id="raceformat-{{ .RaceID.Int64 }}" class="races-td-format">
-							<!-- <span id="racesize-{{ .RaceID.Int64 }}" class="race-size"><img  height="32px" width="32px" src="/public/img/size/{{ if ne .RaceSize.Int64 0 -}} solo {{- else -}} multi {{- end }}.png"  /></span> -->
-							<span id="racetype-{{ .RaceID.Int64 }}" class="race-types"><img class="tooltip" title="{{ if eq .RaceType.String "0" -}} Unranked {{- else -}} Ranked {{- end }}" height="32px" width="32px" src="/public/img/types/{{ if eq .RaceType.String "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .RaceSize.Int64 0 -}} -solo {{- end }}.png" /></span>
-							<span id="raceformat-{{ .RaceID.Int64 }}" class="race-formats"><img class="tooltip" title="{{ .RaceFormat.String }}" height="32px" width="32px" src="/public/img/formats/{{ .RaceFormat.String }}.png" /></span>
+						{{ $racers := len .SingleRaceResults.RaceParticipants }}
+						<td rowspan="{{ $racers }}" id="racedate-{{ .SingleRaceResults.RaceID.Int64 }}" class="races-td-date"> {{ .SingleRaceResults.RaceDateStart.Value }}</td>
+						<td rowspan="{{ $racers }}" id="raceformat-{{ .SingleRaceResults.RaceID.Int64 }}" class="races-td-format">
+							<span id="racetype-{{ .SingleRaceResults.RaceID.Int64 }}" class="race-types"><img class="tooltip" title="{{ if eq .SingleRaceResults.RaceType.String "0" -}} Unranked {{- else -}} Ranked {{- end }}" height="32px" width="32px" src="/public/img/types/{{ if eq .SingleRaceResults.RaceType.String "0" -}} unranked {{- else -}} ranked {{- end }}{{ if ne .SingleRaceResults.RaceSize.Int64 0 -}} -solo {{- end }}.png" /></span>
+							<span id="raceformat-{{ .SingleRaceResults.RaceID.Int64 }}" class="race-formats"><img class="tooltip" title="{{ .SingleRaceResults.RaceFormat.String }}" height="32px" width="32px" src="/public/img/formats/{{ .SingleRaceResults.RaceFormat.String }}.png" /></span>
 						</td>
-						<td rowspan="{{ $racers }}" id="racechar-{{ .RaceID.Int64 }}" class="races-td-char"><img class="tooltip" title="{{ .RaceChar.String }}" src="/public/img/characters/{{ .RaceChar.String }}.png" /></td>
-						<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID.Int64 }}" class="races-td-goal"><img class="tooltip" title="{{ .RaceGoal.String }}" src="/public/img/goals/{{ .RaceGoal.String }}.png" /></td>
+						<td rowspan="{{ $racers }}" id="racechar-{{ .SingleRaceResults.RaceID.Int64 }}" class="races-td-char"><img class="tooltip" title="{{ .SingleRaceResults.RaceChar.String }}" src="/public/img/characters/{{ .SingleRaceResults.RaceChar.String }}.png" /></td>
+						<td rowspan="{{ $racers }}" id="racegoal-{{ .SingleRaceResults.RaceID.Int64 }}" class="races-td-goal"><img class="tooltip" title="{{ .SingleRaceResults.RaceGoal.String }}" src="/public/img/goals/{{ .SingleRaceResults.RaceGoal.String }}.png" /></td>
 
-							{{ range $index, $results := .RaceParticipants }}
+							{{ range $index, $results := .SingleRaceResults.RaceParticipants }}
 								<td class=racername><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
 								{{ if eq .RacerPlace.Int64 -1 -}} <!-- They quit -->
 									<td class="races-td-place">Quit</td>
@@ -58,7 +56,17 @@
 									{{- else -}}
 										<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}: {{ .RacerStartingBuildName }}" src="/public/img/builds/build_{{- .RacerStartingBuild.Int64 -}}.png" /></td>
 									{{- end -}}
+									<td class="races-td-seed">
+									{{ if ne $RaceFormat "Seeded" }}
+										{{ .RacerSeed.String }}
+									{{ else }}
+										{{ if eq $index 0 }}
+											{{ .RacerSeed.String }}
+										{{ end }}
+									{{ end }}
+									</td>
 								{{- end }}
+
 								<!--
 								{{ if ne .RacerComment.String "-" -}}
 									<td	title="{{ .RacerComment.String }}"> {{ .RacerComment.String }}</td>
@@ -70,7 +78,7 @@
 							{{ end }}
 							</tr>
 						</tr>
-					{{- end }}
+
 				</tbody>
 			</table>
 		</div>
