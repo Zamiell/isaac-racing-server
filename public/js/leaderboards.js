@@ -2,6 +2,7 @@ let activeLeaderboard = 'unseeded';
 let transition = false;
 let button_array = ['seeded', 'seeded-solo', 'unseeded', 'unseeded-solo', 'diversity', 'other'];
 const fadeTime = 350;
+const numRankedSoloRaces = 100;
 
 function hideAllNotes() {
     $('#notes-multiplayer').hide(0);
@@ -121,7 +122,7 @@ function AdjustRank(leaderboard) {
 function ConvertForfeitRate(leaderboard, tableData) {
     $('#leaderboard-' + leaderboard + ' td.' + tableData).each(function() {
         num = $(this).html();
-        total = ($(this).next().html() > 50) ? 50 : $(this).next().html();
+        total = ($(this).next().html() > numRankedSoloRaces) ? numRankedSoloRaces : $(this).next().html();
         rate = num / total * 100;
         rate = Math.round(rate); // Round it to the nearest whole number
         $(this).html(rate + '% (' + num + '/' + total + ')');

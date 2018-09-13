@@ -51,3 +51,4 @@ isaac-racing-server
 # Helper scripts
 database_shell.sh
 make_database_dump.sh
+scripts

@@ -11,7 +11,6 @@ import (
 func httpProfile(c *gin.Context) {
 	// Local variables
 	w := c.Writer
-	racesRankedTotal := 50
 	racesAllTotal := 5
 
 	// Parse the player name from the URL
@@ -48,7 +47,7 @@ func httpProfile(c *gin.Context) {
 	}
 
 	// Get the race data for the last x races
-	raceDataRanked, err := db.Races.GetRankedRaceProfileHistory(player, racesRankedTotal)
+	raceDataRanked, err := db.Races.GetRankedRaceProfileHistory(player, numUnseededRacesForAverage)
 	if err != nil {
 		log.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

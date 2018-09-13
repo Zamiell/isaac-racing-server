@@ -36,45 +36,40 @@ func httpLeaderboards(c *gin.Context) {
 	// Local variables
 	w := c.Writer
 	seededRacesNeeded := 5
-	seededRacesLimit := 1000
 	seededSoloRacesNeeded := 5
-	seededSoloRacesLimit := 1000
 	unseededRacesNeeded := 5
-	unseededRacesLimit := 1000
 	unseededSoloRacesNeeded := 20
-	unseededSoloRacesLimit := 1000
 	diversityRacesNeeded := 10
-	diversityRacesLimit := 1000
 
-	leaderboardSeeded, err := db.Users.GetLeaderboardSeeded(seededRacesNeeded, seededRacesLimit)
+	leaderboardSeeded, err := db.Users.GetLeaderboardSeeded(seededRacesNeeded)
 	if err != nil {
 		log.Error("Failed to get the seeded leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	leaderboardSeededSolo, err := db.Users.GetLeaderboardSeededSolo(seededSoloRacesNeeded, seededSoloRacesLimit)
+	leaderboardSeededSolo, err := db.Users.GetLeaderboardSeededSolo(seededSoloRacesNeeded)
 	if err != nil {
 		log.Error("Failed to get the seeded solo leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseeded(unseededRacesNeeded, unseededRacesLimit)
+	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseeded(unseededRacesNeeded)
 	if err != nil {
 		log.Error("Failed to get the unseeded leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	leaderboardUnseededSolo, err := db.Users.GetLeaderboardUnseededSolo(unseededSoloRacesNeeded, unseededSoloRacesLimit)
+	leaderboardUnseededSolo, err := db.Users.GetLeaderboardUnseededSolo(unseededSoloRacesNeeded)
 	if err != nil {
 		log.Error("Failed to get the unseeded solo leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	leaderboardDiversity, err := db.Users.GetLeaderboardDiversity(diversityRacesNeeded, diversityRacesLimit)
+	leaderboardDiversity, err := db.Users.GetLeaderboardDiversity(diversityRacesNeeded)
 	if err != nil {
 		log.Error("Failed to get the diversity leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

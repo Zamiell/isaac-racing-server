@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	numUnseededRacesForAverage = 50
+	numUnseededRacesForAverage = 100
 )
 
 func leaderboardUpdateSoloSeeded(race *Race) {

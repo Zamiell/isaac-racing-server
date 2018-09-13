@@ -137,6 +137,7 @@ CREATE TABLE race_participant_items (
     /* If the race participant entry is deleted, automatically delete all of their items */
 );
 CREATE INDEX race_participant_items_index_race_participant_id ON race_participant_items (race_participant_id);
+CREATE INDEX race_participant_items_index_item_id ON race_participant_items (item_id);
 
 DROP TABLE IF EXISTS race_participant_rooms;
 CREATE TABLE race_participant_rooms (

@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -67,7 +68,7 @@ type LeaderboardRowDiversity struct {
 	StreamURL         string
 }
 
-func (*Users) GetLeaderboardSeeded(racesNeeded int, racesLimit int) ([]LeaderboardRowSeeded, error) {
+func (*Users) GetLeaderboardSeeded(racesNeeded int) ([]LeaderboardRowSeeded, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -102,8 +103,7 @@ func (*Users) GetLeaderboardSeeded(racesNeeded int, racesLimit int) ([]Leaderboa
 				AND u.id NOT IN (SELECT user_id FROM banned_users)
 		GROUP BY u.username
 		ORDER BY u.seeded_trueskill DESC
-		LIMIT ?
-	`, racesNeeded, racesLimit); err != nil {
+	`, racesNeeded); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -134,7 +134,7 @@ func (*Users) GetLeaderboardSeeded(racesNeeded int, racesLimit int) ([]Leaderboa
 	return leaderboard, nil
 }
 
-func (*Users) GetLeaderboardSeededSolo(racesNeeded int, racesLimit int) ([]LeaderboardRowSeededSolo, error) {
+func (*Users) GetLeaderboardSeededSolo(racesNeeded int) ([]LeaderboardRowSeededSolo, error) {
 	var rows *sql.Rows
 	// Readd -- ROUND(u.seeded_solo_trueskill_change, 2),
 	if v, err := db.Query(`
@@ -170,8 +170,7 @@ func (*Users) GetLeaderboardSeededSolo(racesNeeded int, racesLimit int) ([]Leade
 				AND u.id NOT IN (SELECT user_id FROM banned_users)
 		GROUP BY u.username
 		ORDER BY u.seeded_solo_trueskill DESC
-		LIMIT ?
-	`, racesNeeded, racesLimit); err != nil {
+	`, racesNeeded); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -202,7 +201,7 @@ func (*Users) GetLeaderboardSeededSolo(racesNeeded int, racesLimit int) ([]Leade
 	return leaderboard, nil
 }
 
-func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]LeaderboardRowUnseeded, error) {
+func (*Users) GetLeaderboardUnseeded(racesNeeded int) ([]LeaderboardRowUnseeded, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -235,11 +234,10 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 				AND r.format = 'unseeded'
 				AND rp.place > 0
 				AND u.id NOT IN (SELECT user_id FROM banned_users)
-				AND u.username not like "TestAccount%"				
+				AND u.username not like "TestAccount%"
 		GROUP BY u.username
 		ORDER BY u.unseeded_trueskill DESC
-		LIMIT ?
-	`, racesNeeded, racesLimit); err != nil {
+	`, racesNeeded); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -271,7 +269,7 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int, racesLimit int) ([]Leaderb
 }
 
 // Make a leaderboard for the unseeded solo format based on all of the users
-func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]LeaderboardRowUnseededSolo, error) {
+func (*Users) GetLeaderboardUnseededSolo(racesNeeded int) ([]LeaderboardRowUnseededSolo, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -299,8 +297,7 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]Lea
 			u.username
 		ORDER BY
 			unseeded_solo_adjusted_average ASC
-		LIMIT ?
-	`, racesNeeded, racesLimit); err != nil {
+	`, racesNeeded); err != nil {
 		return nil, err
 	} else {
 		rows = v
@@ -333,7 +330,7 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int, racesLimit int) ([]Lea
 	return leaderboard, nil
 }
 
-func (*Users) GetLeaderboardDiversity(racesNeeded int, racesLimit int) ([]LeaderboardRowDiversity, error) {
+func (*Users) GetLeaderboardDiversity(racesNeeded int) ([]LeaderboardRowDiversity, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -368,8 +365,7 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int, racesLimit int) ([]Leader
 				AND u.id NOT IN (SELECT user_id FROM banned_users)
 		GROUP BY u.username
 		ORDER BY u.diversity_trueskill DESC
-		LIMIT ?
-	`, racesNeeded, racesLimit); err != nil {
+	`, racesNeeded); err != nil {
 		return nil, err
 	} else {
 		rows = v
