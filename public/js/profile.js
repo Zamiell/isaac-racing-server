@@ -1,3 +1,5 @@
+const numRankedSoloUnseeded = 100;
+
 $(document).ready(function() {
     ConvertTimeProfileStamps('td.races-td-date');
     ConvertTimeProfileStampsWithYear('span#join-date');
@@ -100,7 +102,7 @@ function ConvertForfeitRate(td) {
       if ($(this).html() > 0) {
         num = $(this).html();
         // I have no idea how this works, but somehow it does
-        total = ($(this).closest('tr').next('tr').find('#unseeded-solo-numraces-val').html() > 50) ? 50 : $(this).closest('tr').next('tr').find('#unseeded-solo-numraces-val').html();
+        total = ($(this).closest('tr').next('tr').find('#unseeded-solo-numraces-val').html() > numRankedSoloUnseeded) ? numRankedSoloUnseeded : $(this).closest('tr').next('tr').find('#unseeded-solo-numraces-val').html();
         rate = num / total * 100;
         rate = Math.round(rate); // Round it to the nearest whole number
         $(this).html(rate + "% (" + num + "/" + total + ")");
