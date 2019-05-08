@@ -46,10 +46,22 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the item number is sane
 	// The the base game there are over 500 items and the Racing+ mod has a bunch of custom items
-	// So just check for over 999 to be safe
-	if itemID < 1 || itemID > 999 {
+	// Furthermore, we hardcode some custom items in the 3000-3999 range
+	if itemID < 1 || itemID > 4000 {
 		log.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
 		websocketError(s, d.Command, "That is not a valid item ID.")
+		return
+	}
+
+	// Custom items are handled manually
+	// The final vanilla item is Mom's Shovel (552)
+	// The first custom item is 3001
+	if itemID > 552 && itemID <= 3000 {
+		return
+	}
+
+	// Validate that this is not a More Options (414) that is given for Basement 1 only
+	if itemID == 414 && len(racer.Rooms) == 1 && race.Ruleset.Character != "Eden" {
 		return
 	}
 

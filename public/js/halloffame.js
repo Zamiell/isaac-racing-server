@@ -4,6 +4,7 @@ let transition = false;
 $(document).ready(function () {
         ConvertTimeStamps('td.td-date');
         ConvertTimes('td.td-time');
+
         // Season 1 R+9 functions
         $('#season1r9-table').tablesorter({
           headers:{
@@ -12,6 +13,7 @@ $(document).ready(function () {
             }
           }
         });
+
         // Season 1 R+14 functions
         $('#season1r14-table').tablesorter({
           headers:{
@@ -20,6 +22,7 @@ $(document).ready(function () {
             }
           }
         });
+
         // Season 2 R+7 functions
         $('#season2r7-table').tablesorter({
           headers:{
@@ -28,6 +31,7 @@ $(document).ready(function () {
             }
           }
         });
+
         // Season 3 R+7 functions
         $('#season3r7-table').tablesorter({
           headers:{
@@ -36,7 +40,17 @@ $(document).ready(function () {
             }
           }
         });
+
         // Season 4 R+7 functions
+        $('#season4r7-table').tablesorter({
+          headers:{
+            '.hof-th-date, .hof-th-proof' : {
+              sorter: false
+            }
+          }
+        });
+
+        // Season 5 R+7 functions
         /*
         $('#season4r7-table').tablesorter({
           headers:{
@@ -46,6 +60,7 @@ $(document).ready(function () {
           }
         });
         */
+
         hideAllBoards();
         selectLeaderboard(activeLeaderboard);
 });
@@ -89,7 +104,8 @@ function hideAllBoards() {
   $('#hof-season1r14').css("display","none");
   $('#hof-season2r7').css("display","none");
   $('#hof-season3r7').css("display","none");
-  //$('#hof-season4r7').css("display","none");
+  $('#hof-season4r7').css("display","none");
+  //$('#hof-season5r7').css("display","none");
 }
 
 function selectLeaderboard(type) {

@@ -33,27 +33,29 @@ func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
-				tr.tournament_name,
-				tr.challonge_url,
-				tr.id,
-				trs1.username,
-				trs2.username,
-				tr.state,
-				tr.bracket_round,
-				tr.datetime_scheduled,
-				tr.challonge_match_id,
-				c.username,
-				c.stream_url
+			tr.tournament_name,
+			tr.challonge_url,
+			tr.id,
+			trs1.username,
+			trs2.username,
+			tr.state,
+			tr.bracket_round,
+			tr.datetime_scheduled,
+			tr.challonge_match_id,
+			trs3.username,
+			trs3.stream_url
 		FROM
 			isaac.tournament_races tr
-					LEFT JOIN
-							isaac.tournament_racers trs1 ON trs1.id = tr.racer1
-					LEFT JOIN
-							isaac.tournament_racers trs2 ON trs2.id = tr.racer2
-					LEFT JOIN
-							isaac.tournament_racers c ON c.id = tr.caster
+		LEFT JOIN
+			isaac.tournament_users trs1 ON trs1.id = tr.racer1
+		LEFT JOIN
+			isaac.tournament_users trs2 ON trs2.id = tr.racer2
+		LEFT JOIN
+			isaac.tournament_casts c ON c.race_id = tr.id
+		LEFT JOIN
+			isaac.tournament_users trs3 ON trs3.id = c.caster
 		WHERE
-				tr.state not in ('initial', 'completed')
+			tr.state not in ('initial', 'completed')
 		ORDER BY datetime_scheduled ASC
 	`); err != nil {
 		return nil, err

@@ -9,22 +9,23 @@ import (
 */
 
 var characters = []string{
-	"Isaac",
-	"Magdalene",
-	"Cain",
-	"Judas",
-	"Blue Baby",
-	"Eve",
-	"Samson",
-	"Azazel",
-	"Lazarus",
-	"Eden",
-	"The Lost",
-	"Lilith",
-	"Keeper",
-	"Apollyon",
-	"The Forgotten",
-	"Samael",
+	"Isaac", // 0
+	"Magdalene", // 1
+	"Cain", // 2
+	"Judas", // 3
+	"Blue Baby", // 4
+	"Eve", // 5
+	"Samson", // 6
+	"Azazel", // 7
+	"Lazarus", // 8
+	"Eden", // 9
+	"The Lost", // 10
+	"Lilith", // 11
+	"Keeper", // 12
+	"Apollyon", // 13
+	"The Forgotten", // 14
+	"Samael", // 15
+	"Random Baby", // 16
 }
 
 /*
@@ -49,7 +50,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 
 	// Validate the character
 	validCharacter := false
-	for _, character := range characters {
+	for _, character := range characters { // Valid characters are defined above
 		if ruleset.Character == character {
 			validCharacter = true
 			break
