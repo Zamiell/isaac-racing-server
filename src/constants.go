@@ -21,13 +21,13 @@ type JSONItem struct {
 	SinHearts   int     `json:"sin_hearts"`
 	Tears       float32 `json:"tears"`
 	Delay       float32 `json:"delay"`
-	DelayX      float32 `json:"delay_x`
+	DelayX      float32 `json:"delay_x"`
 	Speed       float32 `json:"speed"`
 	ShotSpeed   float32 `json:"shot_speed"`
 	Height      float32 `json:"height"`
 	Range       float32 `json:"range"`
 	Luck        float32 `json:"luck"`
-	Beelzebub   bool    `json:"beelzebub`
+	Beelzebub   bool    `json:"beelzebub"`
 	Bob         bool    `json:"bob"`
 	Bookworm    bool    `json:"bookworm"`
 	Conjoined   bool    `json:"conjoined"`

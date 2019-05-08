@@ -14,6 +14,7 @@ import (
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth_gin"
 	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,7 +23,7 @@ const (
 )
 
 var (
-	sessionStore sessions.CookieStore
+	sessionStore cookie.Store
 	GATrackingID string
 	myHTTPClient = &http.Client{ // We don't want to use the default http.Client structure because it has no default timeout set
 		Timeout: 10 * time.Second,
@@ -108,7 +109,7 @@ func httpInit() {
 	}
 
 	// Create a session store
-	sessionStore = sessions.NewCookieStore([]byte(sessionSecret))
+	sessionStore = cookie.NewStore([]byte(sessionSecret))
 	options := sessions.Options{
 		Path:   "/",
 		Domain: domain,

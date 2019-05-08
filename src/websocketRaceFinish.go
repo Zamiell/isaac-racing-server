@@ -39,9 +39,11 @@ func websocketRaceFinish(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	// Validate that they sent a coherant time
+	// Validate that they sent a time
 	if d.Time <= 0 {
-		return
+		// Vanilla races and custom races will not report the local run time,
+		// so just use the server-side time instead
+		d.Time = getTimestamp() - race.DatetimeStarted
 	}
 
 	/*
