@@ -36,7 +36,10 @@ func main() {
 	if len(sentrySecret) == 0 {
 		log.Info("The \"SENTRY_SECRET\" environment variable is blank; aborting Sentry initialization.")
 	} else {
-		raven.SetDSN("https://0d0a2118a3354f07ae98d485571e60be:" + sentrySecret + "@sentry.io/124813")
+		dsn := "https://0d0a2118a3354f07ae98d485571e60be:" + sentrySecret + "@sentry.io/124813"
+		if err := raven.SetDSN(dsn); err != nil {
+			log.Fatal("Failed to initialize Raven:", err)
+		}
 	}
 
 	// Initialize the database model

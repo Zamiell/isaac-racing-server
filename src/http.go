@@ -71,7 +71,8 @@ type TemplateData struct {
 	Season2r7  []models.SpeedRun
 	Season3r7  []models.SpeedRun
 	Season4r7  []models.SpeedRun
-	// Season5r7 []models.SpeedRun
+	Season5r7  []models.SpeedRun
+	// Season6r7 []models.SpeedRun
 
 	// Tournament Stuff
 	CurrentTourn    bool
@@ -200,7 +201,10 @@ func httpInit() {
 
 		// ListenAndServe is blocking, so start listening on a new goroutine
 		go func() {
-			http.ListenAndServe(":80", HTTPServeMux) // Nothing before the colon implies 0.0.0.0
+			// Nothing before the colon implies 0.0.0.0
+			if err := http.ListenAndServe(":80", HTTPServeMux); err != nil {
+				log.Fatal("http.ListenAndServe failed:", err)
+			}
 			log.Fatal("http.ListenAndServe ended for port 80.", nil)
 		}()
 

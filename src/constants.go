@@ -124,7 +124,10 @@ func loadAllItems() {
 	}
 
 	// Create all the items
-	json.Unmarshal(jsonFile, &allItems)
+	if err := json.Unmarshal(jsonFile, &allItems); err != nil {
+		log.Fatal("Failed to unmarshal the items:", err)
+		return
+	}
 
 	// Create 2nd map of just item names
 	for k, v := range allItems {
@@ -136,11 +139,16 @@ func loadAllItems() {
 func loadAllBuilds() {
 	// Open the JSON file and verify it was good
 	jsonFilePath := path.Join(projectPath, "public", "builds.json")
-	if jsonFile, err := ioutil.ReadFile(jsonFilePath); err != nil {
+	var jsonFile []byte
+	if v, err := ioutil.ReadFile(jsonFilePath); err != nil {
 		log.Fatal("Failed to open \""+jsonFilePath+"\":", err)
 	} else {
-		// Create all the items
-		json.Unmarshal(jsonFile, &allBuilds)
+		jsonFile = v
+	}
+
+	// Create all the items
+	if err := json.Unmarshal(jsonFile, &allBuilds); err != nil {
+		log.Fatal("Failed to unmarshal the builds:", err)
 	}
 }
 
@@ -157,13 +165,18 @@ func loadAllTournaments() {
 	for _, file := range fileList {
 		// Create the full file path
 		filePath := path.Join(jsonFolderPath, file.Name())
-		if jsonFile, err := ioutil.ReadFile(filePath); err != nil {
+		var jsonFile []byte
+		if v, err := ioutil.ReadFile(filePath); err != nil {
 			// Fatal error if we cannot open a file
 			log.Fatal("Failed to open \""+filePath+"\":", err)
 		} else {
-			// Create all the tournament vars
-			json.Unmarshal(jsonFile, &tournament)
-			allTournaments = append(allTournaments, tournament)
+			jsonFile = v
 		}
+
+		// Create all the tournament vars
+		if err := json.Unmarshal(jsonFile, &tournament); err != nil {
+			log.Fatal("Failed to unmarshal the tournament:", err)
+		}
+		allTournaments = append(allTournaments, tournament)
 	}
 }

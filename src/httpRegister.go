@@ -122,7 +122,9 @@ func httpRegister(c *gin.Context) {
 	session.Set("streamURL", "-")          // By default, new users do not have a stream URL set
 	session.Set("twitchBotEnabled", false) // By default, new users do not have the Twitch bot enabled
 	session.Set("twitchBotDelay", 15)      // By default, new users have a Twitch bot delay of 15
-	session.Save()
+	if err := session.Save(); err != nil {
+		log.Error("Failed to save the session:", err)
+	}
 
 	// Log the user creation
 	log.Info("Added \"" + username + "\" to the database (first login).")

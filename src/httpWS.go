@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-gonic/gin"
 )
@@ -40,5 +41,7 @@ func httpWS(c *gin.Context) {
 	keys["rateLimitLastCheck"] = time.Now()
 
 	// Validation succeeded, so establish the WebSocket connection
-	m.HandleRequestWithKeys(w, r, keys)
+	if err := m.HandleRequestWithKeys(w, r, keys); err != nil {
+		log.Error("Failed to add the keys to the websocket session:", err)
+	}
 }

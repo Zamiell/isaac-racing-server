@@ -368,7 +368,7 @@ func (race *Race) Finish() {
 			}
 		}
 	} else {
-		if race.Ruleset.Format == "seeded" ||
+		if race.Ruleset.Format == "unseeded" ||
 			race.Ruleset.Format == "seeded" ||
 			race.Ruleset.Format == "diversity" {
 

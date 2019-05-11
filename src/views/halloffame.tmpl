@@ -15,7 +15,8 @@
           <option value="season2r7">R+7 Season 2</option>
           <option value="season3r7">R+7 Season 3</option>
           <option value="season4r7">R+7 Season 4</option>
-          <!-- <option value="season5r7" disabled>R+7 Season 5</option> -->
+          <option value="season5r7">R+7 Season 5</option>
+          <!--<option value="season6r7">R+7 Season 6</option>-->
         </select>
       </div>
     </div>
@@ -172,7 +173,7 @@
     </div>
   </section>
 
-  {{/*<!-- Start of R+7 Season 5
+  <!-- Start of R+7 Season 5 -->
   <section id="hof-season5r7" class="box">
     <div class="table-wrapper">
       <table id="season5r7-table" class="alt lb tablesorter">
@@ -202,7 +203,38 @@
       </table>
     </div>
   </section>
-  -->*/}}
+
+  {{/*<!-- Start of R+7 Season 6
+    <section id="hof-season6r7" class="box">
+      <div class="table-wrapper">
+        <table id="season6r7-table" class="alt lb tablesorter">
+          <thead>
+            <tr>
+              <th class="th-rank">Rank</th>
+              <th class="th-racer">Player</th>
+              <th class="th-time">Time</th>
+              <th class="th-date" data-sorter="false">Date</th>
+              <th class="th-proof" data-sorter="false">Video</th>
+            </tr>
+          </thead>
+          <tfooter>
+          </tfooter>
+          <tbody>
+            {{ range .Season6r7 }}
+  
+              <tr>
+                <td id="s5r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
+                <td id="s5r7-racer-{{ .Racer }}" class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                <td id="s5r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
+                <td id="s5r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
+                <td id="s5r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+              </tr>
+            {{ end }}
+          </tbody>
+        </table>
+      </div>
+    </section>
+    -->*/}}
 
 </section>
 {{ end }}

@@ -10,9 +10,6 @@ import (
 )
 
 const (
-	// This is the ID of the "Isaac Speedrunning & Racing" server (guild)
-	discordServerID = "83214009964171264"
-
 	// This is the ID of the "racing-plus-lobby" text channel
 	discordLobbyChannelID = "286115994621968384"
 )

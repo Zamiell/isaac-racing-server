@@ -135,7 +135,9 @@ func httpLogin(c *gin.Context) {
 	session.Set("streamURL", sessionValues.StreamURL)
 	session.Set("twitchBotEnabled", sessionValues.TwitchBotEnabled)
 	session.Set("twitchBotDelay", sessionValues.TwitchBotDelay)
-	session.Save()
+	if err := session.Save(); err != nil {
+		log.Error("Failed to save the session:", err)
+	}
 
 	// Log the login request
 	log.Info("User \""+sessionValues.Username+"\" logged in from:", ip)

@@ -326,6 +326,8 @@ func twitchSend(channel string, message string, delay int) {
 }
 
 func twitchIRCSend(command string) {
-	//log.Info("> " + command)
-	twitchConn.Write([]byte(command + "\r\n"))
+	// log.Info("> " + command)
+	if _, err := twitchConn.Write([]byte(command + "\r\n")); err != nil {
+		log.Error("Writing to the Twitch connection failed:", err)
+	}
 }
