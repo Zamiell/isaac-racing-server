@@ -1,4 +1,4 @@
-let activeLeaderboard = 'season5r7';
+let activeLeaderboard = 'season1r9'; // This has to be the first value
 let transition = false;
 
 const tableIDs = [

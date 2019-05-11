@@ -13,47 +13,47 @@ import (
 
 // For holding the values of the "items.json" file
 type JSONItem struct {
-	Name        string  `json:"name"`
-	Damage      float32 `json:"dmg"`
-	DamageX     float32 `json:"dmg_x"`
-	Health      int     `json:"health"`
-	SoulHearts  int     `json:"soul_hearts"`
-	SinHearts   int     `json:"sin_hearts"`
-	Tears       float32 `json:"tears"`
-	Delay       float32 `json:"delay"`
-	DelayX      float32 `json:"delay_x"`
-	Speed       float32 `json:"speed"`
-	ShotSpeed   float32 `json:"shot_speed"`
-	Height      float32 `json:"height"`
-	Range       float32 `json:"range"`
-	Luck        float32 `json:"luck"`
-	Beelzebub   bool    `json:"beelzebub"`
-	Bob         bool    `json:"bob"`
-	Bookworm    bool    `json:"bookworm"`
-	Conjoined   bool    `json:"conjoined"`
-	Funguy      bool    `json:"funguy"`
-	Guppy       bool    `json:"guppy"`
-	Leviathan   bool    `json:"leviathan"`
-	OhCrap      bool    `json:"ohcrap"`
-	Seraphim    bool    `json:"seraphim"`
-	SpiderBaby  bool    `json:"spiderbaby"`
-	Spun        bool    `json:"spun"`
-	Superbum    bool    `json:"superbum"`
-	YesMother   bool    `json:"yesmother"`
-	SpaceBar    bool    `json:"space"`
-	HealthOnly  bool    `json:"health_only"`
-	Intro       string  `json:"introduced_in"`
-	Shown       bool    `json:"shown"`
-	Summary     bool    `json:"in_summary"`
-	SummaryName string  `json:"summary_name"`
-	SummaryCond string  `json:"condition_name"`
-	Text        string  `json:"text"`
+	Name        string `json:"name"`
+	Damage      string `json:"dmg"`
+	DamageX     string `json:"dmg_x"`
+	Health      string `json:"health"`
+	SoulHearts  string `json:"soul_hearts"`
+	SinHearts   string `json:"sin_hearts"`
+	Tears       string `json:"tears"`
+	Delay       string `json:"delay"`
+	DelayX      string `json:"delay_x"`
+	Speed       string `json:"speed"`
+	ShotSpeed   string `json:"shot_speed"`
+	Height      string `json:"height"`
+	Range       string `json:"range"`
+	Luck        string `json:"luck"`
+	Beelzebub   bool   `json:"beelzebub"`
+	Bob         bool   `json:"bob"`
+	Bookworm    bool   `json:"bookworm"`
+	Conjoined   bool   `json:"conjoined"`
+	Funguy      bool   `json:"funguy"`
+	Guppy       bool   `json:"guppy"`
+	Leviathan   bool   `json:"leviathan"`
+	OhCrap      bool   `json:"ohcrap"`
+	Seraphim    bool   `json:"seraphim"`
+	SpiderBaby  bool   `json:"spiderbaby"`
+	Spun        bool   `json:"spun"`
+	Superbum    bool   `json:"superbum"`
+	YesMother   bool   `json:"yesmother"`
+	SpaceBar    bool   `json:"space"`
+	HealthOnly  bool   `json:"health_only"`
+	Intro       string `json:"introduced_in"`
+	Shown       bool   `json:"shown"`
+	Summary     bool   `json:"in_summary"`
+	SummaryName string `json:"summary_name"`
+	SummaryCond string `json:"condition_name"`
+	Text        string `json:"text"`
 }
 
 // For holding the values oi the "builds.json" file
 type IsaacItem struct {
-	ID   int
-	Name string
+	ID   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 type TournamentInfo struct {
@@ -112,7 +112,7 @@ var (
 
 	allItems       = make(map[string]*JSONItem)
 	allItemNames   = make(map[int]string)
-	allBuilds      = make([]IsaacItem, 0)
+	allBuilds      = make([][]IsaacItem, 0)
 	allTournaments = make([]TournamentInfo, 0)
 )
 
@@ -129,7 +129,7 @@ func loadAllItems() {
 		return
 	}
 
-	// Create 2nd map of just item names
+	// Create a 2nd map of just item names
 	for k, v := range allItems {
 		itemid, _ := strconv.Atoi(k)
 		allItemNames[itemid] = v.Name
