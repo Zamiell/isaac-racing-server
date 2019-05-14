@@ -9,23 +9,23 @@ import (
 */
 
 var characters = []string{
-	"Isaac", // 0
-	"Magdalene", // 1
-	"Cain", // 2
-	"Judas", // 3
-	"Blue Baby", // 4
-	"Eve", // 5
-	"Samson", // 6
-	"Azazel", // 7
-	"Lazarus", // 8
-	"Eden", // 9
-	"The Lost", // 10
-	"Lilith", // 11
-	"Keeper", // 12
-	"Apollyon", // 13
+	"Isaac",         // 0
+	"Magdalene",     // 1
+	"Cain",          // 2
+	"Judas",         // 3
+	"Blue Baby",     // 4
+	"Eve",           // 5
+	"Samson",        // 6
+	"Azazel",        // 7
+	"Lazarus",       // 8
+	"Eden",          // 9
+	"The Lost",      // 10
+	"Lilith",        // 11
+	"Keeper",        // 12
+	"Apollyon",      // 13
 	"The Forgotten", // 14
-	"Samael", // 15
-	"Random Baby", // 16
+	"Samael",        // 15
+	"Random Baby",   // 16
 }
 
 /*
@@ -68,6 +68,9 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	if ruleset.Goal != "Blue Baby" &&
 		ruleset.Goal != "The Lamb" &&
 		ruleset.Goal != "Mega Satan" &&
+		ruleset.Goal != "Hush" &&
+		ruleset.Goal != "Delirium" &&
+		ruleset.Goal != "Boss Rush" &&
 		ruleset.Goal != "Everything" &&
 		ruleset.Goal != "custom" {
 
