@@ -771,7 +771,7 @@ func httpHallOfFame(c *gin.Context) {
 	*/
 
 	data := TemplateData{
-		Title:      "Hall Of Fame",
+		Title:      "Hall of Fame",
 		Season1r9:  season1r9,
 		Season1r14: season1r14,
 		Season2r7:  season2r7,
