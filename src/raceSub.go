@@ -40,8 +40,6 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	if ruleset.Format != "unseeded" &&
 		ruleset.Format != "seeded" &&
 		ruleset.Format != "diversity" &&
-		ruleset.Format != "unseeded-lite" &&
-		ruleset.Format != "seeded-hard" &&
 		ruleset.Format != "custom" {
 
 		websocketError(s, d.Command, "That is not a valid ruleset.")
@@ -80,12 +78,11 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 
 	// Validate the starting build
 	if ruleset.Format != "seeded" &&
-		ruleset.Format != "seeded-hard" &&
 		ruleset.StartingBuild != -1 {
 
 		websocketError(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 		return false
-	} else if (ruleset.Format == "seeded" || ruleset.Format == "seeded-hard") &&
+	} else if ruleset.Format == "seeded" &&
 		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > len(seededBuilds)) { // 0 is random
 
 		websocketError(s, d.Command, "That is not a valid starting build.")
@@ -126,6 +123,12 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		ruleset.StartingBuild != 0 {
 
 		websocketError(s, d.Command, "Solo ranked seeded races must have a random starting build.")
+		return false
+	}
+
+	// Validate the difficulty
+	if ruleset.Difficulty != "normal" && ruleset.Difficulty != "hard" {
+		websocketError(s, d.Command, "That is not a valid difficulty.")
 		return false
 	}
 

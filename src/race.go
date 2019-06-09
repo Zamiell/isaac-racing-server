@@ -36,6 +36,7 @@ type Ruleset struct {
 	StartingBuildRandom bool   `json:"startingBuildRandom"`
 	StartingItems       []int  `json:"startingItems"`
 	Seed                string `json:"seed"`
+	Difficulty          string `json:"difficulty"`
 }
 type Racer struct {
 	ID                   int

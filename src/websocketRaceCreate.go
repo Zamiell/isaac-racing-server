@@ -126,7 +126,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Create and set a seed if necessary
 	ruleset.Seed = "-"
-	if ruleset.Format == "seeded" || ruleset.Format == "seeded-hard" {
+	if ruleset.Format == "seeded" {
 		// Create a random Isaac seed
 		// (using the current Epoch timestamp as a seed)
 		ruleset.Seed = isaacGetRandomSeed()
@@ -180,7 +180,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 			Status:              race.Status,
 			Ruleset:             race.Ruleset,
 			Captain:             race.Captain,
-			IsPasswordProtected: len(race.Password)>0,
+			IsPasswordProtected: len(race.Password) > 0,
 			DatetimeCreated:     race.DatetimeCreated,
 			DatetimeStarted:     race.DatetimeStarted,
 			Racers:              make([]string, 0),
