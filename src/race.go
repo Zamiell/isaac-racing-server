@@ -50,6 +50,7 @@ type Racer struct {
 	Items                []*Item
 	StartingItem         int
 	Rooms                []*Room
+	CharacterNum         int
 	Place                int
 	PlaceMid             int
 	DatetimeFinished     int64
@@ -160,7 +161,9 @@ func (race *Race) SetAllPlaceMid() {
 				// We don't count people who finished or quit since our starting point was on "currentPlace"
 				continue
 			}
-			if racer2.FloorNum > racer.FloorNum {
+			if racer2.CharacterNum > racer.CharacterNum {
+				racer.PlaceMid++
+			} else if racer2.FloorNum > racer.FloorNum {
 				racer.PlaceMid++
 			} else if racer2.FloorNum == racer.FloorNum &&
 				racer2.FloorNum > 8 &&

@@ -19,6 +19,7 @@ func racerListMessage(s *melody.Session, race *Race) {
 		DatetimeArrivedFloor int64   `json:"datetimeArrivedFloor"`
 		Items                []*Item `json:"items"`
 		StartingItem         int     `json:"startingItem"`
+		CharacterNum         int     `json:"characterNum"`
 		Place                int     `json:"place"`
 		PlaceMid             int     `json:"placeMid"`
 		DatetimeFinished     int64   `json:"datetimeFinished"`
@@ -28,19 +29,20 @@ func racerListMessage(s *melody.Session, race *Race) {
 	racers := make([]RacerMessage, 0)
 	for _, racer := range race.Racers {
 		racers = append(racers, RacerMessage{
-			racer.Name,
-			racer.DatetimeJoined,
-			racer.Status,
-			racer.FloorNum,
-			racer.StageType,
-			racer.DatetimeArrivedFloor,
-			racer.Items,
-			racer.StartingItem,
-			racer.Place,
-			racer.PlaceMid,
-			racer.DatetimeFinished,
-			racer.RunTime,
-			racer.Comment,
+			Name:                 racer.Name,
+			DatetimeJoined:       racer.DatetimeJoined,
+			Status:               racer.Status,
+			FloorNum:             racer.FloorNum,
+			StageType:            racer.StageType,
+			DatetimeArrivedFloor: racer.DatetimeArrivedFloor,
+			Items:                racer.Items,
+			StartingItem:         racer.StartingItem,
+			CharacterNum:         racer.CharacterNum,
+			Place:                racer.Place,
+			PlaceMid:             racer.PlaceMid,
+			DatetimeFinished:     racer.DatetimeFinished,
+			RunTime:              racer.RunTime,
+			Comment:              racer.Comment,
 		})
 	}
 

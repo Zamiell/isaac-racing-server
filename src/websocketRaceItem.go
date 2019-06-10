@@ -77,6 +77,11 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	}
 	racer.Items = append(racer.Items, item)
 
+	if itemID == 560 { // Checkpoint
+		racer.CharacterNum++
+		race.SetAllPlaceMid()
+	}
+
 	// Check to see if this is their starting item
 	startingItem := false
 	if race.Ruleset.Format != "seeded" &&
