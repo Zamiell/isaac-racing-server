@@ -163,6 +163,7 @@ func (race *Race) SetAllPlaceMid() {
 			}
 			if racer2.CharacterNum > racer.CharacterNum {
 				racer.PlaceMid++
+				log.Debug("GETTING HERE")
 			} else if racer2.FloorNum > racer.FloorNum {
 				racer.PlaceMid++
 			} else if racer2.FloorNum == racer.FloorNum &&

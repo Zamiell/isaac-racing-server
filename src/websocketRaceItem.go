@@ -56,7 +56,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	// Custom items are handled manually
 	// The final vanilla item is Mom's Shovel (552)
 	// The first custom item is 3001
-	if itemID > 552 && itemID <= 3000 {
+	if itemID > 552 && itemID <= 3000 && itemID != 560 {
 		return
 	}
 
