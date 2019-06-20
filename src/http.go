@@ -108,6 +108,9 @@ func httpInit() {
 	if len(tlsCertFile) == 0 || len(tlsKeyFile) == 0 {
 		useTLS = false
 	}
+	if domain == "localhost" {
+		dev = true
+	}
 
 	// Create a session store
 	sessionStore = cookie.NewStore([]byte(sessionSecret))

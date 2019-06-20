@@ -90,7 +90,7 @@ func websocketHandleConnect(s *melody.Session) {
 			Status:              race.Status,
 			Ruleset:             race.Ruleset,
 			Captain:             race.Captain,
-			IsPasswordProtected: len(race.Password)>0,
+			IsPasswordProtected: len(race.Password) > 0,
 			DatetimeCreated:     race.DatetimeCreated,
 			DatetimeStarted:     race.DatetimeStarted,
 		}

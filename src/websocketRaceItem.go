@@ -80,6 +80,23 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	if itemID == 560 { // Checkpoint
 		racer.CharacterNum++
 		race.SetAllPlaceMid()
+
+		for racerName := range race.Racers {
+			// Not all racers may be online during a race
+			if s, ok := websocketSessions[racerName]; ok {
+				// Send the message about the new character
+				type RacerCharacterMessage struct {
+					ID           int    `json:"id"`
+					Name         string `json:"name"`
+					CharacterNum int    `json:"characterNum"`
+				}
+				websocketEmit(s, "racerCharacter", &RacerCharacterMessage{
+					ID:           raceID,
+					Name:         racer.Name,
+					CharacterNum: racer.CharacterNum,
+				})
+			}
+		}
 	}
 
 	// Check to see if this is their starting item

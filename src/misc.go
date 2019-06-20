@@ -19,6 +19,15 @@ func intInSlice(a int, slice []int) bool {
 	return false
 }
 
+func stringInSlice(a string, slice []string) bool {
+	for _, b := range slice {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
 func isAlphaNumericUnderscore(str string) bool {
 	isValid := true
 	for _, character := range str {

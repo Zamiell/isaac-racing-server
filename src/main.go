@@ -11,6 +11,7 @@ import (
 )
 
 var (
+	dev          bool
 	projectPath  = path.Join(os.Getenv("GOPATH"), "src", "github.com", "Zamiell", "isaac-racing-server")
 	db           *models.Models
 	races        = make(map[int]*Race)
