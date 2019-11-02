@@ -20,7 +20,8 @@ func httpHallOfFame(c *gin.Context) {
 	var season3r7 []models.SpeedRun
 	var season4r7 []models.SpeedRun
 	var season5r7 []models.SpeedRun
-	//var season6r7 []models.SpeedRun
+	var season6r7 []models.SpeedRun
+	//var season7r7 []models.SpeedRun
 
 	// Season 1 R+9 Start
 	season1r9 = append(
@@ -515,7 +516,7 @@ func httpHallOfFame(c *gin.Context) {
 		season4r7,
 		models.SpeedRun{
 			Rank:        1,
-			Racer:       "Antizoubilamaka",
+			Racer:       "antizoubilamakA",
 			ProfileName: "CRAZYEIGHTSFAN69",
 			Time:        3406,
 			Date:        "2018-09-07",
@@ -755,8 +756,130 @@ func httpHallOfFame(c *gin.Context) {
 	)
 
 	// Season 6 R+7 Start
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        1,
+			Racer:       "Shigan",
+			ProfileName: "Shigan",
+			Time:        2644,
+			Date:        "2019-06-05",
+			Proof:       "https://www.twitch.tv/videos/434894359",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        2,
+			Racer:       "thereisnofuture",
+			ProfileName: "thereisnofuture",
+			Time:        2754,
+			Date:        "2019-07-09",
+			Proof:       "https://www.twitch.tv/videos/450425805",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        3,
+			Racer:       "Greg570",
+			ProfileName: "Greg570",
+			Time:        2790,
+			Date:        "2019-09-24",
+			Proof:       "https://www.twitch.tv/videos/486128516",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        4,
+			Racer:       "antizoubilamakA",
+			ProfileName: "CRAZYEIGHTSFAN69",
+			Time:        2813,
+			Date:        "2019-05-18",
+			Proof:       "https://www.twitch.tv/videos/426777217",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        5,
+			Racer:       "Gamonymous",
+			ProfileName: "Gamonymous",
+			Time:        2850,
+			Date:        "2019-06-10",
+			Proof:       "https://www.youtube.com/watch?v=nl_cvqtAjdg",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        6,
+			Racer:       "leo_ze_tron",
+			ProfileName: "leo_ze_tron",
+			Time:        2855,
+			Date:        "2019-09-17",
+			Proof:       "https://www.twitch.tv/videos/482932943",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        7,
+			Racer:       "mgln",
+			ProfileName: "mgln",
+			Time:        2912,
+			Date:        "2019-08-30",
+			Proof:       "https://www.twitch.tv/videos/474508067",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        8,
+			Racer:       "YuCaesar",
+			ProfileName: "YuCaesar",
+			Time:        3055,
+			Date:        "2019-10-16",
+			Proof:       "https://www.twitch.tv/videos/495431034",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        9,
+			Racer:       "sisuka",
+			ProfileName: "sisuka",
+			Time:        3062,
+			Date:        "2019-08-18",
+			Proof:       "https://www.youtube.com/watch?v=EaySvHPIQOw",
+			Site:        "Twitch",
+		},
+	)
+	season6r7 = append(
+		season6r7,
+		models.SpeedRun{
+			Rank:        10,
+			Racer:       "Pingouin23",
+			ProfileName: "Pingouin23",
+			Time:        3064,
+			Date:        "2019-10-13",
+			Proof:       "https://www.twitch.tv/videos/494086038",
+			Site:        "Twitch",
+		},
+	)
+
+	// Season 7 R+7 Start
 	/*
-		season6r7 = append(
+		season7r7 = append(
 			season6r7,
 			models.SpeedRun{
 				Rank:        2,
@@ -778,7 +901,8 @@ func httpHallOfFame(c *gin.Context) {
 		Season3r7:  season3r7,
 		Season4r7:  season4r7,
 		Season5r7:  season5r7,
-		//Season6r7:	season6r7,
+		Season6r7:  season6r7,
+		//Season7r7:	season7r7,
 	}
 	httpServeTemplate(w, "halloffame", data)
 }
