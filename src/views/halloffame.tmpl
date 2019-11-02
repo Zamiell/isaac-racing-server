@@ -2,240 +2,232 @@
 <!-- Main -->
 
 <section id="main" class="container">
-  <header class="top">
-    <h2>Hall of Fame</h2>
-    <p>The best of the past</p>
-  </header>
-  <form id="selectSeason" >
-    <div class="12u">
-      <div class="select-wrapper be-half">
-        <select onchange="selectLeaderboard(this.value)" >
-          <option value="season1r9">R+9 Season 1</option>
-          <option value="season1r14">R+14 Season 1</option>
-          <option value="season2r7">R+7 Season 2</option>
-          <option value="season3r7">R+7 Season 3</option>
-          <option value="season4r7">R+7 Season 4</option>
-          <option value="season5r7">R+7 Season 5</option>
-          <option value="season6r7">R+7 Season 6</option>
-          <!--<option value="season6r7">R+7 Season 7</option>-->
-        </select>
-      </div>
-    </div>
-  </form>
+    <header class="top">
+        <h2>Hall of Fame</h2>
+        <p>The best of the past</p>
+    </header>
+    <form id="selectSeason" >
+        <div class="12u">
+            <div class="select-wrapper be-half">
+                <select onchange="selectLeaderboard(this.value)" >
+                    <option value="season1r9">R+9 Season 1</option>
+                    <option value="season1r14">R+14 Season 1</option>
+                    <option value="season2r7">R+7 Season 2</option>
+                    <option value="season3r7">R+7 Season 3</option>
+                    <option value="season4r7">R+7 Season 4</option>
+                    <option value="season5r7">R+7 Season 5</option>
+                    <option value="season6r7">R+7 Season 6</option>
+                    <!--<option value="season6r7">R+7 Season 7</option>-->
+                </select>
+            </div>
+        </div>
+    </form>
 
-  <!-- Start of R+9 Season 1 -->
-  <section id="hof-season1r9" class="box">
-    <div class="table-wrapper">
-      <table id="season1r9-table" class="alt lb tablesorter">
-        <thead>
-          <tr>
-            <th class="th-rank">Rank</th>
-            <th class="th-racer">Player</th>
-            <th class="th-time">Time</th>
-            <th class="th-date" data-sorter="false">Date</th>
-            <th class="th-proof" data-sorter="false">Video</th>
-          </tr>
-        </thead>
-        <tfooter>
-        </tfooter>
-        <tbody>
-          {{ range .Season1r9 }}
+    <!-- Start of R+9 Season 1 -->
+    <section id="hof-season1r9" class="box">
+        <div class="table-wrapper">
+        <table id="season1r9-table" class="alt lb tablesorter">
+            <thead>
             <tr>
-              <td id="s1r9-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
-              <td id="s1r14-racer-{{ .Racer }}" class="td-racer">{{ if ne .ProfileName "" }}<a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a>{{ else }}{{ .Racer }}{{ end }}</td>
-              <td id="s1r9-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
-              <td id="s1r9-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
-              <td id="s1r9-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px" width="16px" src="public/img/{{ .Site }}.png" /></a></td>
+                <th class="th-rank">Rank</th>
+                <th class="th-racer">Player</th>
+                <th class="th-time">Time</th>
+                <th class="th-date" data-sorter="false">Date</th>
+                <th class="th-proof" data-sorter="false">Video</th>
             </tr>
-          {{ end }}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Start of R+14 Season 1 -->
-  <section id="hof-season1r14" class="box">
-    <div class="table-wrapper">
-      <table id="season1r14-table" class="alt lb tablesorter">
-        <thead>
-          <tr>
-            <th class="th-rank">Rank</th>
-            <th class="th-racer">Player</th>
-            <th class="th-time">Time</th>
-            <th class="th-date" data-sorter="false">Date</th>
-            <th class="th-proof" data-sorter="false">Video</th>
-          </tr>
-        </thead>
-        <tfooter>
-        </tfooter>
-        <tbody>
-          {{ range .Season1r14 }}
-            <tr>
-              <td id="s1r14-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
-              <td id="s1r14-racer-{{ .Racer }}" class="td-racer">{{ if ne .ProfileName "" }}<a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a>{{ else }}{{ .Racer }}{{ end }}</td>
-              <td id="s1r14-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
-              <td id="s1r14-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
-              <td id="s1r14-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px" width="16px" src="public/img/{{ .Site }}.png" /></a></td>
-            </tr>
-          {{ end }}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Start of R+7 Season 2 -->
-  <section id="hof-season2r7" class="box">
-    <div class="table-wrapper">
-      <table id="season2r7-table" class="alt lb tablesorter">
-        <thead>
-          <tr>
-            <th class="th-rank">Rank</th>
-            <th class="th-racer">Player</th>
-            <th class="th-time">Time</th>
-            <th class="th-date" data-sorter="false">Date</th>
-            <th class="th-proof" data-sorter="false">Video</th>
-          </tr>
-        </thead>
-        <tfooter>
-        </tfooter>
-        <tbody>
-          {{ range .Season2r7 }}
-            <tr>
-              <td id="s2r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
-              <td id="s1r14-racer-{{ .Racer }}" class="td-racer">{{ if ne .ProfileName "" }}<a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a>{{ else }}{{ .Racer }}{{ end }}</td>
-              <td id="s2r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
-              <td id="s2r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
-              <td id="s2r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px" width="16px" src="public/img/{{ .Site }}.png" /></a></td>
-            </tr>
-          {{ end }}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Start of R+7 Season 3 -->
-  <section id="hof-season3r7" class="box">
-    <div class="table-wrapper">
-      <table id="season3r7-table" class="alt lb tablesorter">
-        <thead>
-          <tr>
-            <th class="th-rank">Rank</th>
-            <th class="th-racer">Player</th>
-            <th class="th-time">Time</th>
-            <th class="th-date" data-sorter="false">Date</th>
-            <th class="th-proof" data-sorter="false">Video</th>
-          </tr>
-        </thead>
-        <tfooter>
-        </tfooter>
-        <tbody>
-          {{ range .Season3r7 }}
-            <tr>
-              <td id="s3r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
-              <td id="s3r7-racer-{{ .Racer }}" class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
-              <td id="s3r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
-              <td id="s3r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
-              <td id="s3r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
-            </tr>
-          {{ end }}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Start of R+7 Season 4 -->
-  <section id="hof-season4r7" class="box">
-    <div class="table-wrapper">
-      <table id="season4r7-table" class="alt lb tablesorter">
-        <thead>
-          <tr>
-            <th class="th-rank">Rank</th>
-            <th class="th-racer">Player</th>
-            <th class="th-time">Time</th>
-            <th class="th-date" data-sorter="false">Date</th>
-            <th class="th-proof" data-sorter="false">Video</th>
-          </tr>
-        </thead>
-        <tfooter>
-        </tfooter>
-        <tbody>
-          {{ range .Season4r7 }}
-
-            <tr>
-              <td id="s4r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
-              <td id="s4r7-racer-{{ .Racer }}" class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
-              <td id="s4r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
-              <td id="s4r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
-              <td id="s4r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
-            </tr>
-          {{ end }}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- Start of R+7 Season 5 -->
-  <section id="hof-season5r7" class="box">
-    <div class="table-wrapper">
-      <table id="season5r7-table" class="alt lb tablesorter">
-        <thead>
-          <tr>
-            <th class="th-rank">Rank</th>
-            <th class="th-racer">Player</th>
-            <th class="th-time">Time</th>
-            <th class="th-date" data-sorter="false">Date</th>
-            <th class="th-proof" data-sorter="false">Video</th>
-          </tr>
-        </thead>
-        <tfooter>
-        </tfooter>
-        <tbody>
-          {{ range .Season5r7 }}
-
-            <tr>
-              <td id="s5r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
-              <td id="s5r7-racer-{{ .Racer }}" class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
-              <td id="s5r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
-              <td id="s5r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
-              <td id="s5r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
-            </tr>
-          {{ end }}
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  {{/*<!-- Start of R+7 Season 6
-    <section id="hof-season6r7" class="box">
-      <div class="table-wrapper">
-        <table id="season6r7-table" class="alt lb tablesorter">
-          <thead>
-            <tr>
-              <th class="th-rank">Rank</th>
-              <th class="th-racer">Player</th>
-              <th class="th-time">Time</th>
-              <th class="th-date" data-sorter="false">Date</th>
-              <th class="th-proof" data-sorter="false">Video</th>
-            </tr>
-          </thead>
-          <tfooter>
-          </tfooter>
-          <tbody>
-            {{ range .Season6r7 }}
-  
-              <tr>
-                <td id="s5r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
-                <td id="s5r7-racer-{{ .Racer }}" class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
-                <td id="s5r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
-                <td id="s5r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
-                <td id="s5r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
-              </tr>
+            </thead>
+            <tfooter>
+            </tfooter>
+            <tbody>
+            {{ range .Season1r9 }}
+                <tr>
+                <td id="s1r9-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
+                <td id="s1r14-racer-{{ .Racer }}" class="td-racer">{{ if ne .ProfileName "" }}<a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a>{{ else }}{{ .Racer }}{{ end }}</td>
+                <td id="s1r9-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
+                <td id="s1r9-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
+                <td id="s1r9-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px" width="16px" src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
             {{ end }}
-          </tbody>
+            </tbody>
         </table>
-      </div>
+        </div>
     </section>
-    -->*/}}
 
+    <!-- Start of R+14 Season 1 -->
+    <section id="hof-season1r14" class="box">
+        <div class="table-wrapper">
+        <table id="season1r14-table" class="alt lb tablesorter">
+            <thead>
+            <tr>
+                <th class="th-rank">Rank</th>
+                <th class="th-racer">Player</th>
+                <th class="th-time">Time</th>
+                <th class="th-date" data-sorter="false">Date</th>
+                <th class="th-proof" data-sorter="false">Video</th>
+            </tr>
+            </thead>
+            <tfooter>
+            </tfooter>
+            <tbody>
+            {{ range .Season1r14 }}
+                <tr>
+                <td id="s1r14-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
+                <td id="s1r14-racer-{{ .Racer }}" class="td-racer">{{ if ne .ProfileName "" }}<a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a>{{ else }}{{ .Racer }}{{ end }}</td>
+                <td id="s1r14-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
+                <td id="s1r14-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
+                <td id="s1r14-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px" width="16px" src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of R+7 Season 2 -->
+    <section id="hof-season2r7" class="box">
+        <div class="table-wrapper">
+        <table id="season2r7-table" class="alt lb tablesorter">
+            <thead>
+            <tr>
+                <th class="th-rank">Rank</th>
+                <th class="th-racer">Player</th>
+                <th class="th-time">Time</th>
+                <th class="th-date" data-sorter="false">Date</th>
+                <th class="th-proof" data-sorter="false">Video</th>
+            </tr>
+            </thead>
+            <tfooter>
+            </tfooter>
+            <tbody>
+            {{ range .Season2r7 }}
+                <tr>
+                <td id="s2r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
+                <td id="s1r14-racer-{{ .Racer }}" class="td-racer">{{ if ne .ProfileName "" }}<a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a>{{ else }}{{ .Racer }}{{ end }}</td>
+                <td id="s2r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
+                <td id="s2r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
+                <td id="s2r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px" width="16px" src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of R+7 Season 3 -->
+    <section id="hof-season3r7" class="box">
+        <div class="table-wrapper">
+        <table id="season3r7-table" class="alt lb tablesorter">
+            <thead>
+            <tr>
+                <th class="th-rank">Rank</th>
+                <th class="th-racer">Player</th>
+                <th class="th-time">Time</th>
+                <th class="th-date" data-sorter="false">Date</th>
+                <th class="th-proof" data-sorter="false">Video</th>
+            </tr>
+            </thead>
+            <tfooter>
+            </tfooter>
+            <tbody>
+            {{ range .Season3r7 }}
+                <tr>
+                <td id="s3r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
+                <td id="s3r7-racer-{{ .Racer }}" class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                <td id="s3r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
+                <td id="s3r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
+                <td id="s3r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of R+7 Season 4 -->
+    <section id="hof-season4r7" class="box">
+        <div class="table-wrapper">
+        <table id="season4r7-table" class="alt lb tablesorter">
+            <thead>
+            <tr>
+                <th class="th-rank">Rank</th>
+                <th class="th-racer">Player</th>
+                <th class="th-time">Time</th>
+                <th class="th-date" data-sorter="false">Date</th>
+                <th class="th-proof" data-sorter="false">Video</th>
+            </tr>
+            </thead>
+            <tfooter>
+            </tfooter>
+            <tbody>
+            {{ range .Season4r7 }}
+
+                <tr>
+                <td id="s4r7-rank-{{ .Racer }}" class="td-rank"> {{ .Rank }} </td>
+                <td id="s4r7-racer-{{ .Racer }}" class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                <td id="s4r7-time-{{ .Racer }}" class="td-time">{{ .Time }}</td>
+                <td id="s4r7-date-{{ .Racer }}" class="td-date">{{ .Date }}</td>
+                <td id="s4r7-proof-{{ .Racer }}" class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of R+7 Season 5 -->
+    <section id="hof-season5r7" class="box">
+        <div class="table-wrapper">
+        <table id="season5r7-table" class="alt lb tablesorter">
+            <thead>
+            <tr>
+                <th class="th-rank">Rank</th>
+                <th class="th-racer">Player</th>
+                <th class="th-time">Time</th>
+                <th class="th-date" data-sorter="false">Date</th>
+                <th class="th-proof" data-sorter="false">Video</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{ range .Season5r7 }}
+                <tr>
+                    <td class="td-rank"> {{ .Rank }} </td>
+                    <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                    <td class="td-time">{{ .Time }}</td>
+                    <td class="td-date">{{ .Date }}</td>
+                    <td class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of R+7 Season 6 -->
+    <section id="hof-season6r7" class="box">
+        <div class="table-wrapper">
+        <table id="season6r7-table" class="alt lb tablesorter">
+            <thead>
+                <tr>
+                    <th class="th-rank">Rank</th>
+                    <th class="th-racer">Player</th>
+                    <th class="th-time">Time</th>
+                    <th class="th-date" data-sorter="false">Date</th>
+                    <th class="th-proof" data-sorter="false">Video</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ range .Season6r7 }}
+                <tr>
+                    <td class="td-rank"> {{ .Rank }} </td>
+                    <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                    <td class="td-time">{{ .Time }}</td>
+                    <td class="td-date">{{ .Date }}</td>
+                    <td class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
 </section>
 {{ end }}
