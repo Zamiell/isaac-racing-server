@@ -164,18 +164,23 @@ func (race *Race) SetAllPlaceMid() {
 			if racer2.CharacterNum < racer.CharacterNum {
 				continue
 			}
+			log.Debug("GOAL: " + race.Ruleset.Goal)
+			log.Debug("RACER 1:", racer.FloorNum, ".", racer.StageType)
+			log.Debug("RACER 2:", racer2.FloorNum, ".", racer2.StageType)
 			if racer2.CharacterNum > racer.CharacterNum {
 				racer.PlaceMid++
 			} else if racer2.FloorNum > racer.FloorNum {
 				racer.PlaceMid++
-			} else if racer2.FloorNum == racer.FloorNum &&
-				racer2.FloorNum > 8 &&
+			} else if race.Ruleset.Goal == "Everything" &&
+				racer2.FloorNum == racer.FloorNum &&
+				racer2.FloorNum >= 10 &&
 				racer2.StageType < racer.StageType {
 
 				// This is custom logic for the "Everything" race goal
 				// Sheol is StageType 0 and the Dark Room is StageType 0
 				// Those are considered ahead of Cathedral and The Chest
 				racer.PlaceMid++
+				log.Debug("GETTING HERE")
 			} else if racer2.FloorNum == racer.FloorNum &&
 				racer2.StageType == racer.StageType &&
 				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
