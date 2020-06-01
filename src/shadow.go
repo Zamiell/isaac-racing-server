@@ -52,9 +52,6 @@ func (p PlayerMap) getConnection(mh MessageHeader) *net.UDPConn {
 }
 
 func (p PlayerMap) getOpponent(mh MessageHeader) (pConn *PlayerConn) {
-	mux.Lock()
-	defer mux.Unlock()
-
 	race := p[mh.RaceId]
 	if race == nil {
 		return
@@ -78,16 +75,16 @@ func (p *PlayerMap) updateSessions() {
 			}
 
 			pConn.TTL--
-			log.Info(fmt.Sprintf("[--] player=%v ttl=%v", playerId, pConn.TTL))
+			log.Debug(fmt.Sprintf("[--] player=%v ttl=%v", playerId, pConn.TTL))
 
 			if pConn.TTL <= 0 {
 				pConn.finalizeConnection(playerId)
 				delete(race, playerId)
-				log.Info(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerId, raceId))
+				log.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerId, raceId))
 
 				if len(race) < 1 {
 					delete(*p, raceId)
-					log.Info(fmt.Sprintf("Record removed race=%v", raceId))
+					log.Debug(fmt.Sprintf("Record removed race=%v", raceId))
 				}
 			}
 		}
@@ -104,7 +101,7 @@ func (p *PlayerMap) update(mh MessageHeader, addr string) {
 	// lazy-init race
 	if (*p)[mh.RaceId] == nil {
 		(*p)[mh.RaceId] = make(map[uint32]*PlayerConn)
-		log.Info(fmt.Sprintf("Record created race=%v ", mh.RaceId))
+		log.Debug(fmt.Sprintf("Record created race=%v ", mh.RaceId))
 	}
 
 	race := (*p)[mh.RaceId]
@@ -122,5 +119,5 @@ func (p *PlayerMap) update(mh MessageHeader, addr string) {
 
 	// update TTL
 	race[mh.PlayerId].TTL = sessionTTL
-	log.Info(fmt.Sprintf("TTL updated race=%v, player=%v", mh.RaceId, mh.PlayerId))
+	log.Debug(fmt.Sprintf("TTL updated race=%v, player=%v", mh.RaceId, mh.PlayerId))
 }

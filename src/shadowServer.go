@@ -24,7 +24,7 @@ var (
 func verifySender(mh MessageHeader, raddr net.Addr) bool {
 	playerConnection := pMap.getConnection(mh)
 	if playerConnection == nil {
-		log.Info(fmt.Sprintf("No player=%v session found, ignoring", mh.PlayerId))
+		log.Debug(fmt.Sprintf("No player=%v session found, ignoring", mh.PlayerId))
 		return false
 	} else if playerConnection.RemoteAddr().String() != raddr.String() {
 		log.Info(fmt.Sprintf("Player=%v shadow comes has untracked origin, recorded=%v, received=%v",
@@ -35,7 +35,7 @@ func verifySender(mh MessageHeader, raddr net.Addr) bool {
 }
 
 func handleHelloMessage(msg []byte, addr net.Addr) {
-	log.Info("Parsing hello message")
+	log.Debug("Parsing hello message")
 	mh := MessageHeader{}
 	err := mh.Unmarshall(msg)
 	if err == nil {
@@ -48,22 +48,22 @@ func handleShadowMessage(msg []byte, raddr net.Addr) {
 	err := mh.Unmarshall(msg)
 
 	if err == nil {
-		log.Info(fmt.Sprintf("Shadow received, player=%v", mh.PlayerId))
+		log.Debug(fmt.Sprintf("Shadow received, player=%v", mh.PlayerId))
 		if !verifySender(mh, raddr) {
 			return
 		}
 
 		opponent := pMap.getOpponent(mh)
 		if opponent != nil {
-			log.Info(fmt.Sprintf("Opponen found, player=%v", mh.PlayerId))
-			log.Info(fmt.Sprintf("Proxying shadow, [src=%v]=>[dst=%v]", raddr, opponent.CONN.RemoteAddr()))
+			log.Debug(fmt.Sprintf("Opponen found, player=%v", mh.PlayerId))
+			log.Debug(fmt.Sprintf("Proxying shadow, [src=%v]=>[dst=%v]", raddr, opponent.CONN.RemoteAddr()))
 			_, err := opponent.CONN.Write(msg)
 			if err != nil {
 				log.Debug(fmt.Sprintf(
 					"Shadow proxy failed, player=%v, msg: %v\ncause: %v", mh.PlayerId, msg, err))
 			}
 		} else {
-			log.Info(fmt.Sprintf("Missing opponent session, player=%v", mh.PlayerId))
+			log.Debug(fmt.Sprintf("Missing opponent session, player=%v", mh.PlayerId))
 		}
 	}
 }
@@ -85,11 +85,11 @@ func shadowServer(address string) (err error, pc net.PacketConn) {
 				log.Error(fmt.Sprintf("Error receiving UDP dgram from %v", raddr.String()), err)
 			}
 			if n > 0 {
-				log.Info(fmt.Sprintf("Received dgram on shadow service: bytes=%d src=%s\n", n, raddr.String()))
+				log.Debug(fmt.Sprintf("Received dgram on shadow service: bytes=%d src=%s\n", n, raddr.String()))
 			}
 			payloadSize := n - int(unsafe.Sizeof(MessageHeader{}))
 			if payloadSize < helloSize {
-				log.Info("Dgram skipped, payload len=", payloadSize)
+				log.Debug("Dgram skipped, payload len=", payloadSize)
 				// skip
 			} else if payloadSize == helloSize {
 				handleHelloMessage(buffer, raddr)
