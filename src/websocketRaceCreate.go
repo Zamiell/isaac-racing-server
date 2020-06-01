@@ -168,7 +168,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		SoundPlayed:     false,
 		DatetimeCreated: getTimestamp(),
 		DatetimeStarted: 0,
-		Racers:          make(map[string]*Racer, 0),
+		Racers:          make(map[string]*Racer),
 	}
 	races[raceID] = race
 

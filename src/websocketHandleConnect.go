@@ -19,6 +19,7 @@ func websocketHandleConnect(s *melody.Session) {
 		websocketClose(s)
 		return
 	}
+	userID := d.v.UserID
 	username := d.v.Username
 	streamURL := d.v.StreamURL
 	twitchBotEnabled := d.v.TwitchBotEnabled
@@ -57,6 +58,7 @@ func websocketHandleConnect(s *melody.Session) {
 
 	// Send them various settings tied to their account
 	type SettingsMessage struct {
+		UserID           int    `json:"userID"`
 		Username         string `json:"username"`
 		StreamURL        string `json:"streamURL"`
 		TwitchBotEnabled bool   `json:"twitchBotEnabled"`
@@ -64,6 +66,7 @@ func websocketHandleConnect(s *melody.Session) {
 		Time             int64  `json:"time"`
 	}
 	websocketEmit(s, "settings", &SettingsMessage{
+		UserID:           userID,
 		Username:         username,
 		StreamURL:        streamURL,
 		TwitchBotEnabled: twitchBotEnabled,

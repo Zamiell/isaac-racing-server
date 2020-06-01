@@ -71,7 +71,7 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 			return
 		}
 		for _, streamURL := range streamURLs {
-			if strings.ToLower(newStreamURL) == strings.ToLower(streamURL) {
+			if strings.EqualFold(newStreamURL, streamURL) {
 				websocketWarning(s, d.Command, "Someone else has already claimed that stream URL. If you are the real owner of this stream, please contact an administrator.")
 				return
 			}

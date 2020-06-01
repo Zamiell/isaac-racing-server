@@ -12,7 +12,7 @@ import (
 func leaderboardUpdateTrueSkill(race *Race) {
 	// The racer map is not in order, so first make a sorted list of usernames
 	racerNames := make([]string, 0)
-	for username, _ := range race.Racers {
+	for username := range race.Racers {
 		racerNames = append(racerNames, username)
 	}
 	sort.Strings(racerNames)

@@ -24,12 +24,7 @@ func httpMwGoogleAnalytics(c *gin.Context) {
 	var clientID string
 	if err != nil {
 		// They don't have a cookie set, so set a new one
-		var clientID string
-		if v, err := uuid.NewV4(); err != nil {
-			log.Fatal("Failed to get a new UUID string:", err)
-		} else {
-			clientID = v.String()
-		}
+		clientID := uuid.NewV4().String()
 		http.SetCookie(w, &http.Cookie{
 			Name: "_ga",
 			// This is the standard cookie name used by the Google Analytics
