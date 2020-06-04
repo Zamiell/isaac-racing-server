@@ -15,19 +15,8 @@ const (
 type PlayerMap map[uint32]map[uint32]*PlayerConn
 
 type PlayerConn struct {
-	CONN *net.UDPConn
+	ADDR *net.Addr
 	TTL  uint
-}
-
-func (pc *PlayerConn) finalizeConnection(playerId uint32) {
-	if pc.CONN != nil {
-		err := pc.CONN.Close()
-		if err != nil {
-			log.Error(fmt.Sprintf("Error closing connection player=%v ", playerId), err)
-		} else {
-			log.Info(fmt.Sprintf("Connection closed for player=%v", playerId))
-		}
-	}
 }
 
 type MessageHeader struct {
@@ -44,9 +33,9 @@ func (m *MessageHeader) Unmarshall(b []byte) (err error) {
 	return
 }
 
-func (p PlayerMap) getConnection(mh MessageHeader) *net.UDPConn {
+func (p PlayerMap) getConnection(mh MessageHeader) net.Addr {
 	if p[mh.RaceId] != nil && p[mh.RaceId][mh.PlayerId] != nil {
-		return p[mh.RaceId][mh.PlayerId].CONN
+		return *p[mh.RaceId][mh.PlayerId].ADDR
 	}
 	return nil
 }
@@ -78,7 +67,6 @@ func (p *PlayerMap) updateSessions() {
 			log.Debug(fmt.Sprintf("[--] player=%v ttl=%v", playerId, pConn.TTL))
 
 			if pConn.TTL <= 0 {
-				pConn.finalizeConnection(playerId)
 				delete(race, playerId)
 				log.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerId, raceId))
 
@@ -91,12 +79,9 @@ func (p *PlayerMap) updateSessions() {
 	}
 }
 
-func (p *PlayerMap) update(mh MessageHeader, addr string) {
-	defer mux.Unlock()
-
-	raddr, _ := net.ResolveUDPAddr("udp", addr)
-
+func (p *PlayerMap) update(mh MessageHeader, addr *net.Addr) {
 	mux.Lock()
+	defer mux.Unlock()
 
 	// lazy-init race
 	if (*p)[mh.RaceId] == nil {
@@ -112,9 +97,8 @@ func (p *PlayerMap) update(mh MessageHeader, addr string) {
 			log.Info(fmt.Sprintf("Player=%v attempted to join race=%v with two players", mh.PlayerId, mh.RaceId))
 			return
 		}
-		conn, _ := net.DialUDP("udp4", nil, raddr)
-		race[mh.PlayerId] = &PlayerConn{conn, sessionTTL}
-		log.Info(fmt.Sprintf("Connection created player=%v, dst=%v", mh.PlayerId, raddr))
+		race[mh.PlayerId] = &PlayerConn{addr, sessionTTL}
+		log.Info(fmt.Sprintf("Connection created player=%v, dst=%v", mh.PlayerId, *addr))
 	}
 
 	// update TTL
