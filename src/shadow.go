@@ -64,8 +64,6 @@ func (p *PlayerMap) updateSessions() {
 			}
 
 			pConn.TTL--
-			log.Debug(fmt.Sprintf("[--] player=%v ttl=%v", playerId, pConn.TTL))
-
 			if pConn.TTL <= 0 {
 				delete(race, playerId)
 				log.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerId, raceId))
@@ -103,5 +101,4 @@ func (p *PlayerMap) update(mh MessageHeader, addr *net.Addr) {
 
 	// update TTL
 	race[mh.PlayerId].TTL = sessionTTL
-	log.Debug(fmt.Sprintf("TTL updated race=%v, player=%v", mh.RaceId, mh.PlayerId))
 }
