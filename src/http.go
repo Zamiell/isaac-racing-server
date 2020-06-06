@@ -189,7 +189,7 @@ func httpInit() {
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
 	httpRouter.GET("/halloffame", httpHallOfFame)
-	httpRouter.Static("/public", "../public")
+	httpRouter.Static("/public", path.Join(projectPath, "public"))
 
 	// Figure out the port that we are using for the HTTP server
 	var port int
@@ -250,13 +250,14 @@ func httpInit() {
 */
 
 func httpServeTemplate(w http.ResponseWriter, templateName string, data interface{}) {
-	lp := path.Join("views", "layout.tmpl")
-	fp := path.Join("views", templateName+".tmpl")
+	lp := path.Join(projectPath, "src", "views", "layout.tmpl")
+	fp := path.Join(projectPath, "src", "views", templateName+".tmpl")
 
 	// Return a 404 if the template doesn't exist
 	info, err := os.Stat(fp)
 	if err != nil {
 		if os.IsNotExist(err) {
+			log.Debug("NOT FOUND")
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}

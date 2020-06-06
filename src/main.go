@@ -3,6 +3,7 @@ package main // In Go, executable commands must always use package main
 import (
 	"os"
 	"path"
+	"path/filepath"
 
 	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
@@ -12,7 +13,7 @@ import (
 
 var (
 	dev          bool
-	projectPath  = path.Join(os.Getenv("GOPATH"), "src", "github.com", "Zamiell", "isaac-racing-server")
+	projectPath  string
 	db           *models.Models
 	races        = make(map[int]*Race)
 	shutdownMode = 0
@@ -26,6 +27,14 @@ func main() {
 	log.Info("+-------------------------------+")
 	log.Info("| Starting isaac-racing-server. |")
 	log.Info("+-------------------------------+")
+
+	// Get the project path
+	// https://stackoverflow.com/questions/18537257/
+	if v, err := os.Executable(); err != nil {
+		log.Fatal("Failed to get the path of the currently running executable:", err)
+	} else {
+		projectPath = filepath.Dir(v)
+	}
 
 	// Load the ".env" file which contains environment variables with secret values
 	if err := godotenv.Load(path.Join(projectPath, ".env")); err != nil {
