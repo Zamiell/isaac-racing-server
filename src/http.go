@@ -73,7 +73,8 @@ type TemplateData struct {
 	Season4r7  []models.SpeedRun
 	Season5r7  []models.SpeedRun
 	Season6r7  []models.SpeedRun
-	// Season7r7 []models.SpeedRun
+	Season7r7  []models.SpeedRun
+	// Season8r7 []models.SpeedRun
 
 	// Tournament Stuff
 	CurrentTourn    bool
