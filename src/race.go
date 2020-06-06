@@ -177,9 +177,16 @@ func (race *Race) SetAllPlaceMid() {
 				// Sheol is StageType 0 and the Dark Room is StageType 0
 				// Those are considered ahead of Cathedral and The Chest
 				racer.PlaceMid++
-			} else if racer2.FloorNum == racer.FloorNum &&
+			} else if race.Ruleset.Goal == "Everything" &&
+				racer2.FloorNum == racer.FloorNum &&
+				racer2.FloorNum >= 10 &&
 				racer2.StageType == racer.StageType &&
 				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
+
+				racer.PlaceMid++
+                        } else if racer2.FloorNum == racer.FloorNum &&
+				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor &&
+				(race.Ruleset.Goal != "Everything" || racer2.FloorNum < 10) {
 
 				racer.PlaceMid++
 			}
