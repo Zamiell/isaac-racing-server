@@ -5,7 +5,7 @@ const tableIDs = [
     'season1r9',
     'season1r14',
 ]
-for (i = 2; i <= 6; i++) {
+for (i = 2; i <= 7; i++) {
     tableIDs.push(`season${i}r7`);
 }
 

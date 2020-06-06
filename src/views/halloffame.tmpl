@@ -17,7 +17,8 @@
                     <option value="season4r7">R+7 Season 4</option>
                     <option value="season5r7">R+7 Season 5</option>
                     <option value="season6r7">R+7 Season 6</option>
-                    <!--<option value="season6r7">R+7 Season 7</option>-->
+                    <option value="season7r7">R+7 Season 7</option>
+                    <!--<option value="season8r7">R+7 Season 8</option>-->
                 </select>
             </div>
         </div>
@@ -229,5 +230,34 @@
         </table>
         </div>
     </section>
+
+    <!-- Start of R+7 Season 7 -->
+    <section id="hof-season7r7" class="box">
+        <div class="table-wrapper">
+        <table id="season7r7-table" class="alt lb tablesorter">
+            <thead>
+                <tr>
+                    <th class="th-rank">Rank</th>
+                    <th class="th-racer">Player</th>
+                    <th class="th-time">Time</th>
+                    <th class="th-date" data-sorter="false">Date</th>
+                    <th class="th-proof" data-sorter="false">Video</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ range .Season7r7 }}
+                <tr>
+                    <td class="td-rank"> {{ .Rank }} </td>
+                    <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                    <td class="td-time">{{ .Time }}</td>
+                    <td class="td-date">{{ .Date }}</td>
+                    <td class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
 </section>
 {{ end }}
