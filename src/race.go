@@ -181,11 +181,11 @@ func (race *Race) SetAllPlaceMid() {
 				racer2.FloorNum == racer.FloorNum &&
 				racer2.FloorNum >= 10 &&
 				racer2.StageType == racer.StageType &&
-				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
+				racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor {
 
 				racer.PlaceMid++
-                        } else if racer2.FloorNum == racer.FloorNum &&
-				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor &&
+			} else if racer2.FloorNum == racer.FloorNum &&
+				racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor &&
 				(race.Ruleset.Goal != "Everything" || racer2.FloorNum < 10) {
 
 				racer.PlaceMid++
