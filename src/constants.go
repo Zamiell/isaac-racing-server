@@ -107,7 +107,8 @@ var (
 		"Fire Mind + 13 luck",       // 30
 		"Tech Zero + more",          // 31
 		"Kamikaze! + Host Hat",      // 32
-		"Mega Blast + more",         // 33
+		"Pointy Rib + Eve's Mascara" // 33
+		"Mega Blast + more",         // 34
 	}
 
 	allItems       = make(map[string]*JSONItem)
