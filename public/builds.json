@@ -42,22 +42,27 @@
   [{ "id": 329, "name": "The Ludovico Technique" },
    { "id": 104, "name": "The Parasite" }],
 
-  [{ "id": 257, "name": "Fire Mind" },
-   { "id": 317, "name": "Mysterious Liquid" },
-   { "id": 600, "name": "13 Luck" }],
-
-   [{ "id": 524, "name": "Technology Zero" },
-    { "id": 529, "name": "Pop!" },
-    { "id": 48,  "name": "Cupid's Arrow" }],
-
   [{ "id": 40,  "name": "Kamikaze!" },
    { "id": 375, "name": "Host Hat" }],
 
   [{ "id": 544, "name": "Pointy Rib" },
    { "id": 310, "name": "Eve's Mascara" }],
  
+  [{ "id": 257, "name": "Fire Mind" },
+   { "id": 317, "name": "Mysterious Liquid" },
+   { "id": 600, "name": "13 Luck" }],
+ 
+  [{ "id": 524, "name": "Technology Zero" },
+   { "id": 529, "name": "Pop!" },
+   { "id": 48,  "name": "Cupid's Arrow" }],
+
   [{ "id": 441, "name": "Mega Blast" },
    { "id": 63,  "name": "The Battery" },
    { "id": 156, "name": "Habit" },
-   { "id": 205, "name": "Sharp Plug" }]
+   { "id": 205, "name": "Sharp Plug" }],
+
+  [{ "id": 57, "name": "Distant Admiration" },
+   { "id": 364,  "name": "Friend Zone" },
+   { "id": 128, "name": "Forever Alone" },
+   { "id": 247, "name": "BFFS!" }]
 ]

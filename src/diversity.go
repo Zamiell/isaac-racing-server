@@ -82,7 +82,7 @@ var validDiversityPassiveItems = [...]int{
 	// Booster Pack #1 items
 	511, 513, 514, 517, 518, 519,
 
-	// Boster Pack #2 items
+	// Booster Pack #2 items
 	520, 524, 525,
 
 	// Booster Pack #3 items
@@ -129,7 +129,7 @@ func diversityGetSeed(ruleset Ruleset) string {
 
 	// Get 1 random unique active item
 	var items []int
-	item := validDiversityActiveItems[rand.Intn(len(validDiversityActiveItems))]
+	item := validDiversityActiveItems[rand.Intn(len(validDiversityActiveItems))] // nolint: gosec
 	items = append(items, item)
 
 	// Get 3 random unique passive items
@@ -137,7 +137,8 @@ func diversityGetSeed(ruleset Ruleset) string {
 		for {
 			// Initialize the PRNG and get a random element from the slice
 			// (if we don't do this, it will use a seed of 1)
-			item := validDiversityPassiveItems[rand.Intn(len(validDiversityPassiveItems))]
+			randomIndex := rand.Intn(len(validDiversityPassiveItems)) // nolint: gosec
+			item := validDiversityPassiveItems[randomIndex]
 
 			// Do character specific item bans
 			if ruleset.Character == "Cain" {
@@ -183,7 +184,8 @@ func diversityGetSeed(ruleset Ruleset) string {
 	}
 
 	// Get 1 random trinket
-	trinket := validDiversityTrinkets[rand.Intn(len(validDiversityTrinkets))]
+	randomIndex := rand.Intn(len(validDiversityTrinkets)) // nolint: gosec
+	trinket := validDiversityTrinkets[randomIndex]
 	items = append(items, trinket)
 
 	// The "seed" value is used to communicate the 5 random diversity items to the client

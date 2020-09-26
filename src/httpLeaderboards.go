@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -43,35 +42,35 @@ func httpLeaderboards(c *gin.Context) {
 
 	leaderboardSeeded, err := db.Users.GetLeaderboardSeeded(seededRacesNeeded)
 	if err != nil {
-		log.Error("Failed to get the seeded leaderboard:", err)
+		logger.Error("Failed to get the seeded leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	leaderboardSeededSolo, err := db.Users.GetLeaderboardSeededSolo(seededSoloRacesNeeded)
 	if err != nil {
-		log.Error("Failed to get the seeded solo leaderboard:", err)
+		logger.Error("Failed to get the seeded solo leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseeded(unseededRacesNeeded)
 	if err != nil {
-		log.Error("Failed to get the unseeded leaderboard:", err)
+		logger.Error("Failed to get the unseeded leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	leaderboardUnseededSolo, err := db.Users.GetLeaderboardUnseededSolo(unseededSoloRacesNeeded)
 	if err != nil {
-		log.Error("Failed to get the unseeded solo leaderboard:", err)
+		logger.Error("Failed to get the unseeded solo leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	leaderboardDiversity, err := db.Users.GetLeaderboardDiversity(diversityRacesNeeded)
 	if err != nil {
-		log.Error("Failed to get the diversity leaderboard:", err)
+		logger.Error("Failed to get the diversity leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}

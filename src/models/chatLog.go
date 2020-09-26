@@ -35,6 +35,8 @@ type RoomHistory struct {
 
 // Get the past messages sent in this room
 func (*ChatLog) Get(room string, count int) ([]RoomHistory, error) {
+	roomHistoryList := make([]RoomHistory, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -52,13 +54,12 @@ func (*ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 		LIMIT
 			?
 	`, room, count); err != nil {
-		return nil, err
+		return roomHistoryList, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	roomHistoryList := make([]RoomHistory, 0)
 	for rows.Next() {
 		var message RoomHistory
 		if err := rows.Scan(
@@ -66,9 +67,13 @@ func (*ChatLog) Get(room string, count int) ([]RoomHistory, error) {
 			&message.Message,
 			&message.Datetime,
 		); err != nil {
-			return nil, err
+			return roomHistoryList, err
 		}
 		roomHistoryList = append(roomHistoryList, message)
+	}
+
+	if err := rows.Err(); err != nil {
+		return roomHistoryList, err
 	}
 
 	return roomHistoryList, nil

@@ -7,8 +7,6 @@ import (
 	"path"
 	"sort"
 	"strconv"
-
-	"github.com/Zamiell/isaac-racing-server/src/log"
 )
 
 // For holding the values of the "items.json" file
@@ -73,44 +71,11 @@ func (a NameSorter) Len() int           { return len(a) }
 func (a NameSorter) Swap(i, j int)      { a[i], a[j] = a[j], a[i] }
 func (a NameSorter) Less(i, j int) bool { return a[i].Name() > a[j].Name() }
 
-var (
-	seededBuilds = []string{
-		"20/20",                     // 1
-		"Chocolate Milk",            // 2
-		"Cricket's Body",            // 3
-		"Cricket's Head",            // 4
-		"Dead Eye",                  // 5
-		"Death's Touch",             // 6
-		"Dr. Fetus",                 // 7
-		"Epic Fetus",                // 8
-		"Ipecac",                    // 9
-		"Jacob's Ladder",            // 10
-		"Judas' Shadow",             // 11
-		"Lil' Brimstone",            // 12
-		"Magic Mushroom",            // 13
-		"Mom's Knife",               // 14
-		"Monstro's Lung",            // 15
-		"Polyphemus",                // 16
-		"Proptosis",                 // 17
-		"Sacrificial Dagger",        // 18
-		"Tech.5",                    // 19
-		"Tech X",                    // 20
-		"Brimstone",                 // 21
-		"Incubus",                   // 22
-		"Maw of the Void",           // 23
-		"Crown of Light",            // 24
-		"Godhead",                   // 25
-		"Sacred Heart",              // 26
-		"Mutant Spider + Inner Eye", // 27
-		"Technology + Coal",         // 28
-		"Ludovico + Parasite",       // 29
-		"Fire Mind + 13 luck",       // 30
-		"Tech Zero + more",          // 31
-		"Kamikaze! + Host Hat",      // 32
-		"Pointy Rib + Eve's Mascara" // 33
-		"Mega Blast + more",         // 34
-	}
+const (
+	projectName = "isaac-racing-server"
+)
 
+var (
 	allItems       = make(map[string]*JSONItem)
 	allItemNames   = make(map[int]string)
 	allBuilds      = make([][]IsaacItem, 0)
@@ -121,19 +86,19 @@ func loadAllItems() {
 	jsonFilePath := path.Join(projectPath, "public", "items.json")
 	jsonFile, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
-		log.Fatal("Failed to open \""+jsonFilePath+"\":", err)
+		logger.Fatal("Failed to open \""+jsonFilePath+"\":", err)
 	}
 
 	// Create all the items
 	if err := json.Unmarshal(jsonFile, &allItems); err != nil {
-		log.Fatal("Failed to unmarshal the items:", err)
+		logger.Fatal("Failed to unmarshal the items:", err)
 		return
 	}
 
 	// Create a 2nd map of just item names
 	for k, v := range allItems {
-		itemid, _ := strconv.Atoi(k)
-		allItemNames[itemid] = v.Name
+		itemID, _ := strconv.Atoi(k)
+		allItemNames[itemID] = v.Name
 	}
 }
 
@@ -142,14 +107,14 @@ func loadAllBuilds() {
 	jsonFilePath := path.Join(projectPath, "public", "builds.json")
 	var jsonFile []byte
 	if v, err := ioutil.ReadFile(jsonFilePath); err != nil {
-		log.Fatal("Failed to open \""+jsonFilePath+"\":", err)
+		logger.Fatal("Failed to open \""+jsonFilePath+"\":", err)
 	} else {
 		jsonFile = v
 	}
 
 	// Create all the items
 	if err := json.Unmarshal(jsonFile, &allBuilds); err != nil {
-		log.Fatal("Failed to unmarshal the builds:", err)
+		logger.Fatal("Failed to unmarshal the builds:", err)
 	}
 }
 
@@ -160,7 +125,7 @@ func loadAllTournaments() {
 	jsonFolderPath := path.Join(projectPath, "BoIR-trueskill/tournaments")
 	fileList, err := ioutil.ReadDir(jsonFolderPath)
 	if err != nil {
-		log.Error("Could not read the files in ", jsonFolderPath)
+		logger.Error("Could not read the files in ", jsonFolderPath)
 	}
 	sort.Sort(NameSorter(fileList))
 	for _, file := range fileList {
@@ -169,15 +134,28 @@ func loadAllTournaments() {
 		var jsonFile []byte
 		if v, err := ioutil.ReadFile(filePath); err != nil {
 			// Fatal error if we cannot open a file
-			log.Fatal("Failed to open \""+filePath+"\":", err)
+			logger.Fatal("Failed to open \""+filePath+"\":", err)
 		} else {
 			jsonFile = v
 		}
 
 		// Create all the tournament vars
 		if err := json.Unmarshal(jsonFile, &tournament); err != nil {
-			log.Fatal("Failed to unmarshal the tournament:", err)
+			logger.Fatal("Failed to unmarshal the tournament:", err)
 		}
 		allTournaments = append(allTournaments, tournament)
 	}
+}
+
+func getBuildName(startingBuildIndex int) string {
+	startingBuild := allBuilds[startingBuildIndex]
+	if len(startingBuild) == 1 {
+		return startingBuild[0].Name
+	}
+
+	if len(startingBuild) == 2 {
+		return startingBuild[0].Name + " + " + startingBuild[1].Name
+	}
+
+	return startingBuild[0].Name + " + more"
 }

@@ -28,21 +28,21 @@ func websocketAdminBanIP(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
-		log.Warning("User \"" + username + "\" tried to ban an IP, but they are not staff/admin.")
+		logger.Warning("User \"" + username + "\" tried to ban an IP, but they are not staff/admin.")
 		websocketError(s, d.Command, "Only staff members or administrators can do that.")
 		return
 	}
 
 	// Validate that the requested IP is sane
 	if ip == "" {
-		log.Warning("User \"" + username + "\" tried to ban a blank IP.")
+		logger.Warning("User \"" + username + "\" tried to ban a blank IP.")
 		websocketError(s, d.Command, "That IP is not valid.")
 		return
 	}
 
 	// Validate that the requested IP is not already banned
 	if IPBanned, err := db.BannedIPs.Check(ip); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if IPBanned {
@@ -52,13 +52,13 @@ func websocketAdminBanIP(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add the IP to the list in the database
 	if err := db.BannedIPs.InsertIP(ip, userID); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
 	// Log the ban
-	log.Info("User \"" + username + "\" banned IP \"" + ip + "\".")
+	logger.Info("User \"" + username + "\" banned IP \"" + ip + "\".")
 }
 
 func websocketAdminUnbanIP(s *melody.Session, d *IncomingWebsocketData) {
@@ -69,21 +69,21 @@ func websocketAdminUnbanIP(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
-		log.Warning("User \"" + username + "\" tried to unban an IP, but they are not staff/admin.")
+		logger.Warning("User \"" + username + "\" tried to unban an IP, but they are not staff/admin.")
 		websocketError(s, d.Command, "Only staff members or administrators can do that.")
 		return
 	}
 
 	// Validate that the requested IP is sane
 	if ip == "" {
-		log.Warning("User \"" + username + "\" tried to unban a blank IP.")
+		logger.Warning("User \"" + username + "\" tried to unban a blank IP.")
 		websocketError(s, d.Command, "That IP is not valid.")
 		return
 	}
 
 	// Validate that the requested IP is not already banned
 	if IPBanned, err := db.BannedIPs.Check(ip); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !IPBanned {
@@ -93,13 +93,13 @@ func websocketAdminUnbanIP(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Remove the IP from the list in the database
 	if err := db.BannedIPs.DeleteIP(ip); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
 	// Log the unban
-	log.Info("User \"" + username + "\" unbanned IP \"" + ip + "\".")
+	logger.Info("User \"" + username + "\" unbanned IP \"" + ip + "\".")
 }
 
 func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
@@ -111,21 +111,21 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
-		log.Warning("User \"" + username + "\" tried to mute \"" + recipient + "\", but they are not staff/admin.")
+		logger.Warning("User \"" + username + "\" tried to mute \"" + recipient + "\", but they are not staff/admin.")
 		websocketError(s, d.Command, "Only staff members and administrators can do that.")
 		return
 	}
 
 	// Validate that the requested person is sane
 	if recipient == "" {
-		log.Warning("User \"" + username + "\" tried to mute a blank person.")
+		logger.Warning("User \"" + username + "\" tried to mute a blank person.")
 		websocketError(s, d.Command, "That person is not valid.")
 		return
 	}
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userExists {
@@ -135,18 +135,18 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if userIsStaff {
-		log.Warning("User \"" + username + "\" tried to mute \"" + recipient + "\", but staff/admins cannot be muted.")
+		logger.Warning("User \"" + username + "\" tried to mute \"" + recipient + "\", but staff/admins cannot be muted.")
 		websocketError(s, d.Command, "You cannot mute a staff member or an administrator.")
 		return
 	}
 
 	// Validate that they are not already muted
 	if userIsMuted, err := db.MutedUsers.Check(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if userIsMuted {
@@ -156,7 +156,7 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add this username to the muted list in the database
 	if err := db.MutedUsers.Insert(recipient, userID); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -184,7 +184,7 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 				// Send everyone an room update
 				users, ok := chatRoomMap.m[room]
 				if !ok {
-					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
+					logger.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
 					continue
 				}
 
@@ -197,7 +197,7 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 							1,
 						})
 					} else {
-						log.Error("Failed to get the connection for user \"" + user.Name + "\" while muting user \"" + recipient + "\".")
+						logger.Error("Failed to get the connection for user \"" + user.Name + "\" while muting user \"" + recipient + "\".")
 						continue
 					}
 				}
@@ -206,7 +206,7 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Log the mute
-	log.Info("User \"" + username + "\" muted user \"" + recipient + "\".")
+	logger.Info("User \"" + username + "\" muted user \"" + recipient + "\".")
 }
 
 func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
@@ -217,21 +217,21 @@ func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is staff/admin
 	if conn.Admin == 0 {
-		log.Warning("User \"" + username + "\" tried to mute someone, but they are not staff/admin.")
+		logger.Warning("User \"" + username + "\" tried to mute someone, but they are not staff/admin.")
 		websocketError(s, d.Command, "Only staff members and administrators can do that.")
 		return
 	}
 
 	// Validate that the requested person is sane
 	if recipient == "" {
-		log.Warning("User \"" + username + "\" tried to unmute a blank person.")
+		logger.Warning("User \"" + username + "\" tried to unmute a blank person.")
 		websocketError(s, d.Command, "That person is not valid.")
 		return
 	}
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userExists {
@@ -241,18 +241,18 @@ func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if userIsStaff {
-		log.Warning("User \"" + username + "\" tried to unmute \"" + recipient + "\", but staff/admins cannot be unmuted.")
+		logger.Warning("User \"" + username + "\" tried to unmute \"" + recipient + "\", but staff/admins cannot be unmuted.")
 		websocketError(s, d.Command, "You cannot unmute a staff member or an administrator.")
 		return
 	}
 
 	// Validate that they are muted
 	if userIsMuted, err := db.MutedUsers.Check(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userIsMuted {
@@ -262,7 +262,7 @@ func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Remove this username from the muted list in the database
 	if err := db.MutedUsers.Delete(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -290,7 +290,7 @@ func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
 				// Send everyone an room update
 				users, ok := chatRoomMap.m[room]
 				if !ok {
-					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
+					logger.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
 					continue
 				}
 
@@ -299,7 +299,7 @@ func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
 					if ok {
 						userConnection.Connection.Emit("roomSetMuted", &RoomSetMutedMessage{room, recipient, 0})
 					} else {
-						log.Error("Failed to get the connection for user \"" + user.Name + "\" while unmuting user \"" + recipient + "\".")
+						logger.Error("Failed to get the connection for user \"" + user.Name + "\" while unmuting user \"" + recipient + "\".")
 						continue
 					}
 				}
@@ -308,7 +308,7 @@ func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Log the unmute
-	log.Info("User \"" + username + "\" unmuted user \"" + recipient + "\".")
+	logger.Info("User \"" + username + "\" unmuted user \"" + recipient + "\".")
 }
 
 func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
@@ -319,21 +319,21 @@ func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is an admin
 	if conn.Admin != 2 {
-		log.Warning("User \"" + username + "\" tried to promote someone, but they are not an administrator.")
+		logger.Warning("User \"" + username + "\" tried to promote someone, but they are not an administrator.")
 		websocketError(s, d.Command, "Only administrators can do that.")
 		return
 	}
 
 	// Validate that the requested person is sane
 	if recipient == "" {
-		log.Warning("User \"" + username + "\" tried to promote a blank person.")
+		logger.Warning("User \"" + username + "\" tried to promote a blank person.")
 		websocketError(s, d.Command, "That person is not valid.")
 		return
 	}
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userExists {
@@ -343,18 +343,18 @@ func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if userIsStaff {
-		log.Warning("User \"" + username + "\" tried to promote \"" + recipient + "\", but they are already staff/admin.")
+		logger.Warning("User \"" + username + "\" tried to promote \"" + recipient + "\", but they are already staff/admin.")
 		websocketError(s, d.Command, "That user is already a staff member or an administrator.")
 		return
 	}
 
 	// Set them to be a staff member
 	if err := db.Users.SetAdmin(recipient, 1); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -382,7 +382,7 @@ func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
 				// Send everyone an room update
 				users, ok := chatRoomMap.m[room]
 				if !ok {
-					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
+					logger.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
 					continue
 				}
 
@@ -391,7 +391,7 @@ func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
 					if ok {
 						userConnection.Connection.Emit("roomSetAdmin", &RoomSetAdminMessage{room, recipient, 1})
 					} else {
-						log.Error("Failed to get the connection for user \"" + user.Name + "\" while promoting user \"" + recipient + "\".")
+						logger.Error("Failed to get the connection for user \"" + user.Name + "\" while promoting user \"" + recipient + "\".")
 						continue
 					}
 				}
@@ -400,7 +400,7 @@ func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Log the promotion
-	log.Info("User \"" + username + "\" promoted \"" + recipient + "\" to be a staff member.")
+	logger.Info("User \"" + username + "\" promoted \"" + recipient + "\" to be a staff member.")
 }
 
 func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
@@ -411,21 +411,21 @@ func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is an admin
 	if conn.Admin != 2 {
-		log.Warning("User \"" + username + "\" tried to demote someone, but they are not an administrator.")
+		logger.Warning("User \"" + username + "\" tried to demote someone, but they are not an administrator.")
 		websocketError(s, d.Command, "Only administrators can do that.")
 		return
 	}
 
 	// Validate that the requested person is sane
 	if recipient == "" {
-		log.Warning("User \"" + username + "\" tried to demote a blank person.")
+		logger.Warning("User \"" + username + "\" tried to demote a blank person.")
 		websocketError(s, d.Command, "That person is not valid.")
 		return
 	}
 
 	// Validate that the requested person exists in the database
 	if userExists, err := db.Users.Exists(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userExists {
@@ -435,18 +435,18 @@ func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is not a staff member or an administrator
 	if userIsStaff, err := db.Users.CheckStaff(recipient); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else if !userIsStaff {
-		log.Warning("User \"" + username + "\" tried to demote \"" + recipient + "\", but they not staff/admin.")
+		logger.Warning("User \"" + username + "\" tried to demote \"" + recipient + "\", but they not staff/admin.")
 		websocketError(s, d.Command, "That user is not a staff member or an administrator.")
 		return
 	}
 
 	// Set their admin status to 0
 	if err := db.Users.SetAdmin(recipient, 0); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -474,7 +474,7 @@ func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
 				// Send everyone an room update
 				users, ok := chatRoomMap.m[room]
 				if !ok {
-					log.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
+					logger.Error("Failed to retrieve the user list from the chat room map for room \"" + room + "\".")
 					continue
 				}
 
@@ -483,7 +483,7 @@ func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
 					if ok {
 						userConnection.Connection.Emit("roomSetAdmin", &RoomSetAdminMessage{room, recipient, 0})
 					} else {
-						log.Error("Failed to get the connection for user \"" + user.Name + "\" while demoting user \"" + recipient + "\".")
+						logger.Error("Failed to get the connection for user \"" + user.Name + "\" while demoting user \"" + recipient + "\".")
 						continue
 					}
 				}
@@ -492,6 +492,6 @@ func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Log the demotion
-	log.Info("User \"" + username + "\" demoted \"" + recipient + "\" to a normal user.")
+	logger.Info("User \"" + username + "\" demoted \"" + recipient + "\" to a normal user.")
 }
 */

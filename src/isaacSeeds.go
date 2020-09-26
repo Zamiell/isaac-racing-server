@@ -8,12 +8,12 @@ import (
 func isaacGetRandomSeed() string {
 	// Get a random uint32
 	rand.Seed(time.Now().UnixNano())
-	seed := rand.Uint32()
+	seed := rand.Uint32() // nolint: gosec
 	return isaacSeedToString(seed)
 }
 
-// This algorithm has been reverse engeineered from the game's binary by
-// Killburn (and blcd, independently)
+// This algorithm has been reverse engineered from the game's binary by Killburn
+// (and blcd, independently)
 func isaacSeedToString(num uint32) string {
 	chars := "ABCDEFGHJKLMNPQRSTWXYZ01234V6789"
 
@@ -21,14 +21,14 @@ func isaacSeedToString(num uint32) string {
 	// https://www.reddit.com/r/bindingofisaac/comments/2wvp6h/is_it_known_what_makes_a_seed_valid/csdppvx/
 	var x byte
 	x = 0
-	tnum := num
-	for tnum != 0 {
-		x += byte(tnum)
-		x += byte(x + (x >> 7))
-		tnum >>= 5
+	tNum := num
+	for tNum != 0 {
+		x += byte(tNum)
+		x += x + (x >> 7)
+		tNum >>= 5
 	}
 	num ^= 0x0FEF7FFD
-	tnum = num<<8 | uint32(x)
+	tNum = num<<8 | uint32(x)
 
 	// Build the string
 	s := ""
@@ -37,9 +37,9 @@ func isaacSeedToString(num uint32) string {
 		if i >= 0 && i <= 5 {
 			charIndex = int(num >> uint(27-(i*5)) & 0x1F)
 		} else if i == 6 {
-			charIndex = int(tnum >> 5 & 0x1F)
+			charIndex = int(tNum >> 5 & 0x1F)
 		} else if i == 7 {
-			charIndex = int(tnum & 0x1F)
+			charIndex = int(tNum & 0x1F)
 		}
 		s += string(chars[charIndex])
 	}

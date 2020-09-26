@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +23,7 @@ func httpProfiles(c *gin.Context) {
 	// Get profile data from the database
 	userProfiles, totalProfileCount, err := db.Users.GetUserProfiles(currentPage, usersPerPage)
 	if err != nil {
-		log.Error("Failed to get the user profile data: ", err)
+		logger.Error("Failed to get the user profile data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -41,7 +40,7 @@ func httpProfiles(c *gin.Context) {
 		Title:             "Profiles",
 		ResultsProfiles:   userProfiles,
 		TotalProfileCount: totalProfileCount,
-		TotalPages:        int(totalPages),
+		TotalPages:        totalPages,
 		PreviousPage:      currentPage - 1,
 		NextPage:          currentPage + 1,
 		UsersPerPage:      usersPerPage,

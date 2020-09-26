@@ -83,7 +83,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		websocketError(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 		return false
 	} else if ruleset.Format == "seeded" &&
-		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > len(seededBuilds)) { // 0 is random
+		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > len(allBuilds)) { // 0 is random
 
 		websocketError(s, d.Command, "That is not a valid starting build.")
 		return false
@@ -96,7 +96,8 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 			return false
 		} else {
 			// Set the ruleset to ranked since it is a multiplayer game
-			// (in the past, there was multiplayer unranked and ranked, so this is a monkey fix to avoid changing the client)
+			// (in the past, there was multiplayer unranked and ranked,
+			// so this is a monkey fix to avoid changing the client)
 			return true
 		}
 	}

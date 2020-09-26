@@ -2,9 +2,10 @@ package models
 
 import (
 	"database/sql"
-	"errors"
+	"fmt"
 	"os"
 
+	//
 	_ "github.com/go-sql-driver/mysql"
 )
 
@@ -46,24 +47,33 @@ func Init() (*Models, error) {
 	// (it was loaded from the .env file in main.go)
 	dbHost := os.Getenv("DB_HOST")
 	if len(dbHost) == 0 {
-		return nil, errors.New("The \"DB_HOST\" environment variable is blank.")
+		dbHost = "localhost"
+	}
+	dbPort := os.Getenv("DB_PORT")
+	if len(dbPort) == 0 {
+		dbPort = "3306" // This is the default port for MySQL
 	}
 	dbUser := os.Getenv("DB_USER")
 	if len(dbUser) == 0 {
-		return nil, errors.New("The \"DB_USER\" environment variable is blank.")
+		defaultUser := "isaacuser"
+		fmt.Println("DB_USER not specified; using default value of \"" + defaultUser + "\".")
+		dbUser = defaultUser
 	}
 	dbPass := os.Getenv("DB_PASS")
 	if len(dbPass) == 0 {
-		return nil, errors.New("The \"DB_PASS\" environment variable is blank.")
+		defaultPass := "1234567890"
+		fmt.Println("DB_PASS not specified; using default value of \"" + defaultPass + "\".")
+		dbPass = defaultPass
 	}
 	dbName := os.Getenv("DB_NAME")
 	if len(dbPass) == 0 {
-		return nil, errors.New("The \"DB_NAME\" environment variable is blank.")
+		defaultName := "isaac"
+		fmt.Println("DB_NAME not specified; using default value of \"" + defaultName + "\".")
+		dbName = defaultName
 	}
 
 	// Initialize the database
-	// (3306 is the default port for MariaDB)
-	dsn := dbUser + ":" + dbPass + "@(" + dbHost + ":3306)/" + dbName + "?parseTime=true"
+	dsn := dbUser + ":" + dbPass + "@(" + dbHost + ":" + dbPort + ")/" + dbName + "?parseTime=true"
 	if v, err := sql.Open("mysql", dsn); err != nil {
 		return nil, err
 	} else {

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -18,7 +17,7 @@ func websocketRoomLeave(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested room is sane
 	if d.Room == "" {
-		log.Warning("User \"" + username + "\" tried to leave a room without providing a room name.")
+		logger.Warning("User \"" + username + "\" tried to leave a room without providing a room name.")
 		websocketError(s, d.Command, "That is not a valid room name.")
 		return
 	}
@@ -26,7 +25,7 @@ func websocketRoomLeave(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the room exists
 	users, ok := chatRooms[d.Room]
 	if !ok {
-		log.Warning("User \"" + username + "\" tried to leave an invalid room.")
+		logger.Warning("User \"" + username + "\" tried to leave an invalid room.")
 		websocketError(s, d.Command, "That is not a valid room name.")
 		return
 	}
@@ -40,7 +39,7 @@ func websocketRoomLeave(s *melody.Session, d *IncomingWebsocketData) {
 		}
 	}
 	if !userInRoom {
-		log.Warning("User \"" + username + "\" tried to leave a room they were not in.")
+		logger.Warning("User \"" + username + "\" tried to leave a room they were not in.")
 		websocketError(s, d.Command, "You are not in that room.")
 		return
 	}
@@ -61,7 +60,7 @@ func websocketRoomLeaveSub(s *melody.Session, d *IncomingWebsocketData) {
 	// Get the index of the user in the chat room mapping for this room
 	users, ok := chatRooms[room]
 	if !ok {
-		log.Error("Failed to get the list of users for room \"" + room + "\".")
+		logger.Error("Failed to get the list of users for room \"" + room + "\".")
 		return
 	}
 	index := -1
@@ -72,7 +71,7 @@ func websocketRoomLeaveSub(s *melody.Session, d *IncomingWebsocketData) {
 		}
 	}
 	if index == -1 {
-		log.Error("Failed to get the index for the current user for room \"" + room + "\".")
+		logger.Error("Failed to get the index for the current user for room \"" + room + "\".")
 		return
 	}
 
@@ -98,11 +97,11 @@ func websocketRoomLeaveSub(s *melody.Session, d *IncomingWebsocketData) {
 				username,
 			})
 		} else {
-			log.Error("Failed to get the connection for user \"" + user.Name + "\" while disconnecting user \"" + username + "\" from room \"" + room + "\".")
+			logger.Error("Failed to get the connection for user \"" + user.Name + "\" while disconnecting user \"" + username + "\" from room \"" + room + "\".")
 			continue
 		}
 	}
 
 	// Log the leave
-	log.Info("User \"" + username + "\" left room: #" + room)
+	logger.Info("User \"" + username + "\" left room: #" + room)
 }

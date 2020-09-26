@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +25,7 @@ func httpRaces(c *gin.Context) {
 
 	raceData, totalRaces, err := db.Races.GetRacesHistory(currentPage, racesPerPage, raceOffset)
 	if err != nil {
-		log.Error("Failed to get the race data: ", err)
+		logger.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -44,7 +43,8 @@ func httpRaces(c *gin.Context) {
 		for p := range raceData[i].RaceParticipants {
 			raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)]
 			if raceData[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				raceData[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceData[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+				startingBuildIndex := int(raceData[i].RaceParticipants[p].RacerStartingBuild.Int64)
+				raceData[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
 			}
 		}
 	}
@@ -54,7 +54,7 @@ func httpRaces(c *gin.Context) {
 		Title:          "Races",
 		ResultsRaces:   raceData,
 		TotalRaceCount: totalRaces,
-		TotalPages:     int(totalPages),
+		TotalPages:     totalPages,
 		PreviousPage:   currentPage - 1,
 		NextPage:       currentPage + 1,
 	}
@@ -66,35 +66,38 @@ func httpRace(c *gin.Context) {
 	// Local variables
 	w := c.Writer
 
-	raceId, err := strconv.ParseInt(c.Params.ByName("raceid"), 10, 32)
+	raceID, err := strconv.ParseInt(c.Params.ByName("raceid"), 10, 32)
 	if err != nil {
-		log.Error("Failed to parse the url for raceId: ", err)
+		logger.Error("Failed to parse the url for raceId: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	raceData, err := db.Races.GetRaceHistory(int(raceId))
+	raceData, err := db.Races.GetRaceHistory(int(raceID))
 	if err != nil {
-		log.Error("Failed to get the race data: ", err)
+		logger.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	/*for i := range raceData {
-		raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
-		for p := range raceData[i].RaceParticipants {
-			raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)]
-			if raceData[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				raceData[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceData[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+	/*
+		for i := range raceData {
+			raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
+			for p := range raceData[i].RaceParticipants {
+				raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)]
+				if raceData[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
+					raceData[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceData[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+				}
 			}
 		}
-	}*/
+	*/
 	raceData.RaceFormat.String = strings.Title(raceData.RaceFormat.String)
 	raceFormat := raceData.RaceFormat.String
 	for p := range raceData.RaceParticipants {
 		raceData.RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData.RaceParticipants[p].RacerStartingItem.Int64)]
 		if raceData.RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-			raceData.RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceData.RaceParticipants[p].RacerStartingBuild.Int64-1]
+			startingBuildIndex := int(raceData.RaceParticipants[p].RacerStartingBuild.Int64)
+			raceData.RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
 		}
 	}
 

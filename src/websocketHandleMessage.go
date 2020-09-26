@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1" // A WebSocket framework
 )
 
@@ -28,7 +27,7 @@ func websocketHandleMessage(s *melody.Session, msg []byte) {
 	// only need the username)
 	var username string
 	if v, exists := s.Get("username"); !exists {
-		log.Error("Failed to get \"username\" from the session (in the \"" + functionName + "\" function).")
+		logger.Error("Failed to get \"username\" from the session (in the \"" + functionName + "\" function).")
 		websocketClose(s)
 		return
 	} else {
@@ -42,7 +41,7 @@ func websocketHandleMessage(s *melody.Session, msg []byte) {
 	// is a space in the JSON, the data part of the splice doesn't get
 	// messed up
 	if len(result) != 2 {
-		log.Warning("User \"" + username + "\" sent an invalid WebSocket message.")
+		logger.Warning("User \"" + username + "\" sent an invalid WebSocket message.")
 		return
 	}
 	command := result[0]
@@ -50,14 +49,14 @@ func websocketHandleMessage(s *melody.Session, msg []byte) {
 
 	// Check to see if there is a command handler for this command
 	if _, ok := commandHandlerMap[command]; !ok {
-		log.Warning("User \"" + username + "\" sent an invalid command of \"" + command + "\".")
+		logger.Warning("User \"" + username + "\" sent an invalid command of \"" + command + "\".")
 		return
 	}
 
 	// Unmarshal the JSON (this code is taken from Golem)
 	var d *IncomingWebsocketData
 	if err := json.Unmarshal(jsonData, &d); err != nil {
-		log.Error("User \"" + username + "\" sent an command of \"" + command + "\" with invalid data: " + string(jsonData))
+		logger.Error("User \"" + username + "\" sent an command of \"" + command + "\" with invalid data: " + string(jsonData))
 		return
 	}
 
@@ -65,12 +64,12 @@ func websocketHandleMessage(s *melody.Session, msg []byte) {
 	// command handlers can conveniently use this information later on
 	d.Command = command
 	if !websocketGetSessionValues(s, d) {
-		log.Error("Aborting before entering the command handler for \"" + d.Command + "\".")
+		logger.Error("Aborting before entering the command handler for \"" + d.Command + "\".")
 	}
 
 	// Call the command handler for this command
 	if dev {
-		log.Info("User \"" + username + "\" sent a command of \"" + command + "\".")
+		logger.Info("User \"" + username + "\" sent a command of \"" + command + "\".")
 	}
 	commandMutex.Lock()
 	commandHandlerMap[command](s, d)

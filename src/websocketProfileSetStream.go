@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -36,13 +35,13 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 	// Prepare some regular expressions for later
 	twitchStreamRegExp, err := regexp.Compile(`https://www.twitch.tv/(.+)`)
 	if err != nil {
-		log.Error("Failed to compile the Twitch stream regular expression.")
+		logger.Error("Failed to compile the Twitch stream regular expression.")
 		websocketError(s, d.Command, "")
 		return
 	}
 	twitchUserValidRegExp, err := regexp.Compile(`^[a-zA-Z0-9_]{4,25}$`)
 	if err != nil {
-		log.Error("Failed to compile the Twitch username validity regular expression.")
+		logger.Error("Failed to compile the Twitch username validity regular expression.")
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -66,7 +65,7 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 		// Check to see if anyone else has claimed this stream URL
 		streamURLs, err := db.Users.GetAllStreamURLs()
 		if err != nil {
-			log.Error("Database error while getting all of the stream URLs:", err)
+			logger.Error("Database error while getting all of the stream URLs:", err)
 			websocketError(s, d.Command, "")
 			return
 		}
@@ -110,7 +109,7 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 				newTwitchUser = strings.ToLower(newTwitchUser)
 			}
 			if newTwitchUser == "" {
-				log.Warning("User \"" + username + "\" tried to enable the Twitch bot without having a Twitch stream URL set.")
+				logger.Warning("User \"" + username + "\" tried to enable the Twitch bot without having a Twitch stream URL set.")
 				websocketError(s, d.Command, "You must have a Twitch stream URL set in order to use the Twitch chat bot.")
 				return
 			}
@@ -121,7 +120,7 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 
 		// Set the new stream URL in the database
 		if err := db.Users.SetStreamURL(userID, newStreamURL); err != nil {
-			log.Error("Database error while setting the stream URL for user "+strconv.Itoa(userID)+":", err)
+			logger.Error("Database error while setting the stream URL for user "+strconv.Itoa(userID)+":", err)
 			websocketError(s, d.Command, "")
 			return
 		}
@@ -148,7 +147,7 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 				newTwitchUser = strings.ToLower(newTwitchUser)
 			}
 			if newTwitchUser == "" {
-				log.Warning("User \"" + username + "\" tried to enable the Twitch bot without having a Twitch stream URL set.")
+				logger.Warning("User \"" + username + "\" tried to enable the Twitch bot without having a Twitch stream URL set.")
 				websocketError(s, d.Command, "You must have a Twitch stream URL set in order to use the Twitch chat bot.")
 				return
 			}
@@ -166,7 +165,7 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 
 		// Set the new Twitch bot setting in the database
 		if err := db.Users.SetTwitchBotEnabled(userID, newTwitchBotEnabled); err != nil {
-			log.Error("Database error while setting the twitch bot setting for user "+strconv.Itoa(userID)+":", err)
+			logger.Error("Database error while setting the twitch bot setting for user "+strconv.Itoa(userID)+":", err)
 			websocketError(s, d.Command, "")
 			return
 		}
@@ -189,7 +188,7 @@ func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
 
 		// Set the new Twitch bot delay in the database
 		if err := db.Users.SetTwitchBotDelay(userID, newTwitchBotDelay); err != nil {
-			log.Error("Database error while setting the twitch bot delay for user "+strconv.Itoa(userID)+":", err)
+			logger.Error("Database error while setting the twitch bot delay for user "+strconv.Itoa(userID)+":", err)
 			websocketError(s, d.Command, "")
 			return
 		}

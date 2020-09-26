@@ -10,6 +10,8 @@ import (
 */
 
 func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
+	allRaces := make([]RaceHistory, 0)
+
 	var SQLString string
 	if format == "unseeded_solo" {
 		SQLString = `
@@ -42,19 +44,18 @@ func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 
 	var rows *sql.Rows
 	if v, err := db.Query(SQLString); err != nil {
-		return nil, err
+		return allRaces, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	allRaces := make([]RaceHistory, 0)
 	for rows.Next() {
+		racers := make([]RaceHistoryParticipants, 0)
+
 		var race RaceHistory
-		if err := rows.Scan(
-			&race.RaceID,
-		); err != nil {
-			return nil, err
+		if err := rows.Scan(&race.RaceID); err != nil {
+			return allRaces, err
 		}
 		race.RaceParticipants = nil
 
@@ -71,13 +72,12 @@ func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 			WHERE
 				race_participants.race_id = ?
 		`, race.RaceID); err != nil {
-			return nil, err
+			return allRaces, err
 		} else {
 			rows2 = v
 		}
 		defer rows2.Close()
 
-		racers := make([]RaceHistoryParticipants, 0)
 		for rows2.Next() {
 			var racer RaceHistoryParticipants
 			if err := rows2.Scan(
@@ -85,12 +85,21 @@ func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 				&racer.RacerName,
 				&racer.RacerPlace,
 			); err != nil {
-				return nil, err
+				return allRaces, err
 			}
 			racers = append(racers, racer)
 		}
+
+		if err := rows2.Err(); err != nil {
+			return allRaces, err
+		}
+
 		race.RaceParticipants = racers
 		allRaces = append(allRaces, race)
+	}
+
+	if err := rows.Err(); err != nil {
+		return allRaces, err
 	}
 
 	return allRaces, nil

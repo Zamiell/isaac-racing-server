@@ -3,7 +3,6 @@ package main
 import (
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 )
 
@@ -126,11 +125,11 @@ func achievementsInit() {
 		408: {"Winners Don't Use Drugs", "Finish 2nd place in a race where you used a Tears Down pill."},
 		410: {"Pretty Basic", "Complete a race without taking an item that gives damage up."},
 		411: {"Last Resort at Critical Health", "Complete a race after having used the D4 or the D100 at least once."},
-		412: {"Undeserved Win", "Finish 1st place in a race with at least 2 people after having procced a Guppy's Collar or a Broken Ankh."},
+		412: {"Undeserved Win", "Finish 1st place in a race with at least 2 people after having activated a Guppy's Collar or a Broken Ankh."},
 		413: {"Never Guppy", "Finish two races in a row where you had the Guppy transformation."},
 		414: {"U Can't Touch This", "Finish a race without taking damage."},
 		415: {"Maybe I Shouldn't Have Min-Maxed So Hard", "Finish a race with 12 hearts."},
-		416: {"Beter Late Than Never", "Complete a race where you found and used an Emperor card on The Chest."},
+		416: {"Better Late Than Never", "Complete a race where you found and used an Emperor card on The Chest."},
 		417: {"Collaborative Victory", "Finish a race where you tied for 1st place."},
 		418: {"Consolation Prize", "Complete a race where you didn't take any red heart damage and only received a Devil/Angel room on floor 2, floor 5, and floor 8."},
 		419: {"Confident in Your Dodging Ability", "Complete a race where you took two devil deals that left you with only one heart remaining."},
@@ -141,23 +140,23 @@ func achievementsInit() {
 
 	// Delete every row in the database
 	if err := db.Achievements.DeleteAll(); err != nil {
-		log.Fatal("Failed to delete all of the entries in the achievements table:", err)
+		logger.Fatal("Failed to delete all of the entries in the achievements table:", err)
 	}
 
 	// Add the achievement list to the database
 	for id, achievement := range achievementMap {
 		if err := db.Achievements.Insert(id, achievement[0], achievement[1]); err != nil {
-			log.Fatal("Failed to insert the achievements:", err)
+			logger.Fatal("Failed to insert the achievements:", err)
 		}
 	}
-	log.Info("Added", len(achievementMap), "achievements.")
+	logger.Info("Added", len(achievementMap), "achievements.")
 }
 
 func achievementsCheck(userID int, username string) {
 	// Get this racer's current achievements
 	userAchievements, err := db.UserAchievements.GetAll(userID)
 	if err != nil {
-		log.Error("Database error while getting the achievements for user "+strconv.Itoa(userID)+":", err)
+		logger.Error("Database error while getting the achievements for user "+strconv.Itoa(userID)+":", err)
 		return
 	}
 
@@ -181,7 +180,7 @@ func achievements1_8(userID int, username string, userAchievements []int) {
 
 	var finishedList []models.Race
 	if v, err := db.RaceParticipants.GetFinishedRaces(userID); err != nil {
-		log.Error("Database error while getting the finished races for user "+strconv.Itoa(userID)+":", err)
+		logger.Error("Database error while getting the finished races for user "+strconv.Itoa(userID)+":", err)
 		return
 	} else {
 		finishedList = v
@@ -279,9 +278,9 @@ func achievements11_14(userID int, username string, userAchievements []int) {
 }
 
 func achievementsGive(userID int, username string, achievementID int) {
-	// Give them the achivement in the database
+	// Give them the achievement in the database
 	if err := db.UserAchievements.Insert(userID, achievementID); err != nil {
-		log.Error("Failed to give achivement #"+strconv.Itoa(achievementID)+" to user \""+username+"\":", err)
+		logger.Error("Failed to give achievement #"+strconv.Itoa(achievementID)+" to user \""+username+"\":", err)
 		return
 	}
 

@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-gonic/gin"
 )
@@ -37,11 +36,11 @@ func httpWS(c *gin.Context) {
 	keys["streamURL"] = sessionValues.StreamURL
 	keys["twitchBotEnabled"] = sessionValues.TwitchBotEnabled
 	keys["twitchBotDelay"] = sessionValues.TwitchBotDelay
-	keys["rateLimitAllowance"] = float64(rateLimitRate)
+	keys["rateLimitAllowance"] = rateLimitRate
 	keys["rateLimitLastCheck"] = time.Now()
 
 	// Validation succeeded, so establish the WebSocket connection
 	if err := m.HandleRequestWithKeys(w, r, keys); err != nil {
-		log.Error("Failed to add the keys to the websocket session:", err)
+		logger.Error("Failed to add the keys to the websocket session:", err)
 	}
 }

@@ -71,6 +71,8 @@ func (*RaceParticipants) Insert(raceID int, racer *Racer) error {
 // Get a list of the finished races for this user (quit races don't count)
 // Used in the "achievements1_8" function
 func (*RaceParticipants) GetFinishedRaces(userID int) ([]Race, error) {
+	var raceList []Race
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT races.id, races.format
@@ -79,22 +81,25 @@ func (*RaceParticipants) GetFinishedRaces(userID int) ([]Race, error) {
 		WHERE race_participants.user_id = ? AND race_participants.place > 0
 		ORDER BY race_participants.datetime_finished
 	`, userID); err != nil {
-		return nil, err
+		return raceList, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the races
-	var raceList []Race
 	for rows.Next() {
 		var race Race
 		if err := rows.Scan(&race.ID, &race.Format); err != nil {
-			return nil, err
+			return raceList, err
 		}
 
 		// Append this race to the slice
 		raceList = append(raceList, race)
+	}
+
+	if err := rows.Err(); err != nil {
+		return raceList, err
 	}
 
 	return raceList, nil
@@ -109,6 +114,8 @@ type UnseededTime struct {
 // Get a list of the a player's times for ranked unseeded races
 // Used in the "leaderboardUpdateSoloUnseeded()" function
 func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, error) {
+	var timeList []UnseededTime
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT race_participants.place, race_participants.run_time
@@ -122,25 +129,28 @@ func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, e
 		ORDER BY races.datetime_finished DESC
 		LIMIT ?
 	`, userID, n); err != nil {
-		return nil, err
+		return timeList, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the races
-	var raceList []UnseededTime
 	for rows.Next() {
 		var race UnseededTime
 		if err := rows.Scan(&race.Place, &race.RunTime); err != nil {
-			return nil, err
+			return timeList, err
 		}
 
 		// Append this race to the slice
-		raceList = append(raceList, race)
+		timeList = append(timeList, race)
 	}
 
-	return raceList, nil
+	if err := rows.Err(); err != nil {
+		return timeList, err
+	}
+
+	return timeList, nil
 }
 
 /*

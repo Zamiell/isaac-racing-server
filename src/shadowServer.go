@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"net"
 	"sync"
 	"time"
@@ -27,7 +26,7 @@ func verifySender(mh MessageHeader, raddr net.Addr) bool {
 	if storedConnection == nil {
 		return false
 	} else if storedConnection.(*net.UDPAddr).String() != raddr.(*net.UDPAddr).String() {
-		log.Info(fmt.Sprintf("Player=%v shadow has untracked origin, recorded=%v, received=%v",
+		logger.Info(fmt.Sprintf("Player=%v shadow has untracked origin, recorded=%v, received=%v",
 			mh.PlayerId, storedConnection, raddr))
 		return false
 	}
@@ -55,7 +54,7 @@ func handleShadowMessage(msg []byte, pc net.PacketConn, raddr net.Addr) {
 		if opponent != nil {
 			_, err := pc.WriteTo(msg, *opponent.ADDR)
 			if err != nil {
-				log.Error(fmt.Sprintf(
+				logger.Error(fmt.Sprintf(
 					"Shadow proxy failed, player=%v, msg: %v\ncause: %v", mh.PlayerId, msg, err))
 			}
 		}
@@ -64,9 +63,9 @@ func handleShadowMessage(msg []byte, pc net.PacketConn, raddr net.Addr) {
 
 func shadowServer() (err error, pc net.PacketConn) {
 	pc, err = net.ListenPacket("udp4", fmt.Sprintf(":%d", port))
-	log.Info(fmt.Sprintf("Listening UDP connections on port %d", port))
+	logger.Info(fmt.Sprintf("Listening UDP connections on port %d", port))
 	if err != nil {
-		log.Error("Error starting UDP shadow server", err)
+		logger.Error("Error starting UDP shadow server", err)
 		return
 	}
 
@@ -76,11 +75,11 @@ func shadowServer() (err error, pc net.PacketConn) {
 		for {
 			n, raddr, err := pc.ReadFrom(buffer)
 			if err != nil {
-				log.Error(fmt.Sprintf("Error receiving UDP dgram from %v", raddr), err)
+				logger.Error(fmt.Sprintf("Error receiving UDP dgram from %v", raddr), err)
 			}
 			payloadSize := n - int(unsafe.Sizeof(MessageHeader{}))
 			if payloadSize < helloSize {
-				log.Debug("Dgram skipped, payload len=", payloadSize)
+				logger.Debug("Dgram skipped, payload len=", payloadSize)
 				// skip
 			} else if payloadSize == helloSize {
 				handleHelloMessage(buffer, raddr)
@@ -109,11 +108,11 @@ func shadowInit() {
 	go sessionClock()
 	errStart, pc := shadowServer()
 	if errStart != nil {
-		log.Error("Exited by: ", errStart)
+		logger.Error("Exited by: ", errStart)
 		if pc != nil {
 			errClose := pc.Close()
 			if errClose != nil {
-				log.Error("Error closing connection", errClose)
+				logger.Error("Error closing connection", errClose)
 			}
 		}
 	}

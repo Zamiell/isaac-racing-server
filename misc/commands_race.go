@@ -24,7 +24,7 @@ func websocketRaceJoinSpectate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add this user to the participants list for that race
 	if err := db.RaceParticipants.Insert(userID, raceID); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -126,7 +126,7 @@ func websocketRaceRuleset(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Set everyone's status to "not ready"
 	if err := db.RaceParticipants.SetAllStatus(raceID, "not ready"); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -197,7 +197,7 @@ func websocketRaceComment(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Set their comment in the database
 	if err := db.RaceParticipants.SetComment(userID, raceID, comment); err != nil {
-		log.Error("Database error:", err)
+		logger.Error("Database error:", err)
 		websocketError(s, d.Command, "")
 		return
 	}

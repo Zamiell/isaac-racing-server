@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
@@ -24,7 +23,7 @@ func httpMwGoogleAnalytics(c *gin.Context) {
 	var clientID string
 	if err != nil {
 		// They don't have a cookie set, so set a new one
-		clientID := uuid.NewV4().String()
+		clientID = uuid.NewV4().String()
 		http.SetCookie(w, &http.Cookie{
 			Name: "_ga",
 			// This is the standard cookie name used by the Google Analytics
@@ -62,7 +61,7 @@ func httpMwGoogleAnalytics(c *gin.Context) {
 		}
 		resp, err := myHTTPClient.PostForm("https://www.google-analytics.com/collect", data)
 		if err != nil {
-			log.Error("Failed to send a page hit to Google Analytics:", err)
+			logger.Error("Failed to send a page hit to Google Analytics:", err)
 			return
 		}
 		defer resp.Body.Close()

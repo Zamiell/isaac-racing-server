@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,27 +20,33 @@ func httpProfile(c *gin.Context) {
 	}
 
 	// Check if the player exists
-	exists, playerID, err := db.Users.Exists(player)
-	if !exists {
+	var playerID int
+	if exists, v, err := db.Users.Exists(player); err != nil {
+		logger.Error("Failed to check if player \"" + player + "\" exists: " + err.Error())
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	} else if !exists {
 		data := TemplateData{
 			Title:         "Profile Missing",
 			MissingPlayer: player,
 		}
 		httpServeTemplate(w, "noprofile", data)
 		return
+	} else {
+		playerID = v
 	}
 
 	// Get the player data
 	playerData, err := db.Users.GetProfileData(playerID)
 	if err != nil {
-		log.Error("Failed to get player, '" + player + "' data from the database: " + err.Error())
+		logger.Error("Failed to get player, '" + player + "' data from the database: " + err.Error())
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	totalTime, err := db.Users.GetTotalTime(player)
 	if err != nil {
-		log.Error("Failed to get player time from database: ", totalTime, err)
+		logger.Error("Failed to get player time from database: ", totalTime, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -49,14 +54,14 @@ func httpProfile(c *gin.Context) {
 	// Get the race data for the last x races
 	raceDataRanked, err := db.Races.GetRankedRaceProfileHistory(player, numUnseededRacesForAverage)
 	if err != nil {
-		log.Error("Failed to get the race data: ", err)
+		logger.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
 	raceDataAll, err := db.Races.GetAllRaceProfileHistory(player, racesAllTotal)
 	if err != nil {
-		log.Error("Failed to get the race data: ", err)
+		logger.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -66,7 +71,8 @@ func httpProfile(c *gin.Context) {
 		for p := range raceDataRanked[i].RaceParticipants {
 			raceDataRanked[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataRanked[i].RaceParticipants[p].RacerStartingItem.Int64)]
 			if raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+				startingBuildIndex := int(raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64)
+				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
 			}
 		}
 	}
@@ -75,7 +81,8 @@ func httpProfile(c *gin.Context) {
 		for p := range raceDataAll[i].RaceParticipants {
 			raceDataAll[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataAll[i].RaceParticipants[p].RacerStartingItem.Int64)]
 			if raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				raceDataAll[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
+				startingBuildIndex := int(raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64)
+				raceDataAll[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
 			}
 		}
 	}

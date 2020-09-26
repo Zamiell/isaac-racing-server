@@ -69,6 +69,8 @@ type LeaderboardRowDiversity struct {
 }
 
 func (*Users) GetLeaderboardSeeded(racesNeeded int) ([]LeaderboardRowSeeded, error) {
+	leaderboard := make([]LeaderboardRowSeeded, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -104,14 +106,13 @@ func (*Users) GetLeaderboardSeeded(racesNeeded int) ([]LeaderboardRowSeeded, err
 		GROUP BY u.username
 		ORDER BY u.seeded_trueskill DESC
 	`, racesNeeded); err != nil {
-		return nil, err
+		return leaderboard, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the users
-	leaderboard := make([]LeaderboardRowSeeded, 0)
 	for rows.Next() {
 		var row LeaderboardRowSeeded
 		if err := rows.Scan(
@@ -125,16 +126,23 @@ func (*Users) GetLeaderboardSeeded(racesNeeded int) ([]LeaderboardRowSeeded, err
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
-			return nil, err
+			return leaderboard, err
 		}
 
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
+
+	if err := rows.Err(); err != nil {
+		return leaderboard, err
+	}
+
 	return leaderboard, nil
 }
 
 func (*Users) GetLeaderboardSeededSolo(racesNeeded int) ([]LeaderboardRowSeededSolo, error) {
+	leaderboard := make([]LeaderboardRowSeededSolo, 0)
+
 	var rows *sql.Rows
 	// Readd -- ROUND(u.seeded_solo_trueskill_change, 2),
 	if v, err := db.Query(`
@@ -171,14 +179,13 @@ func (*Users) GetLeaderboardSeededSolo(racesNeeded int) ([]LeaderboardRowSeededS
 		GROUP BY u.username
 		ORDER BY u.seeded_solo_trueskill DESC
 	`, racesNeeded); err != nil {
-		return nil, err
+		return leaderboard, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the users
-	leaderboard := make([]LeaderboardRowSeededSolo, 0)
 	for rows.Next() {
 		var row LeaderboardRowSeededSolo
 		if err := rows.Scan(
@@ -192,16 +199,23 @@ func (*Users) GetLeaderboardSeededSolo(racesNeeded int) ([]LeaderboardRowSeededS
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
-			return nil, err
+			return leaderboard, err
 		}
 
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
+
+	if err := rows.Err(); err != nil {
+		return leaderboard, err
+	}
+
 	return leaderboard, nil
 }
 
 func (*Users) GetLeaderboardUnseeded(racesNeeded int) ([]LeaderboardRowUnseeded, error) {
+	leaderboard := make([]LeaderboardRowUnseeded, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -238,14 +252,13 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int) ([]LeaderboardRowUnseeded,
 		GROUP BY u.username
 		ORDER BY u.unseeded_trueskill DESC
 	`, racesNeeded); err != nil {
-		return nil, err
+		return leaderboard, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the users
-	leaderboard := make([]LeaderboardRowUnseeded, 0)
 	for rows.Next() {
 		var row LeaderboardRowUnseeded
 		if err := rows.Scan(
@@ -259,17 +272,24 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int) ([]LeaderboardRowUnseeded,
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
-			return nil, err
+			return leaderboard, err
 		}
 
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
+
+	if err := rows.Err(); err != nil {
+		return leaderboard, err
+	}
+
 	return leaderboard, nil
 }
 
 // Make a leaderboard for the unseeded solo format based on all of the users
 func (*Users) GetLeaderboardUnseededSolo(racesNeeded int) ([]LeaderboardRowUnseededSolo, error) {
+	leaderboard := make([]LeaderboardRowUnseededSolo, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -298,14 +318,13 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int) ([]LeaderboardRowUnsee
 		ORDER BY
 			unseeded_solo_adjusted_average ASC
 	`, racesNeeded); err != nil {
-		return nil, err
+		return leaderboard, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the users
-	leaderboard := make([]LeaderboardRowUnseededSolo, 0)
 	for rows.Next() {
 		var row LeaderboardRowUnseededSolo
 		if err := rows.Scan(
@@ -321,16 +340,23 @@ func (*Users) GetLeaderboardUnseededSolo(racesNeeded int) ([]LeaderboardRowUnsee
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
-			return nil, err
+			return leaderboard, err
 		}
 
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
+
+	if err := rows.Err(); err != nil {
+		return leaderboard, err
+	}
+
 	return leaderboard, nil
 }
 
 func (*Users) GetLeaderboardDiversity(racesNeeded int) ([]LeaderboardRowDiversity, error) {
+	leaderboard := make([]LeaderboardRowDiversity, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -366,14 +392,13 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int) ([]LeaderboardRowDiversit
 		GROUP BY u.username
 		ORDER BY u.diversity_trueskill DESC
 	`, racesNeeded); err != nil {
-		return nil, err
+		return leaderboard, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the users
-	leaderboard := make([]LeaderboardRowDiversity, 0)
 	for rows.Next() {
 		var row LeaderboardRowDiversity
 		if err := rows.Scan(
@@ -387,11 +412,16 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int) ([]LeaderboardRowDiversit
 			&row.Verified,
 			&row.StreamURL,
 		); err != nil {
-			return nil, err
+			return leaderboard, err
 		}
 
 		// Append this row to the leaderboard
 		leaderboard = append(leaderboard, row)
 	}
+
+	if err := rows.Err(); err != nil {
+		return leaderboard, err
+	}
+
 	return leaderboard, nil
 }

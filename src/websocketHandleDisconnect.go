@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -10,7 +9,7 @@ func websocketHandleDisconnect(s *melody.Session) {
 	d := &IncomingWebsocketData{}
 	d.Command = "websocketHandleDisconnect"
 	if !websocketGetSessionValues(s, d) {
-		log.Error("Did not complete the \"" + d.Command + "\" function. There is now likely orphaned entries in various data structures.")
+		logger.Error("Did not complete the \"" + d.Command + "\" function. There is now likely orphaned entries in various data structures.")
 		return
 	}
 	username := d.v.Username
@@ -48,5 +47,5 @@ func websocketHandleDisconnect(s *melody.Session) {
 	delete(websocketSessions, username)
 
 	// Log the disconnection
-	log.Info("User \""+username+"\" disconnected;", len(websocketSessions), "user(s) now connected.")
+	logger.Info("User \""+username+"\" disconnected;", len(websocketSessions), "user(s) now connected.")
 }

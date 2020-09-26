@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 )
 
@@ -23,7 +22,7 @@ func leaderboardUpdateSoloUnseeded(race *Race) {
 	for _, racer := range race.Racers {
 		var unseededTimes []models.UnseededTime
 		if v, err := db.RaceParticipants.GetNUnseededTimes(racer.ID, numUnseededRacesForAverage); err != nil {
-			log.Error("Database error while getting the unseeded times:", err)
+			logger.Error("Database error while getting the unseeded times:", err)
 			return
 		} else {
 			unseededTimes = v
@@ -55,22 +54,23 @@ func leaderboardUpdateSoloUnseeded(race *Race) {
 
 		// Update their stats in the database
 		if err := db.Users.SetStatsSoloUnseeded(racer.ID, int(averageTime), numForfeits, int(forfeitPenalty)); err != nil {
-			log.Error("Database error while setting the unseeded stats for \""+racer.Name+"\":", err)
+			logger.Error("Database error while setting the unseeded stats for \""+racer.Name+"\":", err)
 			return
 		}
 	}
 }
 
+/*
 func leaderboardRecalculateSoloUnseeded() {
 	format := "unseeded_solo"
 	if err := db.Users.ResetSoloUnseeded(); err != nil {
-		log.Error("Database error while resetting the unseeded solo stats:", err)
+		logger.Error("Database error while resetting the unseeded solo stats:", err)
 		return
 	}
 
 	var allRaces []models.RaceHistory
 	if v, err := db.Races.GetAllRaces(format); err != nil {
-		log.Error("Database error while getting all of the races:", err)
+		logger.Error("Database error while getting all of the races:", err)
 		return
 	} else {
 		allRaces = v
@@ -98,9 +98,10 @@ func leaderboardRecalculateSoloUnseeded() {
 
 	// Fix the "Date of Last Race" column
 	if err := db.Users.SetLastRace(format); err != nil {
-		log.Error("Database error while setting the last race:", err)
+		logger.Error("Database error while setting the last race:", err)
 		return
 	}
 
-	log.Info("Successfully reset the leaderboard for " + format + ".")
+	logger.Info("Successfully reset the leaderboard for " + format + ".")
 }
+*/

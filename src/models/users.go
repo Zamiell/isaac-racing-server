@@ -155,6 +155,8 @@ func (*Users) GetAdmin(userID int) (int, error) {
 
 // Used in the "twitchConnect" and "websocketProfileSetStream" functions
 func (*Users) GetAllStreamURLs() ([]string, error) {
+	streamURLs := make([]string, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT stream_url
@@ -162,20 +164,23 @@ func (*Users) GetAllStreamURLs() ([]string, error) {
 		WHERE stream_url != '-'
 		AND twitch_bot_enabled = 1
 	`); err != nil {
-		return nil, err
+		return streamURLs, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	var streamURLs []string
 	for rows.Next() {
 		var streamURL string
 		if err := rows.Scan(&streamURL); err != nil {
-			return nil, err
+			return streamURLs, err
 		}
 
 		streamURLs = append(streamURLs, streamURL)
+	}
+
+	if err := rows.Err(); err != nil {
+		return streamURLs, err
 	}
 
 	return streamURLs, nil

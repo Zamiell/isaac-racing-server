@@ -5,7 +5,6 @@ import (
 	//	"net/http"
 	//	"strings"
 
-	//	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-gonic/gin"
 )

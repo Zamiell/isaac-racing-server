@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+
 	"github.com/go-sql-driver/mysql"
 )
 
@@ -39,6 +40,8 @@ type RaceHistoryParticipants struct {
 
 // GetRacesHistory gets all data for all races
 func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int) ([]RaceHistory, int, error) {
+	raceHistory := make([]RaceHistory, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -64,14 +67,15 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 		OFFSET
 			?
 	`, racesPerPage, raceOffset); err != nil {
-		return nil, 0, err
+		return raceHistory, 0, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	raceHistory := make([]RaceHistory, 0)
 	for rows.Next() {
+		raceRacers := make([]RaceHistoryParticipants, 0)
+
 		var race RaceHistory
 		if err := rows.Scan(
 			&race.RaceID,
@@ -83,7 +87,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			&race.RaceDateStart,
 			&race.RaceDateFinished,
 		); err != nil {
-			return nil, 0, err
+			return raceHistory, 0, err
 		}
 		race.RaceParticipants = nil
 
@@ -112,13 +116,12 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 				rp.place,
 				rp.run_time;
 		`, race.RaceID); err != nil {
-			return nil, 0, err
+			return raceHistory, 0, err
 		} else {
 			rows2 = v
 		}
 		defer rows2.Close()
 
-		raceRacers := make([]RaceHistoryParticipants, 0)
 		for rows2.Next() {
 			var racer RaceHistoryParticipants
 			if err := rows2.Scan(
@@ -130,12 +133,21 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
-				return nil, 0, err
+				return raceHistory, 0, err
 			}
 			raceRacers = append(raceRacers, racer)
 		}
+
+		if err := rows2.Err(); err != nil {
+			return raceHistory, 0, err
+		}
+
 		race.RaceParticipants = raceRacers
 		raceHistory = append(raceHistory, race)
+	}
+
+	if err := rows.Err(); err != nil {
+		return raceHistory, 0, err
 	}
 
 	var allRaceCount int
@@ -149,7 +161,7 @@ func (*Races) GetRacesHistory(currentPage int, racesPerPage int, raceOffset int)
 			AND solo = 0
 
 	`).Scan(&allRaceCount); err != nil {
-		return nil, 0, err
+		return raceHistory, 0, err
 	}
 
 	return raceHistory, allRaceCount, nil
@@ -185,9 +197,9 @@ func (*Races) GetRaceHistory(raceID int) (RaceHistory, error) {
 	}
 	defer rows.Close()
 
-	//raceHistory := make([]RaceHistory, 0)
-
 	for rows.Next() {
+		raceRacers := make([]RaceHistoryParticipants, 0)
+
 		if err := rows.Scan(
 			&race.RaceID,
 			&race.RaceType,
@@ -232,7 +244,6 @@ func (*Races) GetRaceHistory(raceID int) (RaceHistory, error) {
 		}
 		defer rows2.Close()
 
-		raceRacers := make([]RaceHistoryParticipants, 0)
 		for rows2.Next() {
 			var racer RaceHistoryParticipants
 			if err := rows2.Scan(
@@ -248,15 +259,25 @@ func (*Races) GetRaceHistory(raceID int) (RaceHistory, error) {
 			}
 			raceRacers = append(raceRacers, racer)
 		}
-		//race.RaceParticipants = raceRacers
+
+		if err := rows2.Err(); err != nil {
+			return race, err
+		}
+
 		race.RaceParticipants = raceRacers
-		//raceHistory = append(raceHistory, race)
 	}
+
+	if err := rows.Err(); err != nil {
+		return race, err
+	}
+
 	return race, nil
 }
 
 // GetRaceProfileHistory gets the race data for the profile page
-func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
+func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) { // nolint: dupl
+	raceHistory := make([]RaceHistory, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -287,14 +308,15 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 		LIMIT
 			?
 	`, user, racesPerPage); err != nil {
-		return nil, err
+		return raceHistory, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	raceHistory := make([]RaceHistory, 0)
 	for rows.Next() {
+		raceRacers := make([]RaceHistoryParticipants, 0)
+
 		var race RaceHistory
 		if err := rows.Scan(
 			&race.RaceID,
@@ -305,7 +327,7 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 			&race.RaceDateStart,
 			&race.RaceDateFinished,
 		); err != nil {
-			return nil, err
+			return raceHistory, err
 		}
 		race.RaceParticipants = nil
 
@@ -333,13 +355,12 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 				rp.place,
 				rp.run_time;
 		`, race.RaceID); err != nil {
-			return nil, err
+			return raceHistory, err
 		} else {
 			rows2 = v
 		}
 		defer rows2.Close()
 
-		raceRacers := make([]RaceHistoryParticipants, 0)
 		for rows2.Next() {
 			var racer RaceHistoryParticipants
 			if err := rows2.Scan(
@@ -350,12 +371,21 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
-				return nil, err
+				return raceHistory, err
 			}
 			raceRacers = append(raceRacers, racer)
 		}
+
+		if err := rows2.Err(); err != nil {
+			return raceHistory, err
+		}
+
 		race.RaceParticipants = raceRacers
 		raceHistory = append(raceHistory, race)
+	}
+
+	if err := rows.Err(); err != nil {
+		return raceHistory, err
 	}
 
 	var allRaceCount int
@@ -364,13 +394,15 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 		FROM races
 		WHERE finished = 1
 	`).Scan(&allRaceCount); err != nil {
-		return nil, err
+		return raceHistory, err
 	}
 
 	return raceHistory, nil
 }
 
-func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
+func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) { // nolint: dupl
+	raceHistory := make([]RaceHistory, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -399,14 +431,15 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 		LIMIT
 			?
 	`, user, racesPerPage); err != nil {
-		return nil, err
+		return raceHistory, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	raceHistory := make([]RaceHistory, 0)
 	for rows.Next() {
+		raceRacers := make([]RaceHistoryParticipants, 0)
+
 		var race RaceHistory
 		if err := rows.Scan(
 			&race.RaceID,
@@ -417,7 +450,7 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 			&race.RaceDateStart,
 			&race.RaceDateFinished,
 		); err != nil {
-			return nil, err
+			return raceHistory, err
 		}
 		race.RaceParticipants = nil
 
@@ -445,13 +478,12 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 				rp.place,
 				rp.run_time;
 		`, race.RaceID); err != nil {
-			return nil, err
+			return raceHistory, err
 		} else {
 			rows2 = v
 		}
 		defer rows2.Close()
 
-		raceRacers := make([]RaceHistoryParticipants, 0)
 		for rows2.Next() {
 			var racer RaceHistoryParticipants
 			if err := rows2.Scan(
@@ -462,12 +494,21 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 				&racer.RacerStartingBuild,
 				&racer.RacerComment,
 			); err != nil {
-				return nil, err
+				return raceHistory, err
 			}
 			raceRacers = append(raceRacers, racer)
 		}
+
+		if err := rows2.Err(); err != nil {
+			return raceHistory, err
+		}
+
 		race.RaceParticipants = raceRacers
 		raceHistory = append(raceHistory, race)
+	}
+
+	if err := rows.Err(); err != nil {
+		return raceHistory, err
 	}
 
 	var allRaceCount int
@@ -476,7 +517,7 @@ func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHis
 		FROM races
 		WHERE finished = 1
 	`).Scan(&allRaceCount); err != nil {
-		return nil, err
+		return raceHistory, err
 	}
 
 	return raceHistory, nil

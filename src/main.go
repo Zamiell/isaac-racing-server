@@ -4,57 +4,69 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
-	raven "github.com/getsentry/raven-go"
 	"github.com/joho/godotenv"
 )
 
 var (
-	dev          bool
-	projectPath  string
+	projectPath string
+
+	logger       *Logger
+	isDev        bool
+	usingSentry  bool
 	db           *models.Models
 	races        = make(map[int]*Race)
 	shutdownMode = 0
 )
 
 func main() {
-	// Initialize logging (in log/log.go)
-	log.Init()
+	// Initialize logging (in "logger.go")
+	logger = NewLogger()
 
 	// Welcome message
-	log.Info("+-------------------------------+")
-	log.Info("| Starting isaac-racing-server. |")
-	log.Info("+-------------------------------+")
+	logger.Info("+-------------------------------+")
+	logger.Info("| Starting isaac-racing-server. |")
+	logger.Info("+-------------------------------+")
 
 	// Get the project path
 	// https://stackoverflow.com/questions/18537257/
 	if v, err := os.Executable(); err != nil {
-		log.Fatal("Failed to get the path of the currently running executable:", err)
+		logger.Fatal("Failed to get the path of the currently running executable:", err)
 	} else {
 		projectPath = filepath.Dir(v)
 	}
 
-	// Load the ".env" file which contains environment variables with secret values
-	if err := godotenv.Load(path.Join(projectPath, ".env")); err != nil {
-		log.Fatal("Failed to load .env file:", err)
+	// Check to see if the ".env" file exists
+	envPath := path.Join(projectPath, ".env")
+	if _, err := os.Stat(envPath); os.IsNotExist(err) {
+		logger.Fatal("The \"" + envPath + "\" file does not exist.")
+		return
+	} else if err != nil {
+		logger.Fatal("Failed to check if the \""+envPath+"\" file exists:", err)
+		return
 	}
 
-	// Configure error reporting to Sentry
-	sentrySecret := os.Getenv("SENTRY_SECRET")
-	if len(sentrySecret) == 0 {
-		log.Info("The \"SENTRY_SECRET\" environment variable is blank; aborting Sentry initialization.")
-	} else {
-		dsn := "https://0d0a2118a3354f07ae98d485571e60be:" + sentrySecret + "@sentry.io/124813"
-		if err := raven.SetDSN(dsn); err != nil {
-			log.Fatal("Failed to initialize Raven:", err)
-		}
+	// Load the ".env" file which contains environment variables with secret values
+	if err := godotenv.Load(path.Join(projectPath, ".env")); err != nil {
+		logger.Fatal("Failed to load .env file:", err)
 	}
+
+	if os.Getenv("DOMAIN") == "" ||
+		os.Getenv("DOMAIN") == "localhost" ||
+		strings.HasPrefix(os.Getenv("DOMAIN"), "192.168.") ||
+		strings.HasPrefix(os.Getenv("DOMAIN"), "10.") {
+
+		isDev = true
+	}
+
+	// Initialize Sentry (in "sentry.go")
+	usingSentry = sentryInit()
 
 	// Initialize the database model
 	if v, err := models.Init(); err != nil {
-		log.Fatal("Failed to open the database:", err)
+		logger.Fatal("Failed to open the database:", err)
 	} else {
 		db = v
 	}
@@ -62,10 +74,10 @@ func main() {
 
 	// Clean up any unfinished races from the database
 	if nonStartedRaces, err := db.Races.Cleanup(); err != nil {
-		log.Fatal("Failed to cleanup the leftover races:", err)
+		logger.Fatal("Failed to cleanup the leftover races:", err)
 	} else {
 		for _, raceID := range nonStartedRaces {
-			log.Info("Deleted race", raceID, "during starting cleanup.")
+			logger.Info("Deleted race", raceID, "during starting cleanup.")
 		}
 	}
 
@@ -82,7 +94,7 @@ func main() {
 	// (in websocket.go)
 	websocketInit()
 
-	// Initalize the needed static maps for items (in constants.go)
+	// Initialize the needed static maps for items (in constants.go)
 	loadAllItems()
 	loadAllBuilds()
 

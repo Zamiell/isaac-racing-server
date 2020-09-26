@@ -4,7 +4,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -22,7 +21,7 @@ func websocketPrivateMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested person is sane
 	if recipient == "" {
-		log.Warning("User \"" + username + "\" tried to private message an empty string.")
+		logger.Warning("User \"" + username + "\" tried to private message an empty string.")
 		websocketError(s, d.Command, "That is not a valid person.")
 		return
 	}
@@ -38,7 +37,7 @@ func websocketPrivateMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Don't allow empty messages
 	if message == "" {
-		log.Warning("User \"" + username + "\" tried to send an empty message.")
+		logger.Warning("User \"" + username + "\" tried to send an empty message.")
 		websocketWarning(s, d.Command, "You cannot send an empty message.")
 		return
 	}
@@ -52,7 +51,7 @@ func websocketPrivateMessage(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the person is online
 	s2, ok := websocketSessions[recipient]
 	if !ok {
-		log.Info("User \"" + username + "\" tried to private message \"" + recipient + "\", but they are offline.")
+		logger.Info("User \"" + username + "\" tried to private message \"" + recipient + "\", but they are offline.")
 		websocketWarning(s, d.Command, "That user is not online.")
 		return
 	}
@@ -70,7 +69,7 @@ func websocketPrivateMessage(s *melody.Session, d *IncomingWebsocketData) {
 	// Get the user ID from the recipient's session
 	var recipientID int
 	if v, exists := s.Get("userID"); !exists {
-		log.Error("Failed to get \"userID\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"userID\" from the session (in the \"" + d.Command + "\" function).")
 		websocketError(s, d.Command, "")
 		return
 	} else {
@@ -79,7 +78,7 @@ func websocketPrivateMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add the new message to the database
 	if err := db.ChatLogPM.Insert(recipientID, userID, message); err != nil {
-		log.Error("Database error while writing the PM to the database:", err)
+		logger.Error("Database error while writing the PM to the database:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -95,5 +94,5 @@ func websocketPrivateMessage(s *melody.Session, d *IncomingWebsocketData) {
 	})
 
 	// Log the message
-	log.Info("PM <" + username + "> <" + recipient + "> " + message)
+	logger.Info("PM <" + username + "> <" + recipient + "> " + message)
 }

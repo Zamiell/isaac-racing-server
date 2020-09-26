@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	melody "gopkg.in/olahol/melody.v1" // A WebSocket framework
 )
@@ -95,7 +94,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var userID int
 	if v, exists := s.Get("userID"); !exists {
-		log.Error("Failed to get \"userID\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"userID\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		userID = v.(int)
@@ -103,7 +102,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var username string
 	if v, exists := s.Get("username"); !exists {
-		log.Error("Failed to get \"username\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"username\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		username = v.(string)
@@ -111,7 +110,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var admin int
 	if v, exists := s.Get("admin"); !exists {
-		log.Error("Failed to get \"admin\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"admin\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		admin = v.(int)
@@ -119,7 +118,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var muted bool
 	if v, exists := s.Get("muted"); !exists {
-		log.Error("Failed to get \"muted\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"muted\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		muted = v.(bool)
@@ -127,7 +126,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var streamURL string
 	if v, exists := s.Get("streamURL"); !exists {
-		log.Error("Failed to get \"streamURL\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"streamURL\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		streamURL = v.(string)
@@ -135,7 +134,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var twitchBotEnabled bool
 	if v, exists := s.Get("twitchBotEnabled"); !exists {
-		log.Error("Failed to get \"twitchBotEnabled\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"twitchBotEnabled\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		twitchBotEnabled = v.(bool)
@@ -143,7 +142,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var twitchBotDelay int
 	if v, exists := s.Get("twitchBotDelay"); !exists {
-		log.Error("Failed to get \"twitchBotDelay\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"twitchBotDelay\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		twitchBotDelay = v.(int)
@@ -151,7 +150,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var rateLimitAllowance float64
 	if v, exists := s.Get("rateLimitAllowance"); !exists {
-		log.Error("Failed to get \"rateLimitAllowance\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"rateLimitAllowance\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		rateLimitAllowance = v.(float64)
@@ -159,7 +158,7 @@ func websocketGetSessionValues(s *melody.Session, d *IncomingWebsocketData) bool
 
 	var rateLimitLastCheck time.Time
 	if v, exists := s.Get("rateLimitLastCheck"); !exists {
-		log.Error("Failed to get \"rateLimitLastCheck\" from the session (in the \"" + d.Command + "\" function).")
+		logger.Error("Failed to get \"rateLimitLastCheck\" from the session (in the \"" + d.Command + "\" function).")
 		return false
 	} else {
 		rateLimitLastCheck = v.(time.Time)
@@ -190,7 +189,7 @@ func websocketEmit(s *melody.Session, command string, d interface{}) {
 	// Convert the data to JSON
 	var ds string
 	if dj, err := json.Marshal(d); err != nil {
-		log.Error("Failed to marshal data when writing to a Melody session:", err)
+		logger.Error("Failed to marshal data when writing to a Melody session:", err)
 		return
 	} else {
 		ds = string(dj)
@@ -235,8 +234,8 @@ func websocketWarning(s *melody.Session, functionName string, message string) {
 
 func websocketClose(s *melody.Session) {
 	if err := s.Close(); err != nil {
-		log.Error("Attempted to manually close a WebSocket connection, but it failed.")
+		logger.Error("Attempted to manually close a WebSocket connection, but it failed.")
 	} else {
-		log.Info("Successfully terminated a WebSocket connection.")
+		logger.Info("Successfully terminated a WebSocket connection.")
 	}
 }

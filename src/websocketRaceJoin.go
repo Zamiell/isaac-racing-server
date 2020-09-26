@@ -3,7 +3,6 @@ package main
 import (
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -38,7 +37,7 @@ func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that we are not trying to join a solo race
 	if race.Ruleset.Solo && len(race.Racers) > 0 {
-		log.Warning("User \"" + username + "\" attempted to call " + d.Command + " on race ID " + strconv.Itoa(raceID) + ", but it is a solo race.")
+		logger.Warning("User \"" + username + "\" attempted to call " + d.Command + " on race ID " + strconv.Itoa(raceID) + ", but it is a solo race.")
 		websocketError(s, d.Command, "Race ID "+strconv.Itoa(raceID)+" is a solo race, so you cannot join it.")
 		return
 	}

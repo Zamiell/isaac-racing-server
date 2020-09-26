@@ -4,7 +4,6 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	trueskill "github.com/mafredri/go-trueskill"
 )
@@ -22,7 +21,7 @@ func leaderboardUpdateTrueSkill(race *Race) {
 	for _, racerName := range racerNames {
 		racer := race.Racers[racerName]
 		if v, err := db.Users.GetTrueSkill(racer.ID, race.Ruleset.Format); err != nil {
-			log.Error("Database error while getting the TrueSkill stats for \""+racer.Name+"\":", err)
+			logger.Error("Database error while getting the TrueSkill stats for \""+racer.Name+"\":", err)
 			return
 		} else {
 			// Increment the number of races
@@ -70,7 +69,7 @@ func leaderboardUpdateTrueSkill(race *Race) {
 					p2stats.Sigma,
 					false,
 				)
-				//log.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") WINS OVER player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
+				//logger.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") WINS OVER player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			} else if p1Place > p2Place {
 				// Player 2 wins
 				p2Mu, p2Sigma, p1Mu, p1Sigma = leaderboardAdjustTrueSkill(
@@ -80,7 +79,7 @@ func leaderboardUpdateTrueSkill(race *Race) {
 					p1stats.Sigma,
 					false,
 				)
-				//log.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") LOSES TO player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
+				//logger.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") LOSES TO player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			} else {
 				// Player 1 and 2 tied; this can only happen if both players quit
 				// (or they were both disqualified)
@@ -91,7 +90,7 @@ func leaderboardUpdateTrueSkill(race *Race) {
 					p2stats.Sigma,
 					true,
 				)
-				//log.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") TIES player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
+				//logger.Info("Race #" + strconv.Itoa(race.ID) + ": player \"" + racer1 + "\" (place " + strconv.Itoa(race.Racers[racer1].Place) + ") TIES player \"" + racer2 + "\" (place " + strconv.Itoa(race.Racers[racer2].Place) + ")")
 			}
 
 			p1stats.Mu = p1Mu
@@ -111,20 +110,21 @@ func leaderboardUpdateTrueSkill(race *Race) {
 		// Write the values back to the database
 		racer := race.Racers[racerName]
 		if err := db.Users.SetTrueSkill(racer.ID, *stats, race.Ruleset.Format); err != nil {
-			log.Error("Database error while setting the TrueSkill stats for user "+strconv.Itoa(racer.ID)+":", err)
+			logger.Error("Database error while setting the TrueSkill stats for user "+strconv.Itoa(racer.ID)+":", err)
 		}
 	}
 }
 
+/*
 func leaderboardRecalculateTrueSkill(format string) {
 	if err := db.Users.ResetTrueSkill(format); err != nil {
-		log.Error("Database error while resetting the TrueSkill stats:", err)
+		logger.Error("Database error while resetting the TrueSkill stats:", err)
 		return
 	}
 
 	var allRaces []models.RaceHistory
 	if v, err := db.Races.GetAllRaces(format); err != nil {
-		log.Error("Database error while getting all of the races:", err)
+		logger.Error("Database error while getting all of the races:", err)
 		return
 	} else {
 		allRaces = v
@@ -152,12 +152,13 @@ func leaderboardRecalculateTrueSkill(format string) {
 
 	// Fix the "Date of Last Race" column
 	if err := db.Users.SetLastRace(format); err != nil {
-		log.Error("Database error while setting the last race:", err)
+		logger.Error("Database error while setting the last race:", err)
 		return
 	}
 
-	log.Info("Successfully reset the TrueSkill leaderboard for " + format + ".")
+	logger.Info("Successfully reset the TrueSkill leaderboard for " + format + ".")
 }
+*/
 
 /*
 	Subroutines
@@ -170,9 +171,9 @@ func leaderboardAdjustTrueSkill(p1Mu float64, p1Sigma float64, p2Mu float64, p2S
 	p1 := trueskill.NewPlayer(p1Mu, p1Sigma)
 	p2 := trueskill.NewPlayer(p2Mu, p2Sigma)
 	tsPlayers := []trueskill.Player{p1, p2} // The first player that is put into the "tsPlayers" slice is the one who wins
-	newTsPlayers, _ := ts.AdjustSkills(tsPlayers, draw)
+	newTSPlayers, _ := ts.AdjustSkills(tsPlayers, draw)
 
-	return newTsPlayers[0].Mu(), newTsPlayers[0].Sigma(), newTsPlayers[1].Mu(), newTsPlayers[1].Sigma()
+	return newTSPlayers[0].Mu(), newTSPlayers[0].Sigma(), newTSPlayers[1].Mu(), newTSPlayers[1].Sigma()
 }
 
 func leaderboardGetTrueSkill(mu float64, sigma float64) float64 {

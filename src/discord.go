@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -29,7 +28,7 @@ func discordInit() {
 	// (it was loaded from the .env file in main.go)
 	token := os.Getenv("DISCORD_TOKEN")
 	if len(token) == 0 {
-		log.Info("The \"DISCORD_TOKEN\" environment variable is blank; aborting Discord bot initialization.")
+		logger.Info("The \"DISCORD_TOKEN\" environment variable is blank; aborting Discord bot initialization.")
 		return
 	}
 
@@ -40,7 +39,7 @@ func discordInit() {
 func discordConnect(token string) {
 	// Bot accounts must be prefixed with "Bot"
 	if d, err := discordgo.New("Bot " + token); err != nil {
-		log.Error("Error creating Discord session: ", err)
+		logger.Error("Error creating Discord session: ", err)
 		return
 	} else {
 		discord = d
@@ -52,7 +51,7 @@ func discordConnect(token string) {
 
 	// Open the websocket and begin listening
 	if err := discord.Open(); err != nil {
-		log.Error("Error opening Discord session: ", err)
+		logger.Error("Error opening Discord session: ", err)
 	}
 
 	// Announce that the server has started
@@ -65,7 +64,7 @@ func discordConnect(token string) {
 */
 
 func discordReady(s *discordgo.Session, event *discordgo.Ready) {
-	log.Info("Discord bot connected with username: " + event.User.Username)
+	logger.Info("Discord bot connected with username: " + event.User.Username)
 	discordBotID = event.User.ID
 }
 
@@ -76,7 +75,7 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	// Log the message
-	log.Info("[D" + m.ChannelID + "] <" + m.Author.Username + "#" + m.Author.Discriminator + "> " + m.Content)
+	logger.Info("[D" + m.ChannelID + "] <" + m.Author.Username + "#" + m.Author.Discriminator + "> " + m.Content)
 
 	// Info commands
 	message := strings.ToLower(m.Content)
@@ -133,6 +132,6 @@ func discordSend(channelID string, message string) {
 			errorMessage += channelID
 		}
 		errorMessage += "\": " + err.Error()
-		log.Warning(errorMessage)
+		logger.Warning(errorMessage)
 	}
 }

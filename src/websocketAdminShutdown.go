@@ -5,7 +5,6 @@ import (
 	"path"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -17,7 +16,7 @@ func websocketAdminShutdown(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is an admin
 	if admin != 2 {
-		log.Warning("User \"" + username + "\" tried to send turn on the shutdown mode, but they are not an administrator.")
+		logger.Warning("User \"" + username + "\" tried to send turn on the shutdown mode, but they are not an administrator.")
 		websocketError(s, d.Command, "Only administrators can do that.")
 		return
 	}
@@ -44,7 +43,7 @@ func websocketAdminShutdownSub(s *melody.Session, d *IncomingWebsocketData) {
 		time.Sleep(time.Second)
 
 		if shutdownMode == 0 {
-			log.Info("shutdownMode changed to false. Shutdown aborted.")
+			logger.Info("shutdownMode changed to false. Shutdown aborted.")
 			break
 		}
 
@@ -70,8 +69,8 @@ func restartServer(s *melody.Session, d *IncomingWebsocketData) {
 
 	cmd := exec.Command(path.Join(projectPath, "restart.sh"))
 	if output, err := cmd.Output(); err != nil {
-		log.Error("Failed to execute \"restart.sh\":", err)
+		logger.Error("Failed to execute \"restart.sh\":", err)
 	} else {
-		log.Info("\"restart.sh\" completed:", string(output))
+		logger.Info("\"restart.sh\" completed:", string(output))
 	}
 }

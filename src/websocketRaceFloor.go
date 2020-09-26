@@ -3,7 +3,6 @@ package main
 import (
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -46,12 +45,12 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 	// Validate that the floor is sane
 	if floorNum < 1 || floorNum > 13 {
 		// The Void is floor 12, and we use floor 13 to signify Mega Satan
-		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(floorNum) + "\" is a bogus floor number.")
+		logger.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(floorNum) + "\" is a bogus floor number.")
 		websocketError(s, d.Command, "That is not a valid floor number.")
 		return
 	} else if stageType < 0 || stageType > 3 {
 		// 3 is Greed Mode
-		log.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(stageType) + "\" is a bogus stage type.")
+		logger.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(stageType) + "\" is a bogus stage type.")
 		websocketError(s, d.Command, "That is not a valid stage type.")
 		return
 	}

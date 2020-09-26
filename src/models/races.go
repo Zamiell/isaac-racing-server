@@ -147,6 +147,8 @@ func (*Races) Finish(race *Race) error {
 
 // Clean up any unfinished races from the database
 func (*Races) Cleanup() ([]int, error) {
+	leftoverRaces := make([]int, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT id
@@ -154,19 +156,22 @@ func (*Races) Cleanup() ([]int, error) {
 		WHERE finished = 0
 		ORDER BY id
 	`); err != nil {
-		return nil, err
+		return leftoverRaces, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	var leftoverRaces []int
 	for rows.Next() {
 		var raceID int
 		if err := rows.Scan(&raceID); err != nil {
-			return nil, err
+			return leftoverRaces, err
 		}
 		leftoverRaces = append(leftoverRaces, raceID)
+	}
+
+	if err := rows.Err(); err != nil {
+		return leftoverRaces, err
 	}
 
 	// Delete the entries from the races table

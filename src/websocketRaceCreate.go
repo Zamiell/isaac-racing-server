@@ -6,7 +6,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -44,7 +43,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the race name is not longer than 100 characters
 	if utf8.RuneCountInString(name) > 100 {
-		log.Warning("User \"" + username + "\" sent a race name longer than 100 characters.")
+		logger.Warning("User \"" + username + "\" sent a race name longer than 100 characters.")
 		websocketError(s, d.Command, "Race names must not be longer than 100 characters.")
 		return
 	}
@@ -84,7 +83,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	if ruleset.StartingBuild == 0 {
 		ruleset.StartingBuildRandom = true
 		rand.Seed(time.Now().UnixNano())
-		ruleset.StartingBuild = rand.Intn(len(seededBuilds)) + 1 // 1 to numBuilds
+		ruleset.StartingBuild = rand.Intn(len(allBuilds)-1) + 1 // We don't want to select index 0
 	}
 
 	// Check if there are any ongoing races with this name
@@ -102,7 +101,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		now := time.Now()
 		timePassed := now.Sub(rateLimitLastCheck).Seconds()
 		s.Set("rateLimitLastCheck", now)
-		log.Info("User \"" + username + "\" has \"" + strconv.FormatFloat(timePassed, 'f', 2, 64) + "\" time passed since the last race creation.")
+		logger.Info("User \"" + username + "\" has \"" + strconv.FormatFloat(timePassed, 'f', 2, 64) + "\" time passed since the last race creation.")
 
 		newRateLimitAllowance := rateLimitAllowance + timePassed*(rateLimitRate/rateLimitPer)
 		if newRateLimitAllowance > rateLimitRate {
@@ -111,13 +110,13 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 		if newRateLimitAllowance < 1 {
 			// They are spamming new races, so automatically ban them as punishment
-			log.Warning("User \"" + username + "\" triggered new race rate-limiting; banning them.")
+			logger.Warning("User \"" + username + "\" triggered new race rate-limiting; banning them.")
 			ban(s, d)
 			return
-		} else {
-			newRateLimitAllowance -= 1
-			s.Set("rateLimitAllowance", newRateLimitAllowance)
 		}
+
+		newRateLimitAllowance--
+		s.Set("rateLimitAllowance", newRateLimitAllowance)
 	}
 
 	/*
@@ -150,7 +149,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	*/
 	var raceID int
 	if v, err := db.Races.Insert(); err != nil {
-		log.Error("Database error while inserting the race:", err)
+		logger.Error("Database error while inserting the race:", err)
 		websocketError(s, d.Command, "")
 		return
 	} else {
@@ -201,14 +200,14 @@ func ban(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add this username to the ban list in the database
 	if err := db.BannedUsers.Insert(userID, automaticBanAdminID, automaticBanReason); err != nil {
-		log.Error("Database error while userting the banned user:", err)
+		logger.Error("Database error while userting the banned user:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
 	// Add their IP to the banned IP list
 	if err := db.BannedIPs.InsertUserIP(userID, automaticBanAdminID, automaticBanReason); err != nil {
-		log.Error("Database error while inserting the banned IP:", err)
+		logger.Error("Database error while inserting the banned IP:", err)
 		websocketError(s, d.Command, "")
 		return
 	}

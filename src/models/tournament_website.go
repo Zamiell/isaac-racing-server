@@ -2,7 +2,6 @@ package models
 
 import (
 	"database/sql"
-	//"github.com/Zamiell/isaac-racing-server/src/log"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -30,6 +29,8 @@ type TournamentRace struct {
 
 // GetTournamentRaces gets all data for all races
 func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
+	tournamentRaces := make([]TournamentRace, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
 		SELECT
@@ -58,13 +59,12 @@ func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 			tr.state not in ('initial', 'completed')
 		ORDER BY datetime_scheduled ASC
 	`); err != nil {
-		return nil, err
+		return tournamentRaces, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	tournamentRaces := make([]TournamentRace, 0)
 	for rows.Next() {
 		var race TournamentRace
 		if err := rows.Scan(
@@ -80,14 +80,20 @@ func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 			&race.RaceCasterName,
 			&race.RaceCasterURL,
 		); err == sql.ErrNoRows {
-			return nil, sql.ErrNoRows
+			return tournamentRaces, sql.ErrNoRows
 		} else if err != nil {
-			return nil, err
+			return tournamentRaces, err
 		}
 		tournamentRaces = append(tournamentRaces, race)
 	}
-	if len(tournamentRaces) == 0 {
-		return nil, sql.ErrNoRows
+
+	if err := rows.Err(); err != nil {
+		return tournamentRaces, err
 	}
+
+	if len(tournamentRaces) == 0 {
+		return tournamentRaces, sql.ErrNoRows
+	}
+
 	return tournamentRaces, nil
 }

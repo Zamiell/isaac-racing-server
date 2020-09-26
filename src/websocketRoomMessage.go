@@ -4,7 +4,6 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -29,7 +28,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested room is sane
 	if d.Room == "" {
-		log.Warning("User \"" + username + "\" tried to send a message, but did not provide a room.")
+		logger.Warning("User \"" + username + "\" tried to send a message, but did not provide a room.")
 		websocketError(s, d.Command, "That is not a valid room name.")
 		return
 	}
@@ -39,7 +38,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Don't allow empty messages
 	if message == "" {
-		log.Warning("User \"" + username + "\" tried to send an empty message.")
+		logger.Warning("User \"" + username + "\" tried to send an empty message.")
 		websocketWarning(s, d.Command, "You cannot send an empty message.")
 		return
 	}
@@ -66,7 +65,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 		}
 	}
 	if !userInRoom {
-		log.Warning("User \"" + username + "\" tried to message a room they were not in.")
+		logger.Warning("User \"" + username + "\" tried to message a room they were not in.")
 		websocketError(s, d.Command, "You are not in that room.")
 		return
 	}
@@ -83,7 +82,7 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add the new message to the database
 	if err := db.ChatLog.Insert(d.Room, userID, message); err != nil {
-		log.Error("Database error when inserting a message:", err)
+		logger.Error("Database error when inserting a message:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
@@ -106,5 +105,5 @@ func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Log the message
-	log.Info("#" + d.Room + " <" + username + "> " + message)
+	logger.Info("#" + d.Room + " <" + username + "> " + message)
 }

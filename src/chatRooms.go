@@ -1,9 +1,5 @@
 package main
 
-import (
-	"github.com/Zamiell/isaac-racing-server/src/log"
-)
-
 /*
 	Chat room subroutines
 */
@@ -29,7 +25,7 @@ func chatRoomsUpdate(username string, property string, newValue interface{}) {
 			streamURL := newValue.(string)
 			chatRooms[room][index].StreamURL = streamURL
 		} else {
-			log.Error("The \"chatRoomsUpdate\" function was called without a valid property name.")
+			logger.Error("The \"chatRoomsUpdate\" function was called without a valid property name.")
 			return
 		}
 
@@ -46,7 +42,7 @@ func chatRoomsUpdate(username string, property string, newValue interface{}) {
 					chatRooms[room][index],
 				})
 			} else {
-				log.Error("Failed to get the connection for user \"" + user.Name + "\" while setting a new chat room value for user \"" + username + "\".")
+				logger.Error("Failed to get the connection for user \"" + user.Name + "\" while setting a new chat room value for user \"" + username + "\".")
 				continue
 			}
 		}

@@ -3,7 +3,6 @@ package main
 import (
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	melody "gopkg.in/olahol/melody.v1"
 )
@@ -21,14 +20,14 @@ func websocketRoomJoin(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the requested room is sane
 	if d.Room == "" {
-		log.Warning("User \"" + username + "\" tried to join a room without providing a room name.")
+		logger.Warning("User \"" + username + "\" tried to join a room without providing a room name.")
 		websocketError(s, d.Command, "That is not a valid room name.")
 		return
 	}
 
 	// Validate that they are not trying to join a system room
 	if strings.HasPrefix(d.Room, "_") {
-		log.Warning("User \"" + username + "\" tried to join a system room.")
+		logger.Warning("User \"" + username + "\" tried to join a system room.")
 		websocketError(s, d.Command, "You are not allowed to manually join system rooms.")
 		return
 	}
@@ -45,7 +44,7 @@ func websocketRoomJoin(s *melody.Session, d *IncomingWebsocketData) {
 			}
 		}
 		if userInRoom {
-			log.Warning("User \"" + username + "\" tried to join a room they were already in.")
+			logger.Warning("User \"" + username + "\" tried to join a room they were already in.")
 			websocketError(s, d.Command, "You are already in that room.")
 			return
 		}
@@ -101,7 +100,7 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 				})
 			}
 		} else {
-			log.Error("Failed to get the connection for user \"" + user.Name + "\" while connecting user \"" + username + "\" to room \"" + room + "\".")
+			logger.Error("Failed to get the connection for user \"" + user.Name + "\" while connecting user \"" + username + "\" to room \"" + room + "\".")
 			continue
 		}
 	}
@@ -112,7 +111,7 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 		// Get all of the history
 		// (in SQLite, LIMIT -1 returns all results)
 		if list, err := db.ChatLog.Get(room, -1); err != nil {
-			log.Error("Database error when getting all of the chat history:", err)
+			logger.Error("Database error when getting all of the chat history:", err)
 			return
 		} else {
 			roomHistoryList = list
@@ -120,7 +119,7 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 	} else {
 		// Get only the last 50 entries
 		if list, err := db.ChatLog.Get(room, 50); err != nil {
-			log.Error("Database error when getting the last 50 messages of chat history:", err)
+			logger.Error("Database error when getting the last 50 messages of chat history:", err)
 			return
 		} else {
 			roomHistoryList = list
@@ -138,5 +137,5 @@ func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
 	})
 
 	// Log the join
-	log.Info("User \"" + username + "\" joined room: #" + room)
+	logger.Info("User \"" + username + "\" joined room: #" + room)
 }

@@ -6,7 +6,6 @@ import (
 	"sort"
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -15,7 +14,7 @@ func websocketHandleConnect(s *melody.Session) {
 	d := &IncomingWebsocketData{}
 	d.Command = "websocketHandleConnect"
 	if !websocketGetSessionValues(s, d) {
-		log.Error("Did not complete the \"" + d.Command + "\" function.")
+		logger.Error("Did not complete the \"" + d.Command + "\" function.")
 		websocketClose(s)
 		return
 	}
@@ -35,7 +34,7 @@ func websocketHandleConnect(s *melody.Session) {
 
 	// Disconnect any existing connections with this username
 	if s2, ok := websocketSessions[username]; ok {
-		log.Info("Closing existing connection for user \"" + username + "\".")
+		logger.Info("Closing existing connection for user \"" + username + "\".")
 		websocketError(s2, "logout", "You have logged on from somewhere else, so you have been disconnected here.")
 		websocketClose(s2)
 
@@ -54,7 +53,7 @@ func websocketHandleConnect(s *melody.Session) {
 
 	// Add the connection to a session map so that we can keep track of all of the connections
 	websocketSessions[username] = s
-	log.Info("User \""+username+"\" connected;", len(websocketSessions), "user(s) now connected.")
+	logger.Info("User \""+username+"\" connected;", len(websocketSessions), "user(s) now connected.")
 
 	// Send them various settings tied to their account
 	type SettingsMessage struct {
@@ -143,7 +142,7 @@ func websocketHandleConnect(s *melody.Session) {
 	})
 	messageRaw, err := ioutil.ReadFile(path.Join(projectPath, "message_of_the_day.txt"))
 	if err != nil {
-		log.Error("Failed to read the \"message_of_the_day.txt\" file:", err)
+		logger.Error("Failed to read the \"message_of_the_day.txt\" file:", err)
 		return
 	}
 	message := string(messageRaw)

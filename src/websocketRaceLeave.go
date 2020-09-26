@@ -3,8 +3,6 @@ package main
 import (
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
-
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -63,7 +61,7 @@ func websocketRaceLeave(s *melody.Session, d *IncomingWebsocketData) {
 
 		// Also delete it from the database
 		if err := db.Races.Delete(d.ID); err != nil {
-			log.Error("Database error when deleting race ID "+strconv.Itoa(d.ID)+":", err)
+			logger.Error("Database error when deleting race ID "+strconv.Itoa(d.ID)+":", err)
 			websocketError(s, d.Command, "")
 			return
 		}

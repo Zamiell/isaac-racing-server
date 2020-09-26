@@ -165,6 +165,8 @@ func (*Users) GetTotalTime(username string) (int, error) {
 
 // GetUserProfiles gets players data to populate the profiles page
 func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow, int, error) {
+	profiles := make([]ProfilesRow, 0)
+
 	usersOffset := (currentPage - 1) * usersPerPage
 	var rows *sql.Rows
 	if v, err := db.Query(`
@@ -200,16 +202,15 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 		OFFSET
 			?
 	`, usersPerPage, usersOffset); err == sql.ErrNoRows {
-		return nil, 0, nil
+		return profiles, 0, nil
 	} else if err != nil {
-		return nil, 0, err
+		return profiles, 0, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
 	// Iterate over the user profile results
-	profiles := make([]ProfilesRow, 0)
 	for rows.Next() {
 		var row ProfilesRow
 		if err := rows.Scan(
@@ -221,10 +222,14 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 			&row.ProfileLastRaceID,
 			&row.ProfileLastRaceDate,
 		); err != nil {
-			return nil, 0, err
+			return profiles, 0, err
 		}
 
 		profiles = append(profiles, row)
+	}
+
+	if err := rows.Err(); err != nil {
+		return profiles, 0, err
 	}
 
 	// Find total amount of users
@@ -234,7 +239,7 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 		FROM users
 		WHERE steam_id > 0
 	`).Scan(&allProfilesCount); err != nil {
-		return nil, 0, err
+		return profiles, 0, err
 	}
 
 	return profiles, allProfilesCount, nil

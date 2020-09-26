@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -48,7 +47,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	// The the base game there are over 500 items and the Racing+ mod has a bunch of custom items
 	// Furthermore, we hardcode some custom items in the 3000-3999 range
 	if itemID < 1 || itemID > 4000 {
-		log.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
+		logger.Warning("User \"" + username + "\" attempted to add item " + strconv.Itoa(itemID) + " to their build, but that is a bogus number.")
 		websocketError(s, d.Command, "That is not a valid item ID.")
 		return
 	}
@@ -119,7 +118,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 					continue
 				}
 				if startingItemInt, err := strconv.Atoi(startingItem); err != nil {
-					log.Error("Failed to parse the Diversity seed when checking for the starting item:", err)
+					logger.Error("Failed to parse the Diversity seed when checking for the starting item:", err)
 					continue
 				} else {
 					if itemID == startingItemInt {

@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/Zamiell/isaac-racing-server/src/models"
 )
 
@@ -204,7 +203,7 @@ func (race *Race) Start() {
 	}
 
 	// Log the race starting
-	log.Info("Race "+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
+	logger.Info("Race "+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
 
 	// Change the status for this race to "starting"
 	race.SetStatus("starting")
@@ -242,7 +241,7 @@ func (race *Race) Start2() {
 	defer commandMutex.Unlock()
 
 	// Log the race starting
-	log.Info("Race", race.ID, "started with", len(race.Racers), "participants.")
+	logger.Info("Race", race.ID, "started with", len(race.Racers), "participants.")
 
 	race.SetStatus("in progress")
 	race.DatetimeStarted = getTimestamp()
@@ -277,7 +276,7 @@ func (race *Race) Start3() {
 			continue
 		}
 
-		log.Info("Forcing racer \"" + racer.Name + "\" to quit since the race time limit has been reached.")
+		logger.Info("Forcing racer \"" + racer.Name + "\" to quit since the race time limit has been reached.")
 
 		d := &IncomingWebsocketData{
 			Command: "race.Start3",
@@ -302,7 +301,7 @@ func (race *Race) CheckFinish() {
 
 func (race *Race) Finish() {
 	// Log the race finishing
-	log.Info("Race " + strconv.Itoa(race.ID) + " finished.")
+	logger.Info("Race " + strconv.Itoa(race.ID) + " finished.")
 
 	// Let everyone know it ended
 	race.SetStatus("finished")
@@ -325,7 +324,7 @@ func (race *Race) Finish() {
 		DatetimeStarted: race.DatetimeStarted,
 	}
 	if err := db.Races.Finish(databaseRace); err != nil {
-		log.Error("Failed to write race #"+strconv.Itoa(race.ID)+" to the database:", err)
+		logger.Error("Failed to write race #"+strconv.Itoa(race.ID)+" to the database:", err)
 		return
 	}
 
@@ -341,7 +340,7 @@ func (race *Race) Finish() {
 			Comment:          racer.Comment,
 		}
 		if err := db.RaceParticipants.Insert(race.ID, databaseRacer); err != nil {
-			log.Error("Failed to write the RaceParticipants row for \""+race.Name+"\" to the database:", err)
+			logger.Error("Failed to write the RaceParticipants row for \""+race.Name+"\" to the database:", err)
 			return
 		}
 
@@ -354,7 +353,7 @@ func (race *Race) Finish() {
 				item.StageType,
 				item.DatetimeAcquired,
 			); err != nil {
-				log.Error("Failed to write the RaceParticipantItems row for \""+race.Name+"\" to the database:", err)
+				logger.Error("Failed to write the RaceParticipantItems row for \""+race.Name+"\" to the database:", err)
 				return
 			}
 		}
@@ -368,7 +367,7 @@ func (race *Race) Finish() {
 				room.StageType,
 				room.DatetimeArrived,
 			); err != nil {
-				log.Error("Failed to write the RaceParticipantRooms row for \""+race.Name+"\" to the database:", err)
+				logger.Error("Failed to write the RaceParticipantRooms row for \""+race.Name+"\" to the database:", err)
 				return
 			}
 		}

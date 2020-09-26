@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"net"
 )
 
@@ -28,7 +27,7 @@ func (m *MessageHeader) Unmarshall(b []byte) (err error) {
 	reader := bytes.NewReader(b)
 	err = binary.Read(reader, binary.LittleEndian, m)
 	if err != nil {
-		log.Error(fmt.Sprintf("Failed to unmarshall message: %v", b), err)
+		logger.Error(fmt.Sprintf("Failed to unmarshall message: %v", b), err)
 	}
 	return
 }
@@ -66,11 +65,11 @@ func (p *PlayerMap) updateSessions() {
 			pConn.TTL--
 			if pConn.TTL <= 0 {
 				delete(race, playerId)
-				log.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerId, raceId))
+				logger.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerId, raceId))
 
 				if len(race) < 1 {
 					delete(*p, raceId)
-					log.Debug(fmt.Sprintf("Record removed race=%v", raceId))
+					logger.Debug(fmt.Sprintf("Record removed race=%v", raceId))
 				}
 			}
 		}
@@ -84,7 +83,7 @@ func (p *PlayerMap) update(mh MessageHeader, addr *net.Addr) {
 	// lazy-init race
 	if (*p)[mh.RaceId] == nil {
 		(*p)[mh.RaceId] = make(map[uint32]*PlayerConn)
-		log.Debug(fmt.Sprintf("Record created race=%v ", mh.RaceId))
+		logger.Debug(fmt.Sprintf("Record created race=%v ", mh.RaceId))
 	}
 
 	race := (*p)[mh.RaceId]
@@ -92,11 +91,11 @@ func (p *PlayerMap) update(mh MessageHeader, addr *net.Addr) {
 	// lazy-init player connection
 	if race[mh.PlayerId] == nil {
 		if len(race) > 1 {
-			log.Info(fmt.Sprintf("Player=%v attempted to join race=%v with two players", mh.PlayerId, mh.RaceId))
+			logger.Info(fmt.Sprintf("Player=%v attempted to join race=%v with two players", mh.PlayerId, mh.RaceId))
 			return
 		}
 		race[mh.PlayerId] = &PlayerConn{addr, sessionTTL}
-		log.Info(fmt.Sprintf("Connection created player=%v, dst=%v", mh.PlayerId, *addr))
+		logger.Info(fmt.Sprintf("Connection created player=%v, dst=%v", mh.PlayerId, *addr))
 	}
 
 	// update TTL

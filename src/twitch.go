@@ -9,8 +9,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/Zamiell/isaac-racing-server/src/log"
 )
 
 const (
@@ -31,7 +29,7 @@ func twitchInit() {
 	// (it was loaded from the .env file in main.go)
 	oauthToken := os.Getenv("TWITCH_OAUTH")
 	if len(oauthToken) == 0 {
-		log.Info("The \"TWITCH_OAUTH\" environment variable is blank; aborting Twitch bot initialization.")
+		logger.Info("The \"TWITCH_OAUTH\" environment variable is blank; aborting Twitch bot initialization.")
 		return
 	}
 
@@ -42,7 +40,7 @@ func twitchInit() {
 func twitchConnect(oauthToken string) {
 	// Connect to the Twitch IRC server
 	if c, err := net.Dial("tcp", "irc.chat.twitch.tv:6667"); err != nil {
-		log.Error("Failed to connect to the Twitch IRC:", err)
+		logger.Error("Failed to connect to the Twitch IRC:", err)
 		time.Sleep(30 * time.Second)
 		go twitchConnect(oauthToken) // Reconnect after 30 seconds
 		return
@@ -65,7 +63,7 @@ func twitchConnect(oauthToken string) {
 	// Figure out which channels to join
 	streamURLs, err := db.Users.GetAllStreamURLs()
 	if err != nil {
-		log.Error("Database error while getting the stream URLs:", err)
+		logger.Error("Database error while getting the stream URLs:", err)
 		return
 	}
 
@@ -73,14 +71,14 @@ func twitchConnect(oauthToken string) {
 	for _, streamURL := range streamURLs {
 		// Just in case, ensure that this is a Twitch URL
 		if !strings.HasPrefix(streamURL, "https://www.twitch.tv/") {
-			log.Error("A user had a stream URL set to \"" + streamURL + "\" but their \"twitch_bot_enabled\" was set to 1, which should never happen.")
+			logger.Error("A user had a stream URL set to \"" + streamURL + "\" but their \"twitch_bot_enabled\" was set to 1, which should never happen.")
 			continue
 		}
 
 		// Parse for the username
 		re, err := regexp.Compile(`https://www.twitch.tv/(.+)`)
 		if err != nil {
-			log.Error("Failed to compile the Twitch username regular expression:", err)
+			logger.Error("Failed to compile the Twitch username regular expression:", err)
 			return
 		}
 		user := re.FindStringSubmatch(streamURL)[1]
@@ -97,13 +95,13 @@ func twitchConnect(oauthToken string) {
 		msg, err := tp.ReadLine()
 		if err != nil {
 			// Ocassionally the connection is reset, so don't log this as an error
-			log.Info("Failed to read from the Twitch IRC connection:", err)
+			logger.Info("Failed to read from the Twitch IRC connection:", err)
 			go twitchInit() // Reconnect
 			return
 		}
 
 		// Log all messages
-		//log.Info("< " + msg)
+		//logger.Info("< " + msg)
 
 		// Split the message by spaces
 		msgParts := strings.Split(msg, " ")
@@ -166,7 +164,7 @@ func twitchConnect(oauthToken string) {
 */
 
 func twitchNotMod(channel string) {
-	log.Info("Detected that we are not a mod in the channel of \"" + channel + "\".")
+	logger.Info("Detected that we are not a mod in the channel of \"" + channel + "\".")
 
 	twitchLeaveChannel(channel)
 
@@ -174,16 +172,16 @@ func twitchNotMod(channel string) {
 	streamURL := "https://www.twitch.tv/" + channel
 	userID, username, err := db.Users.GetUserFromStreamURL(streamURL)
 	if err != nil {
-		log.Error("Database error while finding the user associated with the stream URL of \""+streamURL+"\":", err)
+		logger.Error("Database error while finding the user associated with the stream URL of \""+streamURL+"\":", err)
 		return
 	} else if userID == 0 {
-		log.Error("Was not able to find the user ID that goes along with the stream URL of: " + streamURL)
+		logger.Error("Was not able to find the user ID that goes along with the stream URL of: " + streamURL)
 		return
 	}
 
 	// Disable the Twitch bot in the database
 	if err := db.Users.SetTwitchBotEnabled(userID, false); err != nil {
-		log.Error("Database error while setting the Twitch bot status for user "+strconv.Itoa(userID)+":", err)
+		logger.Error("Database error while setting the Twitch bot status for user "+strconv.Itoa(userID)+":", err)
 		return
 	}
 
@@ -277,7 +275,7 @@ func twitchRacerSend(username string, message string) {
 	d := &IncomingWebsocketData{}
 	d.Command = "twitchRacerSend"
 	if !websocketGetSessionValues(s, d) {
-		log.Error("Did not complete the \"" + d.Command + "\" function.")
+		logger.Error("Did not complete the \"" + d.Command + "\" function.")
 		websocketClose(s)
 		return
 	}
@@ -290,14 +288,14 @@ func twitchRacerSend(username string, message string) {
 	}
 
 	if !strings.HasPrefix(streamURL, "https://www.twitch.tv/") {
-		log.Error("User \"" + username + "\" had a stream URL set to \"" + streamURL + "\" but their \"TwitchBotEnabled\" was set to 1, which should never happen.")
+		logger.Error("User \"" + username + "\" had a stream URL set to \"" + streamURL + "\" but their \"TwitchBotEnabled\" was set to 1, which should never happen.")
 		return
 	}
 
 	// Parse for the username
 	re, err := regexp.Compile(`https://www.twitch.tv/(.+)`)
 	if err != nil {
-		log.Error("Failed to compile the Twitch username regular expression:", err)
+		logger.Error("Failed to compile the Twitch username regular expression:", err)
 		return
 	}
 	channel := re.FindStringSubmatch(streamURL)[1]
@@ -326,8 +324,8 @@ func twitchSend(channel string, message string, delay int) {
 }
 
 func twitchIRCSend(command string) {
-	// log.Info("> " + command)
+	// logger.Info("> " + command)
 	if _, err := twitchConn.Write([]byte(command + "\r\n")); err != nil {
-		log.Error("Writing to the Twitch connection failed:", err)
+		logger.Error("Writing to the Twitch connection failed:", err)
 	}
 }

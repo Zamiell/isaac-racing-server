@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -17,24 +16,24 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the user is an admin
 	if admin == 0 {
-		log.Info("User \"" + username + "\" tried to do a debug command, but they are not staff/admin.")
+		logger.Info("User \"" + username + "\" tried to do a debug command, but they are not staff/admin.")
 		websocketError(s, d.Command, "Only staff members or administrators can do that.")
 		return
 	}
 
-	log.Debug("---------------------------------------------------------------")
+	logger.Debug("---------------------------------------------------------------")
 
 	// Print out all of the current races
 	if len(races) == 0 {
-		log.Debug("[no current races]")
+		logger.Debug("[no current races]")
 	}
 	for i, race := range races { // This is a map[int]*Race
-		log.Debug(strconv.Itoa(i) + " - " + race.Name)
-		log.Debug("\n")
+		logger.Debug(strconv.Itoa(i) + " - " + race.Name)
+		logger.Debug("\n")
 
 		// Print out all of the fields
 		// From: https://stackoverflow.com/questions/24512112/how-to-print-struct-variables-in-console
-		log.Debug("    All fields:")
+		logger.Debug("    All fields:")
 		fieldsToIgnore := []string{
 			"Racers",
 			"Ruleset",
@@ -66,14 +65,14 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 				line += "[empty string]"
 			}
 			line += "\n"
-			log.Debug(line)
+			logger.Debug(line)
 		}
-		log.Debug("\n")
+		logger.Debug("\n")
 
 		// Manually enumerate the slices and maps
-		log.Debug("    Racers:")
+		logger.Debug("    Racers:")
 		for name, racer := range race.Racers {
-			log.Debug("        " + name)
+			logger.Debug("        " + name)
 			s3 := reflect.ValueOf(racer).Elem()
 			maxChars3 := 0
 			for i := 0; i < s3.NumField(); i++ {
@@ -95,30 +94,30 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 					line += "[empty string]"
 				}
 				line += "\n"
-				log.Debug(line)
+				logger.Debug(line)
 			}
-			log.Debug("\n")
+			logger.Debug("\n")
 		}
 
-		log.Debug("---------------------------------------------------------------")
+		logger.Debug("---------------------------------------------------------------")
 	}
 
 	// Print out all of the current users
-	log.Debug("Current users:")
+	logger.Debug("Current users:")
 	if len(websocketSessions) == 0 {
-		log.Debug("    [no users]")
+		logger.Debug("    [no users]")
 	}
 	i := 1
 	for name := range websocketSessions { // This is a map[string]*melody.Session
-		log.Debug("    " +
+		logger.Debug("    " +
 			strconv.Itoa(i) + ") " + name)
 	}
-	log.Debug("---------------------------------------------------------------")
+	logger.Debug("---------------------------------------------------------------")
 
 	// Do extra stuff
 	/*
-		log.Debug("Calculating unseeded solo stats.")
+		logger.Debug("Calculating unseeded solo stats.")
 		leaderboardRecalculateSoloUnseeded()
-		log.Debug("Finished.")
+		logger.Debug("Finished.")
 	*/
 }

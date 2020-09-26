@@ -24,6 +24,8 @@ func (*UserAchievements) Insert(userID int, achievementID int) error {
 }
 
 func (*UserAchievements) GetAll(userID int) ([]int, error) {
+	achievementList := make([]int, 0)
+
 	var rows *sql.Rows
 	if v, err := db.Query(`
  		SELECT achievement_id
@@ -31,20 +33,23 @@ func (*UserAchievements) GetAll(userID int) ([]int, error) {
  		WHERE user_id = ?
  		ORDER BY datetime_achieved
  	`, userID); err != nil {
-		return nil, err
+		return achievementList, err
 	} else {
 		rows = v
 	}
 	defer rows.Close()
 
-	var achievementList []int
 	for rows.Next() {
 		var achievementID int
 		if err := rows.Scan(&achievementID); err != nil {
-			return nil, err
+			return achievementList, err
 		}
 
 		achievementList = append(achievementList, achievementID)
+	}
+
+	if err := rows.Err(); err != nil {
+		return achievementList, err
 	}
 
 	return achievementList, nil

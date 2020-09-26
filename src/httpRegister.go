@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"unicode/utf8"
 
-	"github.com/Zamiell/isaac-racing-server/src/log"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -22,11 +21,11 @@ func httpRegister(c *gin.Context) {
 
 	// Check to see if their IP is banned
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
-		log.Error("Database error when checking to see if the IP \""+ip+"\" was banned:", err)
+		logger.Error("Database error when checking to see if the IP \""+ip+"\" was banned:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if userIsBanned {
-		log.Info("IP \"" + ip + "\" tried to register, but they are banned.")
+		logger.Info("IP \"" + ip + "\" tried to register, but they are banned.")
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		return
 	}
@@ -35,7 +34,7 @@ func httpRegister(c *gin.Context) {
 	// (which should probably never happen since the cookie lasts 5 seconds)
 	session := sessions.Default(c)
 	if v := session.Get("userID"); v != nil {
-		log.Info("User from IP \"" + ip + "\" tried to register, but they are already logged in.")
+		logger.Info("User from IP \"" + ip + "\" tried to register, but they are already logged in.")
 		http.Error(w, "You cannot register because you are already logged in.", http.StatusUnauthorized)
 		return
 	}
@@ -43,19 +42,19 @@ func httpRegister(c *gin.Context) {
 	// Validate that the user sent the Steam ID, the ticket, and the username
 	steamID := c.PostForm("steamID")
 	if steamID == "" {
-		log.Error("User from IP \"" + ip + "\" tried to register, but they did not provide the \"steamID\" parameter.")
+		logger.Error("User from IP \"" + ip + "\" tried to register, but they did not provide the \"steamID\" parameter.")
 		http.Error(w, "You must provide the \"steamID\" parameter to register.", http.StatusUnauthorized)
 		return
 	}
 	ticket := c.PostForm("ticket")
 	if ticket == "" {
-		log.Error("User from IP \"" + ip + "\" tried to register, but they did not provide the \"ticket\" parameter.")
+		logger.Error("User from IP \"" + ip + "\" tried to register, but they did not provide the \"ticket\" parameter.")
 		http.Error(w, "You must provide the \"ticket\" parameter to register.", http.StatusUnauthorized)
 		return
 	}
 	username := c.PostForm("username")
 	if username == "" {
-		log.Error("User from IP \"" + ip + "\" tried to register, but they did not provide the \"username\" parameter.")
+		logger.Error("User from IP \"" + ip + "\" tried to register, but they did not provide the \"username\" parameter.")
 		http.Error(w, "You must provide the \"username\" parameter to register.", http.StatusUnauthorized)
 		return
 	}
@@ -68,12 +67,12 @@ func httpRegister(c *gin.Context) {
 
 	// Check to see if this Steam ID exists in the database
 	if sessionValues, err := db.Users.Login(steamID); err != nil {
-		log.Error("Database error when checking to see if the steam ID of \""+steamID+"\" exists:", err)
+		logger.Error("Database error when checking to see if the steam ID of \""+steamID+"\" exists:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if sessionValues != nil {
 		// They are trying to register a new account, but this Steam ID already exists in the database
-		log.Error("User from IP \"" + ip + "\" tried to register, but they already exist in the database.")
+		logger.Error("User from IP \"" + ip + "\" tried to register, but they already exist in the database.")
 		http.Error(w, "There is already a Racing+ account tied to your Steam ID, so you cannot register a new one.", http.StatusUnauthorized)
 		return
 	}
@@ -92,7 +91,7 @@ func httpRegister(c *gin.Context) {
 
 	// Validate that the username is not already taken
 	if userExists, _, err := db.Users.Exists(username); err != nil {
-		log.Error("Database error when checking to see if the username of \""+username+"\" exists:", err)
+		logger.Error("Database error when checking to see if the username of \""+username+"\" exists:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else if userExists {
@@ -107,7 +106,7 @@ func httpRegister(c *gin.Context) {
 	// Add them to the database
 	var userID int
 	if id, err := db.Users.Insert(steamID, username, ip); err != nil {
-		log.Error("Database error when inserting the username of \""+username+"\":", err)
+		logger.Error("Database error when inserting the username of \""+username+"\":", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	} else {
@@ -123,9 +122,9 @@ func httpRegister(c *gin.Context) {
 	session.Set("twitchBotEnabled", false) // By default, new users do not have the Twitch bot enabled
 	session.Set("twitchBotDelay", 15)      // By default, new users have a Twitch bot delay of 15
 	if err := session.Save(); err != nil {
-		log.Error("Failed to save the session:", err)
+		logger.Error("Failed to save the session:", err)
 	}
 
 	// Log the user creation
-	log.Info("Added \"" + username + "\" to the database (first login).")
+	logger.Info("Added \"" + username + "\" to the database (first login).")
 }
