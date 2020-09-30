@@ -46,12 +46,12 @@
    { "id": 375, "name": "Host Hat" }],
 
   [{ "id": 544, "name": "Pointy Rib" },
-   { "id": 310, "name": "Eve's Mascara" }],
- 
+   { "id": 544, "name": "Pointy Rib" }],
+
   [{ "id": 257, "name": "Fire Mind" },
    { "id": 317, "name": "Mysterious Liquid" },
    { "id": 600, "name": "13 Luck" }],
- 
+
   [{ "id": 524, "name": "Technology Zero" },
    { "id": 529, "name": "Pop!" },
    { "id": 48,  "name": "Cupid's Arrow" }],
