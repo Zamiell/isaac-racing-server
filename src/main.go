@@ -2,6 +2,7 @@ package main // In Go, executable commands must always use package main
 
 import (
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"strings"
@@ -13,12 +14,13 @@ import (
 var (
 	projectPath string
 
-	logger       *Logger
-	isDev        bool
-	usingSentry  bool
-	db           *models.Models
-	races        = make(map[int]*Race)
-	shutdownMode = 0
+	logger           *Logger
+	gitCommitOnStart string
+	isDev            bool
+	usingSentry      bool
+	db               *models.Models
+	races            = make(map[int]*Race)
+	shutdownMode     = 0
 )
 
 func main() {
@@ -36,6 +38,15 @@ func main() {
 		logger.Fatal("Failed to get the path of the currently running executable:", err)
 	} else {
 		projectPath = filepath.Dir(v)
+	}
+
+	// Record the commit that corresponds with when the Golang code was compiled
+	cmd := exec.Command("git", "rev-parse", "HEAD")
+	if stdout, err := cmd.Output(); err != nil {
+		logger.Fatal("Failed to perform a \"git rev-parse HEAD\":", err)
+		return
+	} else {
+		gitCommitOnStart = strings.TrimSpace(string(stdout))
 	}
 
 	// Check to see if the ".env" file exists

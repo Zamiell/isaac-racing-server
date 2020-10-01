@@ -94,14 +94,14 @@ func twitchConnect(oauthToken string) {
 		// Block until we get a message
 		msg, err := tp.ReadLine()
 		if err != nil {
-			// Ocassionally the connection is reset, so don't log this as an error
+			// Occasionally the connection is reset, so don't log this as an error
 			logger.Info("Failed to read from the Twitch IRC connection:", err)
 			go twitchInit() // Reconnect
 			return
 		}
 
 		// Log all messages
-		//logger.Info("< " + msg)
+		// logger.Info("< " + msg)
 
 		// Split the message by spaces
 		msgParts := strings.Split(msg, " ")
@@ -141,7 +141,6 @@ func twitchConnect(oauthToken string) {
 				}
 			}
 			continue
-
 		} else if command == "PRIVMSG" {
 			// Remove the colon at the beginning of the message and make it lowercase for easier parsing
 			message := msgParts[4][1:]

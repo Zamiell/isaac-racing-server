@@ -249,13 +249,15 @@ func (race *Race) Start2() {
 		racer.Status = "racing"
 	}
 
-	// Return for now and do more things later on when it is time to check to see if the race has been going for too long
+	// Return for now and do more things later on when it is time to check to see if the race has
+	// been going for too long
 	go race.Start3()
 }
 
 func (race *Race) Start3() {
 	if race.Ruleset.Format == "custom" {
-		time.Sleep(4 * time.Hour) // We need to make the timeout longer to accomodate multi-character speedrun races
+		// We need to make the timeout longer to accommodate multi-character speedrun races
+		time.Sleep(4 * time.Hour)
 	} else {
 		time.Sleep(30 * time.Minute)
 	}

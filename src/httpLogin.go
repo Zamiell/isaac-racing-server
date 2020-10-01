@@ -205,7 +205,9 @@ func validateSteamTicket(steamID string, ticket string, ip string, w http.Respon
 		return false
 	}
 	appID := "250900" // This is the app ID on Steam for The Binding of Isaac: Rebirth
-	resp, err := myHTTPClient.Get("https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1?key=" + apiKey + "&appid=" + appID + "&ticket=" + ticket)
+	url := "https://api.steampowered.com/ISteamUserAuth/AuthenticateUserTicket/v1"
+	args := "?key=" + apiKey + "&appid=" + appID + "&ticket=" + ticket
+	resp, err := HTTPClientWithTimeout.Get(url + args)
 	if err != nil {
 		logger.Error("Failed to query the Steam web API for IP \""+ip+"\": ", err)
 		http.Error(w, "An error occurred while verifying your Steam account. Please try again later.", http.StatusUnauthorized)

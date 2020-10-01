@@ -27,7 +27,7 @@ func verifySender(mh MessageHeader, raddr net.Addr) bool {
 		return false
 	} else if storedConnection.(*net.UDPAddr).String() != raddr.(*net.UDPAddr).String() {
 		logger.Info(fmt.Sprintf("Player=%v shadow has untracked origin, recorded=%v, received=%v",
-			mh.PlayerId, storedConnection, raddr))
+			mh.PlayerID, storedConnection, raddr))
 		return false
 	}
 	return true
@@ -55,13 +55,13 @@ func handleShadowMessage(msg []byte, pc net.PacketConn, raddr net.Addr) {
 			_, err := pc.WriteTo(msg, *opponent.ADDR)
 			if err != nil {
 				logger.Error(fmt.Sprintf(
-					"Shadow proxy failed, player=%v, msg: %v\ncause: %v", mh.PlayerId, msg, err))
+					"Shadow proxy failed, player=%v, msg: %v\ncause: %v", mh.PlayerID, msg, err))
 			}
 		}
 	}
 }
 
-func shadowServer() (err error, pc net.PacketConn) {
+func shadowServer() (pc net.PacketConn, err error) {
 	pc, err = net.ListenPacket("udp4", fmt.Sprintf(":%d", port))
 	logger.Info(fmt.Sprintf("Listening UDP connections on port %d", port))
 	if err != nil {
@@ -106,14 +106,19 @@ func sessionClock() {
 
 func shadowInit() {
 	go sessionClock()
-	errStart, pc := shadowServer()
-	if errStart != nil {
-		logger.Error("Exited by: ", errStart)
-		if pc != nil {
-			errClose := pc.Close()
-			if errClose != nil {
-				logger.Error("Error closing connection", errClose)
-			}
+
+	var pc net.PacketConn
+	if v, err := shadowServer(); err != nil {
+		logger.Error("Failed to start the shadow server:", err)
+		return
+	} else {
+		pc = v
+	}
+
+	if pc != nil {
+		if err := pc.Close(); err != nil {
+			logger.Error("Error closing shadow server connection:", err)
+			return
 		}
 	}
 }

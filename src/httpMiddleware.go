@@ -59,7 +59,7 @@ func httpMwGoogleAnalytics(c *gin.Context) {
 			"uip": {ip},            // IP address override
 			"ua":  {r.UserAgent()}, // User agent override
 		}
-		resp, err := myHTTPClient.PostForm("https://www.google-analytics.com/collect", data)
+		resp, err := HTTPClientWithTimeout.PostForm("https://www.google-analytics.com/collect", data)
 		if err != nil {
 			logger.Error("Failed to send a page hit to Google Analytics:", err)
 			return

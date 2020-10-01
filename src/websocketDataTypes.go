@@ -8,7 +8,7 @@ import (
 	The structs here are used in more than one WebSocket file
 */
 
-// Recieved in all commands
+// Received in all commands
 type IncomingWebsocketData struct {
 	Room      string                `json:"room"`
 	Message   string                `json:"message"`

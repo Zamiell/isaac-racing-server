@@ -69,7 +69,8 @@ func websocketRaceLeave(s *melody.Session, d *IncomingWebsocketData) {
 		// If the race went from 2 people to 1, check to see if the last person is ready
 		for _, lastRacer := range race.Racers {
 			if lastRacer.Status == "ready" {
-				// Automatically unready the last person so that they don't start the race by themsevles
+				// Automatically unready the last person so that they do not start the race by
+				// themselves
 				race.SetRacerStatus(lastRacer.Name, "not ready")
 			}
 		}

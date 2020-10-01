@@ -94,12 +94,12 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		if ruleset.Ranked {
 			websocketError(s, d.Command, "Multiplayer races must be unranked.")
 			return false
-		} else {
-			// Set the ruleset to ranked since it is a multiplayer game
-			// (in the past, there was multiplayer unranked and ranked,
-			// so this is a monkey fix to avoid changing the client)
-			return true
 		}
+
+		// Set the ruleset to ranked since it is a multiplayer game
+		// (in the past, there was multiplayer unranked and ranked,
+		// so this is a monkey fix to avoid changing the client)
+		return true
 	}
 
 	// Validate solo ranked games

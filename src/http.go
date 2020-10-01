@@ -18,14 +18,17 @@ import (
 )
 
 const (
-	sessionName = "isaac.sid"
+	HTTPSessionName  = "isaac.sid"
+	HTTPWriteTimeout = 10 * time.Second
 )
 
 var (
 	sessionStore cookie.Store
 	GATrackingID string
-	myHTTPClient = &http.Client{ // We don't want to use the default http.Client structure because it has no default timeout set
-		Timeout: 10 * time.Second,
+
+	// HTTPClientWithTimeout specifies a timeout on the default http.Client structure
+	HTTPClientWithTimeout = &http.Client{
+		Timeout: HTTPWriteTimeout,
 	}
 )
 
@@ -109,9 +112,6 @@ func httpInit() {
 	if len(tlsCertFile) == 0 || len(tlsKeyFile) == 0 {
 		useTLS = false
 	}
-	if domain == "localhost" {
-		dev = true
-	}
 
 	// Create a session store
 	sessionStore = cookie.NewStore([]byte(sessionSecret))
@@ -133,7 +133,7 @@ func httpInit() {
 		options.Secure = false
 	}
 	sessionStore.Options(options)
-	httpRouter.Use(sessions.Sessions(sessionName, sessionStore))
+	httpRouter.Use(sessions.Sessions(HTTPSessionName, sessionStore))
 
 	// Use the Tollbooth Gin middleware for rate limiting
 	limiter := tollbooth.NewLimiter(1, nil) // Limit each user to 1 request per second

@@ -68,7 +68,7 @@ func websocketHandleMessage(s *melody.Session, msg []byte) {
 	}
 
 	// Call the command handler for this command
-	if dev {
+	if isDev {
 		logger.Info("User \"" + username + "\" sent a command of \"" + command + "\".")
 	}
 	commandMutex.Lock()

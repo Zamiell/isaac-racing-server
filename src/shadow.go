@@ -19,8 +19,8 @@ type PlayerConn struct {
 }
 
 type MessageHeader struct {
-	RaceId   uint32
-	PlayerId uint32
+	RaceID   uint32
+	PlayerID uint32
 }
 
 func (m *MessageHeader) Unmarshall(b []byte) (err error) {
@@ -33,19 +33,19 @@ func (m *MessageHeader) Unmarshall(b []byte) (err error) {
 }
 
 func (p PlayerMap) getConnection(mh MessageHeader) net.Addr {
-	if p[mh.RaceId] != nil && p[mh.RaceId][mh.PlayerId] != nil {
-		return *p[mh.RaceId][mh.PlayerId].ADDR
+	if p[mh.RaceID] != nil && p[mh.RaceID][mh.PlayerID] != nil {
+		return *p[mh.RaceID][mh.PlayerID].ADDR
 	}
 	return nil
 }
 
 func (p PlayerMap) getOpponent(mh MessageHeader) (pConn *PlayerConn) {
-	race := p[mh.RaceId]
+	race := p[mh.RaceID]
 	if race == nil {
 		return
 	}
 	for pID, conn := range race {
-		if pID != mh.PlayerId {
+		if pID != mh.PlayerID {
 			pConn = conn
 		}
 	}
@@ -56,20 +56,20 @@ func (p *PlayerMap) updateSessions() {
 	mux.Lock()
 	defer mux.Unlock()
 
-	for raceId, race := range *p {
-		for playerId, pConn := range race {
+	for raceID, race := range *p {
+		for playerID, pConn := range race {
 			if pConn == nil {
 				continue
 			}
 
 			pConn.TTL--
 			if pConn.TTL <= 0 {
-				delete(race, playerId)
-				logger.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerId, raceId))
+				delete(race, playerID)
+				logger.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerID, raceID))
 
 				if len(race) < 1 {
-					delete(*p, raceId)
-					logger.Debug(fmt.Sprintf("Record removed race=%v", raceId))
+					delete(*p, raceID)
+					logger.Debug(fmt.Sprintf("Record removed race=%v", raceID))
 				}
 			}
 		}
@@ -81,23 +81,23 @@ func (p *PlayerMap) update(mh MessageHeader, addr *net.Addr) {
 	defer mux.Unlock()
 
 	// lazy-init race
-	if (*p)[mh.RaceId] == nil {
-		(*p)[mh.RaceId] = make(map[uint32]*PlayerConn)
-		logger.Debug(fmt.Sprintf("Record created race=%v ", mh.RaceId))
+	if (*p)[mh.RaceID] == nil {
+		(*p)[mh.RaceID] = make(map[uint32]*PlayerConn)
+		logger.Debug(fmt.Sprintf("Record created race=%v ", mh.RaceID))
 	}
 
-	race := (*p)[mh.RaceId]
+	race := (*p)[mh.RaceID]
 
 	// lazy-init player connection
-	if race[mh.PlayerId] == nil {
+	if race[mh.PlayerID] == nil {
 		if len(race) > 1 {
-			logger.Info(fmt.Sprintf("Player=%v attempted to join race=%v with two players", mh.PlayerId, mh.RaceId))
+			logger.Info(fmt.Sprintf("Player=%v attempted to join race=%v with two players", mh.PlayerID, mh.RaceID))
 			return
 		}
-		race[mh.PlayerId] = &PlayerConn{addr, sessionTTL}
-		logger.Info(fmt.Sprintf("Connection created player=%v, dst=%v", mh.PlayerId, *addr))
+		race[mh.PlayerID] = &PlayerConn{addr, sessionTTL}
+		logger.Info(fmt.Sprintf("Connection created player=%v, dst=%v", mh.PlayerID, *addr))
 	}
 
 	// update TTL
-	race[mh.PlayerId].TTL = sessionTTL
+	race[mh.PlayerID].TTL = sessionTTL
 }

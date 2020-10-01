@@ -67,7 +67,7 @@ func restartServer(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	cmd := exec.Command(path.Join(projectPath, "restart.sh"))
+	cmd := exec.Command(path.Join(projectPath, "restart.sh")) // nolint: gosec
 	if output, err := cmd.Output(); err != nil {
 		logger.Error("Failed to execute \"restart.sh\":", err)
 	} else {
