@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	melody "gopkg.in/olahol/melody.v1"
 )
 
@@ -85,7 +87,8 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	} else if ruleset.Format == "seeded" &&
 		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > len(allBuilds)) { // 0 is random
 
-		websocketError(s, d.Command, "That is not a valid starting build.")
+		msg := "The build of \"" + strconv.Itoa(ruleset.StartingBuild) + "\" is not a valid starting build."
+		websocketError(s, d.Command, msg)
 		return false
 	}
 
