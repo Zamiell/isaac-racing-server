@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/Zamiell/isaac-racing-server/src/models"
-	melody "gopkg.in/olahol/melody.v1" // A WebSocket framework
+	melody "gopkg.in/olahol/melody.v1"
 )
 
 var (

@@ -30,7 +30,8 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		return nil, errors.New("")
 	} else if userIsBanned {
 		logger.Info("IP \"" + ip + "\" tried to establish a WebSocket connection, but they are banned.")
-		return nil, errors.New("Your IP address has been banned. Please contact an administrator if you think this is a mistake.")
+		msg := "Your IP address has been banned. Please contact an administrator if you think this is a mistake."
+		return nil, errors.New(msg) // nolint: stylecheck
 	}
 
 	// If they have logged in, their cookie should have values matching the
@@ -104,7 +105,8 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		return nil, errors.New("")
 	} else if userIsBanned {
 		logger.Info("User \"" + username + "\" tried to establish a WebSocket connection, but they are banned.")
-		return nil, errors.New("Your user account has been banned. Please contact an administrator if you think this is a mistake.")
+		msg := "Your user account has been banned. Please contact an administrator if you think this is a mistake."
+		return nil, errors.New(msg) // nolint: stylecheck
 	}
 
 	// If they got this far, they are a valid user

@@ -149,10 +149,8 @@ func twitchConnect(oauthToken string) {
 			// User commands
 			if message == "!racingplus" || message == "!racing+" || message == "!r+" {
 				twitchSend(channel, "Racing+ is a mod for The Binding of Isaac: Afterbirth+: https://isaacracing.net", 0)
-			} else if message == "!left" {
-				// TODO
-			} else if message == "!entrants" {
-				// TODO
+				// } else if message == "!left" {
+				// } else if message == "!entrants" {
 			}
 		}
 	}

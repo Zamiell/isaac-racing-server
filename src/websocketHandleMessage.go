@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"strings"
 
-	melody "gopkg.in/olahol/melody.v1" // A WebSocket framework
+	melody "gopkg.in/olahol/melody.v1"
 )
 
 /*

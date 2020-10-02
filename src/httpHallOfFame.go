@@ -1,10 +1,6 @@
 package main
 
 import (
-	//	"math"
-	//	"net/http"
-	//	"strings"
-
 	"github.com/Zamiell/isaac-racing-server/src/models"
 	"github.com/gin-gonic/gin"
 )
