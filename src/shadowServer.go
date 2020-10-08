@@ -63,9 +63,9 @@ func handleShadowMessage(msg []byte, pc net.PacketConn, rAddr net.Addr) {
 
 func shadowServer() (net.PacketConn, error) {
 	pc, err := net.ListenPacket("udp4", fmt.Sprintf(":%d", port))
-	logger.Info(fmt.Sprintf("Listening UDP connections on port %d", port))
+	logger.Info(fmt.Sprintf("Listening for UDP connections on port %d", port))
 	if err != nil {
-		logger.Error("Error starting UDP shadow server", err)
+		logger.Error("Failed to start the UDP shadow server:", err)
 		return nil, err
 	}
 
@@ -75,7 +75,7 @@ func shadowServer() (net.PacketConn, error) {
 		for {
 			n, rAddr, err := pc.ReadFrom(buffer)
 			if err != nil {
-				// logger.Error(fmt.Sprintf("Error receiving UDP datagram from %v", rAddr), err)
+				logger.Error(fmt.Sprintf("Error receiving UDP datagram from %v", rAddr), err)
 				continue
 			}
 			payloadSize := n - int(unsafe.Sizeof(MessageHeader{}))
