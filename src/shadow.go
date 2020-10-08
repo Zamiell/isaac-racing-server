@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	sessionTTL = 30
+	sessionTTL = 300
 )
 
 type PlayerMap map[uint32]map[uint32]*PlayerConn

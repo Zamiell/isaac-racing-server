@@ -12,7 +12,7 @@ const (
 	maxBufferSize = 1024
 	helloSize     = 5
 	port          = 9001
-	clockInterval = 1 * time.Second
+	clockInterval = 1
 )
 
 var (
@@ -61,12 +61,12 @@ func handleShadowMessage(msg []byte, pc net.PacketConn, rAddr net.Addr) {
 	}
 }
 
-func shadowServer() (net.PacketConn, error) {
-	pc, err := net.ListenPacket("udp4", fmt.Sprintf(":%d", port))
-	logger.Info(fmt.Sprintf("Listening for UDP connections on port %d", port))
+func shadowServer() (pc net.PacketConn, err error) {
+	pc, err = net.ListenPacket("udp4", fmt.Sprintf(":%d", port))
+	logger.Info(fmt.Sprintf("Listening UDP connections on port %d", port))
 	if err != nil {
-		logger.Error("Failed to start the UDP shadow server:", err)
-		return nil, err
+		logger.Error("Error starting UDP shadow server", err)
+		return
 	}
 
 	buffer := make([]byte, maxBufferSize)
@@ -75,15 +75,13 @@ func shadowServer() (net.PacketConn, error) {
 		for {
 			n, rAddr, err := pc.ReadFrom(buffer)
 			if err != nil {
-				logger.Error(fmt.Sprintf("Error receiving UDP datagram from %v", rAddr), err)
-				continue
+				logger.Error(fmt.Sprintf("Error receiving UDP dgram from %v", rAddr), err)
 			}
 			payloadSize := n - int(unsafe.Sizeof(MessageHeader{}))
 			if payloadSize < helloSize {
-				logger.Debug("Datagram skipped, payload len=", payloadSize)
-				continue
-			}
-			if payloadSize == helloSize {
+				logger.Debug("Dgram skipped, payload len=", payloadSize)
+				// skip
+			} else if payloadSize == helloSize {
 				handleHelloMessage(buffer, rAddr)
 			} else {
 				handleShadowMessage(buffer, pc, rAddr)
@@ -91,36 +89,31 @@ func shadowServer() (net.PacketConn, error) {
 		}
 	}()
 
-	return pc, nil
+	return
 }
 
 func sessionClock() {
-	tick := time.Tick(clockInterval)
+	tick := time.Tick(clockInterval * time.Second)
 	for {
 		select {
 		case <-tick:
 			pMap.updateSessions()
 		default:
-			time.Sleep(clockInterval)
+			time.Sleep(clockInterval * time.Second)
 		}
 	}
 }
 
 func shadowInit() {
 	go sessionClock()
-
-	var pc net.PacketConn
-	if v, err := shadowServer(); err != nil {
-		logger.Error("Failed to start the shadow server:", err)
-		return
-	} else {
-		pc = v
-	}
-
-	if pc != nil {
-		if err := pc.Close(); err != nil {
-			logger.Error("Error closing shadow server connection:", err)
-			return
+	pc, errStart := shadowServer()
+	if errStart != nil {
+		logger.Error("Exited by: ", errStart)
+		if pc != nil {
+			errClose := pc.Close()
+			if errClose != nil {
+				logger.Error("Error closing connection", errClose)
+			}
 		}
 	}
 }
