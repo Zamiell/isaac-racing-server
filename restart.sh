@@ -16,4 +16,4 @@ mkdir -p "$DIR/logs"
 if [[ $? -ne 0 ]]; then
   exit 1
 fi
-supervisorctl restart isaac-racing-server
+supervisorctl restart $REPO
