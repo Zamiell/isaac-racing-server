@@ -73,7 +73,7 @@ Create a race:
 raceCreate {}
 
 Create a race with every single optional argument:
-raceCreate {"name":"dee's race","ruleset":{"type":"unseeded","character":"Judas","goal":"chest","seed":"-","instantStart":0}}
+raceCreate {"name":"dee's race","ruleset":{}}
 
 Join a race:
 raceJoin {"id":1}
@@ -88,7 +88,7 @@ Unready in a race:
 raceUnready {"id":1}
 
 Change a ruleset in a race (if you are the race captain):
-raceRuleset {"id":3,"ruleset":{"type":"unseeded","character":4,"goal":"chest","seed":"-","instantStart":0}}
+raceRuleset {"id":3,"ruleset":{}}
 
 Finish a race:
 raceFinish {"id":1}

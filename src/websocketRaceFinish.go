@@ -51,6 +51,7 @@ func websocketRaceFinish(s *melody.Session, d *IncomingWebsocketData) {
 	*/
 
 	racer.Place = race.GetCurrentPlace()
+	racer.PlaceMid = -1
 	racer.RunTime = d.Time
 	racer.DatetimeFinished = getTimestamp()
 	race.SetRacerStatus(username, "finished")

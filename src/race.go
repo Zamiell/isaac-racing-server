@@ -52,6 +52,7 @@ type Racer struct {
 	CharacterNum         int
 	Place                int
 	PlaceMid             int
+	PlaceMidOld          int
 	DatetimeFinished     int64
 	RunTime              int64 /* in milliseconds */
 	Comment              string
@@ -112,8 +113,8 @@ func (race *Race) SetStatus(status string) {
 			Status string `json:"status"`
 		}
 		websocketEmit(s, "raceSetStatus", &RaceSetStatusMessage{
-			race.ID,
-			race.Status,
+			ID:     race.ID,
+			Status: race.Status,
 		})
 	}
 }
@@ -133,11 +134,11 @@ func (race *Race) SetRacerStatus(username string, status string) {
 				RunTime int64  `json:"runTime"`
 			}
 			websocketEmit(s, "racerSetStatus", &RacerSetStatusMessage{
-				race.ID,
-				username,
-				status,
-				racer.Place,
-				racer.RunTime,
+				ID:      race.ID,
+				Name:    username,
+				Status:  status,
+				Place:   racer.Place,
+				RunTime: racer.RunTime,
 			})
 		}
 	}
@@ -149,15 +150,28 @@ func (race *Race) SetAllPlaceMid() {
 	currentPlace := race.GetCurrentPlace()
 
 	for _, racer := range race.Racers {
+		racer.PlaceMidOld = racer.PlaceMid
+	}
+
+	for _, racer := range race.Racers {
 		if racer.Status != "racing" {
 			// We don't need to calculate the mid-race place of someone who already finished or quit
 			continue
 		}
 
+		if racer.FloorNum == 1 && racer.CharacterNum == 1 {
+			// Mid-race places are not calculated until racers get to the second floor
+			racer.PlaceMid = -1
+			continue
+		}
+
 		racer.PlaceMid = currentPlace
+
+		// Find racers that should be ahead of us
 		for _, racer2 := range race.Racers {
 			if racer2.Status != "racing" {
-				// We don't count people who finished or quit since our starting point was on "currentPlace"
+				// We don't count people who finished or quit since our starting point was on
+				// "currentPlace"
 				continue
 			}
 			if racer2.CharacterNum < racer.CharacterNum {
@@ -167,28 +181,35 @@ func (race *Race) SetAllPlaceMid() {
 				racer.PlaceMid++
 			} else if racer2.FloorNum > racer.FloorNum {
 				racer.PlaceMid++
-			} else if race.Ruleset.Goal == "Everything" &&
-				racer2.FloorNum == racer.FloorNum &&
-				racer2.FloorNum >= 10 &&
-				racer2.StageType < racer.StageType {
-
-				// This is custom logic for the "Everything" race goal
-				// Sheol is StageType 0 and the Dark Room is StageType 0
-				// Those are considered ahead of Cathedral and The Chest
-				racer.PlaceMid++
-			} else if race.Ruleset.Goal == "Everything" &&
-				racer2.FloorNum == racer.FloorNum &&
-				racer2.FloorNum >= 10 &&
-				racer2.StageType == racer.StageType &&
+			} else if racer2.FloorNum == racer.FloorNum &&
 				racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor {
 
 				racer.PlaceMid++
-			} else if racer2.FloorNum == racer.FloorNum &&
-				racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor &&
-				(race.Ruleset.Goal != "Everything" || racer2.FloorNum < 10) {
-
-				racer.PlaceMid++
 			}
+		}
+	}
+
+	for _, racer := range race.Racers {
+		if racer.PlaceMidOld != racer.PlaceMid {
+			race.SendAllPlaceMid(racer.Name, racer.PlaceMid)
+		}
+	}
+}
+
+func (race *Race) SendAllPlaceMid(username string, placeMid int) {
+	for racerName := range race.Racers {
+		// Not all racers may be online during a race
+		if s, ok := websocketSessions[racerName]; ok {
+			type RacerSetPlaceMidMessage struct {
+				ID       int    `json:"id"`
+				Name     string `json:"name"`
+				PlaceMid int    `json:"placeMid"`
+			}
+			websocketEmit(s, "racerSetPlaceMid", &RacerSetPlaceMidMessage{
+				ID:       race.ID,
+				Name:     username,
+				PlaceMid: placeMid,
+			})
 		}
 	}
 }

@@ -59,9 +59,19 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 		Set the floor
 	*/
 
+	oldFloor := racer.FloorNum
+
 	racer.FloorNum = floorNum
 	racer.StageType = stageType
 	racer.DatetimeArrivedFloor = getTimestamp()
+
+	// If they reset from floor 1 to floor 1,
+	// don't send the new floor to everyone as an optimization
+	// We also do not have to recalculate the placeMids,
+	// because placeMid is not assigned until they get to the second floor
+	if floorNum == 1 && oldFloor == 1 {
+		return
+	}
 
 	for racerName := range race.Racers {
 		// Not all racers may be online during a race
@@ -74,11 +84,11 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 				DatetimeArrivedFloor int64  `json:"datetimeArrivedFloor"`
 			}
 			websocketEmit(s, "racerSetFloor", &RacerSetFloorMessage{
-				race.ID,
-				username,
-				floorNum,
-				stageType,
-				racer.DatetimeArrivedFloor,
+				ID:                   race.ID,
+				Name:                 racer.Name,
+				FloorNum:             racer.FloorNum,
+				StageType:            racer.StageType,
+				DatetimeArrivedFloor: racer.DatetimeArrivedFloor,
 			})
 		}
 	}

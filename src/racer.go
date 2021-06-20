@@ -4,8 +4,8 @@ import (
 	melody "gopkg.in/olahol/melody.v1"
 )
 
-// Prepare some data about all of the ongoing racers to send to user who just
-// join the race (or just reconnected after a disconnect)
+// Prepare some data about all of the ongoing racers to send to a user who just joined the race
+// (or just reconnected after a disconnect)
 // (we only want to send the client a subset of the total information in
 // order to conserve bandwidth)
 // Called from "websocketHandleConnect" and "websocketRaceJoin"

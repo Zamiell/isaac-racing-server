@@ -61,6 +61,7 @@ func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
 		Items:          make([]*Item, 0),
 		Rooms:          make([]*Room, 0),
 		CharacterNum:   1,
+		PlaceMid:       -1, // Will only be set once they reach the second floor
 	}
 	race.Racers[username] = racer
 
