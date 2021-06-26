@@ -37,7 +37,7 @@ var validDiversityActiveItems = [...]int{
 	263, 555, 556, 557, 577, 578, 580, 582, 585, 604,
 	605, 609, 611, 623, 625, 628, 631, 635, 638, 639, // Genesis (622) and R Key (636) are banned
 	640, 642, 650, 653, 655, 685, 687, 704, 705, 706, // Esau Jr (703) is banned
-	709, 712, 719, 720, 722, 723, 728, 729 // Recall (714) is banned #TODO: add later the missing items
+	709, 712, 719, 720, 722, 723, 728, 729, // Recall (714) is banned #TODO: add later the missing items
 }
 
 var validDiversityPassiveItems = [...]int{
@@ -113,7 +113,7 @@ var validDiversityPassiveItems = [...]int{
 	671, 672, 673, 674, 675, 676, 677, 679, 680, 681,
 	682, 683, 684, 686, 688, 689, 690, 691, 692, 693,
 	694, 695, 696, 697, 698, 699, 700, 701, 702, 708, // Supper (707) is banned
-	716, 717, 724, 725, 726, 727 // #TODO: add later the missing items
+	716, 717, 724, 725, 726, 727, // #TODO: add later the missing items
 }
 
 var validDiversityTrinkets = [...]int{
@@ -174,7 +174,7 @@ var validDiversityTrinkets = [...]int{
 	32932, 32933, 32934, 32935, 32936, 32937, 32938,
 	32939, 32940, 32941, 32942, 32943, 32944, 32945,
 	32946, 32947, 32948, 32949, 32950, 32951, 32952,
-	32953, 32954, 32955, 32956, 32957
+	32953, 32954, 32955, 32956, 32957,
 }
 
 /*
