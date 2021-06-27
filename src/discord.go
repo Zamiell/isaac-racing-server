@@ -94,7 +94,7 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if message == "!doc" ||
 		message == "!documentation" {
 
-		discordSend(m.ChannelID, "Everything in the mod has detailed documentation if you just bother to look on the website! Here's a handy link for you: https://github.com/Zamiell/isaac-racing-client/blob/master/mod/CHANGES.md")
+		discordSend(m.ChannelID, "Everything in the mod has detailed documentation: https://github.com/Zamiell/isaac-racing-client/blob/master/mod/CHANGES.md")
 	}
 
 	// Copy messages from "racing-plus-lobby"
