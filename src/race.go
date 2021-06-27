@@ -169,21 +169,28 @@ func (race *Race) SetAllPlaceMid() {
 
 		// Find racers that should be ahead of us
 		for _, racer2 := range race.Racers {
+			// We don't count people who finished or quit since our starting point is on
+			// "currentPlace"
 			if racer2.Status != "racing" {
-				// We don't count people who finished or quit since our starting point was on
-				// "currentPlace"
 				continue
 			}
+
+			// If they are on a lower character than us, then we cannot possibly be behind them
 			if racer2.CharacterNum < racer.CharacterNum {
 				continue
 			}
+
 			if racer2.CharacterNum > racer.CharacterNum {
+				// If they are on a higher character than us, then we are behind them
 				racer.PlaceMid++
 			} else if racer2.FloorNum > racer.FloorNum {
+				// If they are at a higher floor than us, then we are behind them
 				racer.PlaceMid++
 			} else if racer2.FloorNum == racer.FloorNum &&
-				racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor {
+				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
 
+				// If they are on the same floor and they arrived before we did,
+				// then we are behind them
 				racer.PlaceMid++
 			}
 		}
