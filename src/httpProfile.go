@@ -73,6 +73,7 @@ func httpProfile(c *gin.Context) {
 			if raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
 				startingBuildIndex := int(raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64)
 				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
+				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
 			}
 		}
 	}
@@ -83,6 +84,7 @@ func httpProfile(c *gin.Context) {
 			if raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
 				startingBuildIndex := int(raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64)
 				raceDataAll[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
+				raceDataAll[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
 			}
 		}
 	}

@@ -48,7 +48,7 @@ type JSONItem struct {
 	Text        string `json:"text"`
 }
 
-// For holding the values oi the "builds.json" file
+// For holding the values of the "builds.json" file
 type IsaacItem struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
@@ -158,4 +158,10 @@ func getBuildName(startingBuildIndex int) string {
 	}
 
 	return startingBuild[0].Name + " + more"
+}
+
+func getBuildID(startingBuildIndex int) int {
+	startingBuild := allBuilds[startingBuildIndex]
+
+	return startingBuild[0].ID
 }
