@@ -45,6 +45,7 @@ func httpRaces(c *gin.Context) {
 			if raceData[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
 				startingBuildIndex := int(raceData[i].RaceParticipants[p].RacerStartingBuild.Int64)
 				raceData[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
+				raceData[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
 			}
 		}
 	}
@@ -98,6 +99,7 @@ func httpRace(c *gin.Context) {
 		if raceData.RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
 			startingBuildIndex := int(raceData.RaceParticipants[p].RacerStartingBuild.Int64)
 			raceData.RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
+			raceData.RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
 		}
 	}
 

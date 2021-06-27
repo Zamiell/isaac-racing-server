@@ -34,6 +34,7 @@ type RaceHistoryParticipants struct {
 	RacerStartingItem      sql.NullInt64
 	RacerStartingItemName  string
 	RacerStartingBuild     sql.NullInt64
+	RacerStartingBuildID   int
 	RacerStartingBuildName string
 	RacerComment           sql.NullString
 }
