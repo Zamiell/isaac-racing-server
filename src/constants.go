@@ -13,15 +13,15 @@ import (
 type JSONItem struct {
 	Name        string `json:"name"`
 	Damage      string `json:"dmg"`
-	DamageX     string `json:"dmg_x"`
+	DamageX     string `json:"dmg_x"` // nolint:tagliatelle
 	Health      string `json:"health"`
-	SoulHearts  string `json:"soul_hearts"`
-	SinHearts   string `json:"sin_hearts"`
+	SoulHearts  string `json:"soul_hearts"` // nolint:tagliatelle
+	SinHearts   string `json:"sin_hearts"`  // nolint:tagliatelle
 	Tears       string `json:"tears"`
 	Delay       string `json:"delay"`
-	DelayX      string `json:"delay_x"`
+	DelayX      string `json:"delay_x"` // nolint:tagliatelle
 	Speed       string `json:"speed"`
-	ShotSpeed   string `json:"shot_speed"`
+	ShotSpeed   string `json:"shot_speed"` // nolint:tagliatelle
 	Height      string `json:"height"`
 	Range       string `json:"range"`
 	Luck        string `json:"luck"`
@@ -39,12 +39,12 @@ type JSONItem struct {
 	Superbum    bool   `json:"superbum"`
 	YesMother   bool   `json:"yesmother"`
 	SpaceBar    bool   `json:"space"`
-	HealthOnly  bool   `json:"health_only"`
-	Intro       string `json:"introduced_in"`
+	HealthOnly  bool   `json:"health_only"`   // nolint:tagliatelle
+	Intro       string `json:"introduced_in"` // nolint:tagliatelle
 	Shown       bool   `json:"shown"`
-	Summary     bool   `json:"in_summary"`
-	SummaryName string `json:"summary_name"`
-	SummaryCond string `json:"condition_name"`
+	Summary     bool   `json:"in_summary"`     // nolint:tagliatelle
+	SummaryName string `json:"summary_name"`   // nolint:tagliatelle
+	SummaryCond string `json:"condition_name"` // nolint:tagliatelle
 	Text        string `json:"text"`
 }
 
@@ -56,7 +56,7 @@ type IsaacItem struct {
 
 type TournamentInfo struct {
 	Name         string `json:"name"`
-	ChallongeID  string `json:"challonge_id"`
+	ChallongeID  string `json:"challonge_id"` // nolint:tagliatelle
 	ChallongeURL string `json:"challonge"`
 	Date         string `json:"date"`
 	Notability   string `json:"notability"`
@@ -165,3 +165,12 @@ func getBuildID(startingBuildIndex int) int {
 
 	return startingBuild[0].ID
 }
+
+const RaceStatusOpen = "open"
+const RaceStatusInProgress = "in progress"
+const RaceFormatUnseeded = "unseeded"
+const RaceFormatCustom = "custom"
+const RaceFormatSeeded = "seeded"
+const RaceFormatDiversity = "diversity"
+const RacerStatusReady = "ready"
+const RacerStatusRacing = "racing"

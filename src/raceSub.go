@@ -57,10 +57,10 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	ruleset := d.Ruleset
 
 	// Validate the ruleset format
-	if ruleset.Format != "unseeded" &&
-		ruleset.Format != "seeded" &&
+	if ruleset.Format != RaceFormatUnseeded &&
+		ruleset.Format != RaceFormatSeeded &&
 		ruleset.Format != "diversity" &&
-		ruleset.Format != "custom" {
+		ruleset.Format != RaceFormatCustom {
 
 		websocketError(s, d.Command, "That is not a valid ruleset.")
 		return false
@@ -96,12 +96,12 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	}
 
 	// Validate the starting build
-	if ruleset.Format != "seeded" &&
+	if ruleset.Format != RaceFormatSeeded &&
 		ruleset.StartingBuild != -1 {
 
 		websocketError(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 		return false
-	} else if ruleset.Format == "seeded" &&
+	} else if ruleset.Format == RaceFormatSeeded &&
 		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > len(allBuilds)) { // 0 is random
 
 		msg := "The build of \"" + strconv.Itoa(ruleset.StartingBuild) + "\" is not a valid starting build."
@@ -126,8 +126,8 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	if !ruleset.Ranked {
 		return true
 	}
-	if ruleset.Format != "seeded" &&
-		ruleset.Format != "unseeded" {
+	if ruleset.Format != RaceFormatSeeded &&
+		ruleset.Format != RaceFormatUnseeded {
 
 		websocketError(s, d.Command, "Solo ranked races must be either seeded or unseeded.")
 		return false
@@ -140,7 +140,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		websocketError(s, d.Command, "Solo ranked races must have a goal of Blue Baby.")
 		return false
 	}
-	if ruleset.Format == "seeded" &&
+	if ruleset.Format == RaceFormatSeeded &&
 		ruleset.StartingBuild != 0 {
 
 		websocketError(s, d.Command, "Solo ranked seeded races must have a random starting build.")

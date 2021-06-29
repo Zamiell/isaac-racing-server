@@ -96,7 +96,7 @@ func websocketRaceRuleset(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that the race is open
-	if !raceValidateStatus(s, d, "open") {
+	if !raceValidateStatus(s, d, RaceStatusOpen) {
 		return
 	}
 
@@ -109,11 +109,11 @@ func websocketRaceRuleset(s *melody.Session, d *IncomingWebsocketData) {
 	// TODO
 
 	// Get and set a seed if necessary
-	if (ruleset.Format == "seeded" || ruleset.Format == "diversity") && ruleset.Format != currentRuleset.Format {
+	if (ruleset.Format == RaceFormatSeeded || ruleset.Format == RaceFormatDiversity) && ruleset.Format != currentRuleset.Format {
 		var seed string
-		if ruleset.Format == "seeded" {
+		if ruleset.Format == RaceFormatSeeded {
 			// TODO
-		} else if ruleset.Format == "diversity" {
+		} else if ruleset.Format == RaceFormatDiversity {
 			// TODO
 		}
 

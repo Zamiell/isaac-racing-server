@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -201,7 +202,7 @@ func (*Users) GetUserProfiles(currentPage int, usersPerPage int) ([]ProfilesRow,
 			?
 		OFFSET
 			?
-	`, usersPerPage, usersOffset); err == sql.ErrNoRows {
+	`, usersPerPage, usersOffset); errors.Is(err, sql.ErrNoRows) {
 		return profiles, 0, nil
 	} else if err != nil {
 		return profiles, 0, err

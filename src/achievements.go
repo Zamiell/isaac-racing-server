@@ -231,11 +231,11 @@ func achievements1_8(userID int, username string, userAchievements []int) {
 		countSeeded := 0
 		countDiversity := 0
 		for _, race := range finishedList {
-			if race.Format == "unseeded" {
+			if race.Format == RaceFormatUnseeded {
 				countUnseeded++
-			} else if race.Format == "seeded" {
+			} else if race.Format == RaceFormatSeeded {
 				countSeeded++
-			} else if race.Format == "diversity" {
+			} else if race.Format == RaceFormatDiversity {
 				countDiversity++
 			}
 		}

@@ -18,10 +18,10 @@ type IncomingWebsocketData struct {
 	ID        int                   `json:"id"`
 	Comment   string                `json:"comment"`
 	Seed      string                `json:"seed"`
-	ItemID    int                   `json:"itemID"`
+	ItemID    int                   `json:"itemID"` // nolint:tagliatelle
 	FloorNum  int                   `json:"floorNum"`
 	StageType int                   `json:"stageType"`
-	RoomID    string                `json:"roomID"`
+	RoomID    string                `json:"roomID"` // nolint:tagliatelle
 	IP        string                `json:"ip"`
 	Enabled   bool                  `json:"enabled"`
 	Value     int                   `json:"value"`
@@ -40,7 +40,7 @@ type User struct {
 	Name      string `json:"name"`
 	Admin     int    `json:"admin"`
 	Muted     bool   `json:"muted"`
-	StreamURL string `json:"streamURL"`
+	StreamURL string `json:"streamURL"` // nolint:tagliatelle
 }
 
 // Sent in the "roomMessage" command (in the "websocketroomMessage()" function)

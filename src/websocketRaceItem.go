@@ -26,7 +26,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that the race has started
-	if race.Status != "in progress" {
+	if race.Status != RaceStatusInProgress {
 		return
 	}
 
@@ -39,7 +39,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that they are still racing
-	if racer.Status != "racing" {
+	if racer.Status != RacerStatusRacing {
 		return
 	}
 
@@ -100,7 +100,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Check to see if this is their starting item
 	startingItem := false
-	if race.Ruleset.Format != "seeded" &&
+	if race.Ruleset.Format != RaceFormatSeeded &&
 		racer.StartingItem == 0 &&
 		len(racer.Rooms) > 1 {
 
@@ -111,7 +111,7 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 		}
 
 		// For Diversity races, check to see if this item was already given to them at the start
-		if race.Ruleset.Format == "diversity" {
+		if race.Ruleset.Format == RaceFormatDiversity {
 			for i, startingItem := range strings.Split(race.Ruleset.Seed, ",") {
 				if i == 4 {
 					// We don't want to compare to the trinket

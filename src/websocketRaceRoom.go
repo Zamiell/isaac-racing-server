@@ -22,7 +22,7 @@ func websocketRaceRoom(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that the race has started
-	if race.Status != "in progress" {
+	if race.Status != RaceStatusInProgress {
 		return
 	}
 
@@ -35,7 +35,7 @@ func websocketRaceRoom(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that they are still racing
-	if racer.Status != "racing" {
+	if racer.Status != RacerStatusRacing {
 		return
 	}
 

@@ -20,7 +20,7 @@ func websocketHandleDisconnect(s *melody.Session) {
 
 	// Eject this player from any races that have not started yet
 	for _, race := range races {
-		if race.Status != "open" {
+		if race.Status != RaceStatusOpen {
 			continue
 		}
 

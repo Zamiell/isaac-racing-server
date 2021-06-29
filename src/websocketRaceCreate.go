@@ -50,7 +50,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the ruleset options cannot be empty
 	if ruleset.Format == "" {
-		ruleset.Format = "unseeded"
+		ruleset.Format = RaceFormatUnseeded
 	}
 	if ruleset.Character == "" {
 		ruleset.Character = "Judas"
@@ -126,11 +126,11 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Create and set a seed if necessary
 	ruleset.Seed = "-"
-	if ruleset.Format == "seeded" {
+	if ruleset.Format == RaceFormatSeeded {
 		// Create a random Isaac seed
 		// (using the current Epoch timestamp as a seed)
 		ruleset.Seed = isaacGetRandomSeed()
-	} else if ruleset.Format == "diversity" {
+	} else if ruleset.Format == RaceFormatDiversity {
 		ruleset.Seed = diversityGetSeed(ruleset)
 	}
 
@@ -161,7 +161,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	race := &Race{
 		ID:              raceID,
 		Name:            name,
-		Status:          "open",
+		Status:          RaceStatusOpen,
 		Ruleset:         ruleset,
 		Captain:         username,
 		Password:        password,

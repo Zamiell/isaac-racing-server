@@ -11,7 +11,7 @@ import (
 	Diversity ruleset definitions
 */
 
-var GOLDEN_TRINKET_MODIFIER = 32768
+var GoldenTrinketModifier = 32768
 
 var validDiversityActiveItems = [...]int{
 	// Rebirth items
@@ -148,7 +148,7 @@ var validDiversityTrinkets = [...]int{
 	183, 184, 185, 186, 187, 188, 189,
 }
 
-var tlostItemsBanned = [...]int{
+var taintedLostItemsBanned = []int{
 	9, 10, 11, 13, 20, 36, 45, 53, 60, 62, 72, 78,
 	81, 82, 83, 96, 98, 108, 112, 115, 117, 119, 126,
 	129, 133, 135, 138, 142, 146, 148, 156, 157, 159,
@@ -227,10 +227,8 @@ func diversityGetSeed(ruleset Ruleset) string {
 					continue
 				}
 			} else if ruleset.Character == "Tainted Lost" {
-				for _, itemBanned := range tlostItemsBanned {
-					if item == itemBanned {
-						continue
-					}
+				if intInSlice(item, taintedLostItemsBanned) {
+					continue
 				}
 			} else if ruleset.Character == "Tainted Lilith" {
 				if item == 678 { // C Section
@@ -258,8 +256,8 @@ func diversityGetSeed(ruleset Ruleset) string {
 	randomIndex := rand.Intn(len(validDiversityTrinkets)) // nolint: gosec
 	trinket := validDiversityTrinkets[randomIndex]
 	// The server has a 10% chance to make the trinket golden
-	if rand.Intn(10) == 0 {
-		trinket += GOLDEN_TRINKET_MODIFIER
+	if rand.Intn(10) == 0 { // nolint: gosec
+		trinket += GoldenTrinketModifier
 	}
 	items = append(items, trinket)
 

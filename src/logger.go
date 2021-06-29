@@ -48,6 +48,17 @@ func (l *Logger) Error(args ...interface{}) {
 	l.Logger.Error(args...)
 }
 
+func (l *Logger) Errorf(format string, args ...interface{}) {
+	if usingSentry {
+		sentry.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelError)
+			sentry.CaptureException(fmt.Errorf(format, args...))
+		})
+	}
+
+	l.Logger.Errorf(format, args...)
+}
+
 func (l *Logger) Fatal(args ...interface{}) {
 	if usingSentry {
 		sentry.WithScope(func(scope *sentry.Scope) {

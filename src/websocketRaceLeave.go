@@ -22,8 +22,8 @@ func websocketRaceLeave(s *melody.Session, d *IncomingWebsocketData) {
 		race = v
 	}
 
-	// Validate that the race has started
-	if race.Status != "open" {
+	// Validate that the race is open
+	if race.Status != RaceStatusOpen {
 		return
 	}
 
@@ -68,7 +68,7 @@ func websocketRaceLeave(s *melody.Session, d *IncomingWebsocketData) {
 	} else if len(race.Racers) == 1 {
 		// If the race went from 2 people to 1, check to see if the last person is ready
 		for _, lastRacer := range race.Racers {
-			if lastRacer.Status == "ready" {
+			if lastRacer.Status == RacerStatusReady {
 				// Automatically unready the last person so that they do not start the race by
 				// themselves
 				race.SetRacerStatus(lastRacer.Name, "not ready")

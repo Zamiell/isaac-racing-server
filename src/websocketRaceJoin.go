@@ -25,8 +25,8 @@ func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
 		race = v
 	}
 
-	// Validate that the race has started
-	if race.Status != "open" {
+	// Validate that the race is open
+	if race.Status != RaceStatusOpen {
 		return
 	}
 

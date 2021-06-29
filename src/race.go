@@ -96,7 +96,7 @@ func (race *Race) CheckStart() {
 
 	// Check if everyone is ready
 	for _, racer := range race.Racers {
-		if racer.Status != "ready" {
+		if racer.Status != RacerStatusReady {
 			return
 		}
 	}
@@ -154,7 +154,7 @@ func (race *Race) SetAllPlaceMid() {
 	}
 
 	for _, racer := range race.Racers {
-		if racer.Status != "racing" {
+		if racer.Status != RacerStatusRacing {
 			// We don't need to calculate the mid-race place of someone who already finished or quit
 			continue
 		}
@@ -171,7 +171,7 @@ func (race *Race) SetAllPlaceMid() {
 		for _, racer2 := range race.Racers {
 			// We don't count people who finished or quit since our starting point is on
 			// "currentPlace"
-			if racer2.Status != "racing" {
+			if racer2.Status != RacerStatusRacing {
 				continue
 			}
 
@@ -256,13 +256,13 @@ func (race *Race) Start() {
 
 func (race *Race) Start2() {
 	// Sleep 3 or 10 seconds
-	var sleepTime time.Duration
+	var sleepSeconds int
 	if race.Ruleset.Solo {
-		sleepTime = 3
+		sleepSeconds = 3
 	} else {
-		sleepTime = 10
+		sleepSeconds = 10
 	}
-	time.Sleep(sleepTime * time.Second)
+	time.Sleep(time.Duration(sleepSeconds) * time.Second)
 
 	// Lock the command mutex for the duration of the function to ensure synchronous execution
 	commandMutex.Lock()
@@ -271,10 +271,10 @@ func (race *Race) Start2() {
 	// Log the race starting
 	logger.Info("Race", race.ID, "started with", len(race.Racers), "participants.")
 
-	race.SetStatus("in progress")
+	race.SetStatus(RaceStatusInProgress)
 	race.DatetimeStarted = getTimestamp()
 	for _, racer := range race.Racers {
-		racer.Status = "racing"
+		racer.Status = RacerStatusRacing
 	}
 
 	// Return for now and do more things later on when it is time to check to see if the race has
@@ -283,7 +283,7 @@ func (race *Race) Start2() {
 }
 
 func (race *Race) Start3() {
-	if race.Ruleset.Format == "custom" {
+	if race.Ruleset.Format == RaceFormatCustom {
 		// We need to make the timeout longer to accommodate multi-character speedrun races
 		time.Sleep(4 * time.Hour)
 	} else {
@@ -302,7 +302,7 @@ func (race *Race) Start3() {
 
 	// Force the remaining racers to quit
 	for _, racer := range race.Racers {
-		if racer.Status != "racing" {
+		if racer.Status != RacerStatusRacing {
 			continue
 		}
 
@@ -321,7 +321,7 @@ func (race *Race) Start3() {
 
 func (race *Race) CheckFinish() {
 	for _, racer := range race.Racers {
-		if racer.Status == "racing" {
+		if racer.Status == RacerStatusRacing {
 			return
 		}
 	}
@@ -405,16 +405,16 @@ func (race *Race) Finish() {
 
 	if race.Ruleset.Solo {
 		if race.Ruleset.Ranked {
-			if race.Ruleset.Format == "seeded" {
+			if race.Ruleset.Format == RaceFormatSeeded {
 				leaderboardUpdateSoloSeeded(race)
-			} else if race.Ruleset.Format == "unseeded" {
+			} else if race.Ruleset.Format == RaceFormatUnseeded {
 				leaderboardUpdateSoloUnseeded(race)
 			}
 		}
 	} else {
-		if race.Ruleset.Format == "unseeded" ||
-			race.Ruleset.Format == "seeded" ||
-			race.Ruleset.Format == "diversity" {
+		if race.Ruleset.Format == RaceFormatUnseeded ||
+			race.Ruleset.Format == RaceFormatSeeded ||
+			race.Ruleset.Format == RaceFormatDiversity {
 
 			leaderboardUpdateTrueSkill(race)
 		}

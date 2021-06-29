@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"errors"
 
 	"github.com/go-sql-driver/mysql"
 )
@@ -79,7 +80,7 @@ func (*Tournament) GetTournamentRaces() ([]TournamentRace, error) {
 			&race.ChallongeID,
 			&race.RaceCasterName,
 			&race.RaceCasterURL,
-		); err == sql.ErrNoRows {
+		); errors.Is(err, sql.ErrNoRows) {
 			return tournamentRaces, sql.ErrNoRows
 		} else if err != nil {
 			return tournamentRaces, err

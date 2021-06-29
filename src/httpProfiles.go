@@ -27,7 +27,7 @@ func httpProfiles(c *gin.Context) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
-	totalPages := 0
+	var totalPages int
 	// Get total number of pages needed for navigation and remove a page if total is divisible by perPage
 	if totalProfileCount%usersPerPage == 0 {
 		totalPages = int(math.Floor(float64(totalProfileCount)/float64(usersPerPage)) - 1)

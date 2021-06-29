@@ -22,7 +22,11 @@ func chatRoomsUpdate(username string, property string, newValue interface{}) {
 
 		// Update the property
 		if property == "StreamURL" {
-			streamURL := newValue.(string)
+			streamURL, ok := newValue.(string)
+			if !ok {
+				logger.Errorf("Failed to convert \"%v\" to a string.", newValue)
+				return
+			}
 			chatRooms[room][index].StreamURL = streamURL
 		} else {
 			logger.Error("The \"chatRoomsUpdate\" function was called without a valid property name.")

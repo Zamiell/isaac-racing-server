@@ -17,7 +17,7 @@ const (
 
 var (
 	twitchConn    net.Conn
-	twitchEnabled bool = false
+	twitchEnabled = false
 )
 
 /*
@@ -205,7 +205,7 @@ func twitchRacerFinish(race *Race, racer *Racer) {
 	// Get the number of people left in the race
 	numLeft := 0
 	for _, racer2 := range race.Racers {
-		if racer2.Status == "racing" {
+		if racer2.Status == RacerStatusRacing {
 			numLeft++
 		}
 	}
@@ -228,7 +228,7 @@ func twitchRacerQuit(race *Race, racer *Racer) {
 	// Get the number of people left in the race
 	numLeft := 0
 	for _, racer2 := range race.Racers {
-		if racer2.Status == "racing" {
+		if racer2.Status == RacerStatusRacing {
 			numLeft++
 		}
 	}

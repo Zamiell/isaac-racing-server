@@ -21,7 +21,7 @@ func websocketRaceReady(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	// Validate that the race is open
-	if race.Status != "open" {
+	if race.Status != RaceStatusOpen {
 		return
 	}
 
@@ -42,6 +42,6 @@ func websocketRaceReady(s *melody.Session, d *IncomingWebsocketData) {
 		Ready
 	*/
 
-	race.SetRacerStatus(username, "ready")
+	race.SetRacerStatus(username, RacerStatusReady)
 	race.CheckStart()
 }
