@@ -166,11 +166,11 @@ func (race *Race) SetAllPlaceMid() {
 		}
 
 		racer.PlaceMid = currentPlace
-		var racerAltFloor = racer.StageType == 4 || racer.StageType == 5
+		racerAltFloor := racer.StageType == 4 || racer.StageType == 5
 
 		// Find racers that should be ahead of us
 		for _, racer2 := range race.Racers {
-			var racer2AltFloor = racer2.StageType == 4 || racer2.StageType == 5
+			racer2AltFloor := racer2.StageType == 4 || racer2.StageType == 5
 			// We don't count people who finished or quit since our starting point is on
 			// "currentPlace"
 			if racer2.Status != RacerStatusRacing {
