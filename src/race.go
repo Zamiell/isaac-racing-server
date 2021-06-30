@@ -185,13 +185,14 @@ func (race *Race) SetAllPlaceMid() {
 			if racer2.CharacterNum > racer.CharacterNum {
 				// If they are on a higher character than us, then we are behind them
 				racer.PlaceMid++
-			} else if (racer2.FloorNum > racer.FloorNum && !(racer2.FloorNum - 1 == racer.FloorNum &&
-				racerAltFloor)) || (racer2.FloorNum == racer.FloorNum && racer2AltFloor && !racerAltFloor) {
+			} else if (racer2.FloorNum > racer.FloorNum && !(racer2.FloorNum-1 == racer.FloorNum && racerAltFloor)) ||
+				(racer2.FloorNum == racer.FloorNum && racer2AltFloor && !racerAltFloor) {
+
 				// If they are at a higher floor than us, then we are behind them
 				racer.PlaceMid++
 			} else if (racer2.FloorNum == racer.FloorNum ||
-				(racer2.FloorNum - 1 == racer.FloorNum &&
-				racer2AltFloor)) &&
+				(racer2.FloorNum-1 == racer.FloorNum &&
+					racer2AltFloor)) &&
 				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
 
 				// If they are on the same floor and they arrived before we did,
