@@ -49,7 +49,6 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 		websocketError(s, d.Command, "That is not a valid floor number.")
 		return
 	} else if stageType < 0 || stageType > 5 {
-		// 3 is Greed Mode
 		logger.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(stageType) + "\" is a bogus stage type.")
 		websocketError(s, d.Command, "That is not a valid stage type.")
 		return
@@ -69,7 +68,7 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 	// don't send the new floor to everyone as an optimization
 	// We also do not have to recalculate the placeMids,
 	// because placeMid is not assigned until they get to the second floor
-	if floorNum == 1 && oldFloor == 1 {
+	if floorNum == 1 && oldFloor == 1 && stageType != 4 && stageType != 5 {
 		return
 	}
 
