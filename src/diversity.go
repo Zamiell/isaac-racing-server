@@ -141,11 +141,11 @@ var validDiversityTrinkets = [...]int{
 	// Repentance trinkets
 	129, 130, 131, 132, 133, 134, 135, 136, 137,
 	138, 139, 140, 141, 142, 143, 144, 145, 146,
-	147, 148, 149, 150, 151, 152, 153, 154, 155,
-	156, 157, 158, 159, 160, 161, 162, 163, 164,
-	165, 166, 167, 168, 169, 170, 171, 172, 173,
-	174, 175, 176, 177, 178, 179, 180, 181, 182,
-	183, 184, 185, 186, 187, 188, 189,
+	147, 148, 149, 150, 151, 152, 153, 155, 156, // Dice Bag (154) is banned
+	157, 158, 159, 160, 161, 162, 163, 164, 165,
+	166, 167, 168, 169, 170, 171, 172, 173, 174,
+	175, 176, 177, 178, 179, 180, 181, 182, 183,
+	184, 185, 186, 187, 188, 189,
 }
 
 var taintedLostItemsBanned = []int{
@@ -224,6 +224,18 @@ func diversityGetSeed(ruleset Ruleset) string {
 				if item == 230 { // Abaddon
 					continue
 				} else if item == 584 { // Book of virtues
+					continue
+				}
+			} else if ruleset.Character == "Tainted Magdalene" {
+				if item == 724 { // Hypercoagulation
+					continue
+				}
+			} else if ruleset.Character == "Tainted Blue Baby" {
+				if item == 725 { // IBS
+					continue
+				}
+			} else if ruleset.Character == "Tainted Azazel" {
+				if item == 726 { // Hemoptysis
 					continue
 				}
 			} else if ruleset.Character == "Tainted Lost" {

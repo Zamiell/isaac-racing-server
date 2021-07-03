@@ -59,6 +59,7 @@
         "gosec",
         "govet",
         "halloffame",
+        "hemoptysis",
         "ifshort",
         "interfacer",
         "isaacuser",
