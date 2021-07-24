@@ -233,13 +233,33 @@ func diversityGetSeed(ruleset Ruleset) string {
 			} else if ruleset.Character == "Tainted Magdalene" {
 				if item == 724 { // Hypercoagulation
 					continue
+				} else if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Tainted Cain" {
+				if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Tainted Judas" {
+				if item == 534 { // Schoolbag
+					continue
 				}
 			} else if ruleset.Character == "Tainted Blue Baby" {
 				if item == 725 { // IBS
 					continue
+				} else if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Tainted Eve" {
+				if item == 534 { // Schoolbag
+					continue
 				}
 			} else if ruleset.Character == "Tainted Azazel" {
 				if item == 726 { // Hemoptysis
+					continue
+				}
+			} else if ruleset.Character == "Tainted Lazarus" {
+				if item == 534 { // Schoolbag
 					continue
 				}
 			} else if ruleset.Character == "Tainted Eden" {
@@ -258,6 +278,18 @@ func diversityGetSeed(ruleset Ruleset) string {
 				if item == 230 { // Abaddon
 					continue
 				} else if item == 672 { // A Pound of Flesh
+					continue
+				}
+			} else if ruleset.Character == "Tainted Apollyon" {
+				if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Tainted Bethany" {
+				if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Tainted Jacob" {
+				if item == 534 { // Schoolbag
 					continue
 				}
 			}
