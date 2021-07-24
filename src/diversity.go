@@ -188,14 +188,32 @@ func diversityGetSeed(ruleset Ruleset) string {
 			item := validDiversityPassiveItems[randomIndex]
 
 			// Do character specific item bans
-			if ruleset.Character == "Cain" {
+			if ruleset.Character == "Isaac" {
+				if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Magdalene" {
+				if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Cain" {
 				if item == 46 { // Lucky Foot
+					continue
+				}
+			} else if ruleset.Character == "Judas" {
+				if item == 534 { // Schoolbag
+					continue
+				}
+			} else if ruleset.Character == "Blue Baby" {
+				if item == 534 { // Schoolbag
 					continue
 				}
 			} else if ruleset.Character == "Eve" {
 				if item == 117 { // Dead Bird
 					continue
 				} else if item == 122 { // Whore of Babylon
+					continue
+				} else if item == 534 { // Schoolbag
 					continue
 				}
 			} else if ruleset.Character == "Samson" {
@@ -209,21 +227,35 @@ func diversityGetSeed(ruleset Ruleset) string {
 			} else if ruleset.Character == "The Lost" {
 				if item == 313 { // Holy Mantle
 					continue
+				} else if item == 534 { // Schoolbag
+					continue
 				}
 			} else if ruleset.Character == "Lilith" {
 				if item == 412 { // Cambion Conception
+					continue
+				} else if item == 534 { // Schoolbag
 					continue
 				}
 			} else if ruleset.Character == "Keeper" {
 				if item == 230 { // Abaddon
 					continue
+				} else if item == 534 { // Schoolbag
+					continue
 				} else if item == 672 { // A Pound of Flesh
+					continue
+				}
+			} else if ruleset.Character == "Apollyon" {
+				if item == 534 { // Schoolbag
 					continue
 				}
 			} else if ruleset.Character == "Bethany" {
 				if item == 230 { // Abaddon
 					continue
 				} else if item == 584 { // Book of virtues
+					continue
+				}
+			} else if ruleset.Character == "Jacob & Esau" {
+				if item == 534 { // Schoolbag
 					continue
 				}
 			} else if ruleset.Character == "Tainted Isaac" {
