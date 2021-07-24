@@ -226,6 +226,10 @@ func diversityGetSeed(ruleset Ruleset) string {
 				} else if item == 584 { // Book of virtues
 					continue
 				}
+			} else if ruleset.Character == "Tainted Isaac" {
+				if item == 619 { // Birthright
+					continue
+				}
 			} else if ruleset.Character == "Tainted Magdalene" {
 				if item == 724 { // Hypercoagulation
 					continue
@@ -236,6 +240,10 @@ func diversityGetSeed(ruleset Ruleset) string {
 				}
 			} else if ruleset.Character == "Tainted Azazel" {
 				if item == 726 { // Hemoptysis
+					continue
+				}
+			} else if ruleset.Character == "Tainted Eden" {
+				if item == 619 { // Birthright
 					continue
 				}
 			} else if ruleset.Character == "Tainted Lost" {
