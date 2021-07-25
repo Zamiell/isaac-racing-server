@@ -1,5 +1,9 @@
 // These are Visual Studio Code settings that should apply to this particular repository
 {
+  // ----------------
+  // Vanilla settings
+  // ----------------
+
   "editor.rulers": [100],
 
   "files.associations": {
@@ -11,6 +15,10 @@
 
   // Automatically removing all trailing whitespace when saving a file
   "files.trimTrailingWhitespace": true,
+
+  // -----------------
+  // Language settings
+  // -----------------
 
   // The default Golang linter is golint, which is only concerned with coding style
   // GolangCI-Lint does a suite of different checks
