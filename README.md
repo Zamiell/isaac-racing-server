@@ -16,7 +16,7 @@ You may also be interested in [the client repository](https://github.com/Zamiell
 
 ## Install
 
-These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will be needed for Windows installations.
+These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will be needed for Windows or MacOS installations.
 
 - Install [Go](https://golang.org/):
   - `sudo apt-get install software-properties-common python-software-properties` (only necessary on Ubuntu 17.04)
@@ -46,10 +46,8 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
     - `git clone https://github.com/[Your_Username]/isaac-racing-server.git`
 - Enter the cloned repository:
   - `cd isaac-racing-server`
-- Download and install all of the Go dependencies:
-  - `cd src` (this is where all of the Go source code lives)
-  - `go get ./...` (it is normal for this to take a very long time)
-  - `cd ..`
+- Build the server, which will automatically download install all of the Go dependencies:
+  - `./build.sh`
 - Set up environment variables:
   - `cp .env_template .env`
   - `nano .env`
@@ -64,17 +62,9 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
 
 ## Run
 
-- `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server"`
-- `go run src/*.go` (sudo might be necessary because it runs on port 80 and/or 443)
-  - Use `sudo --preserve-env=GOPATH go run src/*.go` to run with sudo.
-
-<br />
-
-## Compile / Build
-
-- `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server/src"`
-- `go install`
-- `mv "$GOPATH/bin/src" "$GOPATH/bin/isaac-racing-server"` (the binary is called `src` by default, since the name of the directory is `src`)
+- To re-compile and run the server, simply run the `run.sh` script.
+  - The re-compiled binary is called `isaac-racing-server` and is located in the root of the repository.
+- If you are on Linux or MacOS, sudo might be necessary because the server listens on port 80 and/or 443.
 
 <br />
 
