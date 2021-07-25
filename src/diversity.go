@@ -166,6 +166,37 @@ var taintedLostItemsBanned = []int{
 	695, 697, 702, 709, 724,
 }
 
+var specificItemsBannedOnChars = map[string][]int{
+	"Isaac" : {534}, // Schoolbag
+	"Magdalene" : {534}, // Schoolbag
+	"Cain" : {46}, // Lucky foot
+	"Judas" : {534}, // Schoolbag
+	"Blue Baby" : {534}, // Schoolbag
+	"Eve" : {117, 122, 534}, // Dead Bird, Whore of Babylon, Schoolbag
+	"Samson" : {157}, // Bloody Lust
+	"Lazarus" : {214}, // Anemic
+	"The Lost" : {313, 534}, // Holy Mantle, Schoolbag
+	"Lilith" : {412, 534}, // Cambion Conception, Schoolbag
+	"Keeper" : {230, 534, 672}, // Abaddon, Schoolbag, A Pound of Flesh
+	"Apollyon" : {534}, // Schoolbag
+	"Bethany" : {230, 584}, // Abaddon, Book of Virtues
+	"Jacob & Esau" : {534}, // Schoolbag
+	"Tainted Isaac" : {619}, // Birthright
+	"Tainted Magdalene" : {534, 724}, // Schoolbag, Hypercoagulation
+	"Tainted Cain" : {534}, // Schoolbag
+	"Tainted Judas" : {534}, // Schoolbag
+	"Tainted Blue Baby" : {534, 725}, // Schoolbag, IBS
+	"Tainted Eve" : {534}, // Schoolbag
+	"Tainted Azazel" : {726}, // Hemoptysis
+	"Tainted Lazarus" : {534}, // Schoolbag
+	"Tainted Eden" : {619}, // Birthright
+	"Tainted Lilith" : {678}, // C-Section
+	"Tainted Keeper" : {230, 672}, // Abaddon, A Pound of Flesh
+	"Tainted Apollyon" : {534}, // Schoolbag
+	"Tainted Bethany" : {534}, // Schoolbag
+	"Tainted Jacob" : {534}, // Schoolbag
+}
+
 /*
 	Diversity helper functions
 */
@@ -188,141 +219,11 @@ func diversityGetSeed(ruleset Ruleset) string {
 			item := validDiversityPassiveItems[randomIndex]
 
 			// Do character specific item bans
-			if ruleset.Character == "Isaac" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Magdalene" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Cain" {
-				if item == 46 { // Lucky Foot
-					continue
-				}
-			} else if ruleset.Character == "Judas" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Blue Baby" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Eve" {
-				if item == 117 { // Dead Bird
-					continue
-				} else if item == 122 { // Whore of Babylon
-					continue
-				} else if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Samson" {
-				if item == 157 { // Bloody Lust
-					continue
-				}
-			} else if ruleset.Character == "Lazarus" {
-				if item == 214 { // Anemic
-					continue
-				}
-			} else if ruleset.Character == "The Lost" {
-				if item == 313 { // Holy Mantle
-					continue
-				} else if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Lilith" {
-				if item == 412 { // Cambion Conception
-					continue
-				} else if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Keeper" {
-				if item == 230 { // Abaddon
-					continue
-				} else if item == 534 { // Schoolbag
-					continue
-				} else if item == 672 { // A Pound of Flesh
-					continue
-				}
-			} else if ruleset.Character == "Apollyon" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Bethany" {
-				if item == 230 { // Abaddon
-					continue
-				} else if item == 584 { // Book of virtues
-					continue
-				}
-			} else if ruleset.Character == "Jacob & Esau" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Isaac" {
-				if item == 619 { // Birthright
-					continue
-				}
-			} else if ruleset.Character == "Tainted Magdalene" {
-				if item == 724 { // Hypercoagulation
-					continue
-				} else if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Cain" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Judas" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Blue Baby" {
-				if item == 725 { // IBS
-					continue
-				} else if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Eve" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Azazel" {
-				if item == 726 { // Hemoptysis
-					continue
-				}
-			} else if ruleset.Character == "Tainted Lazarus" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Eden" {
-				if item == 619 { // Birthright
-					continue
-				}
-			} else if ruleset.Character == "Tainted Lost" {
-				if intInSlice(item, taintedLostItemsBanned) {
-					continue
-				}
-			} else if ruleset.Character == "Tainted Lilith" {
-				if item == 678 { // C Section
-					continue
-				}
-			} else if ruleset.Character == "Tainted Keeper" {
-				if item == 230 { // Abaddon
-					continue
-				} else if item == 672 { // A Pound of Flesh
-					continue
-				}
-			} else if ruleset.Character == "Tainted Apollyon" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Bethany" {
-				if item == 534 { // Schoolbag
-					continue
-				}
-			} else if ruleset.Character == "Tainted Jacob" {
-				if item == 534 { // Schoolbag
-					continue
+			for char, charItemBanned := range specificItemsBannedOnChars {
+				if ruleset.Character == char {
+					if intInSlice(item, charItemBanned) {
+						continue
+					}
 				}
 			}
 
