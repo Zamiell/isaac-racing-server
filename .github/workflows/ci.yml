@@ -15,6 +15,11 @@ jobs:
       - name: Test to see if the project compiles
         run: ./build.sh
 
+      - name: Install the Go linter
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: latest
+
       - name: Perform automated checks
         run: ./lint.sh
 
