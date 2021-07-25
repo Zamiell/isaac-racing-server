@@ -11,7 +11,7 @@ import (
 	Diversity ruleset definitions
 */
 
-var GoldenTrinketModifier = 32768
+var goldenTrinketModifier = 32768
 
 var validDiversityActiveItems = [...]int{
 	// Rebirth items
@@ -219,13 +219,8 @@ func diversityGetSeed(ruleset Ruleset) string {
 			randomIndex := rand.Intn(len(validDiversityPassiveItems)) // nolint: gosec
 			item := validDiversityPassiveItems[randomIndex]
 
-			// Do character specific item bans
-			for character, itemsBanned := range characterItemBlacklist {
-				if ruleset.Character == character {
-					if intInSlice(item, itemsBanned) {
-						continue
-					}
-				}
+			if itemIsBannedOnThisCharacter(item, ruleset.Character) {
+				continue
 			}
 
 			// Ensure this item is unique
@@ -243,7 +238,7 @@ func diversityGetSeed(ruleset Ruleset) string {
 	trinket := validDiversityTrinkets[randomIndex]
 	// The server has a 10% chance to make the trinket golden
 	if rand.Intn(10) == 0 { // nolint: gosec
-		trinket += GoldenTrinketModifier
+		trinket += goldenTrinketModifier
 	}
 	items = append(items, trinket)
 
@@ -255,4 +250,14 @@ func diversityGetSeed(ruleset Ruleset) string {
 	seed = strings.TrimSuffix(seed, ",") // Remove the trailing comma
 
 	return seed
+}
+
+func itemIsBannedOnThisCharacter(item int, character string) bool {
+	itemBlacklist, ok := characterItemBlacklist[character]
+	if !ok {
+		// There are no banned items for this character
+		return false
+	}
+
+	return intInSlice(item, itemBlacklist)
 }
