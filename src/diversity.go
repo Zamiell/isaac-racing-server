@@ -166,36 +166,36 @@ var taintedLostItemsBanned = []int{
 	695, 697, 702, 709, 724,
 }
 
-var specificItemsBannedOnChars = map[string][]int{
-	"Isaac" : {534}, // Schoolbag
-	"Magdalene" : {534}, // Schoolbag
-	"Cain" : {46}, // Lucky foot
-	"Judas" : {534}, // Schoolbag
-	"Blue Baby" : {534}, // Schoolbag
-	"Eve" : {117, 122, 534}, // Dead Bird, Whore of Babylon, Schoolbag
-	"Samson" : {157}, // Bloody Lust
-	"Lazarus" : {214}, // Anemic
-	"The Lost" : {313, 534}, // Holy Mantle, Schoolbag
-	"Lilith" : {412, 534}, // Cambion Conception, Schoolbag
-	"Keeper" : {230, 534, 672}, // Abaddon, Schoolbag, A Pound of Flesh
-	"Apollyon" : {534}, // Schoolbag
-	"Bethany" : {230, 584}, // Abaddon, Book of Virtues
-	"Jacob & Esau" : {534}, // Schoolbag
-	"Tainted Isaac" : {619}, // Birthright
-	"Tainted Magdalene" : {534, 724}, // Schoolbag, Hypercoagulation
-	"Tainted Cain" : {534}, // Schoolbag
-	"Tainted Judas" : {534}, // Schoolbag
-	"Tainted Blue Baby" : {534, 725}, // Schoolbag, IBS
-	"Tainted Eve" : {534}, // Schoolbag
-	"Tainted Azazel" : {726}, // Hemoptysis
-	"Tainted Lazarus" : {534}, // Schoolbag
-	"Tainted Eden" : {619}, // Birthright
-	"Tainted Lost" : taintedLostItemsBanned,
-	"Tainted Lilith" : {678}, // C-Section
-	"Tainted Keeper" : {230, 672}, // Abaddon, A Pound of Flesh
-	"Tainted Apollyon" : {534}, // Schoolbag
-	"Tainted Bethany" : {534}, // Schoolbag
-	"Tainted Jacob" : {534}, // Schoolbag
+var characterItemBlacklist = map[string][]int{
+	"Isaac":             {534},           // Schoolbag
+	"Magdalene":         {534},           // Schoolbag
+	"Cain":              {46},            // Lucky foot
+	"Judas":             {534},           // Schoolbag
+	"Blue Baby":         {534},           // Schoolbag
+	"Eve":               {117, 122, 534}, // Dead Bird, Whore of Babylon, Schoolbag
+	"Samson":            {157},           // Bloody Lust
+	"Lazarus":           {214},           // Anemic
+	"The Lost":          {313, 534},      // Holy Mantle, Schoolbag
+	"Lilith":            {412, 534},      // Cambion Conception, Schoolbag
+	"Keeper":            {230, 534, 672}, // Abaddon, Schoolbag, A Pound of Flesh
+	"Apollyon":          {534},           // Schoolbag
+	"Bethany":           {230, 584},      // Abaddon, Book of Virtues
+	"Jacob & Esau":      {534},           // Schoolbag
+	"Tainted Isaac":     {619},           // Birthright
+	"Tainted Magdalene": {534, 724},      // Schoolbag, Hypercoagulation
+	"Tainted Cain":      {534},           // Schoolbag
+	"Tainted Judas":     {534},           // Schoolbag
+	"Tainted Blue Baby": {534, 725},      // Schoolbag, IBS
+	"Tainted Eve":       {534},           // Schoolbag
+	"Tainted Azazel":    {726},           // Hemoptysis
+	"Tainted Lazarus":   {534},           // Schoolbag
+	"Tainted Eden":      {619},           // Birthright
+	"Tainted Lost":      taintedLostItemsBanned,
+	"Tainted Lilith":    {678},      // C-Section
+	"Tainted Keeper":    {230, 672}, // Abaddon, A Pound of Flesh
+	"Tainted Apollyon":  {534},      // Schoolbag
+	"Tainted Bethany":   {534},      // Schoolbag
+	"Tainted Jacob":     {534},      // Schoolbag
 }
 
 /*
@@ -220,9 +220,9 @@ func diversityGetSeed(ruleset Ruleset) string {
 			item := validDiversityPassiveItems[randomIndex]
 
 			// Do character specific item bans
-			for char, charItemBanned := range specificItemsBannedOnChars {
-				if ruleset.Character == char {
-					if intInSlice(item, charItemBanned) {
+			for character, itemsBanned := range characterItemBlacklist {
+				if ruleset.Character == character {
+					if intInSlice(item, itemsBanned) {
 						continue
 					}
 				}

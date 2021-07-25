@@ -30,8 +30,6 @@ linters:
     - godot
     # goerr113 complains about creating new static errors
     - goerr113
-    # gofmt is not needed because we are running goimports (which is a superset of gofmt)
-    - gofmt
     # gofumpt is not used
     - gofumpt
     # gomnd complains about magic numbers
