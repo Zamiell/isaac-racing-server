@@ -12,7 +12,7 @@ REPO="$(basename "$DIR")"
 # (if it does not exist, Supervisor will fail to start the service)
 mkdir -p "$DIR/logs"
 
-"$DIR/build_server.sh"
+"$DIR/build.sh"
 if [[ $? -ne 0 ]]; then
   exit 1
 fi
