@@ -1,17 +1,10 @@
-isaac-racing-server
-===================
-
-Additional Information
-----------------------
+# isaac-racing-server
 
 If you are not a developer, please visit [the website for Racing+](https://isaacracing.net/).
 
 <br />
 
-
-
-Description
------------
+## Description
 
 This is the server software for Racing+, a Binding of Isaac: Afterbirth+ racing platform. Normally a single player game, the Lua mod, client, and server allow players to be able to race each other in real time.
 
@@ -21,105 +14,93 @@ You may also be interested in [the client repository](https://github.com/Zamiell
 
 <br />
 
-
-
-Install
--------
+## Install
 
 These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will be needed for Windows installations.
 
-* Install Go:
-  * `sudo apt-get install software-properties-common python-software-properties` (only necessary on Ubuntu 17.04)
-  * `sudo add-apt-repository ppa:longsleep/golang-backports` (if you don't do this, it will install a version of Go that is very old)
-  * `sudo apt update`
-  * `sudo apt install golang-go -y`
-  * `mkdir "$HOME/go"`
-  * `export GOPATH=$HOME/go && echo 'export GOPATH=$HOME/go' >> ~/.profile`
-  * `export PATH=$PATH:$GOPATH/bin && echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.profile`
-* Install [MariaDB](https://mariadb.org/) and set up a user:
-  * `sudo apt install mariadb-server -y`
-  * `sudo mysql_secure_installation`
-    * Follow the prompts.
-  * `sudo mysql -u root -p`
-    * `CREATE DATABASE isaac;`
-    * `CREATE USER 'isaacuser'@'localhost' IDENTIFIED BY '1234567890';` (change the password to something else)
-    * `GRANT ALL PRIVILEGES ON isaac.* to 'isaacuser'@'localhost';`
-    * `FLUSH PRIVILEGES;`
-* Clone the server:
-  * `mkdir -p "$GOPATH/src/github.com/Zamiell"`
-  * `cd "$GOPATH/src/github.com/Zamiell/"`
-  * `git clone https://github.com/Zamiell/isaac-racing-server.git` (or clone a fork, if you are doing development work)
-  * `cd isaac-racing-server`
-* Download and install all of the Go dependencies:
-  * `cd src` (this is where all of the Go source code lives)
-  * `go get ./...` (it is normal for this to take a very long time)
-  * `cd ..`
-* Set up environment variables:
-  * `cp .env_template .env`
-  * `nano .env`
-    * Create a random 64 digit alphanumeric string for `SESSION_SECRET`.
-    * Change the `DB_PASS` value accordingly.
-    * If you want to be able to login to the WebSocket server, set a value for `STEAM_WEB_API_KEY`. (You can get it from the [Steam community portal](https://steamcommunity.com/dev/apikey).)
-    * The rest of the values can be left blank.
-* Import the database schema:
-  * `mysql -uisaacuser -p < install/database_schema.sql`
+- Install [Go](https://golang.org/):
+  - `sudo apt-get install software-properties-common python-software-properties` (only necessary on Ubuntu 17.04)
+  - `sudo add-apt-repository ppa:longsleep/golang-backports` (if you don't do this, it will install a version of Go that is very old)
+  - `sudo apt update`
+  - `sudo apt install golang-go -y`
+  - `mkdir "$HOME/go"`
+  - `export GOPATH=$HOME/go && echo 'export GOPATH=$HOME/go' >> ~/.profile`
+  - `export PATH=$PATH:$GOPATH/bin && echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.profile`
+- Install [MariaDB](https://mariadb.org/):
+  - `sudo apt install mariadb-server -y`
+  - `sudo mysql_secure_installation`
+    - Follow the prompts.
+- Set up a MariaDB database and a MariaDB user:
+  - `sudo mysql -u root -p`
+    - `CREATE DATABASE isaac;`
+    - `CREATE USER 'isaacuser'@'localhost' IDENTIFIED BY '1234567890';` (change the password to something else)
+    - `GRANT ALL PRIVILEGES ON isaac.* to 'isaacuser'@'localhost';`
+    - `FLUSH PRIVILEGES;`
+- Clone the repository:
+  - `cd [the path where you want the code to live]` (optional)
+  - If you already have an SSH key pair and have the public key attached to your GitHub profile, then use the following command to clone the repository via SSH:
+    - `git clone git@github.com:Zamiell/isaac-racing-server.git`
+  - If you do not already have an SSH key pair, then use the following command to clone the repository via HTTPS:
+    - `git clone https://github.com/Zamiell/isaac-racing-server.git`
+  - Or, if you are doing development work, then clone your forked version of the repository. For example:
+    - `git clone https://github.com/[Your_Username]/isaac-racing-server.git`
+- Enter the cloned repository:
+  - `cd isaac-racing-server`
+- Download and install all of the Go dependencies:
+  - `cd src` (this is where all of the Go source code lives)
+  - `go get ./...` (it is normal for this to take a very long time)
+  - `cd ..`
+- Set up environment variables:
+  - `cp .env_template .env`
+  - `nano .env`
+    - Create a random 64 digit alphanumeric string for `SESSION_SECRET`.
+    - Change the `DB_PASS` value accordingly.
+    - If you want to be able to login to the WebSocket server, set a value for `STEAM_WEB_API_KEY`. (You can get it from the [Steam community portal](https://steamcommunity.com/dev/apikey).)
+    - The rest of the values can be left blank.
+- Import the database schema:
+  - `mysql -uisaacuser -p < install/database_schema.sql` <!-- cspell:disable-line -->
 
 <br />
 
+## Run
 
-
-Run
----
-
-* `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server"`
-* `go run src/*.go` (sudo might be necessary because it runs on port 80 and/or 443)  
-(`sudo --preserve-env=GOPATH go run src/*.go` - to run with sudo)
+- `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server"`
+- `go run src/*.go` (sudo might be necessary because it runs on port 80 and/or 443)
+  - Use `sudo --preserve-env=GOPATH go run src/*.go` to run with sudo.
 
 <br />
 
+## Compile / Build
 
-
-
-Compile / Build
----------------
-
-* `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server/src"`
-* `go install`
-* `mv "$GOPATH/bin/src" "$GOPATH/bin/isaac-racing-server"` (the binary is called `src` by default, since the name of the directory is `src`)
+- `cd "$GOPATH/src/github.com/Zamiell/isaac-racing-server/src"`
+- `go install`
+- `mv "$GOPATH/bin/src" "$GOPATH/bin/isaac-racing-server"` (the binary is called `src` by default, since the name of the directory is `src`)
 
 <br />
 
+## Install HTTPS (optional)
 
-
-Install HTTPS (optional)
-------------------------
-
-* `apt-install letsencrypt`
-* `letsencrypt certonly --standalone -d isaacracing.net -d www.isaacracing.net` (this creates `/etc/letsencrypt/live/isaacracing.net`)
+- `apt-install letsencrypt`
+- `letsencrypt certonly --standalone -d isaacracing.net -d www.isaacracing.net` (this creates `/etc/letsencrypt/live/isaacracing.net`)
 
 Later, to renew the certificate:
 
-* `RENEW_DIR=/root/isaac-racing-server/letsencrypt && mkdir -p $RENEW_DIR && letsencrypt renew --webroot --webroot-path $RENEW_DIR && rm -rf $RENEW_DIR`
+- `RENEW_DIR=/root/isaac-racing-server/letsencrypt && mkdir -p $RENEW_DIR && letsencrypt renew --webroot --webroot-path $RENEW_DIR && rm -rf $RENEW_DIR`
 
 <br />
 
+## Install as a service (optional)
 
-
-Install as a service (optional)
--------------------------------
-
-* Install Supervisor:
-  * `apt install supervisor`
-  * `systemctl enable supervisor` (this is needed due to [a quirk in Ubuntu 16.04](http://unix.stackexchange.com/questions/281774/ubuntu-server-16-04-cannot-get-supervisor-to-start-automatically))
-* Copy the configuration files:
-  * `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf" "/etc/supervisord/supervisord.conf"`
-  * `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf" "/etc/supervisord/conf.d/isaac-racing-server.conf"`
-* Start it: `systemctl start supervisor`
+- Install Supervisor:
+  - `apt install supervisor`
+  - `systemctl enable supervisor` (this is needed due to [a quirk in Ubuntu 16.04](http://unix.stackexchange.com/questions/281774/ubuntu-server-16-04-cannot-get-supervisor-to-start-automatically))
+- Copy the configuration files:
+  - `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf" "/etc/supervisord/supervisord.conf"`
+  - `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf" "/etc/supervisord/conf.d/isaac-racing-server.conf"`
+- Start it: `systemctl start supervisor`
 
 Later, to manage the service:
 
-* Start it: `supervisorctl start isaac-racing-server`
-* Stop it: `supervisorctl stop isaac-racing-server`
-* Restart it: `supervisorctl restart isaac-racing-server`
-
-<br />
+- Start it: `supervisorctl start isaac-racing-server`
+- Stop it: `supervisorctl stop isaac-racing-server`
+- Restart it: `supervisorctl restart isaac-racing-server`
