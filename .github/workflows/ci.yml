@@ -13,7 +13,7 @@ jobs:
         uses: actions/setup-go@v2
 
       - name: Test to see if the project compiles
-        run: ./build.sh
+        run: bash build.sh
 
       - name: Install the Go linter
         uses: golangci/golangci-lint-action@v2
@@ -21,7 +21,7 @@ jobs:
           version: latest
 
       - name: Perform automated checks
-        run: ./lint.sh
+        run: bash lint.sh
 
   discord:
     name: Discord Failure Notification
