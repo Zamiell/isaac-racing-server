@@ -83,7 +83,7 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		message == "!racing+" ||
 		message == "!racingplus" {
 
-		discordSend(m.ChannelID, "Racing+ is a mod for The Binding of Isaac: Afterbirth+: https://isaacracing.net")
+		discordSend(m.ChannelID, "Racing+ is a mod for The Binding of Isaac: Repentance: https://isaacracing.net")
 		return
 	} else if message == "!corrupt" ||
 		message == "!corrupted" ||
@@ -94,7 +94,7 @@ func discordMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else if message == "!doc" ||
 		message == "!documentation" {
 
-		discordSend(m.ChannelID, "Everything in the mod has detailed documentation: https://github.com/Zamiell/isaac-racing-client/blob/master/mod/CHANGES.md")
+		discordSend(m.ChannelID, "Everything in the mod has detailed documentation: https://github.com/Zamiell/racing-plus/blob/main/docs/CHANGES.md")
 	}
 
 	// Copy messages from "racing-plus-lobby"
