@@ -3,8 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 /*
@@ -19,19 +17,19 @@ import (
 // ProfilesRow gets each row for all profiles
 type ProfilesRow struct {
 	Username            sql.NullString
-	DatetimeCreated     mysql.NullTime
+	DatetimeCreated     sql.NullTime
 	StreamURL           sql.NullString
 	NumAchievements     sql.NullInt64
 	TotalRaces          sql.NullInt64
 	ProfileLastRaceID   sql.NullInt64
-	ProfileLastRaceDate mysql.NullTime
+	ProfileLastRaceDate sql.NullTime
 }
 
 // ProfileData has all data for each racer
 type ProfileData struct {
 	Username          sql.NullString
-	DatetimeCreated   mysql.NullTime
-	DatetimeLastLogin mysql.NullTime
+	DatetimeCreated   sql.NullTime
+	DatetimeLastLogin sql.NullTime
 	Admin             sql.NullInt64
 	Verified          bool
 	StatsSeeded       StatsTrueSkill

@@ -1,3 +1,26 @@
+# -------------------------
+# isaac-racing-server stuff
+# -------------------------
+
+# Contains secrets
+.env
+
+# Constantly changes
+latest_client_version.txt
+
+# Directories
+logs
+backups
+tournaments
+
+# The compiled binary
+isaac-racing-server
+
+# Helper scripts
+database_shell.sh
+make_database_dump.sh
+scripts
+
 # --------------------------
 # GitHub .gitignore Template
 # --------------------------
@@ -29,26 +52,3 @@ _testmain.go
 
 # JetBrains GoLand
 .idea
-
-# -------------------------
-# isaac-racing-server stuff
-# -------------------------
-
-# Contains secrets
-.env
-
-# Constantly changes
-latest_client_version.txt
-
-# Directories
-logs
-backups
-tournaments
-
-# The compiled binary
-isaac-racing-server
-
-# Helper scripts
-database_shell.sh
-make_database_dump.sh
-scripts

@@ -63,6 +63,7 @@
         "govet",
         "halloffame",
         "hemoptysis",
+        "ifnull",
         "ifshort",
         "interfacer",
         "isaacracing",

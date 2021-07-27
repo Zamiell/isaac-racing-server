@@ -2,8 +2,6 @@ package models
 
 import (
 	"database/sql"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 /*
@@ -19,8 +17,8 @@ type RaceHistory struct {
 	RaceFormat       sql.NullString
 	RaceChar         sql.NullString
 	RaceGoal         sql.NullString
-	RaceDateStart    mysql.NullTime
-	RaceDateFinished mysql.NullTime
+	RaceDateStart    sql.NullTime
+	RaceDateFinished sql.NullTime
 	RaceParticipants []RaceHistoryParticipants
 }
 

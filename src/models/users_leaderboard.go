@@ -7,8 +7,6 @@ package models
 
 import (
 	"database/sql"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 const (
@@ -22,7 +20,7 @@ type StatsUnseeded struct {
 	NumForfeits     int
 	ForfeitPenalty  int
 	LowestTime      int
-	LastRace        mysql.NullTime
+	LastRace        sql.NullTime
 }
 
 type StatsTrueSkill struct {
@@ -31,7 +29,7 @@ type StatsTrueSkill struct {
 	Sigma     float64
 	Change    float64
 	NumRaces  int
-	LastRace  mysql.NullTime
+	LastRace  sql.NullTime
 }
 
 func (*Users) GetTrueSkill(userID int, format string) (StatsTrueSkill, error) {

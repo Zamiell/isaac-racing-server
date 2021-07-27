@@ -3,8 +3,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 /*
@@ -22,7 +20,7 @@ type TournamentRace struct {
 	Racer2          sql.NullString
 	RaceState       sql.NullString
 	TournamentRound sql.NullInt64
-	RaceDateTime    mysql.NullTime
+	RaceDateTime    sql.NullTime
 	ChallongeID     sql.NullInt64
 	RaceCasterName  sql.NullString
 	RaceCasterURL   sql.NullString

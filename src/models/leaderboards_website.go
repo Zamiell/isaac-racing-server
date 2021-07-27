@@ -2,8 +2,6 @@ package models
 
 import (
 	"database/sql"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 type LeaderboardRowSeeded struct {
@@ -12,7 +10,7 @@ type LeaderboardRowSeeded struct {
 	SeededTrueSkillDelta float64
 	SeededNumRaces       sql.NullInt64
 	SeededLowestTime     sql.NullInt64
-	SeededLastRace       mysql.NullTime
+	SeededLastRace       sql.NullTime
 	SeededLastRaceID     int
 	Verified             int
 	StreamURL            string
@@ -24,7 +22,7 @@ type LeaderboardRowSeededSolo struct {
 	SeededSoloTrueSkillDelta float64
 	SeededSoloNumRaces       sql.NullInt64
 	SeededSoloLowestTime     sql.NullInt64
-	SeededSoloLastRace       mysql.NullTime
+	SeededSoloLastRace       sql.NullTime
 	SeededSoloLastRaceID     int
 	Verified                 int
 	StreamURL                string
@@ -36,7 +34,7 @@ type LeaderboardRowUnseeded struct {
 	UnseededTrueSkillDelta float64
 	UnseededNumRaces       sql.NullInt64
 	UnseededLowestTime     sql.NullInt64
-	UnseededLastRace       mysql.NullTime
+	UnseededLastRace       sql.NullTime
 	UnseededLastRaceID     int
 	Verified               int
 	StreamURL              string
@@ -50,7 +48,7 @@ type LeaderboardRowUnseededSolo struct {
 	NumForfeits     int
 	ForfeitPenalty  int
 	LowestTime      int
-	LastRace        mysql.NullTime
+	LastRace        sql.NullTime
 	LastRaceID      int
 	Verified        int
 	StreamURL       string
@@ -62,7 +60,7 @@ type LeaderboardRowDiversity struct {
 	DivTrueSkillDelta float64
 	DivNumRaces       sql.NullInt64
 	DivLowestTime     sql.NullInt64
-	DivLastRace       mysql.NullTime
+	DivLastRace       sql.NullTime
 	DivLastRaceID     int
 	Verified          int
 	StreamURL         string
