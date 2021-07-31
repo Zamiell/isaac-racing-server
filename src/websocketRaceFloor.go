@@ -62,6 +62,7 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 
 	racer.FloorNum = floorNum
 	racer.StageType = stageType
+	racer.BackwardsPath = d.BackwardsPath
 	racer.DatetimeArrivedFloor = getTimestamp()
 
 	// If they reset from floor 1 to floor 1,

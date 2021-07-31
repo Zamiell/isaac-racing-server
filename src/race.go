@@ -15,7 +15,7 @@ import (
 type Race struct {
 	ID              int
 	Name            string
-	Status          string /* open, starting, in progress, finished */
+	Status          string // open, starting, in progress, finished
 	Ruleset         Ruleset
 	Captain         string
 	Password        string
@@ -41,20 +41,21 @@ type Racer struct {
 	ID                   int
 	Name                 string
 	DatetimeJoined       int64
-	Status               string /* not ready, ready, finished, quit, disqualified */
+	Status               string // not ready, ready, finished, quit, disqualified
 	Seed                 string
 	FloorNum             int
 	StageType            int
+	BackwardsPath        bool
 	DatetimeArrivedFloor int64
 	Items                []*Item
 	StartingItem         int
 	Rooms                []*Room
-	CharacterNum         int
+	CharacterNum         int // Only used in multi-character races
 	Place                int
 	PlaceMid             int
 	PlaceMidOld          int
 	DatetimeFinished     int64
-	RunTime              int64 /* in milliseconds */
+	RunTime              int64 // in milliseconds
 	Comment              string
 }
 type Item struct {
@@ -64,7 +65,7 @@ type Item struct {
 	DatetimeAcquired int64 `json:"datetimeAcquired"`
 }
 type Room struct {
-	ID              string /* e.g. "5.999" */
+	ID              string // e.g. "5.999"
 	FloorNum        int
 	StageType       int
 	DatetimeArrived int64
@@ -179,6 +180,12 @@ func (race *Race) SetAllPlaceMid() {
 
 			// If they are on a lower character than us, then we cannot possibly be behind them
 			if racer2.CharacterNum < racer.CharacterNum {
+				continue
+			}
+
+			// If they are on the backwards path, and we are not on the backwards path,
+			// then we cannot possibly be behind them
+			if race.Ruleset.Goal == "The Beast" && racer2.BackwardsPath && !racer.BackwardsPath {
 				continue
 			}
 

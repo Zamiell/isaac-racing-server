@@ -10,24 +10,25 @@ import (
 
 // Received in all commands
 type IncomingWebsocketData struct {
-	Room      string                `json:"room"`
-	Message   string                `json:"message"`
-	Name      string                `json:"name"`
-	Ruleset   Ruleset               `json:"ruleset"`
-	Password  string                `json:"password"`
-	ID        int                   `json:"id"`
-	Comment   string                `json:"comment"`
-	Seed      string                `json:"seed"`
-	ItemID    int                   `json:"itemID"` // nolint:tagliatelle
-	FloorNum  int                   `json:"floorNum"`
-	StageType int                   `json:"stageType"`
-	RoomID    string                `json:"roomID"` // nolint:tagliatelle
-	IP        string                `json:"ip"`
-	Enabled   bool                  `json:"enabled"`
-	Value     int                   `json:"value"`
-	Time      int64                 `json:"time"`
-	Command   string                // Added by the server after demarshaling
-	v         *models.SessionValues // Added by the server after demarshaling
+	Room          string                `json:"room"`
+	Message       string                `json:"message"`
+	Name          string                `json:"name"`
+	Ruleset       Ruleset               `json:"ruleset"`
+	Password      string                `json:"password"`
+	ID            int                   `json:"id"`
+	Comment       string                `json:"comment"`
+	Seed          string                `json:"seed"`
+	ItemID        int                   `json:"itemID"` // nolint:tagliatelle
+	FloorNum      int                   `json:"floorNum"`
+	StageType     int                   `json:"stageType"`
+	BackwardsPath bool                  `json:"backwardsPath"`
+	RoomID        string                `json:"roomID"` // nolint:tagliatelle
+	IP            string                `json:"ip"`
+	Enabled       bool                  `json:"enabled"`
+	Value         int                   `json:"value"`
+	Time          int64                 `json:"time"`
+	Command       string                // Added by the server after demarshaling
+	v             *models.SessionValues // Added by the server after demarshaling
 }
 
 /*
