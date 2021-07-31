@@ -61,6 +61,7 @@
         "gopath",
         "gosec",
         "govet",
+        "haemolacria",
         "halloffame",
         "hemoptysis",
         "ifnull",
