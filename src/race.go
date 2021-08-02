@@ -193,10 +193,10 @@ func (race *Race) SetAllPlaceMid() {
 			// Reverse all the logic on Backwards path
 			if racer2.BackwardsPath && racer.BackwardsPath {
 				if (racer2.FloorNum < racer.FloorNum && !(racer2.FloorNum == racer.FloorNum+1 && racerAltFloor)) ||
-				(racer2.FloorNum == racer.FloorNum && racerAltFloor && !racer2AltFloor) {
+					(racer2.FloorNum == racer.FloorNum && racerAltFloor && !racer2AltFloor) {
 
-				// If they are at a lower floor than us, then we are behind them
-				racer.PlaceMid++
+					// If they are at a lower floor than us, then we are behind them
+					racer.PlaceMid++
 				} else if (racer2.FloorNum == racer.FloorNum ||
 					(racer2.FloorNum == racer.FloorNum+1 &&
 						racerAltFloor)) &&
