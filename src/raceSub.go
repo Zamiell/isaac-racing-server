@@ -89,9 +89,9 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		ruleset.Goal != "Hush" &&
 		ruleset.Goal != "Delirium" &&
 		ruleset.Goal != "Mother" &&
-		ruleset.Goal != "The Beast" &&
+		ruleset.Goal != RaceGoalBeast &&
 		ruleset.Goal != "Boss Rush" &&
-		ruleset.Goal != "custom" {
+		ruleset.Goal != RaceGoalCustom {
 
 		websocketError(s, d.Command, "That is not a valid goal.")
 		return false
