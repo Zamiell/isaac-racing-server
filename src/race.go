@@ -190,10 +190,15 @@ func (race *Race) SetAllPlaceMid() {
 				continue
 			}
 
+			if racer2.BackwardsPath && !racer.BackwardsPath && (race.Ruleset.Goal == "The Beast" || race.Ruleset.Goal == "custom") {
+				racer.PlaceMid++
+			}
+
 			// Reverse all the logic on Backwards path
 			if racer2.BackwardsPath && racer.BackwardsPath {
 				if (racer2.FloorNum < racer.FloorNum && !(racer2.FloorNum == racer.FloorNum+1 && racerAltFloor)) ||
-					(racer2.FloorNum == racer.FloorNum && racerAltFloor && !racer2AltFloor) {
+					(racer2.FloorNum == racer.FloorNum && racerAltFloor && !racer2AltFloor) ||
+					(racer2.FloorNum < racer.FloorNum && racerAltFloor && racer2AltFloor) {
 
 					// If they are at a lower floor than us, then we are behind them
 					racer.PlaceMid++
@@ -212,7 +217,8 @@ func (race *Race) SetAllPlaceMid() {
 				// If they are on a higher character than us, then we are behind them
 				racer.PlaceMid++
 			} else if (racer2.FloorNum > racer.FloorNum && !(racer2.FloorNum-1 == racer.FloorNum && racerAltFloor)) ||
-				(racer2.FloorNum == racer.FloorNum && racer2AltFloor && !racerAltFloor) {
+				(racer2.FloorNum == racer.FloorNum && racer2AltFloor && !racerAltFloor) ||
+				(racer2.FloorNum > racer.FloorNum && racerAltFloor && racer2AltFloor) {
 
 				// If they are at a higher floor than us, then we are behind them
 				racer.PlaceMid++
