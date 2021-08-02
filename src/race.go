@@ -184,10 +184,10 @@ func (race *Race) SetAllPlaceMid() {
 				continue
 			}
 
-			// If they are on the backwards path, and we are not on the backwards path,
-			// then we cannot possibly be behind them
+			// If we are on the backwards path, and they are not on the backwards path,
+			// then they are be behind us
 			// Include every goals in case people do a custom race and only want to beat Dogma for example
-			if racer2.BackwardsPath && !racer.BackwardsPath {
+			if !racer2.BackwardsPath && racer.BackwardsPath {
 				continue
 			}
 
