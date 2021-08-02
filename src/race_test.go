@@ -5,8 +5,7 @@ import (
 	"testing"
 )
 
-func TestRacersPlaces(t *testing.T) {
-
+func TestRaceTheBeast(t *testing.T) {
 	races := make([]Race, 7)
 	races[0] = getRacersData(3, 0, 2, 0, false, false)
 	races[1] = getRacersData(3, 0, 2, 4, false, false)
