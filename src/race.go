@@ -160,14 +160,15 @@ func (race *Race) SetAllPlaceMid() {
 			continue
 		}
 
-		if racer.FloorNum == 1 && racer.CharacterNum == 1 {
+		racerAltFloor := racer.StageType == 4 || racer.StageType == 5
+
+		if racer.FloorNum == 1 && racer.CharacterNum == 1 && !racerAltFloor && !racer.BackwardsPath {
 			// Mid-race places are not calculated until racers get to the second floor
 			racer.PlaceMid = -1
 			continue
 		}
 
 		racer.PlaceMid = currentPlace
-		racerAltFloor := racer.StageType == 4 || racer.StageType == 5
 
 		// Find racers that should be ahead of us
 		for _, racer2 := range race.Racers {
@@ -185,8 +186,27 @@ func (race *Race) SetAllPlaceMid() {
 
 			// If they are on the backwards path, and we are not on the backwards path,
 			// then we cannot possibly be behind them
-			if race.Ruleset.Goal == "The Beast" && racer2.BackwardsPath && !racer.BackwardsPath {
+			// Include every goals in case people do a custom race and only want to beat Dogma for example
+			if racer2.BackwardsPath && !racer.BackwardsPath {
 				continue
+			}
+
+			// Reverse all the logic on Backwards path
+			if racer2.BackwardsPath && racer.BackwardsPath {
+				if (racer2.FloorNum < racer.FloorNum && !(racer2.FloorNum == racer.FloorNum+1 && racerAltFloor)) ||
+				(racer2.FloorNum == racer.FloorNum && racerAltFloor && !racer2AltFloor) {
+
+				// If they are at a lower floor than us, then we are behind them
+				racer.PlaceMid++
+				} else if (racer2.FloorNum == racer.FloorNum ||
+					(racer2.FloorNum == racer.FloorNum+1 &&
+						racerAltFloor)) &&
+					racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
+
+					// If they are on the same floor and they arrived before we did,
+					// then we are behind them
+					racer.PlaceMid++
+				}
 			}
 
 			if racer2.CharacterNum > racer.CharacterNum {
@@ -199,7 +219,7 @@ func (race *Race) SetAllPlaceMid() {
 				racer.PlaceMid++
 			} else if (racer2.FloorNum == racer.FloorNum ||
 				(racer2.FloorNum-1 == racer.FloorNum &&
-					racer2AltFloor)) &&
+					racerAltFloor)) &&
 				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
 
 				// If they are on the same floor and they arrived before we did,
