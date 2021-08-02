@@ -179,15 +179,14 @@ func (race *Race) SetAllPlaceMid() {
 				continue
 			}
 
-			// If they are on a lower character than us, then we cannot possibly be behind them
+			// If they are on a lower character than us, then they cannot possibly be ahead of us
 			if racer2.CharacterNum < racer.CharacterNum {
 				continue
 			}
 
-			// If we are on the backwards path, and they are not on the backwards path,
-			// then they are be behind us
-			// Include every goals in case people do a custom race and only want to beat Dogma for example
-			if !racer2.BackwardsPath && racer.BackwardsPath {
+			// If they are not on the backwards path, and we are on the backwards path,
+			// then they cannot possibly be ahead of us
+			if !racer2.BackwardsPath && racer.BackwardsPath && (race.Goal == "The Beast" || race.Goal == "custom") {
 				continue
 			}
 
