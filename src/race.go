@@ -186,7 +186,7 @@ func (race *Race) SetAllPlaceMid() {
 
 			// If they are not on the backwards path, and we are on the backwards path,
 			// then they cannot possibly be ahead of us
-			if !racer2.BackwardsPath && racer.BackwardsPath && (race.Goal == "The Beast" || race.Goal == "custom") {
+			if !racer2.BackwardsPath && racer.BackwardsPath && (race.Ruleset.Goal == "The Beast" || race.Ruleset.Goal == "custom") {
 				continue
 			}
 
