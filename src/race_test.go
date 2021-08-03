@@ -87,6 +87,8 @@ func getRace(
 }
 
 func testRaces(t *testing.T, races []*server.Race) {
+	t.Helper()
+
 	for index, race := range races {
 		race.SetAllPlaceMid()
 
