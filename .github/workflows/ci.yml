@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      working-directory: ./server
+      working-directory: ./src
 
     steps:
       - name: Checkout the repository
@@ -19,14 +19,11 @@ jobs:
       - name: Test to see if the project compiles
         run: bash build.sh
 
-      - name: Install the Go linter
+      - name: Lint
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.33
           working-directory: ${{ env.working-directory }}/src
-
-      - name: Perform automated checks
-        run: bash lint.sh
 
   discord:
     name: Discord Failure Notification
