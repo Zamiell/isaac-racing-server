@@ -18,7 +18,7 @@ fi
 # Compile the Golang code
 cd "$DIR/src"
 go test
-cd "$DIR/src/cmd"
+cd "$DIR/src/cmd/server"
 go build -o "$DIR/$REPO"
 if [[ $? -ne 0 ]]; then
   echo "$REPO - Go compilation failed!"
