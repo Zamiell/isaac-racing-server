@@ -6,9 +6,6 @@ jobs:
   build_and_lint:
     runs-on: ubuntu-latest
 
-    env:
-      working-directory: ./src
-
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -23,7 +20,7 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.33
-          working-directory: ${{ env.working-directory }}/src
+          working-directory: src
 
   discord:
     name: Discord Failure Notification
