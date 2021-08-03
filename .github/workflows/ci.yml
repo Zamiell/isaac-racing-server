@@ -19,7 +19,7 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.33
+          version: latest
           working-directory: src
 
   discord:
