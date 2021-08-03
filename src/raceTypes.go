@@ -1,4 +1,4 @@
-package main
+package server
 
 type RacerAddItemMessage struct {
 	ID   int    `json:"id"`

@@ -1,10 +1,10 @@
-package main
+package server
 
 import (
 	"sort"
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/Zamiell/isaac-racing-server/models"
 	trueskill "github.com/mafredri/go-trueskill"
 )
 

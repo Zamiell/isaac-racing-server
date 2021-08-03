@@ -1,4 +1,4 @@
-package main // In Go, executable commands must always use package main
+package server
 
 import (
 	"os"
@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/Zamiell/isaac-racing-server/models"
 	"github.com/joho/godotenv"
 )
 
@@ -23,7 +23,7 @@ var (
 	shutdownMode     = 0
 )
 
-func main() {
+func Init() {
 	// Initialize logging (in "logger.go")
 	logger = NewLogger()
 

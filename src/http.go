@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"html/template"
@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/Zamiell/isaac-racing-server/models"
 	"github.com/didip/tollbooth"
 	"github.com/didip/tollbooth_gin"
 	"github.com/gin-contrib/sessions"

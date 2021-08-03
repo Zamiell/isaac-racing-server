@@ -1,9 +1,9 @@
-package main
+package server
 
 import (
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/Zamiell/isaac-racing-server/models"
 )
 
 var (

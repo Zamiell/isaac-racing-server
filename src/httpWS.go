@@ -1,10 +1,10 @@
-package main
+package server
 
 import (
 	"net/http"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/Zamiell/isaac-racing-server/models"
 	"github.com/gin-gonic/gin"
 )
 

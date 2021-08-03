@@ -1,19 +1,23 @@
-package main
+package server_test
 
 import (
 	"fmt"
 	"testing"
+
+	server "github.com/Zamiell/isaac-racing-server"
 )
 
 func TestRaceTheBeast(t *testing.T) {
-	races := make([]Race, 7)
-	races[0] = getRacersData(3, 0, 2, 0, false, false)
-	races[1] = getRacersData(3, 0, 2, 4, false, false)
-	races[2] = getRacersData(3, 0, 3, 0, false, false)
-	races[3] = getRacersData(3, 5, 3, 0, false, false)
-	races[4] = getRacersData(6, 4, 6, 4, true, false)
-	races[5] = getRacersData(2, 4, 3, 0, true, true)
-	races[6] = getRacersData(2, 4, 2, 4, false, false)
+	t.Parallel()
+
+	races := make([]server.Race, 7)
+	races[0] = getRace(3, 0, false, 2, 0, false)
+	races[1] = getRace(3, 0, false, 2, 4, false)
+	races[2] = getRace(3, 0, false, 3, 0, false)
+	races[3] = getRace(3, 5, false, 3, 0, false)
+	races[4] = getRace(6, 4, true, 6, 4, false)
+	races[5] = getRace(2, 4, true, 3, 0, true)
+	races[6] = getRace(2, 4, false, 2, 4, false)
 
 	for index, race := range races {
 		race.SetAllPlaceMid()
@@ -24,21 +28,21 @@ func TestRaceTheBeast(t *testing.T) {
 	}
 }
 
-func getRacersData(racer1FloorNum, racer1StageType, racer2FloorNum, racer2StageType int, racer1IsOnBackwardsPath, racer2IsOnBackwardsPath bool) Race {
-	ruleset := Ruleset{
+func getRace(racer1FloorNum int, racer1StageType int, racer1IsOnBackwardsPath bool, racer2FloorNum int, racer2StageType int, racer2IsOnBackwardsPath bool) server.Race {
+	ruleset := server.Ruleset{
 		Ranked:              false,
 		Solo:                true,
-		Format:              RaceFormatSeeded,
+		Format:              server.RaceFormatSeeded,
 		Character:           "Judas",
 		CharacterRandom:     false,
-		Goal:                RaceGoalBeast,
+		Goal:                server.RaceGoalBeast,
 		StartingBuild:       1,
 		StartingBuildRandom: false,
 		Seed:                "TESTTEST",
 		Difficulty:          "normal",
 	}
 
-	racer1 := Racer{
+	racer1 := server.Racer{
 		ID:                   0,
 		Name:                 "racer1",
 		Status:               "racing",
@@ -52,7 +56,7 @@ func getRacersData(racer1FloorNum, racer1StageType, racer2FloorNum, racer2StageT
 		PlaceMid:             -1,
 	}
 
-	racer2 := Racer{
+	racer2 := server.Racer{
 		ID:                   10000,
 		Name:                 "racer1",
 		Status:               "racing",
@@ -66,19 +70,19 @@ func getRacersData(racer1FloorNum, racer1StageType, racer2FloorNum, racer2StageT
 		PlaceMid:             -1,
 	}
 
-	Racers := make(map[string]*Racer)
+	Racers := make(map[string]*server.Racer)
 	Racers["racer1"] = &racer1
 	Racers["racer2"] = &racer2
 
-	race := Race{
+	race := server.Race{
 		ID:              0,
 		Name:            "name",
-		Status:          RaceStatusOpen,
+		Status:          server.RaceStatusOpen,
 		Ruleset:         ruleset,
 		Captain:         "username",
 		Password:        "password",
 		SoundPlayed:     false,
-		DatetimeCreated: getTimestamp(),
+		DatetimeCreated: 0,
 		DatetimeStarted: 0,
 		Racers:          Racers,
 	}
