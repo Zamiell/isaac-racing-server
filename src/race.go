@@ -212,36 +212,21 @@ func (race *Race) SetAllPlaceMid() {
 					continue
 				}
 
-				// If they are on a higher floor than us, we must be ahead of them
-				// (since we are going downwards)
-				if adjustedFloorNumThem > adjustedFloorNumUs {
-					continue
-				}
+				// If we are both on the backwards path, then floor logic is inverted
+				if racer2.BackwardsPath && racer.BackwardsPath {
+					// If they are on a higher floor than us, we must be ahead of them
+					// (since we are going downwards)
+					if adjustedFloorNumThem > adjustedFloorNumUs {
+						continue
+					}
 
-				// If they are on a lower floor than us, we must be behind them
-				// (since we are going downwards)
-				if adjustedFloorNumThem < adjustedFloorNumUs {
-					racer.PlaceMid++
-					continue
+					// If they are on a lower floor than us, we must be behind them
+					// (since we are going downwards)
+					if adjustedFloorNumThem < adjustedFloorNumUs {
+						racer.PlaceMid++
+						continue
+					}
 				}
-
-				// If they are on the same floor and they arrived after us, we must be ahead of them
-				if racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor {
-					continue
-				}
-
-				// If they are on the same floor and they arrived before us, we must be behind them
-				if racer2.DatetimeArrivedFloor <= racer.DatetimeArrivedFloor {
-					racer.PlaceMid++
-					continue
-				}
-
-				logger.Errorf(
-					"The \"SetAllPlaceMid()\" function failed to find a condition to sort player \"%s\" and \"%s\" (for the Backwards Path logic).",
-					racer.Name,
-					racer2.Name,
-				)
-				continue
 			}
 
 			// If they are on a lower floor than us, we must be ahead of them
