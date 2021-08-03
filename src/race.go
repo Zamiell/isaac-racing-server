@@ -173,6 +173,7 @@ func (race *Race) SetAllPlaceMid() {
 		// Find racers that should be ahead of us
 		for _, racer2 := range race.Racers {
 			racer2AltFloor := racer2.StageType == 4 || racer2.StageType == 5
+
 			// We don't count people who finished or quit since our starting point is on
 			// "currentPlace"
 			if racer2.Status != RacerStatusRacing {
@@ -190,6 +191,8 @@ func (race *Race) SetAllPlaceMid() {
 				continue
 			}
 
+			// If they are on the backwards path, and we are not on the backwards path,
+			// they they must be ahead of us
 			if racer2.BackwardsPath && !racer.BackwardsPath && (race.Ruleset.Goal == RaceGoalBeast || race.Ruleset.Goal == RaceGoalCustom) {
 				racer.PlaceMid++
 				continue
@@ -240,6 +243,25 @@ func (race *Race) SetAllPlaceMid() {
 			race.SendAllPlaceMid(racer.Name, racer.PlaceMid)
 		}
 	}
+}
+
+const (
+	StageTypeOriginal = iota
+	StageTypeWoTL
+	StageTypeAfterbirth
+	StageTypeGreedMode
+	StageTypeRepentance
+	StagetypeRepentanceB
+)
+
+// Account for Repentance floors being offset by 1
+func getAdjustedStage(stage int, stageType int) int {
+	onRepentanceFloor := stageType == StageTypeRepentance || stageType == StagetypeRepentanceB
+
+	if onRepentanceFloor {
+		return stage + 1
+	}
+	return stage
 }
 
 func (race *Race) SendAllPlaceMid(username string, placeMid int) {

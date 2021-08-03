@@ -12,30 +12,33 @@ const (
 	RACER_1_ARRIVED_FLOOR = 30000
 )
 
+func TestRaceBlueBaby(t *testing.T) {
+	t.Parallel()
+
+	goal := server.RaceGoalBlueBaby
+	races := []*server.Race{
+		getRace(3, 0, false, 1, 1, false, goal), // Normal floors
+		getRace(2, 2, false, 1, 4, false, goal), // Repentance floors
+	}
+
+	testRaces(t, races)
+}
+
 func TestRaceTheBeast(t *testing.T) {
 	t.Parallel()
 
-	races := make([]server.Race, 7)
-	races[0] = getRace(3, 0, false, 2, 0, false)
-	races[1] = getRace(3, 0, false, 2, 4, false)
-	races[2] = getRace(3, 0, false, 3, 0, false)
-	races[3] = getRace(3, 5, false, 3, 0, false)
-	races[4] = getRace(6, 4, true, 6, 4, false)
-	races[5] = getRace(2, 4, true, 3, 0, true)
-	races[6] = getRace(2, 4, false, 2, 4, false)
-
-	for index, race := range races {
-		race.SetAllPlaceMid()
-
-		if race.Racers[PLAYER_1_NAME].PlaceMid != 1 {
-			t.Errorf(
-				"Place for %s: %d on race number %d",
-				PLAYER_1_NAME,
-				race.Racers[PLAYER_1_NAME].PlaceMid,
-				index+1,
-			)
-		}
+	goal := server.RaceGoalBeast
+	races := []*server.Race{
+		getRace(3, 0, false, 2, 0, false, goal),
+		getRace(3, 0, false, 2, 4, false, goal),
+		getRace(3, 0, false, 3, 0, false, goal),
+		getRace(3, 5, false, 3, 0, false, goal),
+		getRace(6, 4, true, 6, 4, false, goal),
+		getRace(2, 4, true, 3, 0, true, goal),
+		getRace(2, 4, false, 2, 4, false, goal),
 	}
+
+	testRaces(t, races)
 }
 
 func getRace(
@@ -45,7 +48,8 @@ func getRace(
 	racer2FloorNum int,
 	racer2StageType int,
 	racer2IsOnBackwardsPath bool,
-) server.Race {
+	goal string,
+) *server.Race {
 	racer1 := server.Racer{
 		Name:                 PLAYER_1_NAME,
 		Status:               "racing",
@@ -72,10 +76,25 @@ func getRace(
 
 	race := server.Race{
 		Ruleset: server.Ruleset{
-			Goal: server.RaceGoalBeast,
+			Goal: goal,
 		},
 		Racers: Racers,
 	}
 
-	return race
+	return &race
+}
+
+func testRaces(t *testing.T, races []*server.Race) {
+	for index, race := range races {
+		race.SetAllPlaceMid()
+
+		if race.Racers[PLAYER_1_NAME].PlaceMid != 1 {
+			t.Errorf(
+				"Race #%d failed: %s should be in 1st place, but was place: %d",
+				index+1,
+				PLAYER_1_NAME,
+				race.Racers[PLAYER_1_NAME].PlaceMid,
+			)
+		}
+	}
 }
