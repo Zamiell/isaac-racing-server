@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"fmt"
@@ -93,7 +93,7 @@ func shadowServer() (pc net.PacketConn, err error) {
 }
 
 func sessionClock() {
-	tick := time.Tick(clockInterval * time.Second)
+	tick := time.Tick(clockInterval * time.Second) // nolint: staticcheck
 	for {
 		select {
 		case <-tick:

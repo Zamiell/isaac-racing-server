@@ -1,11 +1,11 @@
-package main
+package server
 
 import (
 	"encoding/json"
 	"sync"
 	"time"
 
-	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/Zamiell/isaac-racing-server/models"
 	melody "gopkg.in/olahol/melody.v1"
 )
 

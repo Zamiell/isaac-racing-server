@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	melody "gopkg.in/olahol/melody.v1"

@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"encoding/json"
@@ -172,5 +172,14 @@ const RaceFormatUnseeded = "unseeded"
 const RaceFormatCustom = "custom"
 const RaceFormatSeeded = "seeded"
 const RaceFormatDiversity = "diversity"
+const RaceGoalBlueBaby = "Blue Baby"
+const RaceGoalTheLamb = "The Lamb"
+const RaceGoalMegaSatan = "Mega Satan"
+const RaceGoalHush = "Hush"
+const RaceGoalDelirium = "Delirium"
+const RaceGoalMother = "Mother"
+const RaceGoalBeast = "The Beast"
+const RaceGoalBossRush = "Boss Rush"
+const RaceGoalCustom = "custom"
 const RacerStatusReady = "ready"
 const RacerStatusRacing = "racing"

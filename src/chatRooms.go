@@ -1,4 +1,4 @@
-package main
+package server
 
 /*
 	Chat room subroutines

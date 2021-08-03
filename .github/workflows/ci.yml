@@ -5,6 +5,7 @@ on: [push, pull_request]
 jobs:
   build_and_lint:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout the repository
         uses: actions/checkout@v2
@@ -15,13 +16,11 @@ jobs:
       - name: Test to see if the project compiles
         run: bash build.sh
 
-      - name: Install the Go linter
+      - name: Lint
         uses: golangci/golangci-lint-action@v2
         with:
           version: latest
-
-      - name: Perform automated checks
-        run: bash lint.sh
+          working-directory: src
 
   discord:
     name: Discord Failure Notification

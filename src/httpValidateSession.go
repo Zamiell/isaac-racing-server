@@ -1,11 +1,11 @@
-package main
+package server
 
 import (
 	"errors"
 	"net"
 	"strconv"
 
-	"github.com/Zamiell/isaac-racing-server/src/models"
+	"github.com/Zamiell/isaac-racing-server/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +31,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 	} else if userIsBanned {
 		logger.Info("IP \"" + ip + "\" tried to establish a WebSocket connection, but they are banned.")
 		msg := "Your IP address has been banned. Please contact an administrator if you think this is a mistake."
-		return nil, errors.New(msg) // nolint: stylecheck
+		return nil, errors.New(msg) // nolint:stylecheck
 	}
 
 	// If they have logged in, their cookie should have values matching the

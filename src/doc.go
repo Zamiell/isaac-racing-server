@@ -226,4 +226,4 @@ error {"type":"logout","message":"You have logged on from somewhere else, so you
 
 */
 
-package main
+package server
