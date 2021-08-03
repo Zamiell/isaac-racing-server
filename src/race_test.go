@@ -103,25 +103,6 @@ func TestRaceTheBeast(t *testing.T) {
 		getRace(3, 5, true, 3, 4, true, goal),
 		getRace(3, 5, true, 3, 5, true, goal),
 	}
-
-	races = append(races, getRace(2, 0, true, 3, 0, true, goal))
-	races = append(races, getRace(2, 0, true, 3, 1, true, goal))
-	races = append(races, getRace(2, 0, true, 3, 2, true, goal))
-	races = append(races, getRace(2, 1, true, 3, 0, true, goal))
-	races = append(races, getRace(2, 1, true, 3, 1, true, goal))
-	races = append(races, getRace(2, 1, true, 3, 2, true, goal))
-	races = append(races, getRace(2, 2, true, 3, 0, true, goal))
-	races = append(races, getRace(2, 2, true, 3, 1, true, goal))
-	races = append(races, getRace(2, 2, true, 3, 2, true, goal))
-
-	// Both on backwards path (Repentance floors)
-	races = append(races, getRace(2, 4, true, 3, 0, true, goal))
-	races = append(races, getRace(2, 4, true, 3, 1, true, goal))
-	races = append(races, getRace(2, 4, true, 3, 2, true, goal))
-	races = append(races, getRace(2, 5, true, 3, 0, true, goal))
-	races = append(races, getRace(2, 5, true, 3, 1, true, goal))
-	races = append(races, getRace(2, 5, true, 3, 2, true, goal))
-
 	races = append(races, bothOnBackwardsPathRaces...)
 
 	testRaces(t, races)
