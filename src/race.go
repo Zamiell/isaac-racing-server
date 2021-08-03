@@ -192,6 +192,7 @@ func (race *Race) SetAllPlaceMid() {
 
 			if racer2.BackwardsPath && !racer.BackwardsPath && (race.Ruleset.Goal == RaceGoalBeast || race.Ruleset.Goal == RaceGoalCustom) {
 				racer.PlaceMid++
+				continue
 			}
 
 			// Reverse all the logic on Backwards path
