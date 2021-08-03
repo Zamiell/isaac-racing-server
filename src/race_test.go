@@ -1,10 +1,15 @@
 package server_test
 
 import (
-	"fmt"
 	"testing"
 
 	server "github.com/Zamiell/isaac-racing-server"
+)
+
+const (
+	PLAYER_1_NAME         = "Alice"
+	PLAYER_2_NAME         = "Bob"
+	RACER_1_ARRIVED_FLOOR = 30000
 )
 
 func TestRaceTheBeast(t *testing.T) {
@@ -22,69 +27,54 @@ func TestRaceTheBeast(t *testing.T) {
 	for index, race := range races {
 		race.SetAllPlaceMid()
 
-		if race.Racers["racer1"].PlaceMid != 1 {
-			t.Errorf(fmt.Sprintf("Place for racer1: %d on race number %d", race.Racers["racer1"].PlaceMid, index+1))
+		if race.Racers[PLAYER_1_NAME].PlaceMid != 1 {
+			t.Errorf(
+				"Place for %s: %d on race number %d",
+				PLAYER_1_NAME,
+				race.Racers[PLAYER_1_NAME].PlaceMid,
+				index+1,
+			)
 		}
 	}
 }
 
-func getRace(racer1FloorNum int, racer1StageType int, racer1IsOnBackwardsPath bool, racer2FloorNum int, racer2StageType int, racer2IsOnBackwardsPath bool) server.Race {
-	ruleset := server.Ruleset{
-		Ranked:              false,
-		Solo:                true,
-		Format:              server.RaceFormatSeeded,
-		Character:           "Judas",
-		CharacterRandom:     false,
-		Goal:                server.RaceGoalBeast,
-		StartingBuild:       1,
-		StartingBuildRandom: false,
-		Seed:                "TESTTEST",
-		Difficulty:          "normal",
-	}
-
+func getRace(
+	racer1FloorNum int,
+	racer1StageType int,
+	racer1IsOnBackwardsPath bool,
+	racer2FloorNum int,
+	racer2StageType int,
+	racer2IsOnBackwardsPath bool,
+) server.Race {
 	racer1 := server.Racer{
-		ID:                   0,
-		Name:                 "racer1",
+		Name:                 PLAYER_1_NAME,
 		Status:               "racing",
-		Seed:                 "TESTTEST",
 		FloorNum:             racer1FloorNum,
 		StageType:            racer1StageType,
 		BackwardsPath:        racer1IsOnBackwardsPath,
-		DatetimeArrivedFloor: 30000,
-		CharacterNum:         1,
-		Place:                0,
+		DatetimeArrivedFloor: RACER_1_ARRIVED_FLOOR,
 		PlaceMid:             -1,
 	}
 
 	racer2 := server.Racer{
-		ID:                   10000,
-		Name:                 "racer1",
+		Name:                 PLAYER_2_NAME,
 		Status:               "racing",
-		Seed:                 "TESTTEST",
 		FloorNum:             racer2FloorNum,
 		StageType:            racer2StageType,
 		BackwardsPath:        racer2IsOnBackwardsPath,
-		DatetimeArrivedFloor: 30050,
-		CharacterNum:         1,
-		Place:                0,
+		DatetimeArrivedFloor: RACER_1_ARRIVED_FLOOR + 50,
 		PlaceMid:             -1,
 	}
 
 	Racers := make(map[string]*server.Racer)
-	Racers["racer1"] = &racer1
-	Racers["racer2"] = &racer2
+	Racers["Alice"] = &racer1
+	Racers["Bob"] = &racer2
 
 	race := server.Race{
-		ID:              0,
-		Name:            "name",
-		Status:          server.RaceStatusOpen,
-		Ruleset:         ruleset,
-		Captain:         "username",
-		Password:        "password",
-		SoundPlayed:     false,
-		DatetimeCreated: 0,
-		DatetimeStarted: 0,
-		Racers:          Racers,
+		Ruleset: server.Ruleset{
+			Goal: server.RaceGoalBeast,
+		},
+		Racers: Racers,
 	}
 
 	return race
