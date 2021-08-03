@@ -50,7 +50,7 @@ func getRace(
 	racer2IsOnBackwardsPath bool,
 	goal string,
 ) *server.Race {
-	racer1 := server.Racer{
+	racer1 := &server.Racer{
 		Name:                 PLAYER_1_NAME,
 		Status:               "racing",
 		FloorNum:             racer1FloorNum,
@@ -60,7 +60,7 @@ func getRace(
 		PlaceMid:             -1,
 	}
 
-	racer2 := server.Racer{
+	racer2 := &server.Racer{
 		Name:                 PLAYER_2_NAME,
 		Status:               "racing",
 		FloorNum:             racer2FloorNum,
@@ -70,18 +70,16 @@ func getRace(
 		PlaceMid:             -1,
 	}
 
-	Racers := make(map[string]*server.Racer)
-	Racers["Alice"] = &racer1
-	Racers["Bob"] = &racer2
+	racers := make(map[string]*server.Racer)
+	racers[PLAYER_1_NAME] = racer1
+	racers[PLAYER_2_NAME] = racer2
 
-	race := server.Race{
+	return &server.Race{
 		Ruleset: server.Ruleset{
 			Goal: goal,
 		},
-		Racers: Racers,
+		Racers: racers,
 	}
-
-	return &race
 }
 
 func testRaces(t *testing.T, races []*server.Race) {
