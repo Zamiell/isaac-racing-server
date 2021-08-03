@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	PLAYER_1_NAME         = "Alice"
-	PLAYER_2_NAME         = "Bob"
-	RACER_1_ARRIVED_FLOOR = 30000
+	Racer1Name         = "Alice"
+	Racer2Name         = "Bob"
+	Racer1ArrivedFloor = 30000
 )
 
 func TestRaceBlueBaby(t *testing.T) {
@@ -51,28 +51,28 @@ func getRace(
 	goal string,
 ) *server.Race {
 	racer1 := &server.Racer{
-		Name:                 PLAYER_1_NAME,
+		Name:                 Racer1Name,
 		Status:               "racing",
 		FloorNum:             racer1FloorNum,
 		StageType:            racer1StageType,
 		BackwardsPath:        racer1IsOnBackwardsPath,
-		DatetimeArrivedFloor: RACER_1_ARRIVED_FLOOR,
+		DatetimeArrivedFloor: Racer1ArrivedFloor,
 		PlaceMid:             -1,
 	}
 
 	racer2 := &server.Racer{
-		Name:                 PLAYER_2_NAME,
+		Name:                 Racer2Name,
 		Status:               "racing",
 		FloorNum:             racer2FloorNum,
 		StageType:            racer2StageType,
 		BackwardsPath:        racer2IsOnBackwardsPath,
-		DatetimeArrivedFloor: RACER_1_ARRIVED_FLOOR + 50,
+		DatetimeArrivedFloor: Racer1ArrivedFloor + 50,
 		PlaceMid:             -1,
 	}
 
 	racers := make(map[string]*server.Racer)
-	racers[PLAYER_1_NAME] = racer1
-	racers[PLAYER_2_NAME] = racer2
+	racers[Racer1Name] = racer1
+	racers[Racer2Name] = racer2
 
 	return &server.Race{
 		Ruleset: server.Ruleset{
@@ -86,12 +86,13 @@ func testRaces(t *testing.T, races []*server.Race) {
 	for index, race := range races {
 		race.SetAllPlaceMid()
 
-		if race.Racers[PLAYER_1_NAME].PlaceMid != 1 {
+		racer1PlaceMid := race.Racers[Racer1Name].PlaceMid
+		if racer1PlaceMid != 1 {
 			t.Errorf(
 				"Race #%d failed: %s should be in 1st place, but was place: %d",
 				index+1,
-				PLAYER_1_NAME,
-				race.Racers[PLAYER_1_NAME].PlaceMid,
+				Racer1Name,
+				racer1PlaceMid,
 			)
 		}
 	}
