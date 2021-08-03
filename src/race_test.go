@@ -17,8 +17,12 @@ func TestRaceBlueBaby(t *testing.T) {
 
 	goal := server.RaceGoalBlueBaby
 	races := []*server.Race{
-		getRace(3, 0, false, 1, 1, false, goal), // Normal floors
-		getRace(2, 2, false, 1, 4, false, goal), // Repentance floors
+		getRace(3, 0, false, 2, 0, false, goal), // Normal floors with same stage type
+		getRace(3, 0, false, 2, 1, false, goal), // Normal floors with different stage type
+		getRace(3, 2, false, 2, 4, false, goal), // Repentance floors that should be equal
+		getRace(3, 0, false, 3, 0, false, goal), // Same floor + same stage type
+		getRace(3, 0, false, 3, 2, false, goal), // Same floor + different stage type
+		getRace(2, 4, false, 2, 4, false, goal), // Same floor + same stage type (Repentance)
 	}
 
 	testRaces(t, races)
@@ -29,13 +33,13 @@ func TestRaceTheBeast(t *testing.T) {
 
 	goal := server.RaceGoalBeast
 	races := []*server.Race{
-		getRace(3, 0, false, 2, 0, false, goal),
-		getRace(3, 0, false, 2, 4, false, goal),
-		getRace(3, 0, false, 3, 0, false, goal),
-		getRace(3, 5, false, 3, 0, false, goal),
-		getRace(6, 4, true, 6, 4, false, goal),
-		getRace(2, 4, true, 3, 0, true, goal),
-		getRace(2, 4, false, 2, 4, false, goal),
+		getRace(3, 0, false, 2, 0, false, goal), // Normal floors
+		getRace(3, 0, false, 2, 4, false, goal), // Repentance floors that should be equal
+		getRace(3, 0, false, 3, 0, false, goal), // Same floor + same stage type
+		getRace(3, 5, false, 4, 0, false, goal), // Repentance floors that should be equal
+		getRace(6, 4, true, 6, 4, false, goal),  // On backwards path with opponent not
+		getRace(5, 4, true, 6, 4, false, goal),  // On backwards path with opponent not
+		getRace(2, 4, true, 3, 0, true, goal),   // Both on backwards path
 	}
 
 	testRaces(t, races)

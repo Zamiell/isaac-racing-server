@@ -172,7 +172,10 @@ func (race *Race) SetAllPlaceMid() {
 
 		// Find racers that should be ahead of us
 		for _, racer2 := range race.Racers {
-			racer2AltFloor := racer2.StageType == 4 || racer2.StageType == 5
+			// Skip ourselves
+			if racer2.ID == racer.ID {
+				continue
+			}
 
 			// We don't count people who finished or quit since our starting point is on
 			// "currentPlace"
@@ -180,61 +183,94 @@ func (race *Race) SetAllPlaceMid() {
 				continue
 			}
 
-			// If they are on a lower character than us, then they cannot possibly be ahead of us
+			// If they are on a lower character than us, we must be ahead of them
 			if racer2.CharacterNum < racer.CharacterNum {
 				continue
 			}
 
-			// If they are not on the backwards path, and we are on the backwards path,
-			// then they cannot possibly be ahead of us
-			if !racer2.BackwardsPath && racer.BackwardsPath && (race.Ruleset.Goal == RaceGoalBeast || race.Ruleset.Goal == RaceGoalCustom) {
-				continue
-			}
-
-			// If they are on the backwards path, and we are not on the backwards path,
-			// they they must be ahead of us
-			if racer2.BackwardsPath && !racer.BackwardsPath && (race.Ruleset.Goal == RaceGoalBeast || race.Ruleset.Goal == RaceGoalCustom) {
-				racer.PlaceMid++
-				continue
-			}
-
-			// Reverse all the logic on Backwards path
-			if racer2.BackwardsPath && racer.BackwardsPath {
-				if (racer2.FloorNum < racer.FloorNum && !(racer2.FloorNum == racer.FloorNum+1 && racerAltFloor)) ||
-					(racer2.FloorNum == racer.FloorNum && racerAltFloor && !racer2AltFloor) ||
-					(racer2.FloorNum < racer.FloorNum && racerAltFloor && racer2AltFloor) {
-
-					// If they are at a lower floor than us, then we are behind them
-					racer.PlaceMid++
-				} else if (racer2.FloorNum == racer.FloorNum ||
-					(racer2.FloorNum == racer.FloorNum+1 &&
-						racerAltFloor)) &&
-					racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
-
-					// If they are on the same floor and they arrived before we did,
-					// then we are behind them
-					racer.PlaceMid++
-				}
-			}
-
+			// If they are on a higher character than us, we must be behind them
 			if racer2.CharacterNum > racer.CharacterNum {
-				// If they are on a higher character than us, then we are behind them
 				racer.PlaceMid++
-			} else if (racer2.FloorNum > racer.FloorNum && !(racer2.FloorNum-1 == racer.FloorNum && racerAltFloor)) ||
-				(racer2.FloorNum == racer.FloorNum && racer2AltFloor && !racerAltFloor) ||
-				(racer2.FloorNum > racer.FloorNum && racerAltFloor && racer2AltFloor) {
-
-				// If they are at a higher floor than us, then we are behind them
-				racer.PlaceMid++
-			} else if (racer2.FloorNum == racer.FloorNum ||
-				(racer2.FloorNum-1 == racer.FloorNum &&
-					racerAltFloor)) &&
-				racer2.DatetimeArrivedFloor < racer.DatetimeArrivedFloor {
-
-				// If they are on the same floor and they arrived before we did,
-				// then we are behind them
-				racer.PlaceMid++
+				continue
 			}
+
+			adjustedFloorNumUs := getAdjustedFloorNum(racer)
+			adjustedFloorNumThem := getAdjustedFloorNum(racer2)
+
+			// Only account for "Backwards Path" logic on races with specific goals
+			if race.Ruleset.Goal == RaceGoalBeast || race.Ruleset.Goal == RaceGoalCustom {
+				// If they are not on the backwards path, and we are on the backwards path,
+				// we must be ahead of them
+				if !racer2.BackwardsPath && racer.BackwardsPath {
+					continue
+				}
+
+				// If they are on the backwards path, and we are not on the backwards path,
+				// we must be behind them
+				if racer2.BackwardsPath && !racer.BackwardsPath {
+					racer.PlaceMid++
+					continue
+				}
+
+				// If they are on a higher floor than us, we must be ahead of them
+				// (since we are going downwards)
+				if adjustedFloorNumThem > adjustedFloorNumUs {
+					continue
+				}
+
+				// If they are on a lower floor than us, we must be behind them
+				// (since we are going downwards)
+				if adjustedFloorNumThem < adjustedFloorNumUs {
+					racer.PlaceMid++
+					continue
+				}
+
+				// If they are on the same floor and they arrived after us, we must be ahead of them
+				if racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor {
+					continue
+				}
+
+				// If they are on the same floor and they arrived before us, we must be behind them
+				if racer2.DatetimeArrivedFloor <= racer.DatetimeArrivedFloor {
+					racer.PlaceMid++
+					continue
+				}
+
+				logger.Errorf(
+					"The \"SetAllPlaceMid()\" function failed to find a condition to sort player \"%s\" and \"%s\" (for the Backwards Path logic).",
+					racer.Name,
+					racer2.Name,
+				)
+				continue
+			}
+
+			// If they are on a lower floor than us, we must be ahead of them
+			if adjustedFloorNumThem < adjustedFloorNumUs {
+				continue
+			}
+
+			// If they are on a higher floor than us, we must be behind them
+			if adjustedFloorNumThem > adjustedFloorNumUs {
+				racer.PlaceMid++
+				continue
+			}
+
+			// If they are on the same floor and they arrived after us, we must be ahead of them
+			if racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor {
+				continue
+			}
+
+			// If they are on the same floor and they arrived before us, we must be behind them
+			if racer2.DatetimeArrivedFloor <= racer.DatetimeArrivedFloor {
+				racer.PlaceMid++
+				continue
+			}
+
+			logger.Errorf(
+				"The \"SetAllPlaceMid()\" function failed to find a condition to sort player \"%s\" and \"%s\".",
+				racer.Name,
+				racer2.Name,
+			)
 		}
 	}
 
@@ -255,13 +291,13 @@ const (
 )
 
 // Account for Repentance floors being offset by 1
-func getAdjustedStage(stage int, stageType int) int {
-	onRepentanceFloor := stageType == StageTypeRepentance || stageType == StagetypeRepentanceB
+func getAdjustedFloorNum(racer *Racer) int {
+	onRepentanceFloor := racer.StageType == StageTypeRepentance || racer.StageType == StagetypeRepentanceB
 
 	if onRepentanceFloor {
-		return stage + 1
+		return racer.FloorNum + 1
 	}
-	return stage
+	return racer.FloorNum
 }
 
 func (race *Race) SendAllPlaceMid(username string, placeMid int) {
