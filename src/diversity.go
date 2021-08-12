@@ -41,6 +41,9 @@ var validDiversityActiveItems = [...]int{
 	640, 642, 650, 653, 655, 685, 687, 704, 705, 706, // Esau Jr (703) is banned
 	709, 712, 719, 720, 722, 723, 728, 729, // Recall (714) is banned
 	// TODO: After the next patch, add the missing items
+
+	// Custom items
+	802,
 }
 
 var validDiversityPassiveItems = [...]int{
