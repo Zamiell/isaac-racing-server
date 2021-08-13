@@ -355,8 +355,14 @@ func (race *Race) Start2() {
 
 	race.SetStatus(RaceStatusInProgress)
 	race.DatetimeStarted = getTimestamp()
+
+	numRacers := len(race.Racers)
 	for _, racer := range race.Racers {
 		racer.Status = RacerStatusRacing
+
+		// Make everyone tied for last place
+		racer.PlaceMid = numRacers
+		race.SendAllPlaceMid(racer.Name, racer.PlaceMid)
 	}
 
 	// Return for now and do more things later on when it is time to check to see if the race has

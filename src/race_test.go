@@ -196,7 +196,7 @@ func getRace(
 	racer1 := &server.Racer{
 		ID:                   1,
 		Name:                 Racer1Name,
-		Status:               "racing",
+		Status:               server.RacerStatusRacing,
 		FloorNum:             racer1FloorNum,
 		StageType:            racer1StageType,
 		BackwardsPath:        racer1OnBackwardsPath,
@@ -207,7 +207,7 @@ func getRace(
 	racer2 := &server.Racer{
 		ID:                   2,
 		Name:                 Racer2Name,
-		Status:               "racing",
+		Status:               server.RacerStatusRacing,
 		FloorNum:             racer2FloorNum,
 		StageType:            racer2StageType,
 		BackwardsPath:        racer2OnBackwardsPath,
