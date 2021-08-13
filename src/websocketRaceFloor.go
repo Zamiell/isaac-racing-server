@@ -73,6 +73,11 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
+	race.SendAllFloor(racer)
+	race.SetAllPlaceMid()
+}
+
+func (race *Race) SendAllFloor(racer *Racer) {
 	for racerName := range race.Racers {
 		// Not all racers may be online during a race
 		if s, ok := websocketSessions[racerName]; ok {
@@ -92,6 +97,4 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 			})
 		}
 	}
-
-	race.SetAllPlaceMid()
 }

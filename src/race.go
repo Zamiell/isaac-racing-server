@@ -360,6 +360,9 @@ func (race *Race) Start2() {
 	for _, racer := range race.Racers {
 		racer.Status = RacerStatusRacing
 
+		racer.FloorNum = 1
+		race.SendAllFloor(racer)
+
 		// Make everyone tied for last place
 		racer.PlaceMid = numRacers
 		race.SendAllPlaceMid(racer.Name, racer.PlaceMid)
