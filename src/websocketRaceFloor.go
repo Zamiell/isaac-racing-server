@@ -68,8 +68,8 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 	// If they reset from floor 1 to floor 1,
 	// don't send the new floor to everyone as an optimization
 	// We also do not have to recalculate the placeMids,
-	// because placeMid is not assigned until they get to the second floor
-	if floorNum == 1 && oldFloor == 1 && stageType != 4 && stageType != 5 {
+	// because placeMid should not be updated until they get to the second floor
+	if floorNum == 1 && oldFloor == 1 && !isRepentanceStageType(stageType) && !d.BackwardsPath {
 		return
 	}
 

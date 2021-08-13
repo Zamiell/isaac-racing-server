@@ -60,15 +60,15 @@ type RoomMessageMessage struct {
 // Sent in the "raceCreate" command (in the "websocketRaceCreate()" function)
 // Sent in the "raceList" command (in the "websocketHandleConnect()" function)
 type RaceCreatedMessage struct {
-	ID                  int      `json:"id"`
-	Name                string   `json:"name"`
-	Status              string   `json:"status"`
-	Ruleset             Ruleset  `json:"ruleset"`
-	Captain             string   `json:"captain"`
-	IsPasswordProtected bool     `json:"isPasswordProtected"`
-	DatetimeCreated     int64    `json:"datetimeCreated"`
-	DatetimeStarted     int64    `json:"datetimeStarted"`
-	Racers              []string `json:"racers"`
+	ID                  int        `json:"id"`
+	Name                string     `json:"name"`
+	Status              RaceStatus `json:"status"`
+	Ruleset             Ruleset    `json:"ruleset"`
+	Captain             string     `json:"captain"`
+	IsPasswordProtected bool       `json:"isPasswordProtected"`
+	DatetimeCreated     int64      `json:"datetimeCreated"`
+	DatetimeStarted     int64      `json:"datetimeStarted"`
+	Racers              []string   `json:"racers"`
 }
 
 // Sent in the "raceStart" command (in the "raceCheckStart()" and "websocketHandleConnect()" functions)

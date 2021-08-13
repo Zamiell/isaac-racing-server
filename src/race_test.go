@@ -109,7 +109,7 @@ func TestRaceTheBeast(t *testing.T) {
 }
 
 func getStandardRaces(
-	goal string,
+	goal server.RaceGoal,
 	racer1OnBackwardsPath bool,
 	racer2OnBackwardsPath bool,
 ) []*server.Race {
@@ -191,7 +191,7 @@ func getRace(
 	racer2FloorNum int,
 	racer2StageType int,
 	racer2OnBackwardsPath bool,
-	goal string,
+	goal server.RaceGoal,
 ) *server.Race {
 	racer1 := &server.Racer{
 		ID:                   1,

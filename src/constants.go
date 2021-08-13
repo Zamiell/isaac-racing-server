@@ -165,21 +165,3 @@ func getBuildID(startingBuildIndex int) int {
 
 	return startingBuild[0].ID
 }
-
-const RaceStatusOpen = "open"
-const RaceStatusInProgress = "in progress"
-const RaceFormatUnseeded = "unseeded"
-const RaceFormatCustom = "custom"
-const RaceFormatSeeded = "seeded"
-const RaceFormatDiversity = "diversity"
-const RaceGoalBlueBaby = "Blue Baby"
-const RaceGoalTheLamb = "The Lamb"
-const RaceGoalMegaSatan = "Mega Satan"
-const RaceGoalHush = "Hush"
-const RaceGoalDelirium = "Delirium"
-const RaceGoalMother = "Mother"
-const RaceGoalBeast = "The Beast"
-const RaceGoalBossRush = "Boss Rush"
-const RaceGoalCustom = "custom"
-const RacerStatusReady = "ready"
-const RacerStatusRacing = "racing"

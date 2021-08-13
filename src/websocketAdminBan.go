@@ -87,7 +87,7 @@ func websocketAdminBan(s *melody.Session, d *IncomingWebsocketData) {
 
 				racer.Place = -2
 				racer.PlaceMid = -1
-				race.SetRacerStatus(username, "disqualified")
+				race.SetRacerStatus(username, RacerStatusDisqualified)
 				racer.DatetimeFinished = getTimestamp()
 				racer.RunTime = racer.DatetimeFinished - race.DatetimeStarted
 				race.SetAllPlaceMid()

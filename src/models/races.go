@@ -68,25 +68,6 @@ func (*Races) Delete(raceID int) error {
 	return nil
 }
 
-/*
-// Used in the "?" function
-// TODO probably needed for set comment
-func (*Races) Exists(raceID int) (bool, error) {
-	var id int
-	if err := db.QueryRow(`
-		SELECT id
-		FROM races
-		WHERE id = ?
-	`, raceID).Scan(&id); err == sql.ErrNoRows {
-		return false, nil
-	} else if err != nil {
-		return false, err
-	}
-
-	return true, nil
-}
-*/
-
 // Now that the race is over, fill in the blank race in the database with all of
 // the information that the server had on hand
 func (*Races) Finish(race *Race) error {

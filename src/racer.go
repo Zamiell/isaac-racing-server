@@ -4,6 +4,46 @@ import (
 	melody "gopkg.in/olahol/melody.v1"
 )
 
+/*
+	Data structures
+*/
+
+type Racer struct {
+	ID                   int
+	Name                 string
+	DatetimeJoined       int64
+	Status               RacerStatus
+	Seed                 string
+	FloorNum             int
+	StageType            int
+	BackwardsPath        bool
+	DatetimeArrivedFloor int64
+	Items                []*Item
+	StartingItem         int
+	Rooms                []*Room
+	CharacterNum         int // Only used in multi-character races
+	Place                int
+	PlaceMid             int
+	PlaceMidOld          int
+	DatetimeFinished     int64
+	RunTime              int64 // in milliseconds
+	Comment              string
+}
+
+type Item struct {
+	ID               int   `json:"id"`
+	FloorNum         int   `json:"floorNum"`
+	StageType        int   `json:"stageType"`
+	DatetimeAcquired int64 `json:"datetimeAcquired"`
+}
+
+type Room struct {
+	ID              string // e.g. "5.999"
+	FloorNum        int
+	StageType       int
+	DatetimeArrived int64
+}
+
 // Prepare some data about all of the ongoing racers to send to a user who just joined the race
 // (or just reconnected after a disconnect)
 // (we only want to send the client a subset of the total information in
@@ -11,20 +51,20 @@ import (
 // Called from "websocketHandleConnect" and "websocketRaceJoin"
 func racerListMessage(s *melody.Session, race *Race) {
 	type RacerMessage struct {
-		Name                 string  `json:"name"`
-		DatetimeJoined       int64   `json:"datetimeJoined"`
-		Status               string  `json:"status"`
-		FloorNum             int     `json:"floorNum"`
-		StageType            int     `json:"stageType"`
-		DatetimeArrivedFloor int64   `json:"datetimeArrivedFloor"`
-		Items                []*Item `json:"items"`
-		StartingItem         int     `json:"startingItem"`
-		CharacterNum         int     `json:"characterNum"`
-		Place                int     `json:"place"`
-		PlaceMid             int     `json:"placeMid"`
-		DatetimeFinished     int64   `json:"datetimeFinished"`
-		RunTime              int64   `json:"runTime"` // In milliseconds, reported by the mod
-		Comment              string  `json:"comment"`
+		Name                 string      `json:"name"`
+		DatetimeJoined       int64       `json:"datetimeJoined"`
+		Status               RacerStatus `json:"status"`
+		FloorNum             int         `json:"floorNum"`
+		StageType            int         `json:"stageType"`
+		DatetimeArrivedFloor int64       `json:"datetimeArrivedFloor"`
+		Items                []*Item     `json:"items"`
+		StartingItem         int         `json:"startingItem"`
+		CharacterNum         int         `json:"characterNum"`
+		Place                int         `json:"place"`
+		PlaceMid             int         `json:"placeMid"`
+		DatetimeFinished     int64       `json:"datetimeFinished"`
+		RunTime              int64       `json:"runTime"` // In milliseconds, reported by the mod
+		Comment              string      `json:"comment"`
 	}
 	racers := make([]RacerMessage, 0)
 	for _, racer := range race.Racers {

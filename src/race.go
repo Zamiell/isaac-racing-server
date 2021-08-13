@@ -15,7 +15,7 @@ import (
 type Race struct {
 	ID              int
 	Name            string
-	Status          string // open, starting, in progress, finished
+	Status          RaceStatus
 	Ruleset         Ruleset
 	Captain         string
 	Password        string
@@ -24,51 +24,19 @@ type Race struct {
 	DatetimeStarted int64
 	Racers          map[string]*Racer
 }
+
 type Ruleset struct {
-	Ranked              bool   `json:"ranked"`
-	Solo                bool   `json:"solo"`
-	Format              string `json:"format"`
-	Character           string `json:"character"`
-	CharacterRandom     bool   `json:"characterRandom"`
-	Goal                string `json:"goal"`
-	StartingBuild       int    `json:"startingBuild"`
-	StartingBuildRandom bool   `json:"startingBuildRandom"`
-	StartingItems       []int  `json:"startingItems"`
-	Seed                string `json:"seed"`
-	Difficulty          string `json:"difficulty"`
-}
-type Racer struct {
-	ID                   int
-	Name                 string
-	DatetimeJoined       int64
-	Status               string // not ready, ready, finished, quit, disqualified
-	Seed                 string
-	FloorNum             int
-	StageType            int
-	BackwardsPath        bool
-	DatetimeArrivedFloor int64
-	Items                []*Item
-	StartingItem         int
-	Rooms                []*Room
-	CharacterNum         int // Only used in multi-character races
-	Place                int
-	PlaceMid             int
-	PlaceMidOld          int
-	DatetimeFinished     int64
-	RunTime              int64 // in milliseconds
-	Comment              string
-}
-type Item struct {
-	ID               int   `json:"id"`
-	FloorNum         int   `json:"floorNum"`
-	StageType        int   `json:"stageType"`
-	DatetimeAcquired int64 `json:"datetimeAcquired"`
-}
-type Room struct {
-	ID              string // e.g. "5.999"
-	FloorNum        int
-	StageType       int
-	DatetimeArrived int64
+	Ranked              bool       `json:"ranked"`
+	Solo                bool       `json:"solo"`
+	Format              RaceFormat `json:"format"`
+	Character           string     `json:"character"`
+	CharacterRandom     bool       `json:"characterRandom"`
+	Goal                RaceGoal   `json:"goal"`
+	StartingBuild       int        `json:"startingBuild"`
+	StartingBuildRandom bool       `json:"startingBuildRandom"`
+	StartingItems       []int      `json:"startingItems"`
+	Seed                string     `json:"seed"`
+	Difficulty          string     `json:"difficulty"`
 }
 
 /*
@@ -85,6 +53,17 @@ func (race *Race) GetCurrentPlace() int {
 	}
 
 	return currentPlace + 1
+}
+
+func (race *Race) GetLastPlace() int {
+	lastPlace := len(race.Racers)
+	for _, racer := range race.Racers {
+		if racer.Status == RacerStatusQuit || racer.Status == RacerStatusDisqualified {
+			lastPlace++
+		}
+	}
+
+	return lastPlace
 }
 
 // Check to see if a race is ready to start, and if so, start it
@@ -105,13 +84,13 @@ func (race *Race) CheckStart() {
 	race.Start()
 }
 
-func (race *Race) SetStatus(status string) {
+func (race *Race) SetStatus(status RaceStatus) {
 	race.Status = status
 
 	for _, s := range websocketSessions {
 		type RaceSetStatusMessage struct {
-			ID     int    `json:"id"`
-			Status string `json:"status"`
+			ID     int        `json:"id"`
+			Status RaceStatus `json:"status"`
 		}
 		websocketEmit(s, "raceSetStatus", &RaceSetStatusMessage{
 			ID:     race.ID,
@@ -120,7 +99,7 @@ func (race *Race) SetStatus(status string) {
 	}
 }
 
-func (race *Race) SetRacerStatus(username string, status string) {
+func (race *Race) SetRacerStatus(username string, status RacerStatus) {
 	racer := race.Racers[username]
 	racer.Status = status
 
@@ -128,11 +107,11 @@ func (race *Race) SetRacerStatus(username string, status string) {
 		// Not all racers may be online during a race
 		if s, ok := websocketSessions[racerName]; ok {
 			type RacerSetStatusMessage struct {
-				ID      int    `json:"id"`
-				Name    string `json:"name"`
-				Status  string `json:"status"`
-				Place   int    `json:"place"`
-				RunTime int64  `json:"runTime"`
+				ID      int         `json:"id"`
+				Name    string      `json:"name"`
+				Status  RacerStatus `json:"status"`
+				Place   int         `json:"place"`
+				RunTime int64       `json:"runTime"`
 			}
 			websocketEmit(s, "racerSetStatus", &RacerSetStatusMessage{
 				ID:      race.ID,
@@ -160,11 +139,11 @@ func (race *Race) SetAllPlaceMid() {
 			continue
 		}
 
-		racerAltFloor := racer.StageType == 4 || racer.StageType == 5
+		racerOnRepentanceFloor := isRepentanceStageType(racer.StageType)
 
-		if racer.FloorNum == 1 && racer.CharacterNum == 1 && !racerAltFloor && !racer.BackwardsPath {
+		if racer.FloorNum == 1 && racer.CharacterNum == 1 && !racerOnRepentanceFloor && !racer.BackwardsPath {
 			// Mid-race places are not calculated until racers get to the second floor
-			racer.PlaceMid = -1
+			racer.PlaceMid = race.GetLastPlace()
 			continue
 		}
 
@@ -277,12 +256,14 @@ const (
 
 // Account for Repentance floors being offset by 1
 func getAdjustedFloorNum(racer *Racer) int {
-	onRepentanceFloor := racer.StageType == StageTypeRepentance || racer.StageType == StagetypeRepentanceB
-
-	if onRepentanceFloor {
+	if isRepentanceStageType(racer.StageType) {
 		return racer.FloorNum + 1
 	}
 	return racer.FloorNum
+}
+
+func isRepentanceStageType(stageType int) bool {
+	return stageType == StageTypeRepentance || stageType == StagetypeRepentanceB
 }
 
 func (race *Race) SendAllPlaceMid(username string, placeMid int) {
@@ -359,13 +340,7 @@ func (race *Race) Start2() {
 	numRacers := len(race.Racers)
 	for _, racer := range race.Racers {
 		racer.Status = RacerStatusRacing
-
-		racer.FloorNum = 1
-		race.SendAllFloor(racer)
-
-		// Make everyone tied for last place
-		racer.PlaceMid = numRacers
-		race.SendAllPlaceMid(racer.Name, racer.PlaceMid)
+		racer.PlaceMid = numRacers // Make everyone tied for last place
 	}
 
 	// Return for now and do more things later on when it is time to check to see if the race has
@@ -436,9 +411,9 @@ func (race *Race) Finish() {
 		Name:            race.Name,
 		Ranked:          race.Ruleset.Ranked,
 		Solo:            race.Ruleset.Solo,
-		Format:          race.Ruleset.Format,
+		Format:          string(race.Ruleset.Format),
 		Character:       race.Ruleset.Character,
-		Goal:            race.Ruleset.Goal,
+		Goal:            string(race.Ruleset.Goal),
 		StartingBuild:   race.Ruleset.StartingBuild,
 		Seed:            race.Ruleset.Seed,
 		Captain:         race.Captain,

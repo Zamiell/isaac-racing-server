@@ -20,7 +20,7 @@ func leaderboardUpdateTrueSkill(race *Race) {
 	var statsSlice []*models.StatsTrueSkill
 	for _, racerName := range racerNames {
 		racer := race.Racers[racerName]
-		if v, err := db.Users.GetTrueSkill(racer.ID, race.Ruleset.Format); err != nil {
+		if v, err := db.Users.GetTrueSkill(racer.ID, string(race.Ruleset.Format)); err != nil {
 			logger.Error("Database error while getting the TrueSkill stats for \""+racer.Name+"\":", err)
 			return
 		} else {
@@ -109,7 +109,7 @@ func leaderboardUpdateTrueSkill(race *Race) {
 
 		// Write the values back to the database
 		racer := race.Racers[racerName]
-		if err := db.Users.SetTrueSkill(racer.ID, *stats, race.Ruleset.Format); err != nil {
+		if err := db.Users.SetTrueSkill(racer.ID, *stats, string(race.Ruleset.Format)); err != nil {
 			logger.Error("Database error while setting the TrueSkill stats for user "+strconv.Itoa(racer.ID)+":", err)
 		}
 	}

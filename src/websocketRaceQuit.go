@@ -45,7 +45,7 @@ func websocketRaceQuit(s *melody.Session, d *IncomingWebsocketData) {
 
 	racer.Place = -1
 	racer.PlaceMid = -1
-	race.SetRacerStatus(username, "quit")
+	race.SetRacerStatus(username, RacerStatusQuit)
 	racer.DatetimeFinished = getTimestamp()
 	racer.RunTime = racer.DatetimeFinished - race.DatetimeStarted
 	race.SetAllPlaceMid()
