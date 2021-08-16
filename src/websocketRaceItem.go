@@ -52,13 +52,6 @@ func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
-	// Custom items are handled manually
-	// The final vanilla item is Mom's Shovel (552)
-	// The first custom item is 3001
-	if itemID > 552 && itemID <= 3000 && itemID != 560 {
-		return
-	}
-
 	// Validate that this is not a More Options (414) that is given for Basement 1 only
 	if itemID == 414 && len(racer.Rooms) == 1 && race.Ruleset.Character != "Eden" {
 		return
