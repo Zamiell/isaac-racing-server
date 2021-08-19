@@ -41,9 +41,6 @@ var validDiversityActiveItems = [...]int{
 	640, 642, 650, 653, 655, 685, 687, 704, 705, 706, // Esau Jr (703) is banned
 	709, 712, 719, 720, 722, 723, 728, 729, // Recall (714) is banned
 	// TODO: After the next patch, add the missing items
-
-	// Custom items
-	802,
 }
 
 var validDiversityPassiveItems = [...]int{
@@ -117,6 +114,9 @@ var validDiversityPassiveItems = [...]int{
 	694, 695, 696, 697, 698, 699, 700, 701, 702, 708, // Supper (707) is banned
 	716, 717, 724, 725, 726, 727,
 	// TODO: After the next patch, add the missing items
+
+	// Custom items
+	802,
 }
 
 var validDiversityTrinkets = [...]int{
@@ -170,35 +170,35 @@ var taintedLostItemsBanned = []int{
 }
 
 var characterItemBlacklist = map[string][]int{
-	"Isaac":             {534},           // Schoolbag
-	"Magdalene":         {534},           // Schoolbag
-	"Cain":              {46},            // Lucky foot
-	"Judas":             {534},           // Schoolbag
-	"Blue Baby":         {534},           // Schoolbag
-	"Eve":               {117, 122, 534}, // Dead Bird, Whore of Babylon, Schoolbag
-	"Samson":            {157},           // Bloody Lust
-	"Lazarus":           {214},           // Anemic
-	"The Lost":          {313, 534},      // Holy Mantle, Schoolbag
-	"Lilith":            {412, 534},      // Cambion Conception, Schoolbag
-	"Keeper":            {230, 534, 672}, // Abaddon, Schoolbag, A Pound of Flesh
-	"Apollyon":          {534},           // Schoolbag
-	"Bethany":           {230, 584},      // Abaddon, Book of Virtues
-	"Jacob & Esau":      {534},           // Schoolbag
-	"Tainted Isaac":     {619},           // Birthright
-	"Tainted Magdalene": {534, 724},      // Schoolbag, Hypercoagulation
-	"Tainted Cain":      {534},           // Schoolbag
-	"Tainted Judas":     {534},           // Schoolbag
-	"Tainted Blue Baby": {534, 725},      // Schoolbag, IBS
-	"Tainted Eve":       {534},           // Schoolbag
-	"Tainted Azazel":    {726},           // Hemoptysis
-	"Tainted Lazarus":   {534},           // Schoolbag
-	"Tainted Eden":      {619},           // Birthright
+	"Isaac":             {534},                // Schoolbag
+	"Magdalene":         {534},                // Schoolbag
+	"Cain":              {46},                 // Lucky foot
+	"Judas":             {534},                // Schoolbag
+	"Blue Baby":         {534},                // Schoolbag
+	"Eve":               {117, 122, 534},      // Dead Bird, Whore of Babylon, Schoolbag
+	"Samson":            {157},                // Bloody Lust
+	"Lazarus":           {214},                // Anemic
+	"The Lost":          {313, 534},           // Holy Mantle, Schoolbag
+	"Lilith":            {412, 534},           // Cambion Conception, Schoolbag
+	"Keeper":            {230, 534, 672, 694}, // Abaddon, Schoolbag, A Pound of Flesh, HeartBreak
+	"Apollyon":          {534},                // Schoolbag
+	"Bethany":           {230, 584},           // Abaddon, Book of Virtues
+	"Jacob & Esau":      {534},                // Schoolbag
+	"Tainted Isaac":     {619},                // Birthright
+	"Tainted Magdalene": {534, 724},           // Schoolbag, Hypercoagulation
+	"Tainted Cain":      {534},                // Schoolbag
+	"Tainted Judas":     {534},                // Schoolbag
+	"Tainted Blue Baby": {534, 725},           // Schoolbag, IBS
+	"Tainted Eve":       {534},                // Schoolbag
+	"Tainted Azazel":    {726},                // Hemoptysis
+	"Tainted Lazarus":   {534},                // Schoolbag
+	"Tainted Eden":      {619},                // Birthright
 	"Tainted Lost":      taintedLostItemsBanned,
-	"Tainted Lilith":    {678},      // C-Section
-	"Tainted Keeper":    {230, 672}, // Abaddon, A Pound of Flesh
-	"Tainted Apollyon":  {534},      // Schoolbag
-	"Tainted Bethany":   {534},      // Schoolbag
-	"Tainted Jacob":     {534},      // Schoolbag
+	"Tainted Lilith":    {678},           // C-Section
+	"Tainted Keeper":    {230, 672, 694}, // Abaddon, A Pound of Flesh, HeartBreak
+	"Tainted Apollyon":  {534},           // Schoolbag
+	"Tainted Bethany":   {534},           // Schoolbag
+	"Tainted Jacob":     {534},           // Schoolbag
 }
 
 /*
