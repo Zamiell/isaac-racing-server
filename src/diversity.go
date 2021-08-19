@@ -180,7 +180,7 @@ var characterItemBlacklist = map[string][]int{
 	"Lazarus":           {214},                // Anemic
 	"The Lost":          {313, 534},           // Holy Mantle, Schoolbag
 	"Lilith":            {412, 534},           // Cambion Conception, Schoolbag
-	"Keeper":            {230, 534, 672, 694}, // Abaddon, Schoolbag, A Pound of Flesh, HeartBreak
+	"Keeper":            {230, 534, 672, 694}, // Abaddon, Schoolbag, A Pound of Flesh, Heartbreak
 	"Apollyon":          {534},                // Schoolbag
 	"Bethany":           {230, 584},           // Abaddon, Book of Virtues
 	"Jacob & Esau":      {534},                // Schoolbag
@@ -195,7 +195,7 @@ var characterItemBlacklist = map[string][]int{
 	"Tainted Eden":      {619},                // Birthright
 	"Tainted Lost":      taintedLostItemsBanned,
 	"Tainted Lilith":    {678},           // C-Section
-	"Tainted Keeper":    {230, 672, 694}, // Abaddon, A Pound of Flesh, HeartBreak
+	"Tainted Keeper":    {230, 672, 694}, // Abaddon, A Pound of Flesh, Heartbreak
 	"Tainted Apollyon":  {534},           // Schoolbag
 	"Tainted Bethany":   {534},           // Schoolbag
 	"Tainted Jacob":     {534},           // Schoolbag
