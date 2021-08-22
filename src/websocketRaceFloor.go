@@ -44,7 +44,8 @@ func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Validate that the floor is sane
 	// (floor 13 is Home, which is the final floor)
-	if floorNum < 1 || floorNum > 13 {
+	// (floor 14 is a fake floor that we use to represent Mega Satan)
+	if floorNum < 1 || floorNum > 14 {
 		logger.Warning("User \"" + username + "\" attempted to update their floor, but \"" + strconv.Itoa(floorNum) + "\" is a bogus floor number.")
 		websocketError(s, d.Command, "That is not a valid floor number.")
 		return
