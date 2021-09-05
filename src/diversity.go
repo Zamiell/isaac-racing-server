@@ -186,7 +186,6 @@ var characterItemBlacklist = map[string][]int{
 	"Jacob & Esau":      {534},                // Schoolbag
 	"Tainted Isaac":     {619},                // Birthright
 	"Tainted Magdalene": {534, 724},           // Schoolbag, Hypercoagulation
-	"Tainted Cain":      {534},                // Schoolbag
 	"Tainted Judas":     {534},                // Schoolbag
 	"Tainted Blue Baby": {534, 725},           // Schoolbag, IBS
 	"Tainted Eve":       {534},                // Schoolbag
