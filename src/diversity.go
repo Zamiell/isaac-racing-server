@@ -116,7 +116,7 @@ var validDiversityPassiveItems = [...]int{
 	// TODO: After the next patch, add the missing items
 
 	// Custom items
-	802,
+	730,
 }
 
 var validDiversityTrinkets = [...]int{
