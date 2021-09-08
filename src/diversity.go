@@ -181,14 +181,15 @@ var characterItemBlacklist = map[string][]int{
 	"The Lost":          {313, 534},           // Holy Mantle, Schoolbag
 	"Lilith":            {412, 534},           // Cambion Conception, Schoolbag
 	"Keeper":            {230, 534, 672, 694}, // Abaddon, Schoolbag, A Pound of Flesh, Heartbreak
-	"Apollyon":          {534},                // Schoolbag
+	"Apollyon":          {441, 534, 625},      // Mega Blast, Schoolbag, Mega Mush
 	"Bethany":           {230, 584},           // Abaddon, Book of Virtues
 	"Jacob & Esau":      {534},                // Schoolbag
 	"Tainted Isaac":     {619},                // Birthright
-	"Tainted Magdalene": {534, 724},           // Schoolbag, Hypercoagulation
-	"Tainted Judas":     {534},                // Schoolbag
-	"Tainted Blue Baby": {534, 725},           // Schoolbag, IBS
+	"Tainted Magdalene": {205, 534, 724},      // Sharp Plug, Schoolbag, Hypercoagulation
+	"Tainted Judas":     {296, 534},           // Converter, Schoolbag
+	"Tainted Blue Baby": {534},                // Schoolbag
 	"Tainted Eve":       {534},                // Schoolbag
+	"Tainted Samson":    {186},                // Blood Rights
 	"Tainted Azazel":    {726},                // Hemoptysis
 	"Tainted Lazarus":   {534},                // Schoolbag
 	"Tainted Eden":      {619},                // Birthright
@@ -196,7 +197,7 @@ var characterItemBlacklist = map[string][]int{
 	"Tainted Lilith":    {678},           // C-Section
 	"Tainted Keeper":    {230, 672, 694}, // Abaddon, A Pound of Flesh, Heartbreak
 	"Tainted Apollyon":  {534},           // Schoolbag
-	"Tainted Bethany":   {534},           // Schoolbag
+	"Tainted Bethany":   {296, 534},      // Converter, Schoolbag
 	"Tainted Jacob":     {534},           // Schoolbag
 }
 
