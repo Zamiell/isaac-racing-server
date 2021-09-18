@@ -256,7 +256,6 @@ func httpServeTemplate(w http.ResponseWriter, templateName string, data interfac
 	info, err := os.Stat(fp)
 	if err != nil {
 		if os.IsNotExist(err) {
-			logger.Debug("NOT FOUND")
 			http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 			return
 		}
