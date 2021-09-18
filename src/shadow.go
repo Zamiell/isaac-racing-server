@@ -1,111 +1,118 @@
+// In seeded races, the silhouettes of other races are drawn onto the screen
+// This is accomplished via UDP datagrams that are sent to the client, and then to the server
+
+// The "shadow server" declared in this file is simply a UDP listener
+// It expects two different kinds of UDP datagrams:
+// 1) beacons, for player initialization and for keeping the connection alive
+// 2) shadow data, for transmitting the actual shadow positions to the other players
+
+// The shadow server simply echos incoming non-beacon UDP datagrams back to all of the other players
+// in the race without any other processing (besides verifying that the server is coming from the
+// right IP address)
+
 package server
 
 import (
-	"bytes"
-	"encoding/binary"
+	"fmt"
 	"net"
 	"sync"
+	"time"
+	"unsafe"
 )
 
 const (
-	UDPSessionTTLSeconds = 5 * 60
+	maxBufferSize = 1024
+	beaconSize    = len("HELLO")
+	port          = 9113
+	purgeInterval = 1 * time.Second
 )
 
-type MessageHeader struct {
-	RaceID   uint32
-	PlayerID uint32
-}
-
-func (mh *MessageHeader) Unmarshall(b []byte) error {
-	reader := bytes.NewReader(b)
-	return binary.Read(reader, binary.LittleEndian, mh)
-}
-
-type ShadowRaces struct {
-	mutex sync.Mutex
-	races map[uint32]map[uint32]*PlayerUDPConn
-}
-
-type PlayerUDPConn struct {
-	addr net.Addr
-	TTL  uint
-}
-
-func (sr *ShadowRaces) updatePlayerTTL(mh MessageHeader, addr net.Addr) {
-	sr.mutex.Lock()
-	defer sr.mutex.Unlock()
-
-	// Lazy-init the player map for every race
-	players, ok := sr.races[mh.RaceID]
-	if !ok {
-		players = make(map[uint32]*PlayerUDPConn)
-		sr.races[mh.RaceID] = players
+var (
+	shadowRaces = ShadowRaces{
+		mutex: sync.Mutex{},
+		races: make(map[uint32]map[uint32]*PlayerUDPConn),
 	}
+)
 
-	// Lazy-init the player connection
-	conn, ok := players[mh.PlayerID]
-	if !ok {
-		conn = &PlayerUDPConn{addr, UDPSessionTTLSeconds}
-		players[mh.PlayerID] = conn
+func shadowInit() {
+	address := fmt.Sprintf(":%d", port)
+	packetConn, err := net.ListenPacket("udp4", address)
+	if err != nil {
+		logger.Fatal("Failed to start the UDP server:", err)
 	}
+	logger.Info("Listening for UDP connections on port:", port)
 
-	conn.TTL = UDPSessionTTLSeconds
+	go UDPServerLoop(packetConn)
+	go purgeOldSessionsLoop()
 }
 
-func (sr *ShadowRaces) getConnection(mh MessageHeader) *PlayerUDPConn {
-	// We do not need to acquire the mutex if we are just reading values
+func UDPServerLoop(packetConn net.PacketConn) {
+	buffer := make([]byte, maxBufferSize)
 
-	players, ok := sr.races[mh.RaceID]
-	if !ok {
-		return nil
-	}
+	for {
+		n, addr, err := packetConn.ReadFrom(buffer)
+		if err != nil {
+			logger.Warning("Failed to read UDP datagram from \""+addr.String()+"\":", err)
+			continue
+		}
 
-	conn, ok := players[mh.PlayerID]
-	if !ok {
-		return nil
-	}
+		mh := MessageHeader{}
+		if err := mh.Unmarshall(buffer); err != nil {
+			logger.Warning("Failed to unmarshall a UDP datagram from \""+addr.String()+"\":", err)
+			continue
+		}
 
-	return conn
-}
-
-func (sr *ShadowRaces) getOtherPlayerConnections(mh MessageHeader) []*PlayerUDPConn {
-	// We do not need to acquire the mutex if we are just reading values
-
-	players, ok := sr.races[mh.RaceID]
-	if !ok {
-		return nil
-	}
-
-	otherPlayerConnections := make([]*PlayerUDPConn, 0)
-	for playerID, conn := range players {
-		if playerID != mh.PlayerID {
-			otherPlayerConnections = append(otherPlayerConnections, conn)
+		payloadSize := n - int(unsafe.Sizeof(MessageHeader{}))
+		if payloadSize < beaconSize {
+			// No message should ever be smaller than a beacon message
+			continue
+		} else if payloadSize == beaconSize {
+			handleBeaconMessage(mh, addr)
+		} else {
+			handleOtherMessage(mh, addr, packetConn, buffer)
 		}
 	}
-
-	return otherPlayerConnections
 }
 
-func (sr *ShadowRaces) purgeOldSessions() {
-	sr.mutex.Lock()
-	defer sr.mutex.Unlock()
+func handleBeaconMessage(mh MessageHeader, addr net.Addr) {
+	// Since we have lazy player initialization,
+	// updating the TTL will also instantiate the entry in the map for the respective player
+	shadowRaces.updatePlayerTTL(mh, addr)
+}
 
-	for raceID, players := range sr.races {
-		for playerID, conn := range players {
-			if conn == nil {
-				continue
-			}
+func handleOtherMessage(mh MessageHeader, addr net.Addr, pc net.PacketConn, buffer []byte) {
+	if !verifySender(mh, addr) {
+		return
+	}
 
-			conn.TTL--
+	otherPlayerConnections := shadowRaces.getOtherPlayerConnections(mh)
+	for _, conn := range otherPlayerConnections {
+		_, err := pc.WriteTo(buffer, conn.addr)
+		if err != nil {
+			logger.Errorf("Failed to send a UDP message to \"%v\": %w", conn.addr.String(), err)
+		}
+	}
+}
 
-			if conn.TTL > 0 {
-				continue
-			}
+func verifySender(mh MessageHeader, addr net.Addr) bool {
+	conn := shadowRaces.getConnection(mh)
 
-			delete(players, playerID)
-			if len(players) == 0 {
-				delete(sr.races, raceID)
-			}
+	if conn == nil {
+		return false
+	}
+
+	return conn.addr.String() == addr.String()
+}
+
+func purgeOldSessionsLoop() {
+	tick := time.Tick(purgeInterval) // nolint: staticcheck
+
+	for {
+		select {
+		case <-tick:
+			shadowRaces.purgeOldSessions()
+		default:
+			time.Sleep(purgeInterval)
 		}
 	}
 }
