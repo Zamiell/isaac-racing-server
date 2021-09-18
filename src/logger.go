@@ -99,7 +99,7 @@ func (l *Logger) Warningf(format string, args ...interface{}) {
 	if usingSentry {
 		sentry.WithScope(func(scope *sentry.Scope) {
 			scope.SetLevel(sentry.LevelWarning)
-			sentry.CaptureException(errors.New(fmt.Sprintf(format, args...)))
+			sentry.CaptureException(fmt.Errorf(format, args...))
 		})
 	}
 
