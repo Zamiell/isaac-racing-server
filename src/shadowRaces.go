@@ -91,10 +91,10 @@ func (sr *ShadowRaces) purgeOldSessions() {
 			}
 
 			delete(players, userID)
-			logger.Debug("Deleted user ID:", userID)
+			// logger.Debug("Deleted user ID:", userID)
 			if len(players) == 0 {
 				delete(sr.races, raceID)
-				logger.Debug("Deleted race ID:", raceID)
+				// logger.Debug("Deleted race ID:", raceID)
 			}
 		}
 	}
