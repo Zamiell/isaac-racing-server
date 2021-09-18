@@ -78,6 +78,7 @@ func handleBeaconMessage(mh MessageHeader, addr net.Addr) {
 	// Since we have lazy player initialization,
 	// updating the TTL will also instantiate the entry in the map for the respective player
 	shadowRaces.updatePlayerTTL(mh, addr)
+	logger.Debugf("Got beacon from user %d at address: %s", mh.UserID, addr.String())
 }
 
 func handleOtherMessage(mh MessageHeader, addr net.Addr, pc net.PacketConn, buffer []byte) {
@@ -86,11 +87,12 @@ func handleOtherMessage(mh MessageHeader, addr net.Addr, pc net.PacketConn, buff
 	}
 
 	otherPlayerConnections := shadowRaces.getOtherPlayerConnections(mh)
+	logger.Debug("Number of other connections:", len(otherPlayerConnections))
 	for _, conn := range otherPlayerConnections {
 		if n, err := pc.WriteTo(buffer, conn.addr); err != nil {
 			logger.Errorf("Failed to send a UDP message to \"%v\": %w", conn.addr.String(), err)
 		} else {
-			logger.Debug("Sent shadow message with bytes:", n)
+			logger.Debug("Sent shadow message to %s with bytes: %d", conn.addr.String(), n)
 		}
 	}
 }
