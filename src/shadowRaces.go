@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	UDPSessionTTLSeconds = 5 * 60
+	UDPSessionTTLSeconds = 60 // 1 minute
 )
 
 type ShadowRaces struct {
