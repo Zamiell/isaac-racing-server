@@ -35,6 +35,11 @@ func (l *Logger) Debug(args ...interface{}) {
 	l.Logger.Debug(args...)
 }
 
+func (l *Logger) Debugf(format string, args ...interface{}) {
+	msg := fmt.Sprintf(format, args...)
+	l.Debug(msg)
+}
+
 // Setting the scope is from:
 // https://stackoverflow.com/questions/51752779/sentry-go-integration-how-to-specify-error-level
 func (l *Logger) Error(args ...interface{}) {
@@ -74,6 +79,11 @@ func (l *Logger) Info(args ...interface{}) {
 	l.Logger.Info(args...)
 }
 
+func (l *Logger) Infof(format string, args ...interface{}) {
+	msg := fmt.Sprintf(format, args...)
+	l.Info(msg)
+}
+
 func (l *Logger) Warning(args ...interface{}) {
 	if usingSentry {
 		sentry.WithScope(func(scope *sentry.Scope) {
@@ -83,4 +93,15 @@ func (l *Logger) Warning(args ...interface{}) {
 	}
 
 	l.Logger.Warning(args...)
+}
+
+func (l *Logger) Warningf(format string, args ...interface{}) {
+	if usingSentry {
+		sentry.WithScope(func(scope *sentry.Scope) {
+			scope.SetLevel(sentry.LevelWarning)
+			sentry.CaptureException(errors.New(fmt.Sprintf(format, args...)))
+		})
+	}
+
+	l.Logger.Warningf(format, args...)
 }

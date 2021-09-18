@@ -3,101 +3,109 @@ package server
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"net"
+	"sync"
 )
 
 const (
-	sessionTTL = 300
+	UDPSessionTTLSeconds = 5 * 60
 )
-
-type PlayerMap map[uint32]map[uint32]*PlayerConn
-
-type PlayerConn struct {
-	ADDR *net.Addr
-	TTL  uint
-}
 
 type MessageHeader struct {
 	RaceID   uint32
 	PlayerID uint32
 }
 
-func (m *MessageHeader) Unmarshall(b []byte) (err error) {
+func (mh *MessageHeader) Unmarshall(b []byte) error {
 	reader := bytes.NewReader(b)
-	err = binary.Read(reader, binary.LittleEndian, m)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Failed to unmarshall message: %v", b), err)
-	}
-	return
+	return binary.Read(reader, binary.LittleEndian, mh)
 }
 
-func (p PlayerMap) getConnection(mh MessageHeader) net.Addr {
-	if p[mh.RaceID] != nil && p[mh.RaceID][mh.PlayerID] != nil {
-		return *p[mh.RaceID][mh.PlayerID].ADDR
-	}
-	return nil
+type ShadowRaces struct {
+	mutex sync.Mutex
+	races map[uint32]map[uint32]*PlayerUDPConn
 }
 
-func (p PlayerMap) getOpponent(mh MessageHeader) (pConn *PlayerConn) {
-	race := p[mh.RaceID]
-	if race == nil {
-		return
+type PlayerUDPConn struct {
+	addr net.Addr
+	TTL  uint
+}
+
+func (sr *ShadowRaces) updatePlayerTTL(mh MessageHeader, addr net.Addr) {
+	sr.mutex.Lock()
+	defer sr.mutex.Unlock()
+
+	// Lazy-init the player map for every race
+	players, ok := sr.races[mh.RaceID]
+	if !ok {
+		players = make(map[uint32]*PlayerUDPConn)
+		sr.races[mh.RaceID] = players
 	}
-	for pID, conn := range race {
-		if pID != mh.PlayerID {
-			pConn = conn
+
+	// Lazy-init the player connection
+	conn, ok := players[mh.PlayerID]
+	if !ok {
+		conn = &PlayerUDPConn{addr, UDPSessionTTLSeconds}
+		players[mh.PlayerID] = conn
+	}
+
+	conn.TTL = UDPSessionTTLSeconds
+}
+
+func (sr *ShadowRaces) getConnection(mh MessageHeader) *PlayerUDPConn {
+	// We do not need to acquire the mutex if we are just reading values
+
+	players, ok := sr.races[mh.RaceID]
+	if !ok {
+		return nil
+	}
+
+	conn, ok := players[mh.PlayerID]
+	if !ok {
+		return nil
+	}
+
+	return conn
+}
+
+func (sr *ShadowRaces) getOtherPlayerConnections(mh MessageHeader) []*PlayerUDPConn {
+	// We do not need to acquire the mutex if we are just reading values
+
+	players, ok := sr.races[mh.RaceID]
+	if !ok {
+		return nil
+	}
+
+	otherPlayerConnections := make([]*PlayerUDPConn, 0)
+	for playerID, conn := range players {
+		if playerID != mh.PlayerID {
+			otherPlayerConnections = append(otherPlayerConnections, conn)
 		}
 	}
-	return
+
+	return otherPlayerConnections
 }
 
-func (p *PlayerMap) updateSessions() {
-	mux.Lock()
-	defer mux.Unlock()
+func (sr *ShadowRaces) purgeOldSessions() {
+	sr.mutex.Lock()
+	defer sr.mutex.Unlock()
 
-	for raceID, race := range *p {
-		for playerID, pConn := range race {
-			if pConn == nil {
+	for raceID, players := range sr.races {
+		for playerID, conn := range players {
+			if conn == nil {
 				continue
 			}
 
-			pConn.TTL--
-			if pConn.TTL <= 0 {
-				delete(race, playerID)
-				logger.Debug(fmt.Sprintf("Removing player=%v from race=%v due to timeout", playerID, raceID))
+			conn.TTL--
 
-				if len(race) < 1 {
-					delete(*p, raceID)
-					logger.Debug(fmt.Sprintf("Record removed race=%v", raceID))
-				}
+			if conn.TTL > 0 {
+				continue
+			}
+
+			delete(players, playerID)
+			if len(players) == 0 {
+				delete(sr.races, raceID)
 			}
 		}
 	}
-}
-
-func (p *PlayerMap) update(mh MessageHeader, addr *net.Addr) {
-	mux.Lock()
-	defer mux.Unlock()
-
-	// lazy-init race
-	if (*p)[mh.RaceID] == nil {
-		(*p)[mh.RaceID] = make(map[uint32]*PlayerConn)
-		logger.Debug(fmt.Sprintf("Record created race=%v ", mh.RaceID))
-	}
-
-	race := (*p)[mh.RaceID]
-
-	// lazy-init player connection
-	if race[mh.PlayerID] == nil {
-		if len(race) > 1 {
-			logger.Info(fmt.Sprintf("Player=%v attempted to join race=%v with two players", mh.PlayerID, mh.RaceID))
-			return
-		}
-		race[mh.PlayerID] = &PlayerConn{addr, sessionTTL}
-		logger.Info(fmt.Sprintf("Connection created player=%v, dst=%v", mh.PlayerID, *addr))
-	}
-
-	// update TTL
-	race[mh.PlayerID].TTL = sessionTTL
 }
