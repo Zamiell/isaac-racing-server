@@ -92,7 +92,7 @@ func handleOtherMessage(mh MessageHeader, addr net.Addr, pc net.PacketConn, buff
 		if n, err := pc.WriteTo(buffer, conn.addr); err != nil {
 			logger.Errorf("Failed to send a UDP message to \"%v\": %w", conn.addr.String(), err)
 		} else {
-			logger.Debug("Sent shadow message to %s with bytes: %d", conn.addr.String(), n)
+			logger.Debugf("Sent shadow message to %s with bytes: %d", conn.addr.String(), n)
 		}
 	}
 }
