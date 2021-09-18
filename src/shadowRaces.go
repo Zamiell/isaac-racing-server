@@ -79,7 +79,7 @@ func (sr *ShadowRaces) purgeOldSessions() {
 	defer sr.mutex.Unlock()
 
 	for raceID, players := range sr.races {
-		for playerID, conn := range players {
+		for userID, conn := range players {
 			if conn == nil {
 				continue
 			}
@@ -90,9 +90,11 @@ func (sr *ShadowRaces) purgeOldSessions() {
 				continue
 			}
 
-			delete(players, playerID)
+			delete(players, userID)
+			logger.Debug("Deleted user ID:", userID)
 			if len(players) == 0 {
 				delete(sr.races, raceID)
+				logger.Debug("Deleted race ID:", raceID)
 			}
 		}
 	}
