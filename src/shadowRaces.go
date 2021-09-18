@@ -61,12 +61,12 @@ func (sr *ShadowRaces) getOtherPlayerConnections(mh MessageHeader) []*PlayerUDPC
 
 	players, ok := sr.races[mh.RaceID]
 	if !ok {
-		return nil
+		return make([]*PlayerUDPConn, 0)
 	}
 
 	otherPlayerConnections := make([]*PlayerUDPConn, 0)
-	for playerID, conn := range players {
-		if playerID != mh.UserID {
+	for userID, conn := range players {
+		if userID != mh.UserID {
 			otherPlayerConnections = append(otherPlayerConnections, conn)
 		}
 	}
