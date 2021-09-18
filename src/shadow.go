@@ -65,7 +65,7 @@ func UDPServerLoop(packetConn net.PacketConn) {
 		payloadSize := n - int(unsafe.Sizeof(MessageHeader{}))
 		if payloadSize < beaconSize {
 			// No message should ever be smaller than a beacon message
-			continue
+			logger.Warning("Got small message from:", addr.String())
 		} else if payloadSize == beaconSize {
 			handleBeaconMessage(mh, addr)
 		} else {
