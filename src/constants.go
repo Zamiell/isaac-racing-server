@@ -148,7 +148,7 @@ func loadAllTournaments() {
 }
 
 func getBuildName(startingBuildIndex int) string {
-	if startingBuildIndex < 0 || startingBuildIndex > len(allBuilds) {
+	if startingBuildIndex < 0 || startingBuildIndex >= len(allBuilds) {
 		logger.Warning("Got an invalid build index of:", startingBuildIndex)
 		startingBuildIndex = 0
 	}
