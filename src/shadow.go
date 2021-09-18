@@ -87,9 +87,10 @@ func handleOtherMessage(mh MessageHeader, addr net.Addr, pc net.PacketConn, buff
 
 	otherPlayerConnections := shadowRaces.getOtherPlayerConnections(mh)
 	for _, conn := range otherPlayerConnections {
-		_, err := pc.WriteTo(buffer, conn.addr)
-		if err != nil {
+		if n, err := pc.WriteTo(buffer, conn.addr); err != nil {
 			logger.Errorf("Failed to send a UDP message to \"%v\": %w", conn.addr.String(), err)
+		} else {
+			logger.Debug("Sent shadow message with bytes:", n)
 		}
 	}
 }
