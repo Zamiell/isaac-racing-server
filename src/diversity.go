@@ -39,8 +39,8 @@ var validDiversityActiveItems = [...]int{
 	263, 555, 556, 557, 577, 578, 580, 582, 585, 604,
 	605, 609, 611, 623, 625, 628, 631, 635, 638, 639, // Genesis (622) and R Key (636) are banned
 	640, 642, 650, 653, 655, 685, 687, 704, 705, 706, // Esau Jr (703) is banned
-	709, 712, 719, 720, 722, 723, 728, 729, // Recall (714) is banned
-	// TODO: After the next patch, add the missing items
+	709, 710, 711, 712, 713, 719, 720, 722, 723, 728, // Recall (714) is banned
+	729,
 }
 
 var validDiversityPassiveItems = [...]int{
@@ -109,11 +109,10 @@ var validDiversityPassiveItems = [...]int{
 	618, 619, 621, 624, 629, 632, 633, 634, 637, 641,
 	643, 644, 645, 646, 647, 649, 651, 652, 654, 657,
 	658, 659, 660, 661, 663, 664, 665, 667, 669, 670, // Dad's Note (668) is banned
-	671, 672, 673, 674, 675, 676, 677, 679, 680, 681,
-	682, 683, 684, 686, 688, 689, 690, 691, 692, 693,
-	694, 695, 696, 697, 698, 699, 700, 701, 702, 708, // Supper (707) is banned
-	716, 717, 724, 725, 726, 727,
-	// TODO: After the next patch, add the missing items
+	671, 672, 673, 674, 675, 676, 677, 678, 679, 680,
+	681, 682, 683, 684, 686, 688, 689, 690, 691, 692,
+	693, 694, 695, 696, 697, 698, 699, 700, 701, 702, // Supper (707) is banned
+	708, 716, 717, 724, 725, 726, 727,
 
 	// Custom items
 	730,
@@ -186,10 +185,9 @@ var characterItemBlacklist = map[string][]int{
 	"Jacob & Esau":      {534},                // Schoolbag
 	"Tainted Isaac":     {619},                // Birthright
 	"Tainted Magdalene": {205, 534, 724},      // Sharp Plug, Schoolbag, Hypercoagulation
-	"Tainted Judas":     {296, 534},           // Converter, Schoolbag
+	"Tainted Judas":     {534},                // Schoolbag
 	"Tainted Blue Baby": {534},                // Schoolbag
-	"Tainted Eve":       {534},                // Schoolbag
-	"Tainted Samson":    {186},                // Blood Rights
+	"Tainted Eve":       {534, 713},           // Schoolbag, Sumptorium
 	"Tainted Azazel":    {726},                // Hemoptysis
 	"Tainted Lazarus":   {534},                // Schoolbag
 	"Tainted Eden":      {619},                // Birthright
@@ -197,8 +195,8 @@ var characterItemBlacklist = map[string][]int{
 	"Tainted Lilith":    {678},           // C-Section
 	"Tainted Keeper":    {230, 672, 694}, // Abaddon, A Pound of Flesh, Heartbreak
 	"Tainted Apollyon":  {534},           // Schoolbag
-	"Tainted Bethany":   {296, 534},      // Converter, Schoolbag
-	"Tainted Jacob":     {534},           // Schoolbag
+	"Tainted Bethany":   {534},           // Schoolbag
+	"Tainted Jacob":     {534, 722},      // Schoolbag, Anima Sola
 }
 
 /*
