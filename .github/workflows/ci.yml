@@ -19,7 +19,8 @@ jobs:
       - name: Lint
         uses: golangci/golangci-lint-action@v2
         with:
-          version: v1.42.1
+          # Must match the version in "install_linter.sh"
+          version: v1.41.1
           working-directory: src
 
   discord:
