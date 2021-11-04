@@ -259,6 +259,12 @@ func getAdjustedFloorNum(racer *Racer) int {
 	if isRepentanceStageType(racer.StageType) {
 		return racer.FloorNum + 1
 	}
+
+	// If the player reach Home, we need to tell the server that we're on a lower floor than B1 (since we're going backwards)
+	if racer.FloorNum == 13 {
+		return 0
+	}
+
 	return racer.FloorNum
 }
 
