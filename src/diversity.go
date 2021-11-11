@@ -192,7 +192,6 @@ var characterItemBlacklist = map[string][]int{
 	"Tainted Lazarus":   {534},           // Schoolbag
 	"Tainted Eden":      {619},           // Birthright
 	"Tainted Lost":      taintedLostItemsBanned,
-	"Tainted Lilith":    {678},      // C-Section
 	"Tainted Keeper":    {230, 672}, // Abaddon, A Pound of Flesh
 	"Tainted Apollyon":  {534},      // Schoolbag
 	"Tainted Bethany":   {534},      // Schoolbag
