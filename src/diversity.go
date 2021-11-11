@@ -169,34 +169,34 @@ var taintedLostItemsBanned = []int{
 }
 
 var characterItemBlacklist = map[string][]int{
-	"Isaac":             {534},                // Schoolbag
-	"Magdalene":         {534},                // Schoolbag
-	"Cain":              {46},                 // Lucky foot
-	"Judas":             {534},                // Schoolbag
-	"Blue Baby":         {534},                // Schoolbag
-	"Eve":               {117, 122, 534},      // Dead Bird, Whore of Babylon, Schoolbag
-	"Samson":            {157},                // Bloody Lust
-	"Lazarus":           {214},                // Anemic
-	"The Lost":          {313, 534},           // Holy Mantle, Schoolbag
-	"Lilith":            {412, 534},           // Cambion Conception, Schoolbag
-	"Keeper":            {230, 534, 672, 694}, // Abaddon, Schoolbag, A Pound of Flesh, Heartbreak
-	"Apollyon":          {441, 534, 625},      // Mega Blast, Schoolbag, Mega Mush
-	"Bethany":           {230, 584},           // Abaddon, Book of Virtues
-	"Jacob & Esau":      {534},                // Schoolbag
-	"Tainted Isaac":     {619},                // Birthright
-	"Tainted Magdalene": {205, 534, 724},      // Sharp Plug, Schoolbag, Hypercoagulation
-	"Tainted Judas":     {534},                // Schoolbag
-	"Tainted Blue Baby": {534},                // Schoolbag
-	"Tainted Eve":       {534, 713},           // Schoolbag, Sumptorium
-	"Tainted Azazel":    {726},                // Hemoptysis
-	"Tainted Lazarus":   {534},                // Schoolbag
-	"Tainted Eden":      {619},                // Birthright
+	"Isaac":             {534},           // Schoolbag
+	"Magdalene":         {534},           // Schoolbag
+	"Cain":              {46},            // Lucky foot
+	"Judas":             {534},           // Schoolbag
+	"Blue Baby":         {534},           // Schoolbag
+	"Eve":               {117, 122, 534}, // Dead Bird, Whore of Babylon, Schoolbag
+	"Samson":            {157},           // Bloody Lust
+	"Lazarus":           {214},           // Anemic
+	"The Lost":          {313, 534},      // Holy Mantle, Schoolbag
+	"Lilith":            {412, 534},      // Cambion Conception, Schoolbag
+	"Keeper":            {230, 534, 672}, // Abaddon, Schoolbag, A Pound of Flesh
+	"Apollyon":          {441, 534, 625}, // Mega Blast, Schoolbag, Mega Mush
+	"Bethany":           {230, 584},      // Abaddon, Book of Virtues
+	"Jacob & Esau":      {534},           // Schoolbag
+	"Tainted Isaac":     {619},           // Birthright
+	"Tainted Magdalene": {205, 534, 724}, // Sharp Plug, Schoolbag, Hypercoagulation
+	"Tainted Judas":     {534},           // Schoolbag
+	"Tainted Blue Baby": {534},           // Schoolbag
+	"Tainted Eve":       {534, 713},      // Schoolbag, Sumptorium
+	"Tainted Azazel":    {726},           // Hemoptysis
+	"Tainted Lazarus":   {534},           // Schoolbag
+	"Tainted Eden":      {619},           // Birthright
 	"Tainted Lost":      taintedLostItemsBanned,
-	"Tainted Lilith":    {678},           // C-Section
-	"Tainted Keeper":    {230, 672, 694}, // Abaddon, A Pound of Flesh, Heartbreak
-	"Tainted Apollyon":  {534},           // Schoolbag
-	"Tainted Bethany":   {534},           // Schoolbag
-	"Tainted Jacob":     {534, 722},      // Schoolbag, Anima Sola
+	"Tainted Lilith":    {678},      // C-Section
+	"Tainted Keeper":    {230, 672}, // Abaddon, A Pound of Flesh
+	"Tainted Apollyon":  {534},      // Schoolbag
+	"Tainted Bethany":   {534},      // Schoolbag
+	"Tainted Jacob":     {534, 722}, // Schoolbag, Anima Sola
 }
 
 /*
