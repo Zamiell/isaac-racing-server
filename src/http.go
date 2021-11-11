@@ -118,16 +118,16 @@ func httpInit() {
 	options := sessions.Options{
 		Path:   "/",
 		Domain: domain,
-		MaxAge: 5, // 5 seconds
 		// After getting a cookie via "/login", the client will immediately
 		// establish a WebSocket connection via "/ws", so the cookie only needs
 		// to exist for that time frame
-		Secure: true,
+		MaxAge: 10, // 10 seconds
 		// Only send the cookie over HTTPS:
 		// https://www.owasp.org/index.php/Testing_for_cookies_attributes_(OTG-SESS-002)
-		HttpOnly: true,
+		Secure: true,
 		// Mitigate XSS attacks:
 		// https://www.owasp.org/index.php/HttpOnly
+		HttpOnly: true,
 	}
 	if !useTLS {
 		options.Secure = false

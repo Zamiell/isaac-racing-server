@@ -34,11 +34,13 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		return nil, errors.New(msg) // nolint:stylecheck
 	}
 
-	// If they have logged in, their cookie should have values matching the SessionValues struct
-	for key, value := range c.Request.Header {
-		logger.Debug("Websocket request header KEY:", key, "VALUE:", value)
-	}
+	/*
+		for key, value := range c.Request.Header {
+			logger.Debug("Websocket request header KEY:", key, "VALUE:", value)
+		}
+	*/
 
+	// If they have logged in, their cookie should have values matching the SessionValues struct
 	session := sessions.Default(c)
 	var userID int
 	if v := session.Get("userID"); v == nil {
