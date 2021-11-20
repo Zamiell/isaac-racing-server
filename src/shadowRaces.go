@@ -41,7 +41,8 @@ func (sr *ShadowRaces) updatePlayerTTL(mh MessageHeader, addr net.Addr) {
 }
 
 func (sr *ShadowRaces) getConnection(mh MessageHeader) *PlayerUDPConn {
-	// We do not need to acquire the mutex if we are just reading values
+	sr.mutex.Lock()
+	defer sr.mutex.Unlock()
 
 	players, ok := sr.races[mh.RaceID]
 	if !ok {
@@ -57,7 +58,8 @@ func (sr *ShadowRaces) getConnection(mh MessageHeader) *PlayerUDPConn {
 }
 
 func (sr *ShadowRaces) getOtherPlayerConnections(mh MessageHeader) []*PlayerUDPConn {
-	// We do not need to acquire the mutex if we are just reading values
+	sr.mutex.Lock()
+	defer sr.mutex.Unlock()
 
 	players, ok := sr.races[mh.RaceID]
 	if !ok {
