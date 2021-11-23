@@ -10,15 +10,16 @@
         <div class="12u">
             <div class="select-wrapper be-half">
                 <select onchange="selectLeaderboard(this.value)" >
-                    <option value="season1r9">R+9 Season 1</option>
-                    <option value="season1r14">R+14 Season 1</option>
-                    <option value="season2r7">R+7 Season 2</option>
-                    <option value="season3r7">R+7 Season 3</option>
-                    <option value="season4r7">R+7 Season 4</option>
-                    <option value="season5r7">R+7 Season 5</option>
-                    <option value="season6r7">R+7 Season 6</option>
-                    <option value="season7r7">R+7 Season 7</option>
-                    <!--<option value="season8r7">R+7 Season 8</option>-->
+                    <option value="season1r9">R+9 Season 1 (Afterbirth+)</option>
+                    <option value="season1r14">R+14 Season 1 (Afterbirth+)</option>
+                    <option value="season2r7">R+7 Season 2 (Afterbirth+)</option>
+                    <option value="season3r7">R+7 Season 3 (Afterbirth+)</option>
+                    <option value="season4r7">R+7 Season 4 (Afterbirth+)</option>
+                    <option value="season5r7">R+7 Season 5 (Afterbirth+)</option>
+                    <option value="season6r7">R+7 Season 6 (Afterbirth+)</option>
+                    <option value="season7r7">R+7 Season 7 (Afterbirth+)</option>
+                    <option value="season8r7">R+7 Season 8 (Afterbirth+)</option>
+                    <!--<option value="season9r7">R+7 Season 1 (Afterbirth+)</option>-->
                 </select>
             </div>
         </div>
@@ -37,8 +38,6 @@
                 <th class="th-proof" data-sorter="false">Video</th>
             </tr>
             </thead>
-            <tfooter>
-            </tfooter>
             <tbody>
             {{ range .Season1r9 }}
                 <tr>
@@ -67,8 +66,6 @@
                 <th class="th-proof" data-sorter="false">Video</th>
             </tr>
             </thead>
-            <tfooter>
-            </tfooter>
             <tbody>
             {{ range .Season1r14 }}
                 <tr>
@@ -97,8 +94,6 @@
                 <th class="th-proof" data-sorter="false">Video</th>
             </tr>
             </thead>
-            <tfooter>
-            </tfooter>
             <tbody>
             {{ range .Season2r7 }}
                 <tr>
@@ -127,8 +122,6 @@
                 <th class="th-proof" data-sorter="false">Video</th>
             </tr>
             </thead>
-            <tfooter>
-            </tfooter>
             <tbody>
             {{ range .Season3r7 }}
                 <tr>
@@ -157,8 +150,6 @@
                 <th class="th-proof" data-sorter="false">Video</th>
             </tr>
             </thead>
-            <tfooter>
-            </tfooter>
             <tbody>
             {{ range .Season4r7 }}
 
@@ -259,5 +250,32 @@
         </div>
     </section>
 
+    <!-- Start of R+7 Season 8 -->
+    <section id="hof-season8r7" class="box">
+        <div class="table-wrapper">
+        <table id="season8r7-table" class="alt lb tablesorter">
+            <thead>
+                <tr>
+                    <th class="th-rank">Rank</th>
+                    <th class="th-racer">Player</th>
+                    <th class="th-time">Time</th>
+                    <th class="th-date" data-sorter="false">Date</th>
+                    <th class="th-proof" data-sorter="false">Video</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ range .Season8r7 }}
+                <tr>
+                    <td class="td-rank"> {{ .Rank }} </td>
+                    <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                    <td class="td-time">{{ .Time }}</td>
+                    <td class="td-date">{{ .Date }}</td>
+                    <td class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
 </section>
 {{ end }}
