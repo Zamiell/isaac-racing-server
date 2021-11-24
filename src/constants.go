@@ -73,6 +73,7 @@ func (a NameSorter) Less(i, j int) bool { return a[i].Name() > a[j].Name() }
 
 const (
 	projectName = "isaac-racing-server"
+	debug       = false
 )
 
 var (

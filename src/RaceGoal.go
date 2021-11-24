@@ -12,4 +12,6 @@ const (
 	RaceGoalBeast     RaceGoal = "The Beast"
 	RaceGoalBossRush  RaceGoal = "Boss Rush"
 	RaceGoalCustom    RaceGoal = "custom"
+
+	RaceGoalDefault RaceGoal = RaceGoalBlueBaby
 )

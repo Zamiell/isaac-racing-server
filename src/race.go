@@ -22,7 +22,7 @@ type Race struct {
 	SoundPlayed     bool
 	DatetimeCreated int64
 	DatetimeStarted int64
-	Racers          map[string]*Racer
+	Racers          map[string]*Racer // Indexed by racer name
 }
 
 type Ruleset struct {
@@ -59,7 +59,7 @@ func (race *Race) GetLastPlace() int {
 	lastPlace := len(race.Racers)
 	for _, racer := range race.Racers {
 		if racer.Status == RacerStatusQuit || racer.Status == RacerStatusDisqualified {
-			lastPlace++
+			lastPlace--
 		}
 	}
 
@@ -128,14 +128,26 @@ func (race *Race) SetRacerStatus(username string, status RacerStatus) {
 func (race *Race) SetAllPlaceMid() {
 	// Get the place that someone would be if they finished the race right now
 	currentPlace := race.GetCurrentPlace()
+	lastPlace := race.GetLastPlace()
+	if debug {
+		logger.Debug("Recalculating mid-race places.")
+		logger.Debug("currentPlace:", currentPlace)
+		logger.Debug("lastPlace:", lastPlace)
+	}
 
 	for _, racer := range race.Racers {
 		racer.PlaceMidOld = racer.PlaceMid
+		if debug {
+			logger.Debug("Set PlaceMidOld for "+racer.Name+" to:", racer.PlaceMidOld)
+		}
 	}
 
 	for _, racer := range race.Racers {
 		if racer.Status != RacerStatusRacing {
 			// We don't need to calculate the mid-race place of someone who already finished or quit
+			if debug {
+				logger.Debug("Skipping " + racer.Name + "since they already finished or quit.")
+			}
 			continue
 		}
 
@@ -143,7 +155,10 @@ func (race *Race) SetAllPlaceMid() {
 
 		if racer.FloorNum == 1 && racer.CharacterNum == 1 && !racerOnRepentanceFloor && !racer.BackwardsPath {
 			// Mid-race places are not calculated until racers get to the second floor
-			racer.PlaceMid = race.GetLastPlace()
+			racer.PlaceMid = lastPlace
+			if debug {
+				logger.Debug("Skipping " + racer.Name + "since they are on the first floor finished or quit.")
+			}
 			continue
 		}
 
