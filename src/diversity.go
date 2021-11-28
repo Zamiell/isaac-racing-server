@@ -113,9 +113,6 @@ var validDiversityPassiveItems = [...]int{
 	681, 682, 683, 684, 686, 688, 689, 690, 691, 692,
 	693, 694, 695, 696, 697, 698, 699, 700, 701, 702, // Supper (707) is banned
 	708, 716, 717, 724, 725, 726, 727, 730, 731, 732,
-
-	// Custom items
-	733,
 }
 
 var validDiversityTrinkets = [...]int{
