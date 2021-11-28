@@ -13,6 +13,7 @@ import (
 
 var (
 	projectPath string
+	libPath     string
 
 	logger           *Logger
 	gitCommitOnStart string
@@ -39,6 +40,7 @@ func Init() {
 	} else {
 		projectPath = filepath.Dir(v)
 	}
+	libPath = path.Join(projectPath, "lib", "node_modules", "isaac-racing-common", "src")
 
 	// Record the commit that corresponds with when the Golang code was compiled
 	cmd := exec.Command("git", "rev-parse", "HEAD")

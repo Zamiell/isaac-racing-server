@@ -84,7 +84,7 @@ var (
 )
 
 func loadAllItems() {
-	jsonFilePath := path.Join(projectPath, "public", "items.json")
+	jsonFilePath := path.Join(libPath, "items.json")
 	jsonFile, err := ioutil.ReadFile(jsonFilePath)
 	if err != nil {
 		logger.Fatal("Failed to open \""+jsonFilePath+"\":", err)
@@ -105,7 +105,7 @@ func loadAllItems() {
 
 func loadAllBuilds() {
 	// Open the JSON file and verify it was good
-	jsonFilePath := path.Join(projectPath, "public", "builds.json")
+	jsonFilePath := path.Join(libPath, "builds.json")
 	var jsonFile []byte
 	if v, err := ioutil.ReadFile(jsonFilePath); err != nil {
 		logger.Fatal("Failed to open \""+jsonFilePath+"\":", err)

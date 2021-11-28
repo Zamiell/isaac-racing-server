@@ -1,0 +1,9 @@
+{
+  "name": "lib",
+  "version": "1.0.0",
+  "author": "Zamiell",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "isaac-racing-common": "^1.0.3"
+  }
+}
