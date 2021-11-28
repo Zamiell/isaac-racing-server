@@ -40,7 +40,16 @@ func Init() {
 	} else {
 		projectPath = filepath.Dir(v)
 	}
+
+	// Get the library path
 	libPath = path.Join(projectPath, "lib", "node_modules", "isaac-racing-common", "src")
+	if _, err := os.Stat(libPath); os.IsNotExist(err) {
+		logger.Fatal("The library path at \"" + libPath + "\" does not exist. Did you forget to run \"npm install\" in the \"lib\" subdirectory?")
+		return
+	} else if err != nil {
+		logger.Fatal("Failed to check if the \""+libPath+"\" file exists:", err)
+		return
+	}
 
 	// Record the commit that corresponds with when the Golang code was compiled
 	cmd := exec.Command("git", "rev-parse", "HEAD")

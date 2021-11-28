@@ -21,6 +21,9 @@ database_shell.sh
 make_database_dump.sh
 scripts
 
+# Library files
+node_modules
+
 # --------------------------
 # GitHub .gitignore Template
 # --------------------------
