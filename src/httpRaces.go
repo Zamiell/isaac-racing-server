@@ -81,17 +81,6 @@ func httpRace(c *gin.Context) {
 		return
 	}
 
-	/*
-		for i := range raceData {
-			raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
-			for p := range raceData[i].RaceParticipants {
-				raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)]
-				if raceData[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-					raceData[i].RaceParticipants[p].RacerStartingBuildName = seededBuilds[raceData[i].RaceParticipants[p].RacerStartingBuild.Int64-1]
-				}
-			}
-		}
-	*/
 	raceData.RaceFormat.String = strings.Title(raceData.RaceFormat.String)
 	raceFormat := raceData.RaceFormat.String
 	for p := range raceData.RaceParticipants {
