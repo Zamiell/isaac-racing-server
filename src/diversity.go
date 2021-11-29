@@ -115,7 +115,7 @@ var validDiversityPassiveItems = [...]int{
 	708, 716, 717, 724, 725, 726, 727, 730, 731, 732,
 
 	// Custom items
-	733,
+	1003, // Sawblade
 }
 
 var validDiversityTrinkets = [...]int{
