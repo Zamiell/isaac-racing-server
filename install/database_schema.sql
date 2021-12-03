@@ -89,6 +89,7 @@ CREATE TABLE races (
     player_type     VARCHAR(50)  NULL, /* Valid characters are contained in the "raceValidateRuleset()" function */
     /* (you can't name columns "character" in MariaDB, so we will use the Lua name for this instead) */
     goal            VARCHAR(50)  NULL, /* Valid entries are contained in the "raceValidateRuleset()" function */
+    difficulty      VARCHAR(50)  NULL  DEFAULT "normal", /* Valid entries are contained in the "raceValidateRuleset()" function */
     starting_build  INT          NULL  DEFAULT -1, /* -1 for unseeded & diversity races, otherwise matches the build number */
 
     /* Other fields */

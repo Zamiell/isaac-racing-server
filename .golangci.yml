@@ -8,6 +8,8 @@ linters:
 
     # We use long functions
     - cyclop
+    # Reports false positives
+    - dupl
     # We don't need to initialize every value of a struct
     - exhaustivestruct
     # We use print statements

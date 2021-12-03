@@ -19,7 +19,6 @@ You may also be interested in [the client repository](https://github.com/Zamiell
 These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will be needed for Windows or MacOS installations.
 
 - Install [Go](https://golang.org/):
-  - `sudo apt-get install software-properties-common python-software-properties` (only necessary on Ubuntu 17.04)
   - `sudo add-apt-repository ppa:longsleep/golang-backports` (if you don't do this, it will install a version of Go that is very old)
   - `sudo apt update`
   - `sudo apt install golang-go -y`

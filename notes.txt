@@ -1,0 +1,82 @@
+Notes:
+- Season 2 began on March 18th, 2018 (see "rankedUnseededSoloSeason2StartDatetime")
+- 536 is old Schoolbag ID, is always 2nd item (105 is first item)
+- Race at 2018-04-01 03:55:49 has Schoolbag on slot 536
+- Race at 2018-05-01 04:39:59 has Schoolbag on slot 536
+- Race at 2018-07-01 04:54:06 has Schoolbag on slot 554
+- Race at 2018-09-01 09:54:31 has Schoolbag on slot 554
+- Race at 2018-10-01 01:46:12 has Schoolbag on slot 554
+- Race at 2018-10-15 00:03:59 has Schoolbag on slot 554
+- Race at 2018-10-23 03:37:37 has Schoolbag on slot 554
+- Race at 2018-10-25 06:40:02 has Schoolbag on slot 554
+- Race at 2018-10-26 02:42:17 has Schoolbag on slot 554
+- Race at 2018-10-27 03:44:36 does not have Schoolbag
+- Race at 2018-11-01 05:57:08 does not have Schoolbag
+- Race at 2019-01-01 03:48:42 does not have Schoolbag
+- Race at 2020-01-01 05:56:15 does not have Schoolbag
+
+
+
+Helpful SQL queries
+-------------------
+
+Get ranked solo races:
+
+    SELECT races.id, races.name, races.format, users.username, races.datetime_finished FROM races JOIN race_participants ON races.id = race_participants.race_id JOIN users ON users.id = race_participants.user_id WHERE ranked = 1 AND solo = 1 ORDER BY datetime_finished LIMIT 10;
+
+Get ranked solo races with a certain date range:
+
+    SELECT races.id, races.name, races.format, users.username, races.datetime_finished FROM races JOIN race_participants ON races.id = race_participants.race_id JOIN users ON users.id = race_participants.user_id WHERE ranked = 1 AND solo = 1 AND races.datetime_finished > "2018-10-26 00:00:00" ORDER BY datetime_finished LIMIT 1;
+
+Get the items for a race:
+
+    SELECT * from race_participant_items WHERE race_participant_id = (SELECT id FROM race_participants WHERE user_id = (SELECT id FROM users WHERE users.username = "") AND race_id = 123) ORDER BY datetime_acquired;
+
+Invalidate out of date ranked solo runs:
+
+    UPDATE races SET ranked = 0 WHERE solo = 1 AND ranked = 1 AND datetime_finished > "2018-10-26 00:00:00";
+
+Test:
+    SELECT id, name, datetime_finished FROM races WHERE format = "unseeded" AND finished = 1 AND ranked = 1 AND solo = 1 AND datetime_finished > "2018-03-18 23:00:00" AND datetime_finished < "2018-10-26 00:00:00" ORDER BY id DESC LIMIT 10;
+
+    UPDATE users
+    SET unseeded_solo_last_race = (
+        SELECT races.datetime_finished
+        FROM race_participants
+            JOIN races ON race_participants.race_id = races.id
+        WHERE
+            user_id = users.id
+            AND races.finished = 1
+            AND races.ranked = 1
+            AND races.solo = 1
+            AND races.datetime_finished > "2017-10-17 23:00:00"
+            AND races.datetime_finished < "2018-03-17 00:00:00"
+            ORDER BY races.datetime_finished DESC
+        LIMIT 1
+    );
+
+
+
+-------------
+OLD SQL NOTES
+-------------
+
+Reset season:
+
+// UPDATE users SET unseeded_solo_adjusted_average = 0, unseeded_solo_adjusted_average = 0, unseeded_solo_num_forfeits = 0, unseeded_solo_forfeit_penalty = 0, unseeded_solo_lowest_time = 0, unseeded_solo_num_races = 0, unseeded_solo_last_race = NULL;
+
+/*
+
+UPDATE races
+JOIN race_participants ON race_participants.race_id = races.id
+SET ranked = 0 WHERE
+races.ranked = 1 AND
+races.solo = 1 AND
+races.format = "unseeded" AND
+races.datetime_finished > "2018-09-08 00:00:00" AND
+(SELECT COUNT(id) FROM race_participant_items WHERE item_id = 554 AND race_participant_id = race_participants.id) = 0
+;
+
+UPDATE races JOIN race_participants ON race_participants.race_id = races.id SET ranked = 0 WHERE races.ranked = 1 AND races.solo = 1 AND races.format = "unseeded" AND races.datetime_finished > "2018-09-08 00:00:00" AND (SELECT COUNT(id) FROM race_participant_items WHERE item_id = 554 AND race_participant_id = race_participants.id) = 0;
+
+*/

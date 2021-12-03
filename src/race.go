@@ -435,6 +435,7 @@ func (race *Race) Finish() {
 		Format:          string(race.Ruleset.Format),
 		Character:       race.Ruleset.Character,
 		Goal:            string(race.Ruleset.Goal),
+		Difficulty:      race.Ruleset.Difficulty,
 		StartingBuild:   race.Ruleset.StartingBuild,
 		Seed:            race.Ruleset.Seed,
 		Captain:         race.Captain,
@@ -492,11 +493,7 @@ func (race *Race) Finish() {
 
 	if race.Ruleset.Solo {
 		if race.Ruleset.Ranked {
-			if race.Ruleset.Format == RaceFormatSeeded {
-				leaderboardUpdateSoloSeeded(race)
-			} else if race.Ruleset.Format == RaceFormatUnseeded {
-				leaderboardUpdateSoloUnseeded(race)
-			}
+			leaderboardUpdateRankedSolo(race)
 		}
 	} else {
 		if race.Ruleset.Format == RaceFormatUnseeded ||

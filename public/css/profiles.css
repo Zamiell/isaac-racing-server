@@ -350,9 +350,6 @@
       text-align: left;
       vertical-align: top;
     }
-    #profile-listing-table .participants-list {
-
-    }
 
 header.race-header h2.last-race-results {
   margin: 0 0 .5em 0 !important;
@@ -447,7 +444,7 @@ td.unseeded-column.right {
   text-align: left;
   width: 10%;
 }
-td.unseeded-solo-column.left {
+td.ranked-solo-column.left {
   border-top: 0;
   border-bottom: 0;
   border-left: 1px outset black;
@@ -456,7 +453,7 @@ td.unseeded-solo-column.left {
   width: 15%;
 }
 
-td.unseeded-solo-column.right {
+td.ranked-solo-column.right {
   border-top: 0;
   border-bottom: 0;
   border-left: 0;

@@ -274,7 +274,7 @@ func (*Races) GetRaceHistory(raceID int) (RaceHistory, error) {
 }
 
 // GetRaceProfileHistory gets the race data for the profile page
-func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) { // nolint: dupl
+func (*Races) GetSoloRankedRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
 	raceHistory := make([]RaceHistory, 0)
 
 	var rows *sql.Rows
@@ -300,7 +300,9 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 			AND r.ranked = 1
 			AND r.solo = 1
 			AND u.username = ?
-		GROUP BY
+			AND r.datetime_finished > "`+SoloSeasonStartDatetime+`"
+			AND r.datetime_finished < "`+SoloSeasonEndDatetime+`"
+	GROUP BY
 			id
 		ORDER BY
 			datetime_created DESC
@@ -399,7 +401,7 @@ func (*Races) GetRankedRaceProfileHistory(user string, racesPerPage int) ([]Race
 	return raceHistory, nil
 }
 
-func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) { // nolint: dupl
+func (*Races) GetAllRaceProfileHistory(user string, racesPerPage int) ([]RaceHistory, error) {
 	raceHistory := make([]RaceHistory, 0)
 
 	var rows *sql.Rows

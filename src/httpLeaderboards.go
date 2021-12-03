@@ -35,7 +35,6 @@ func httpLeaderboards(c *gin.Context) {
 	// Local variables
 	w := c.Writer
 	seededRacesNeeded := 5
-	seededSoloRacesNeeded := 5
 	unseededRacesNeeded := 5
 	unseededSoloRacesNeeded := 20
 	diversityRacesNeeded := 10
@@ -47,13 +46,6 @@ func httpLeaderboards(c *gin.Context) {
 		return
 	}
 
-	leaderboardSeededSolo, err := db.Users.GetLeaderboardSeededSolo(seededSoloRacesNeeded)
-	if err != nil {
-		logger.Error("Failed to get the seeded solo leaderboard:", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
 	leaderboardUnseeded, err := db.Users.GetLeaderboardUnseeded(unseededRacesNeeded)
 	if err != nil {
 		logger.Error("Failed to get the unseeded leaderboard:", err)
@@ -61,16 +53,16 @@ func httpLeaderboards(c *gin.Context) {
 		return
 	}
 
-	leaderboardUnseededSolo, err := db.Users.GetLeaderboardUnseededSolo(unseededSoloRacesNeeded)
+	leaderboardDiversity, err := db.Users.GetLeaderboardDiversity(diversityRacesNeeded)
 	if err != nil {
-		logger.Error("Failed to get the unseeded solo leaderboard:", err)
+		logger.Error("Failed to get the diversity leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	leaderboardDiversity, err := db.Users.GetLeaderboardDiversity(diversityRacesNeeded)
+	leaderboardRankedSolo, err := db.Users.GetLeaderboardRankedSolo(unseededSoloRacesNeeded)
 	if err != nil {
-		logger.Error("Failed to get the diversity leaderboard:", err)
+		logger.Error("Failed to get the ranked solo leaderboard:", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -85,12 +77,11 @@ func httpLeaderboards(c *gin.Context) {
 	// TODO
 
 	data := TemplateData{
-		Title:                   "Leaderboards",
-		LeaderboardSeeded:       leaderboardSeeded,
-		LeaderboardSeededSolo:   leaderboardSeededSolo,
-		LeaderboardUnseeded:     leaderboardUnseeded,
-		LeaderboardUnseededSolo: leaderboardUnseededSolo,
-		LeaderboardDiversity:    leaderboardDiversity,
+		Title:                 "Leaderboards",
+		LeaderboardSeeded:     leaderboardSeeded,
+		LeaderboardUnseeded:   leaderboardUnseeded,
+		LeaderboardDiversity:  leaderboardDiversity,
+		LeaderboardRankedSolo: leaderboardRankedSolo,
 	}
 
 	httpServeTemplate(w, "leaderboards", data)

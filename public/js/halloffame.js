@@ -1,16 +1,22 @@
+const LAST_R7_SEASON = 8;
+const LAST_RANKED_SOLO_SEASON = 2;
+
 let activeLeaderboard = "season1r9"; // This has to be the first value
 let transition = false;
 
-const LAST_SEASON = 8;
-
 const tableIDs = ["season1r9", "season1r14"];
-for (i = 2; i <= LAST_SEASON; i++) {
+for (i = 2; i <= LAST_R7_SEASON; i++) {
   tableIDs.push(`season${i}r7`);
 }
+for (i = 1; i <= LAST_RANKED_SOLO_SEASON; i++) {
+  tableIDs.push(`season${i}rankedSolo`);
+}
 
-$(document).ready(function () {
+$(document).ready(() => {
   ConvertTimeStamps("td.td-date");
   ConvertTimes("td.td-time");
+  ConvertForfeitRate("td.td-forfeit-rate-50", 50);
+  ConvertForfeitRate("td.td-forfeit-rate-100", 100);
 
   for (const tableID of tableIDs) {
     $(`#${tableID}-table`).tablesorter({
@@ -74,11 +80,24 @@ function ConvertTimeStamps(td) {
 
 function ConvertTimes(td) {
   $(td).each(function () {
-    t = $(this).html();
-    s = pad(Math.floor(t % 60), 2);
-    m = pad(Math.floor((t / 60) % 60), 2);
-    h = Math.floor((t / 60 / 60) % 24);
-    $(this).html(h + "h " + m + "m " + s + "s");
+    const t = $(this).html();
+    const seconds = pad(Math.floor(t % 60), 2);
+    const minutes = pad(Math.floor((t / 60) % 60), 2);
+    const hours = Math.floor((t / 60 / 60) % 24);
+    // const timeString = h + "h " + m + "m " + s + "s"
+    const timeString =
+      hours === 0 ? `${minutes}:${seconds}` : `${hours}:${minutes}:${seconds}`;
+    $(this).html(timeString);
+  });
+}
+
+function ConvertForfeitRate(td, numRaces) {
+  $(td).each(function () {
+    const numForfeits = $(this).html();
+    const forfeitRate = numForfeits / numRaces;
+    const forfeitPercent = Math.round(forfeitRate * 100);
+    const forfeitRateString = `${forfeitPercent}% (${numForfeits}/${numRaces})`;
+    $(this).html(forfeitRateString);
   });
 }
 
@@ -93,8 +112,8 @@ function selectLeaderboard(type) {
 
   for (const tableID of tableIDs) {
     if (type === tableID) {
-      $("#hof-" + activeLeaderboard).fadeOut(350, function () {
-        $("#hof-" + type).fadeIn(350, function () {
+      $("#hof-" + activeLeaderboard).fadeOut(350, () => {
+        $("#hof-" + type).fadeIn(350, () => {
           activeLeaderboard = type;
           transition = false;
         });

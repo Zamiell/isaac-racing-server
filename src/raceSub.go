@@ -59,7 +59,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	// Validate the ruleset format
 	if ruleset.Format != RaceFormatUnseeded &&
 		ruleset.Format != RaceFormatSeeded &&
-		ruleset.Format != "diversity" &&
+		ruleset.Format != RaceFormatDiversity &&
 		ruleset.Format != RaceFormatCustom {
 
 		websocketError(s, d.Command, "That is not a valid ruleset.")
@@ -124,33 +124,35 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		return true
 	}
 
-	// Validate solo ranked games
-	if !ruleset.Ranked {
-		return true
+	// Validate ranked solo games
+	if ruleset.Ranked && ruleset.Solo {
+		return raceValidateRulesetRankedSolo(s, d)
 	}
-	if ruleset.Format != RaceFormatSeeded &&
-		ruleset.Format != RaceFormatUnseeded {
 
-		websocketError(s, d.Command, "Solo ranked races must be either seeded or unseeded.")
+	return true
+}
+
+func raceValidateRulesetRankedSolo(s *melody.Session, d *IncomingWebsocketData) bool {
+	// Local variables
+	ruleset := d.Ruleset
+
+	if ruleset.Format != RaceFormatSeeded {
+		websocketError(s, d.Command, "Ranked solo races must be seeded.")
 		return false
 	}
+
 	if ruleset.Character != "Judas" {
-		websocketError(s, d.Command, "Solo ranked races must have a character of Judas.")
+		websocketError(s, d.Command, "Ranked solo races must have a character of Judas.")
 		return false
 	}
-	if ruleset.Goal != "Blue Baby" {
-		websocketError(s, d.Command, "Solo ranked races must have a goal of Blue Baby.")
-		return false
-	}
-	if ruleset.Format == RaceFormatSeeded &&
-		ruleset.StartingBuild != 0 {
 
-		websocketError(s, d.Command, "Solo ranked seeded races must have a random starting build.")
+	if ruleset.Goal != "Blue Baby" {
+		websocketError(s, d.Command, "Ranked solo races must have a goal of Blue Baby.")
 		return false
 	}
 
 	// Validate the difficulty
-	if ruleset.Difficulty != "normal" && ruleset.Difficulty != "hard" {
+	if ruleset.Difficulty != "normal" {
 		websocketError(s, d.Command, "That is not a valid difficulty.")
 		return false
 	}

@@ -16,6 +16,7 @@ type Race struct {
 	Format        string
 	Character     string
 	Goal          string
+	Difficulty    string
 	StartingBuild int
 	Seed          string
 	Captain       string
@@ -83,6 +84,7 @@ func (*Races) Finish(race *Race) error {
 			format = ?,
 			player_type = ?,
 			goal = ?,
+			difficulty = ?,
 			starting_build = ?,
 			seed = ?,
 			captain = (SELECT id FROM users where username = ?),
@@ -114,6 +116,7 @@ func (*Races) Finish(race *Race) error {
 		race.Format,
 		race.Character,
 		race.Goal,
+		race.Difficulty,
 		race.StartingBuild,
 		race.Seed,
 		race.Captain,

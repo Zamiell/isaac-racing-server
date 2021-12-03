@@ -33,13 +33,10 @@
 	</div>
 	<div id="leaderboard-buttons-row2" class="row">
 		<div class="4u 12u">
-			<a id="leaderboard-seeded-solo-button" class="button fit inactive disabled">Solo Seeded</a>
+			&nbsp;
 		</div>
 		<div class="4u 12u">
-			<a id="leaderboard-unseeded-solo-button" class="button fit inactive">Solo Unseeded (Season 2)</a>
-		</div>
-		<div class="4u 12u">
-			<a id="leaderboard-other-button" class="button fit inactive disabled">Other</a>
+			<a id="leaderboard-ranked-solo-button" class="button fit inactive">Ranked Solo (Season 3)</a>
 		</div>
 	</div>
 
@@ -93,48 +90,7 @@
 			</table>
 		</div>
 	</section>
-	<section id="leaderboard-seeded-solo" class="box">
-		<div class="table-wrapper">
-			<table  id="leaderboard-seeded-solo-table" class="alt lb tablesorter">
-				<thead>
-					<tr>
-						<th>Rank</th>
-						<th>Player</th>
-						<th>TrueSkill</th>
-						<th>Total Races Played</th>
-						<th>Fastest Time</th>
-						<th>Date of Last Race</th>
-						<th>Verified</th>
-					</tr>
-				</thead>
-				<tbody>
-					{{ range $index, $results := .LeaderboardSeededSolo }}
 
-						<tr>
-							<td class="lb-rank">{{ $index }}</td>
-							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
-							<td class="lb-trueskill">{{ .SeededSoloTrueSkill }} <span id="lastEloChange" class="{{ if lt .SeededSoloTrueSkillDelta 0.0 -}} red {{- else if gt .SeededSoloTrueSkillDelta 0.0}} green {{- end}}">{{if gt .SeededSoloTrueSkillDelta 0.0}}+{{end}}{{ if ne .SeededSoloTrueSkillDelta 0.0 -}}{{- .SeededSoloTrueSkillDelta -}}{{ end -}}</span></td>
-							<td class="lb-num-races">{{ .SeededSoloNumRaces.Value }}</td>
-							<td class="lb-fastest">{{ .SeededSoloLowestTime.Value }}</td>
-							<td class="lb-last-race"><a href="/race/{{ .SeededSoloLastRaceID }}">{{ .SeededSoloLastRace.Value }}</a></td>
-							<td class="lb-status">
-								{{ if eq .Verified 1 -}}
-									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
-								{{- else -}}
-									<i class="fa fa-times" aria-hidden="true" alt="Verified"></i>
-								{{- end }}
-								{{ if ne .StreamURL "-" -}}
-									&nbsp;<a href="{{ .StreamURL }}" target="_blank">
-										<img src="/public/img/Glitch_Purple_RGB.png" width="16px" height="16px"/>
-									</a>
-								{{- end -}}
-							</td>
-						</tr>
-					{{- end }}
-				</tbody>
-			</table>
-		</div>
-	</section>
 	<section id="leaderboard-unseeded" class="box">
 		<div class="table-wrapper">
 			<table  id="leaderboard-unseeded-table" class="alt lb tablesorter">
@@ -159,54 +115,6 @@
 							<td class="lb-num-races">{{ .UnseededNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .UnseededLowestTime.Value }}</td>
 							<td class="lb-last-race"><a href="/race/{{ .UnseededLastRaceID }}">{{ .UnseededLastRace.Value }}</a></td>
-							<td class="lb-status">
-								{{ if eq .Verified 1 -}}
-									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
-								{{- else -}}
-									<i class="fa fa-times" aria-hidden="true" alt="Verified"></i>
-								{{- end }}
-								{{ if ne .StreamURL "-" -}}
-									&nbsp;<a href="{{ .StreamURL }}" target="_blank">
-										<img src="/public/img/Glitch_Purple_RGB.png" width="16px" height="16px"/>
-									</a>
-								{{- end -}}
-							</td>
-						</tr>
-					{{- end }}
-				</tbody>
-			</table>
-		</div>
-	</section>
-	<section id="leaderboard-unseeded-solo" class="box">
-		<div class="table-wrapper">
-			<table  id="leaderboard-unseeded-solo-table" class="alt lb tablesorter">
-				<thead>
-					<tr>
-						<th>Rank</th>
-						<th>Player</th>
-						<th>Adjusted Average</th>
-						<th>Unadjusted Average</th>
-						<th>Forfeit Penalty</th>
-						<th>Forfeit Rate</th>
-						<th>Total Races Played</th>
-						<th>Fastest Time</th>
-						<th>Date of Last Race</th>
-						<th>Verified</th>
-					</tr>
-				</thead>
-				<tbody>
-					{{ range $index, $results := .LeaderboardUnseededSolo }}
-
-						<tr>
-							<td class="lb-rank">{{ $index }}</td>
-							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
-							<td class="lb-adj-avg">{{ .AdjustedAverage }}</td>
-							<td class="lb-real-avg">{{ .RealAverage }}</td>
-							<td class="lb-for-pen">{{ .ForfeitPenalty }}</td>
-							<td class="lb-num-for">{{ .NumForfeits }}</td>
-							<td class="lb-num-races">{{ .NumRaces }}</td>
-							<td class="lb-fastest">{{ .LowestTime }}</td>
-							<td class="lb-last-race"><a href="/race/{{ .LastRaceID }}">{{ .LastRace.Value }}</a></td>
 							<td class="lb-status">
 								{{ if eq .Verified 1 -}}
 									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
@@ -269,73 +177,54 @@
 		</div>
 	</section>
 
-	<!--
-	<div id="leaderboard-other" style="display: none;">
-		<section class="box">
-			<h3>Top 10 Unseeded Times</h3>
-			<br />
-			<div class="table-wrapper">
-				<table class="alt">
-					<thead>
+	<section id="leaderboard-ranked-solo" class="box">
+		<div class="table-wrapper">
+			<table  id="leaderboard-ranked-solo-table" class="alt lb tablesorter">
+				<thead>
+					<tr>
+						<th>Rank</th>
+						<th>Player</th>
+						<th>Adjusted Average</th>
+						<th>Unadjusted Average</th>
+						<th>Forfeit Penalty</th>
+						<th>Forfeit Rate</th>
+						<th>Total Races Played</th>
+						<th>Fastest Time</th>
+						<th>Date of Last Race</th>
+						<th>Verified</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{ range $index, $results := .LeaderboardRankedSolo }}
+
 						<tr>
-							<th>Place</th>
-							<th>Player</th>
-							<th>Time</th>
-							<th>Date</th>
-							<th>Verified</th>
+							<td class="lb-rank">{{ $index }}</td>
+							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
+							<td class="lb-adj-avg">{{ .AdjustedAverage }}</td>
+							<td class="lb-real-avg">{{ .RealAverage }}</td>
+							<td class="lb-for-pen">{{ .ForfeitPenalty }}</td>
+							<td class="lb-num-for">{{ .NumForfeits }}</td>
+							<td class="lb-num-races">{{ .NumRaces }}</td>
+							<td class="lb-fastest">{{ .LowestTime }}</td>
+							<td class="lb-last-race"><a href="/race/{{ .LastRaceID }}">{{ .LastRace.Value }}</a></td>
+							<td class="lb-status">
+								{{ if eq .Verified 1 -}}
+									<i class="fa fa-check" aria-hidden="true" alt="Verified"></i>
+								{{- else -}}
+									<i class="fa fa-times" aria-hidden="true" alt="Verified"></i>
+								{{- end }}
+								{{ if ne .StreamURL "-" -}}
+									&nbsp;<a href="{{ .StreamURL }}" target="_blank">
+										<img src="/public/img/Glitch_Purple_RGB.png" width="16px" height="16px"/>
+									</a>
+								{{- end -}}
+							</td>
 						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>1</td>
-							<td>Zamiel</td>
-							<td>12:30</td>
-							<td>07/16/16</td>
-							<td><i class="fa fa-check" aria-hidden="true"></i></td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>Dea1h</td>
-							<td>12:30</td>
-							<td>07/16/16</td>
-							<td><i class="fa fa-times" aria-hidden="true"></i></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</section>
-		<section class="box">
-			<h3>Most Races Played</h3>
-			<br />
-			<div class="table-wrapper">
-				<table class="alt">
-					<thead>
-						<tr>
-							<th>Place</th>
-							<th>Player</th>
-							<th>Total Races</th>
-							<th>Verified</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr>
-							<td>1</td>
-							<td>Zamiel</td>
-							<td>500</td>
-							<td><i class="fa fa-check" aria-hidden="true"></i></td>
-						</tr>
-						<tr>
-							<td>2</td>
-							<td>Dea1h</td>
-							<td>350</td>
-							<td><i class="fa fa-times" aria-hidden="true"></i></td>
-						</tr>
-					</tbody>
-				</table>
-			</div>
-		</section>
-	</div>
-	-->
+					{{- end }}
+				</tbody>
+			</table>
+		</div>
+	</section>
 
 	<!-- Anchor for the notes link -->
 	<div id="notes"></div>
@@ -350,11 +239,11 @@
 			</ul>
 		</section>
 	</div>
-	<div class="12u" id="notes-unseeded-solo" style="display: none;">
+	<div class="12u" id="notes-ranked-solo" style="display: none;">
 		<section class="box">
-			<h3>Solo Unseeded Leaderboard Notes</h3>
+			<h3>Solo Leaderboard Notes</h3>
 			<ul>
-				<li>Players that play <strong>ranked</strong> solo unseeded races will appear on the leaderboard.</li>
+				<li>Players that play <strong>ranked</strong> solo races will appear on the leaderboard.</li>
 				<li>Players with <strong>under 20 races</strong> are <strong>not included</strong> in the leaderboard.</li>
 				<li>Only the last 100 races are used for players with over 100 races.</li>
 				<li>A penalty is added to the average time based on: <code>average time * number of forfeits / number of races</code></li>
@@ -364,19 +253,9 @@
 			</ul>
 			<h3>Season Notes</h3>
 			<ul>
-				<li>Season 1 began on October 17th, 2017 and concluded on March 18th, 2018. It had the starting character of Judas.</li>
-				<li>Season 2 began on March 18th, 2018 and has yet to conclude. It has the starting character of Judas and the additional starting item of the Schoolbag.</li>
-			</ul>
-		</section>
-	</div>
-	<div class="12u" id="notes-seeded-solo" style="display: none;">
-		<section class="box">
-			<h3>Solo Seeded Leaderboard Notes</h3>
-			<ul>
-				<li>Players that play <strong>ranked</strong> solo seeded races will appear on the leaderboard.</li>
-				<li>Players with <strong>under 5 races</strong> are <strong>not included</strong> in the leaderboard.</li>
-				<li><a href="http://trueskill.org/">TrueSkill</a> is a ranking system designed by Microsoft.</li>
-				<li>Verified racers have agreed to stream every race they play for cheat-verification purposes. To request verification, please contact an administrator.</li>
+				<li>Season 1 (Afterbirth+) began on October 17th, 2017 and concluded on March 18th, 2018. It had the starting character of Judas.</li>
+				<li>Season 2 (Afterbirth+) began on March 19th, 2018 and concluded on October 26th, 2018. It had the starting character of Judas and the additional starting item of the Schoolbag.</li>
+				<li>Season 1 (Repentance) began on December 2nd, 2021 and has yet to conclude. It has the starting character of Judas and rotating seeded starts.</li>
 			</ul>
 		</section>
 	</div>

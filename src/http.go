@@ -60,24 +60,24 @@ type TemplateData struct {
 	MissingPlayer     string
 
 	// Leaderboard stuff
-	LeaderboardSeeded       []models.LeaderboardRowSeeded
-	LeaderboardSeededSolo   []models.LeaderboardRowSeededSolo
-	LeaderboardUnseeded     []models.LeaderboardRowUnseeded
-	LeaderboardUnseededSolo []models.LeaderboardRowUnseededSolo
-	LeaderboardDiversity    []models.LeaderboardRowDiversity
-	//LeaderboardSeeded []models.LeaderboardRowSeeded
+	LeaderboardSeeded     []models.LeaderboardRowSeeded
+	LeaderboardUnseeded   []models.LeaderboardRowUnseeded
+	LeaderboardDiversity  []models.LeaderboardRowDiversity
+	LeaderboardRankedSolo []models.LeaderboardRowUnseededSolo
 
 	// Hall of Fame stuff
-	Season1r9  []models.SpeedRun
-	Season1r14 []models.SpeedRun
-	Season2r7  []models.SpeedRun
-	Season3r7  []models.SpeedRun
-	Season4r7  []models.SpeedRun
-	Season5r7  []models.SpeedRun
-	Season6r7  []models.SpeedRun
-	Season7r7  []models.SpeedRun
-	Season8r7  []models.SpeedRun
-	// Season9r7 []models.SpeedRun
+	Season1r9  []HallOfFameEntry
+	Season1r14 []HallOfFameEntry
+	Season2r7  []HallOfFameEntry
+	Season3r7  []HallOfFameEntry
+	Season4r7  []HallOfFameEntry
+	Season5r7  []HallOfFameEntry
+	Season6r7  []HallOfFameEntry
+	Season7r7  []HallOfFameEntry
+	Season8r7  []HallOfFameEntry
+	//Season9r7 []HallOfFameEntry
+	Season1RankedSolo []HallOfFameEntryOnline
+	Season2RankedSolo []HallOfFameEntryOnline
 
 	// Tournament Stuff
 	CurrentTournament bool
@@ -189,6 +189,7 @@ func httpInit() {
 	httpRouter.GET("/info", httpInfo)
 	httpRouter.GET("/download", httpDownload)
 	httpRouter.GET("/halloffame", httpHallOfFame)
+	httpRouter.GET("/debug", httpDebug)
 	httpRouter.Static("/public", path.Join(projectPath, "public"))
 
 	// Figure out the port that we are using for the HTTP server

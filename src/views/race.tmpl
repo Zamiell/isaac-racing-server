@@ -39,7 +39,7 @@
 						<td rowspan="{{ $racers }}" id="racegoal-{{ .SingleRaceResults.RaceID.Int64 }}" class="races-td-goal"><img class="tooltip" title="{{ .SingleRaceResults.RaceGoal.String }}" src="/public/img/goals/{{ .SingleRaceResults.RaceGoal.String }}.png" /></td>
 
 							{{ range $index, $results := .SingleRaceResults.RaceParticipants }}
-								<td class=racername><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
+								<td class="racername"><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
 								{{ if eq .RacerPlace.Int64 -1 -}} <!-- They quit -->
 									<td class="races-td-place">Quit</td>
 									<td class="races-td-time">&nbsp;</td>

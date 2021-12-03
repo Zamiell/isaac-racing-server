@@ -79,7 +79,7 @@
 							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID }}" class="races-td-goal"><img class="tooltip" title="{{ .RaceGoal.String }}" src="/public/img/goals/{{ .RaceGoal.String }}.png" /></td>
 
 							{{ range $index, $results := .RaceParticipants }}
-								<td class=racername>
+								<td class="racername">
 									<a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a>
 								</td>
 

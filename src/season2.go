@@ -1,11 +1,6 @@
 package server
 
-import (
-	"github.com/Zamiell/isaac-racing-server/models"
-)
-
-// nolint:dupl
-var season2r7 = []models.SpeedRun{
+var season2r7 = []HallOfFameEntry{
 	{
 		Rank:        1,
 		Racer:       "Dea1h",
@@ -79,7 +74,7 @@ var season2r7 = []models.SpeedRun{
 	{
 		Rank:        8,
 		Racer:       "AdRyDN",
-		ProfileName: "AdRyDN",
+		ProfileName: "Adrydn",
 		Time:        4619,
 		Date:        "2017-06-14",
 		Proof:       "https://www.twitch.tv/videos/149545223",

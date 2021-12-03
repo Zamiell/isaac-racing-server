@@ -29,8 +29,8 @@
 						<td id="unseeded-trueskill-label" class="unseeded-column left">TrueSkill:</td>
 						<td id="unseeded-trueskill-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.TrueSkill }}<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsUnseeded.Change 0.0 -}} red {{- else if gt .ResultsProfile.StatsUnseeded.Change 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsUnseeded.Change 0.0}}<sup>+</sup>{{end}}{{ if ne .ResultsProfile.StatsUnseeded.Change 0.0 -}}<sup>{{- .ResultsProfile.StatsUnseeded.Change -}}</sup>{{ end -}}</td></td>
 						<!-- Third Column -->
-						<td id="unseeded-solo-adjavg-label" class="unseeded-solo-column left">Adjusted Avg:</td>
-						<td id="unseeded-solo-adjavg-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.AdjustedAverage }}</td>
+						<td id="ranked-solo-adjavg-label" class="ranked-solo-column left">Adjusted Avg:</td>
+						<td id="ranked-solo-adjavg-val" class="ranked-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.AdjustedAverage }}</td>
 						<!-- Fourth Column -->
 						<td id="diversity-trueskill-label" class="diversity-column left">TrueSkill:</td>
 						<td id="diversity-trueskil-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.TrueSkill }}<span id="lastEloChange" class="{{ if lt .ResultsProfile.StatsDiversity.Change 0.0 -}} red {{- else if gt .ResultsProfile.StatsDiversity.Change 0.0}} green {{- end}}">{{if gt .ResultsProfile.StatsDiversity.Change 0.0}}<sup>+</sup>{{end}}{{ if ne .ResultsProfile.StatsDiversity.Change 0.0 -}}<sup>{{- .ResultsProfile.StatsDiversity.Change -}}</sup>{{ end -}}</span></td>
@@ -43,8 +43,8 @@
 						<td id="unseeded-trueskill-sigma-label" class="unseeded-column left">TrueSkill Sigma:</td>
 						<td id="unseeded-trueskill-sigma-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.Sigma }}</td>
 						<!-- Third Column -->
-						<td id="unseeded-solo-realavg-label" class="unseeded-solo-column left">Unadjusted Avg:</td>
-						<td id="unseeded-solo-realavg-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.RealAverage }}</td>
+						<td id="ranked-solo-realavg-label" class="ranked-solo-column left">Unadjusted Avg:</td>
+						<td id="ranked-solo-realavg-val" class="ranked-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.RealAverage }}</td>
 						<!-- Fourth Column -->
 						<td id="diversity-trueskill-sigma-label" class="diversity-column left">TrueSkill Sigma:</td>
 						<td id="diversity-trueskill-sigma-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.Sigma }}</td>
@@ -57,8 +57,8 @@
 						<td id="unseeded-numraces-label" class="unseeded-column left">Total Races:</td>
 						<td id="unseeded-numraces-val" class="unseeded-column right">{{ .ResultsProfile.StatsUnseeded.NumRaces }}</td>
 						<!-- Third Column -->
-						<td id="unseeded-solo-forpen-label" class="unseeded-column left">Forfeit Penalty:</td>
-						<td id="unseeded-solo-forpen-val" class="unseeded-column right">{{ .ResultsProfile.StatsSoloUnseeded.ForfeitPenalty }}</td>
+						<td id="ranked-solo-forpen-label" class="unseeded-column left">Forfeit Penalty:</td>
+						<td id="ranked-solo-forpen-val" class="unseeded-column right">{{ .ResultsProfile.StatsSoloUnseeded.ForfeitPenalty }}</td>
 						<!-- Fourth Column -->
 						<td id="diversity-numraces-label" class="diversity-column left">Total Races:</td>
 						<td id="diversity-numraces-val" class="diversity-column right">{{ .ResultsProfile.StatsDiversity.NumRaces }}</td>
@@ -71,8 +71,8 @@
 						<td class="unseeded-column left"></td>
 						<td class="unseeded-column right"></td>
 						<!-- Third Column -->
-						<td id="unseeded-solo-numfor-label" class="unseeded-solo-column left">Forfeit Rate:</td>
-						<td id="unseeded-solo-numfor-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.NumForfeits }}</td>
+						<td id="ranked-solo-numfor-label" class="ranked-solo-column left">Forfeit Rate:</td>
+						<td id="ranked-solo-numfor-val" class="ranked-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.NumForfeits }}</td>
 						<!-- Fourth Column -->
 						<td class="diversity-column left"></td>
 						<td class="diversity-column right"></td>
@@ -85,8 +85,8 @@
 						<td class="unseeded-column left"></td>
 						<td class="unseeded-column right"></td>
 						<!-- Third Column -->
-						<td id="unseeded-solo-numraces-label" class="unseeded-solo-column left">Total Races:</td>
-						<td id="unseeded-solo-numraces-val" class="unseeded-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.NumRaces }}</td>
+						<td id="ranked-solo-numraces-label" class="ranked-solo-column left">Total Races:</td>
+						<td id="ranked-solo-numraces-val" class="ranked-solo-column right">{{ .ResultsProfile.StatsSoloUnseeded.NumRaces }}</td>
 						<!-- Fourth Column -->
 						<td class="diversity-column left"></td>
 						<td class="diversity-column right"></td>
@@ -99,8 +99,8 @@
 						<td class="unseeded-column left last"></td>
 						<td class="unseeded-column right last"></td>
 						<!-- Third Column -->
-						<td id="unseeded-solo-fastest-label" class="unseeded-solo-column left last">Fastest Time:</td>
-						<td id="unseeded-solo-fastest-val" class="unseeded-solo-column right last">{{ .ResultsProfile.StatsSoloUnseeded.LowestTime }}</td>
+						<td id="ranked-solo-fastest-label" class="ranked-solo-column left last">Fastest Time:</td>
+						<td id="ranked-solo-fastest-val" class="ranked-solo-column right last">{{ .ResultsProfile.StatsSoloUnseeded.LowestTime }}</td>
 						<!-- Fourth Column -->
 						<td class="diversity-column left last"></td>
 						<td class="diversity-column right last"></td>
@@ -155,7 +155,7 @@
 							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID.Int64 }}" class="races-td-goal"><img class="tooltip" title="{{ .RaceGoal.String }}" src="/public/img/goals/{{ .RaceGoal.String }}.png" /></td>
 
 								{{ range $index, $results := .RaceParticipants }}
-									<td class=racername><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
+									<td class="racername"><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
 									{{ if eq .RacerPlace.Int64 -1 -}} <!-- They quit -->
 										<td class="races-td-place">Quit</td>
 										<td class="races-td-time">&nbsp;</td>
@@ -164,7 +164,7 @@
 										{{- else -}}
 											<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}: {{ .RacerStartingBuildName }}" src="/public/img/builds/{{- .RacerStartingBuildID -}}.png" /></td>
 										{{- end -}}
-									{{- else}} <!-- They finished, yes this is backwards hehe -->
+									{{- else}} <!-- They finished, yes this is backwards -->
 										<td class="races-td-place">{{ .RacerPlace.Int64 }}</td>
 										<td class="races-td-time">{{ .RacerTime.Value }}</td>
 										{{ if lt .RacerStartingBuild.Int64 1 -}}
@@ -226,7 +226,7 @@
 							<td rowspan="{{ $racers }}" id="racegoal-{{ .RaceID.Int64 }}" class="races-td-goal"><img class="tooltip" title="{{ .RaceGoal.String }}" src="/public/img/goals/{{ .RaceGoal.String }}.png" /></td>
 
 							{{ range $index, $results := .RaceParticipants }}
-							<td class=racername><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
+							<td class="racername"><a href="../profile/{{ .RacerName.String }}">{{ .RacerName.String }}</a></td>
 							{{ if eq .RacerPlace.Int64 -1 -}} <!-- They quit -->
 								<td class="races-td-place">Quit</td>
 								<td class="races-td-time">&nbsp;</td>
@@ -235,7 +235,7 @@
 								{{- else -}}
 									<td class="races-td-start"><img class="tooltip" title="Build #{{- .RacerStartingBuild.Int64 -}}: {{ .RacerStartingBuildName }}"  src="/public/img/builds/{{- .RacerStartingBuildID -}}.png" /></td>
 								{{- end -}}
-							{{- else}} <!-- They finished, yes this is backwards hehe -->
+							{{- else}} <!-- They finished, yes this is backwards -->
 								<td class="races-td-place">{{ .RacerPlace.Int64 }}</td>
 								<td class="races-td-time">{{ .RacerTime.Value }}</td>
 								{{ if lt .RacerStartingBuild.Int64 1 -}}

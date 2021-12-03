@@ -111,9 +111,9 @@ type UnseededTime struct {
 	RunTime int64
 }
 
-// Get a list of the a player's times for ranked unseeded races
+// Get a list of the a player's times for ranked solo races
 // Used in the "leaderboardUpdateSoloUnseeded()" function
-func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, error) {
+func (*RaceParticipants) GetNRankedSoloTimes(userID int, n int) ([]UnseededTime, error) {
 	var timeList []UnseededTime
 
 	var rows *sql.Rows
@@ -121,11 +121,13 @@ func (*RaceParticipants) GetNUnseededTimes(userID int, n int) ([]UnseededTime, e
 		SELECT race_participants.place, race_participants.run_time
 		FROM race_participants
 			JOIN races ON race_participants.race_id = races.id
-		WHERE race_participants.user_id = ?
+		WHERE
+			race_participants.user_id = ?
+			AND races.finished = 1
 			AND races.ranked = 1
 			AND races.solo = 1
-			AND races.format = "unseeded"
-			AND races.datetime_finished > "`+rankedUnseededSoloSeasonStartDatetime+`"
+			AND races.datetime_finished > "`+SoloSeasonStartDatetime+`"
+			AND races.datetime_finished < "`+SoloSeasonEndDatetime+`"
 		ORDER BY races.datetime_finished DESC
 		LIMIT ?
 	`, userID, n); err != nil {

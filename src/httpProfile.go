@@ -52,7 +52,7 @@ func httpProfile(c *gin.Context) {
 	}
 
 	// Get the race data for the last x races
-	raceDataRanked, err := db.Races.GetRankedRaceProfileHistory(player, numUnseededRacesForAverage)
+	raceDataSoloRanked, err := db.Races.GetSoloRankedRaceProfileHistory(player, NumUnseededRacesForAverage)
 	if err != nil {
 		logger.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -66,14 +66,14 @@ func httpProfile(c *gin.Context) {
 		return
 	}
 
-	for i := range raceDataRanked {
-		raceDataRanked[i].RaceFormat.String = strings.Title(raceDataRanked[i].RaceFormat.String)
-		for p := range raceDataRanked[i].RaceParticipants {
-			raceDataRanked[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataRanked[i].RaceParticipants[p].RacerStartingItem.Int64)]
-			if raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				startingBuildIndex := int(raceDataRanked[i].RaceParticipants[p].RacerStartingBuild.Int64)
-				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
-				raceDataRanked[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
+	for i := range raceDataSoloRanked {
+		raceDataSoloRanked[i].RaceFormat.String = strings.Title(raceDataSoloRanked[i].RaceFormat.String)
+		for p := range raceDataSoloRanked[i].RaceParticipants {
+			raceDataSoloRanked[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataSoloRanked[i].RaceParticipants[p].RacerStartingItem.Int64)]
+			if raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
+				startingBuildIndex := int(raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuild.Int64)
+				raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
+				raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
 			}
 		}
 	}
@@ -94,7 +94,7 @@ func httpProfile(c *gin.Context) {
 		Title:             "Profile",
 		ResultsProfile:    playerData,
 		TotalTime:         totalTime,
-		RaceResultsRanked: raceDataRanked,
+		RaceResultsRanked: raceDataSoloRanked,
 		RaceResultsAll:    raceDataAll,
 	}
 

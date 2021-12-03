@@ -20,10 +20,11 @@ func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 			FROM
 				races
 			WHERE
-				format = "unseeded"
-				AND finished = 1
+				finished = 1
 				AND ranked = 1
 				AND solo = 1
+				AND datetime_finished > "` + SoloSeasonStartDatetime + `"
+				AND datetime_finished < "` + SoloSeasonEndDatetime + `"
 			ORDER BY
 				id
 		`

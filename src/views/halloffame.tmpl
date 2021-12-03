@@ -20,6 +20,9 @@
                     <option value="season7r7">R+7 Season 7 (Afterbirth+)</option>
                     <option value="season8r7">R+7 Season 8 (Afterbirth+)</option>
                     <!--<option value="season9r7">R+7 Season 1 (Afterbirth+)</option>-->
+                    <option value="season1rankedSolo">Ranked Solo Season 1 (Afterbirth+)</option>
+                    <option value="season2rankedSolo">Ranked Solo Season 2 (Afterbirth+)</option>
+                    <!--<option value="season3ranked">Ranked Solo Season 1 (Repentance)</option>-->
                 </select>
             </div>
         </div>
@@ -271,6 +274,66 @@
                     <td class="td-time">{{ .Time }}</td>
                     <td class="td-date">{{ .Date }}</td>
                     <td class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of Ranked Solo Season 1 -->
+    <section id="hof-season1rankedSolo" class="box">
+        <div class="table-wrapper">
+        <table id="season1rankedSolo-table" class="alt lb tablesorter">
+            <thead>
+                <tr>
+                    <th class="th-rank">Rank</th>
+                    <th class="th-racer">Player</th>
+                    <th class="th-time">Adjusted Average</th>
+                    <th class="th-time">Unadjusted Average</th>
+                    <th class="th-time">Forfeit Penalty</th>
+                    <th>Forfeit Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ range .Season1RankedSolo }}
+                <tr>
+                    <td class="td-rank"> {{ .Rank }} </td>
+                    <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                    <td class="td-time">{{ .AdjustedAverage }}</td>
+                    <td class="td-time">{{ .UnadjustedAverage }}</td>
+                    <td class="td-time">{{ .ForfeitPenalty }}</td>
+                    <td class="td-forfeit-rate-50">{{ .NumForfeits }}</td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of Ranked Solo Season 2 -->
+    <section id="hof-season2rankedSolo" class="box">
+        <div class="table-wrapper">
+        <table id="season2rankedSolo-table" class="alt lb tablesorter">
+            <thead>
+                <tr>
+                    <th class="th-rank">Rank</th>
+                    <th class="th-racer">Player</th>
+                    <th class="th-time">Adjusted Average</th>
+                    <th class="th-time">Unadjusted Average</th>
+                    <th class="th-time">Forfeit Penalty</th>
+                    <th>Forfeit Rate</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ range .Season2RankedSolo }}
+                <tr>
+                    <td class="td-rank"> {{ .Rank }} </td>
+                    <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                    <td class="td-time">{{ .AdjustedAverage }}</td>
+                    <td class="td-time">{{ .UnadjustedAverage }}</td>
+                    <td class="td-time">{{ .ForfeitPenalty }}</td>
+                    <td class="td-forfeit-rate-100">{{ .NumForfeits }}</td>
                 </tr>
             {{ end }}
             </tbody>

@@ -10,7 +10,16 @@ import (
 )
 
 const (
-	rankedUnseededSoloSeasonStartDatetime = "2018-03-18 23:00:00"
+	SoloSeason1StartDatetime   = "2017-10-17 23:00:00"
+	SoloSeason1EndDatetime     = "2018-03-17 00:00:00"
+	SoloSeason2StartDatetime   = "2018-03-18 23:00:00"
+	SoloSeason2EndDatetime     = "2018-10-26 00:00:00"
+	RepentanceReleasedDatetime = "2021-05-21 00:00:00"
+	SoloSeason3StartDatetime   = "2021-12-01 00:00:00"
+	SoloSeason3EndDatetime     = "2030-00-00 00:00:00"
+
+	SoloSeasonStartDatetime = SoloSeason3StartDatetime
+	SoloSeasonEndDatetime   = SoloSeason3EndDatetime
 )
 
 type StatsUnseeded struct {
@@ -93,6 +102,7 @@ func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) erro
 	return nil
 }
 
+// Only used in the "leaderboardRecalculateSoloUnseeded()" function
 func (*Users) SetLastRace(format string) error {
 	var SQLString string
 	if format == "unseeded_solo" {
@@ -104,10 +114,12 @@ func (*Users) SetLastRace(format string) error {
 					JOIN races ON race_participants.race_id = races.id
 				WHERE
 					user_id = users.id
-					AND races.format = "unseeded"
+					AND races.finished = 1
 					AND races.ranked = 1
 					AND races.solo = 1
-				ORDER BY races.datetime_finished DESC
+					AND races.datetime_finished > "` + SoloSeasonStartDatetime + `"
+					AND races.datetime_finished < "` + SoloSeasonEndDatetime + `"
+					ORDER BY races.datetime_finished DESC
 				LIMIT 1
 			)
 		`
@@ -167,7 +179,12 @@ func (*Users) ResetTrueSkill(format string) error {
 	return nil
 }
 
-func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int, forfeitPenalty int) error {
+func (*Users) SetStatsRankedSolo(
+	userID int,
+	realAverage int,
+	numForfeits int,
+	forfeitPenalty int,
+) error {
 	adjustedAverage := realAverage + forfeitPenalty
 
 	// 1800000 is 30 minutes (1000 * 60 * 30)
@@ -181,11 +198,13 @@ func (*Users) SetStatsSoloUnseeded(userID int, realAverage int, numForfeits int,
 				SELECT COUNT(race_participants.id)
 				FROM race_participants
 					JOIN races ON race_participants.race_id = races.id
-				WHERE race_participants.user_id = ?
+				WHERE
+					race_participants.user_id = ?
+					AND races.finished = 1
 					AND races.ranked = 1
 					AND races.solo = 1
-					AND races.format = "unseeded"
-					AND races.datetime_finished > "` + rankedUnseededSoloSeasonStartDatetime + `"
+					AND races.datetime_finished > "` + SoloSeasonStartDatetime + `"
+					AND races.datetime_finished < "` + SoloSeasonEndDatetime + `"
 			),
 			unseeded_solo_num_forfeits = ?,
 			unseeded_solo_forfeit_penalty = ?,
