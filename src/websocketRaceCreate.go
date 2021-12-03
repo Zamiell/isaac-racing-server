@@ -1,6 +1,7 @@
 package server
 
 import (
+	"database/sql"
 	"math/rand"
 	"strconv"
 	"time"
@@ -10,14 +11,17 @@ import (
 )
 
 const (
-	rateLimitRate       = float64(4)  // Number of races created
-	rateLimitPer        = float64(60) // Per seconds
-	automaticBanAdminID = 1
-	automaticBanReason  = "race spamming"
+	DefaultRankedSoloStart = 8 // Mom's Knife
+
+	RateLimitRate       = float64(4)  // Number of races created
+	RateLimitPer        = float64(60) // Per seconds
+	AutomaticBanAdminID = 1
+	AutomaticBanReason  = "race spamming"
 )
 
 func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	// Local variables
+	userID := d.v.UserID
 	username := d.v.Username
 	admin := d.v.Admin
 	rateLimitAllowance := d.v.RateLimitAllowance
@@ -87,6 +91,17 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		ruleset.StartingBuild = rand.Intn(len(allBuilds)-1) + 1 // nolint: gosec
 	}
 
+	// Get the specific ranked solo starter for the person who started this race
+	if ruleset.Ranked && ruleset.Solo {
+		if startingBuild, err := getRankedSoloStartingBuild(userID); err != nil {
+			logger.Error("Failed to get the ranked solo starting build:", err)
+			websocketError(s, d.Command, "")
+			return
+		} else {
+			ruleset.StartingBuild = startingBuild
+		}
+	}
+
 	// Check if there are any ongoing races with this name
 	for _, race := range races {
 		if race.Name == name {
@@ -104,9 +119,9 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		s.Set("rateLimitLastCheck", now)
 		logger.Info("User \"" + username + "\" has \"" + strconv.FormatFloat(timePassed, 'f', 2, 64) + "\" time passed since the last race creation.")
 
-		newRateLimitAllowance := rateLimitAllowance + timePassed*(rateLimitRate/rateLimitPer)
-		if newRateLimitAllowance > rateLimitRate {
-			newRateLimitAllowance = rateLimitRate
+		newRateLimitAllowance := rateLimitAllowance + timePassed*(RateLimitRate/RateLimitPer)
+		if newRateLimitAllowance > RateLimitRate {
+			newRateLimitAllowance = RateLimitRate
 		}
 
 		if newRateLimitAllowance < 1 {
@@ -197,14 +212,14 @@ func ban(s *melody.Session, d *IncomingWebsocketData) {
 	*/
 
 	// Add this username to the ban list in the database
-	if err := db.BannedUsers.Insert(userID, automaticBanAdminID, automaticBanReason); err != nil {
+	if err := db.BannedUsers.Insert(userID, AutomaticBanAdminID, AutomaticBanReason); err != nil {
 		logger.Error("Database error while userting the banned user:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
 	// Add their IP to the banned IP list
-	if err := db.BannedIPs.InsertUserIP(userID, automaticBanAdminID, automaticBanReason); err != nil {
+	if err := db.BannedIPs.InsertUserIP(userID, AutomaticBanAdminID, AutomaticBanReason); err != nil {
 		logger.Error("Database error while inserting the banned IP:", err)
 		websocketError(s, d.Command, "")
 		return
@@ -216,4 +231,24 @@ func ban(s *melody.Session, d *IncomingWebsocketData) {
 		"New race spamming detected. You have been banned. If you think this was a mistake, please contact the administration to appeal.",
 	)
 	websocketClose(s)
+}
+
+func getRankedSoloStartingBuild(userID int) (int, error) {
+	var nullInt64 sql.NullInt64
+	if v, err := db.Users.GetRankedSoloMetadata(userID); err != nil {
+		return -1, err
+	} else {
+		nullInt64 = v
+	}
+
+	if !nullInt64.Valid {
+		return DefaultRankedSoloStart, nil
+	}
+
+	nextItem := int(nullInt64.Int64 + 1)
+	if nextItem >= len(allBuilds) {
+		nextItem = 1 // There is no build with an index of 0
+	}
+
+	return nextItem, nil
 }

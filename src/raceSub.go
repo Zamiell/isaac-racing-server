@@ -133,34 +133,29 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 }
 
 func raceValidateRulesetRankedSolo(s *melody.Session, d *IncomingWebsocketData) bool {
-	websocketError(s, d.Command, "Ranked solo season 3 is coming soon. Play unranked solo games in the meantime.")
-	return false
+	// Local variables
+	ruleset := d.Ruleset
 
-	/*
-		// Local variables
-		ruleset := d.Ruleset
+	if ruleset.Format != RaceFormatSeeded {
+		websocketError(s, d.Command, "Ranked solo races must be seeded.")
+		return false
+	}
 
-		if ruleset.Format != RaceFormatSeeded {
-			websocketError(s, d.Command, "Ranked solo races must be seeded.")
-			return false
-		}
+	if ruleset.Character != "Judas" {
+		websocketError(s, d.Command, "Ranked solo races must have a character of Judas.")
+		return false
+	}
 
-		if ruleset.Character != "Judas" {
-			websocketError(s, d.Command, "Ranked solo races must have a character of Judas.")
-			return false
-		}
+	if ruleset.Goal != "Blue Baby" {
+		websocketError(s, d.Command, "Ranked solo races must have a goal of Blue Baby.")
+		return false
+	}
 
-		if ruleset.Goal != "Blue Baby" {
-			websocketError(s, d.Command, "Ranked solo races must have a goal of Blue Baby.")
-			return false
-		}
+	// Validate the difficulty
+	if ruleset.Difficulty != "normal" {
+		websocketError(s, d.Command, "That is not a valid difficulty.")
+		return false
+	}
 
-		// Validate the difficulty
-		if ruleset.Difficulty != "normal" {
-			websocketError(s, d.Command, "That is not a valid difficulty.")
-			return false
-		}
-
-		return true
-	*/
+	return true
 }

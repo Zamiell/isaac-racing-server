@@ -7,6 +7,8 @@ package models
 
 import (
 	"database/sql"
+	"errors"
+	"strconv"
 )
 
 const (
@@ -19,7 +21,7 @@ const (
 	// but rather when the Repentance version of Racing+ was released
 	RepentanceReleasedDatetime = "2021-05-21 00:00:00"
 
-	SoloSeason3StartDatetime = "2021-12-04 00:00:00"
+	SoloSeason3StartDatetime = "2021-12-03 00:00:00"
 	SoloSeason3EndDatetime   = "2030-00-00 00:00:00"
 
 	SoloSeasonStartDatetime = SoloSeason3StartDatetime
@@ -188,6 +190,7 @@ func (*Users) SetStatsRankedSolo(
 	realAverage int,
 	numForfeits int,
 	forfeitPenalty int,
+	startingBuild int,
 ) error {
 	adjustedAverage := realAverage + forfeitPenalty
 
@@ -222,7 +225,8 @@ func (*Users) SetStatsRankedSolo(
 					AND races.solo = 1
 					AND races.format = "unseeded"
 			),
-			ranked_solo_last_race = NOW()
+			ranked_solo_last_race = NOW(),
+			ranked_solo_metadata = ?
 		WHERE id = ?
 	`); err != nil {
 		return err
@@ -238,6 +242,7 @@ func (*Users) SetStatsRankedSolo(
 		numForfeits,
 		forfeitPenalty,
 		userID,
+		startingBuild,
 		userID,
 	); err != nil {
 		return err
@@ -246,7 +251,7 @@ func (*Users) SetStatsRankedSolo(
 	return nil
 }
 
-func (*Users) ResetSoloUnseeded() error {
+func (*Users) ResetRankedSolo() error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
 		UPDATE users
@@ -257,7 +262,8 @@ func (*Users) ResetSoloUnseeded() error {
 			ranked_solo_forfeit_penalty = 0,
 			ranked_solo_lowest_time = 0,
 			ranked_solo_num_races = 0,
-			ranked_solo_last_race = NULL
+			ranked_solo_last_race = NULL,
+			ranked_solo_metadata = NULL
 	`); err != nil {
 		return err
 	} else {
@@ -270,4 +276,19 @@ func (*Users) ResetSoloUnseeded() error {
 	}
 
 	return nil
+}
+
+func (*Users) GetRankedSoloMetadata(userID int) (sql.NullInt64, error) {
+	var metadata sql.NullInt64
+	if err := db.QueryRow(`
+		SELECT ranked_solo_metadata
+		FROM users
+		WHERE id = ?
+	`, userID).Scan(&metadata); err == sql.ErrNoRows {
+		return sql.NullInt64{}, errors.New("A user with an ID of \"" + strconv.Itoa(userID) + "\" does not exist.")
+	} else if err != nil {
+		return sql.NullInt64{}, err
+	}
+
+	return metadata, nil
 }

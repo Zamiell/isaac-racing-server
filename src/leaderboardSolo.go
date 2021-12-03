@@ -54,20 +54,21 @@ func leaderboardUpdateRankedSolo(race *Race) {
 		int(averageTime),
 		numForfeits,
 		int(forfeitPenalty),
+		race.Ruleset.StartingBuild,
 	); err != nil {
 		logger.Error("Database error while setting the ranked solo stats for \""+racer.Name+"\":", err)
 		return
 	}
 }
 
-func leaderboardRecalculateSoloRanked() {
+func leaderboardRecalculateRankedSolo() {
 	// This is equal to either the format in the database, or "ranked_solo" as an arbitrary string
 	// ("ranked_solo" is not a real format, but it lets the child function know what specified rows
 	// to query)
 	// ("ranked_solo" refers to the prefix on the "users" table name in the database)
 	format := "ranked_solo"
 
-	if err := db.Users.ResetSoloUnseeded(); err != nil {
+	if err := db.Users.ResetRankedSolo(); err != nil {
 		logger.Error("Database error while resetting the unseeded solo stats:", err)
 		return
 	}

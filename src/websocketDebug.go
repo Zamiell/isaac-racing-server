@@ -116,8 +116,8 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Do extra stuff
 	/*
-		logger.Debug("Calculating unseeded solo stats.")
-		leaderboardRecalculateSoloRanked()
+		logger.Debug("Recalculating...")
+		leaderboardRecalculateRankedSolo()
 		logger.Debug("Finished.")
 	*/
 }

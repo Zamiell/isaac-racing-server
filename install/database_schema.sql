@@ -43,13 +43,14 @@ CREATE TABLE users (
     unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Unseeded solo leaderboard values */
-    ranked_solo_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    ranked_solo_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    ranked_solo_num_forfeits      INT        NOT NULL  DEFAULT 0,
-    ranked_solo_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    ranked_solo_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    ranked_solo_num_races         INT        NOT NULL  DEFAULT 0,
-    ranked_solo_last_race         TIMESTAMP  NULL      DEFAULT NULL,
+    ranked_solo_adjusted_average  INT           NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_real_average      INT           NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_num_forfeits      INT           NOT NULL  DEFAULT 0,
+    ranked_solo_forfeit_penalty   INT           NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_lowest_time       INT           NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_num_races         INT           NOT NULL  DEFAULT 0,
+    ranked_solo_last_race         TIMESTAMP     NULL      DEFAULT NULL,
+    ranked_solo_metadata          INT           NULL      DEFAULT NULL, /* Currently used to store the next build */
 
     /* Diversity leaderboard values */
     diversity_trueskill         FLOAT      NOT NULL  DEFAULT 0,
