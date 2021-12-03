@@ -71,6 +71,7 @@ func websocketInit() {
 	*/
 
 	// Miscellaneous commands
+	commandHandlerMap["rankedSoloReset"] = websocketRankedSoloReset
 	commandHandlerMap["debug"] = websocketDebug
 
 	// Define a new Melody router and attach a message handler

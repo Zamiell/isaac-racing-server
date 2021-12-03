@@ -13,7 +13,7 @@ func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 	allRaces := make([]RaceHistory, 0)
 
 	var SQLString string
-	if format == "unseeded_solo" {
+	if format == "ranked_solo" {
 		SQLString = `
 			SELECT
 				id

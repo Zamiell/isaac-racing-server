@@ -34,13 +34,6 @@ CREATE TABLE users (
     seeded_num_races         INT        NOT NULL  DEFAULT 0,
     seeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
-    /* Seeded solo leaderboard values */
-    seeded_solo_trueskill        FLOAT      NOT NULL  DEFAULT 0,
-    seeded_solo_trueskill_mu     FLOAT      NOT NULL  DEFAULT 25,
-    seeded_solo_trueskill_sigma  FLOAT      NOT NULL  DEFAULT 8.333,
-    seeded_solo_num_races        INT        NOT NULL  DEFAULT 0,
-    seeded_solo_last_race        TIMESTAMP  NULL      DEFAULT NULL,
-
     /* Unseeded leaderboard values */
     unseeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
     unseeded_trueskill_mu      FLOAT      NOT NULL  DEFAULT 25,
@@ -50,13 +43,13 @@ CREATE TABLE users (
     unseeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Unseeded solo leaderboard values */
-    unseeded_solo_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_solo_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_solo_num_forfeits      INT        NOT NULL  DEFAULT 0,
-    unseeded_solo_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_solo_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_solo_num_races         INT        NOT NULL  DEFAULT 0,
-    unseeded_solo_last_race         TIMESTAMP  NULL      DEFAULT NULL,
+    ranked_solo_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_num_forfeits      INT        NOT NULL  DEFAULT 0,
+    ranked_solo_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_lowest_time       INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
+    ranked_solo_num_races         INT        NOT NULL  DEFAULT 0,
+    ranked_solo_last_race         TIMESTAMP  NULL      DEFAULT NULL,
 
     /* Diversity leaderboard values */
     diversity_trueskill         FLOAT      NOT NULL  DEFAULT 0,

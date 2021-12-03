@@ -61,11 +61,11 @@ func leaderboardUpdateRankedSolo(race *Race) {
 }
 
 func leaderboardRecalculateSoloRanked() {
-	// This is equal to either the format in the database, or "unseeded_solo" as an arbitrary string
-	// ("unseeded_solo" is not a real format, but it lets the child function know what specified
-	// rows to query)
-	// ("unseeded_solo" refers to the prefix on the "users" table name in the database)
-	format := "unseeded_solo"
+	// This is equal to either the format in the database, or "ranked_solo" as an arbitrary string
+	// ("ranked_solo" is not a real format, but it lets the child function know what specified rows
+	// to query)
+	// ("ranked_solo" refers to the prefix on the "users" table name in the database)
+	format := "ranked_solo"
 
 	if err := db.Users.ResetSoloUnseeded(); err != nil {
 		logger.Error("Database error while resetting the unseeded solo stats:", err)
@@ -87,7 +87,7 @@ func leaderboardRecalculateSoloRanked() {
 		race.ID = int(modelsRace.RaceID.Int64)
 
 		newFormat := format
-		if format == "unseeded_solo" {
+		if format == "ranked_solo" {
 			newFormat = "unseeded"
 		}
 		race.Ruleset.Format = RaceFormat(newFormat)

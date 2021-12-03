@@ -293,13 +293,13 @@ func (*Users) GetLeaderboardRankedSolo(racesNeeded int) ([]LeaderboardRowUnseede
 	if v, err := db.Query(`
 		SELECT
 			u.username,
-			u.unseeded_solo_adjusted_average,
-			u.unseeded_solo_real_average,
-			u.unseeded_solo_num_races,
-			u.unseeded_solo_num_forfeits,
-			u.unseeded_solo_forfeit_penalty,
-			u.unseeded_solo_lowest_time,
-			u.unseeded_solo_last_race,
+			u.ranked_solo_adjusted_average,
+			u.ranked_solo_real_average,
+			u.ranked_solo_num_races,
+			u.ranked_solo_num_forfeits,
+			u.ranked_solo_forfeit_penalty,
+			u.ranked_solo_lowest_time,
+			u.ranked_solo_last_race,
 			MAX(rp.race_id),
 			u.verified,
 			u.stream_url
@@ -310,12 +310,12 @@ func (*Users) GetLeaderboardRankedSolo(racesNeeded int) ([]LeaderboardRowUnseede
 			LEFT JOIN races r
 				ON r.id = rp.race_id
 		WHERE
-			u.unseeded_solo_num_races >= ?
+			u.ranked_solo_num_races >= ?
 			AND u.id NOT IN (SELECT user_id FROM banned_users)
 		GROUP BY
 			u.username
 		ORDER BY
-			unseeded_solo_adjusted_average ASC
+			ranked_solo_adjusted_average ASC
 	`, racesNeeded); err != nil {
 		return leaderboard, err
 	} else {

@@ -39,31 +39,11 @@ Invalidate out of date ranked solo runs:
 Test:
     SELECT id, name, datetime_finished FROM races WHERE format = "unseeded" AND finished = 1 AND ranked = 1 AND solo = 1 AND datetime_finished > "2018-03-18 23:00:00" AND datetime_finished < "2018-10-26 00:00:00" ORDER BY id DESC LIMIT 10;
 
-    UPDATE users
-    SET unseeded_solo_last_race = (
-        SELECT races.datetime_finished
-        FROM race_participants
-            JOIN races ON race_participants.race_id = races.id
-        WHERE
-            user_id = users.id
-            AND races.finished = 1
-            AND races.ranked = 1
-            AND races.solo = 1
-            AND races.datetime_finished > "2017-10-17 23:00:00"
-            AND races.datetime_finished < "2018-03-17 00:00:00"
-            ORDER BY races.datetime_finished DESC
-        LIMIT 1
-    );
-
 
 
 -------------
 OLD SQL NOTES
 -------------
-
-Reset season:
-
-// UPDATE users SET unseeded_solo_adjusted_average = 0, unseeded_solo_adjusted_average = 0, unseeded_solo_num_forfeits = 0, unseeded_solo_forfeit_penalty = 0, unseeded_solo_lowest_time = 0, unseeded_solo_num_races = 0, unseeded_solo_last_race = NULL;
 
 /*
 

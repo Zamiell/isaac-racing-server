@@ -10,13 +10,17 @@ import (
 )
 
 const (
-	SoloSeason1StartDatetime   = "2017-10-17 23:00:00"
-	SoloSeason1EndDatetime     = "2018-03-17 00:00:00"
-	SoloSeason2StartDatetime   = "2018-03-18 23:00:00"
-	SoloSeason2EndDatetime     = "2018-10-26 00:00:00"
+	SoloSeason1StartDatetime = "2017-10-17 23:00:00"
+	SoloSeason1EndDatetime   = "2018-03-17 00:00:00"
+	SoloSeason2StartDatetime = "2018-03-18 23:00:00"
+	SoloSeason2EndDatetime   = "2018-10-26 00:00:00"
+
+	// This is not actually when the Repentance DLC was released,
+	// but rather when the Repentance version of Racing+ was released
 	RepentanceReleasedDatetime = "2021-05-21 00:00:00"
-	SoloSeason3StartDatetime   = "2021-12-04 00:00:00"
-	SoloSeason3EndDatetime     = "2030-00-00 00:00:00"
+
+	SoloSeason3StartDatetime = "2021-12-04 00:00:00"
+	SoloSeason3EndDatetime   = "2030-00-00 00:00:00"
 
 	SoloSeasonStartDatetime = SoloSeason3StartDatetime
 	SoloSeasonEndDatetime   = SoloSeason3EndDatetime
@@ -105,7 +109,7 @@ func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) erro
 // Only used in the "leaderboardRecalculateSoloUnseeded()" function
 func (*Users) SetLastRace(format string) error {
 	var SQLString string
-	if format == "unseeded_solo" {
+	if format == "ranked_solo" {
 		SQLString = `
 			UPDATE users
 			SET ` + format + `_last_race = (
@@ -192,9 +196,9 @@ func (*Users) SetStatsRankedSolo(
 	if v, err := db.Prepare(`
 		UPDATE users
 		SET
-			unseeded_solo_adjusted_average = ?,
-			unseeded_solo_real_average = ?,
-			unseeded_solo_num_races = (
+			ranked_solo_adjusted_average = ?,
+			ranked_solo_real_average = ?,
+			ranked_solo_num_races = (
 				SELECT COUNT(race_participants.id)
 				FROM race_participants
 					JOIN races ON race_participants.race_id = races.id
@@ -206,9 +210,9 @@ func (*Users) SetStatsRankedSolo(
 					AND races.datetime_finished > "` + SoloSeasonStartDatetime + `"
 					AND races.datetime_finished < "` + SoloSeasonEndDatetime + `"
 			),
-			unseeded_solo_num_forfeits = ?,
-			unseeded_solo_forfeit_penalty = ?,
-			unseeded_solo_lowest_time = (
+			ranked_solo_num_forfeits = ?,
+			ranked_solo_forfeit_penalty = ?,
+			ranked_solo_lowest_time = (
 				SELECT IFNULL(MIN(race_participants.run_time), 1800000)
 				FROM race_participants
 					JOIN races ON race_participants.race_id = races.id
@@ -218,7 +222,7 @@ func (*Users) SetStatsRankedSolo(
 					AND races.solo = 1
 					AND races.format = "unseeded"
 			),
-			unseeded_solo_last_race = NOW()
+			ranked_solo_last_race = NOW()
 		WHERE id = ?
 	`); err != nil {
 		return err
@@ -247,13 +251,13 @@ func (*Users) ResetSoloUnseeded() error {
 	if v, err := db.Prepare(`
 		UPDATE users
 		SET
-			unseeded_solo_adjusted_average = 0,
-			unseeded_solo_real_average = 0,
-			unseeded_solo_num_forfeits = 0,
-			unseeded_solo_forfeit_penalty = 0,
-			unseeded_solo_lowest_time = 0,
-			unseeded_solo_num_races = 0,
-			unseeded_solo_last_race = NULL
+			ranked_solo_adjusted_average = 0,
+			ranked_solo_real_average = 0,
+			ranked_solo_num_forfeits = 0,
+			ranked_solo_forfeit_penalty = 0,
+			ranked_solo_lowest_time = 0,
+			ranked_solo_num_races = 0,
+			ranked_solo_last_race = NULL
 	`); err != nil {
 		return err
 	} else {
