@@ -34,7 +34,6 @@ type Ruleset struct {
 	Goal                RaceGoal   `json:"goal"`
 	StartingBuild       int        `json:"startingBuild"`
 	StartingBuildRandom bool       `json:"startingBuildRandom"`
-	StartingItems       []int      `json:"startingItems"`
 	Seed                string     `json:"seed"`
 	Difficulty          string     `json:"difficulty"`
 }

@@ -134,9 +134,6 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		ruleset.Seed = diversityGetSeed(ruleset)
 	}
 
-	// Zero out the starting items field
-	ruleset.StartingItems = make([]int, 0)
-
 	/*
 		Create the race in the database
 		(it will have no data associated with it other than the automatically
