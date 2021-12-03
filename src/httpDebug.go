@@ -19,5 +19,5 @@ func httpDebug(c *gin.Context) {
 }
 
 func httpDebugFunc() {
-	leaderboardRecalculateSoloUnseeded()
+	leaderboardRecalculateSoloRanked()
 }

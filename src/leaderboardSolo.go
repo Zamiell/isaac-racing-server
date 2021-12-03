@@ -60,7 +60,7 @@ func leaderboardUpdateRankedSolo(race *Race) {
 	}
 }
 
-func leaderboardRecalculateSoloUnseeded() {
+func leaderboardRecalculateSoloRanked() {
 	// This is equal to either the format in the database, or "unseeded_solo" as an arbitrary string
 	// ("unseeded_solo" is not a real format, but it lets the child function know what specified
 	// rows to query)
