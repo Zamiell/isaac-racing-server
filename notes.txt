@@ -28,7 +28,7 @@ Get ranked solo races with a certain date range:
 
     SELECT races.id, races.name, races.format, users.username, races.datetime_finished FROM races JOIN race_participants ON races.id = race_participants.race_id JOIN users ON users.id = race_participants.user_id WHERE ranked = 1 AND solo = 1 AND races.datetime_finished > "2018-10-26 00:00:00" ORDER BY datetime_finished LIMIT 1;
 
-Get the items for a race:
+Get the items (collectibles) for a race:
 
     SELECT * from race_participant_items WHERE race_participant_id = (SELECT id FROM race_participants WHERE user_id = (SELECT id FROM users WHERE users.username = "") AND race_id = 123) ORDER BY datetime_acquired;
 
@@ -46,6 +46,12 @@ Fix tables not having "ON DELETE CASCADE":
 
     ALTER TABLE race_participants DROP FOREIGN KEY `race_participants_ibfk_2`;
     ALTER TABLE race_participants ADD CONSTRAINT `race_participants_ibfk_2` FOREIGN KEY (`race_id`) REFERENCES `races` (`id`) ON DELETE CASCADE;
+
+Find all races from user:
+
+    SELECT users.username, races.id, races.name, races.datetime_finished FROM races JOIN race_participants ON races.id = race_participants.race_id JOIN users ON users.id = race_participants.user_id WHERE users.username = "TestAccount1";
+
+
 
 
 -------------
