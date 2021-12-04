@@ -233,32 +233,8 @@ CREATE TABLE user_achievements (
     achievement_id     INT        NOT NULL,
     datetime_achieved  TIMESTAMP  NOT NULL  DEFAULT NOW(),
 
-    FOREIGN KEY(user_id) REFERENCES users(id),
+    FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
     UNIQUE(user_id, achievement_id)
 );
 CREATE INDEX user_achievements_index_user_id ON user_achievements (user_id);
 CREATE INDEX user_achievements_index_achievement_id ON user_achievements (achievement_id);
-
-DROP TABLE IF EXISTS user_season_stats;
-CREATE TABLE user_season_stats (
-    /* Main values */
-    id       INT  NOT NULL  PRIMARY KEY  AUTO_INCREMENT, /* PRIMARY KEY automatically creates a UNIQUE constraint */
-    user_id  INT  NOT NULL,
-    season   INT  NOT NULL,
-
-    /* Seeded leaderboard values */
-    seeded_trueskill         FLOAT      NOT NULL  DEFAULT 0,
-    seeded_num_races         INT        NOT NULL  DEFAULT 0,
-    seeded_last_race         TIMESTAMP  NULL      DEFAULT NULL,
-
-    /* Unseeded leaderboard values */
-    unseeded_adjusted_average  INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_real_average      INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-    unseeded_num_races         INT        NOT NULL  DEFAULT 0,
-    unseeded_num_forfeits      INT        NOT NULL  DEFAULT 0,
-    unseeded_forfeit_penalty   INT        NOT NULL  DEFAULT 0, /* Rounded to the second */
-
-    FOREIGN KEY(user_id) REFERENCES users(id),
-    UNIQUE(user_id, season)
-);
-CREATE INDEX user_season_stats_index_user_id ON user_season_stats (user_id);

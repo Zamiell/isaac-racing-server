@@ -36,9 +36,16 @@ Invalidate out of date ranked solo runs:
 
     UPDATE races SET ranked = 0 WHERE solo = 1 AND ranked = 1 AND datetime_finished > "2018-10-26 00:00:00";
 
-Test:
-    SELECT id, name, datetime_finished FROM races WHERE format = "unseeded" AND finished = 1 AND ranked = 1 AND solo = 1 AND datetime_finished > "2018-03-18 23:00:00" AND datetime_finished < "2018-10-26 00:00:00" ORDER BY id DESC LIMIT 10;
+Find races with finish times of under 1 minutes:
 
+    SELECT races.id, races.datetime_finished, users.username, race_participants.run_time FROM races JOIN race_participants ON races.id = race_participants.race_id JOIN users ON users.id = race_participants.user_id WHERE race_participants.run_time < 60000 AND races.solo = 0 AND race_participants.place > 0 ORDER BY races.id;
+
+    SELECT COUNT(races.id) FROM races JOIN race_participants ON races.id = race_participants.race_id JOIN users ON users.id = race_participants.user_id WHERE race_participants.run_time < 60000 AND races.solo = 0 AND race_participants.place > 0;
+
+Fix tables not having "ON DELETE CASCADE":
+
+    ALTER TABLE race_participants DROP FOREIGN KEY `race_participants_ibfk_2`;
+    ALTER TABLE race_participants ADD CONSTRAINT `race_participants_ibfk_2` FOREIGN KEY (`race_id`) REFERENCES `races` (`id`) ON DELETE CASCADE;
 
 
 -------------
