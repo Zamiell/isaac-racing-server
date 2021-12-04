@@ -25,7 +25,7 @@ var season8r7 = []HallOfFameEntry{
 		Rank:        3,
 		Racer:       "Gamonymous",
 		ProfileName: "Gamonymous",
-		Time:        4637,
+		Time:        4037,
 		Date:        "2020-06-25",
 		Proof:       "https://www.youtube.com/watch?v=PPyiZHJsk_A",
 		Site:        "YouTube",
