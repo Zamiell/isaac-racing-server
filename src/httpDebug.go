@@ -19,5 +19,10 @@ func httpDebug(c *gin.Context) {
 }
 
 func httpDebugFunc() {
-	leaderboardRecalculateRankedSolo()
+	logger.Debug("Doing seeded...")
+	leaderboardRecalculateTrueSkill("seeded")
+	logger.Debug("Doing unseeded...")
+	leaderboardRecalculateTrueSkill("unseeded")
+	logger.Debug("Doing diversity...")
+	leaderboardRecalculateTrueSkill("diversity")
 }

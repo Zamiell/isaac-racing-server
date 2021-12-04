@@ -108,7 +108,7 @@ func (*Users) SetTrueSkill(userID int, stats StatsTrueSkill, format string) erro
 	return nil
 }
 
-// Only used in the "leaderboardRecalculateSoloUnseeded()" function
+// Only used in the "leaderboardRecalculate" functions
 func (*Users) SetLastRace(format string) error {
 	var SQLString string
 	if format == "ranked_solo" {
@@ -125,7 +125,7 @@ func (*Users) SetLastRace(format string) error {
 					AND races.solo = 1
 					AND races.datetime_finished > "` + SoloSeasonStartDatetime + `"
 					AND races.datetime_finished < "` + SoloSeasonEndDatetime + `"
-					ORDER BY races.datetime_finished DESC
+				ORDER BY races.datetime_finished DESC
 				LIMIT 1
 			)
 		`
@@ -138,8 +138,10 @@ func (*Users) SetLastRace(format string) error {
 					JOIN races ON race_participants.race_id = races.id
 				WHERE
 					user_id = users.id
+					AND races.finished = 1
 					AND races.format = "` + format + `"
 					AND races.solo = 0
+					AND races.datetime_finished > "` + RepentanceReleasedDatetime + `"
 				ORDER BY races.datetime_finished DESC
 				LIMIT 1
 			)

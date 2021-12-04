@@ -115,15 +115,14 @@ func leaderboardUpdateTrueSkill(race *Race) {
 	}
 }
 
-/*
-func leaderboardRecalculateTrueSkill(format string) {
-	if err := db.Users.ResetTrueSkill(format); err != nil {
+func leaderboardRecalculateTrueSkill(format RaceFormat) {
+	if err := db.Users.ResetTrueSkill(string(format)); err != nil {
 		logger.Error("Database error while resetting the TrueSkill stats:", err)
 		return
 	}
 
 	var allRaces []models.RaceHistory
-	if v, err := db.Races.GetAllRaces(format); err != nil {
+	if v, err := db.Races.GetAllRacesForLeaderboard(string(format)); err != nil {
 		logger.Error("Database error while getting all of the races:", err)
 		return
 	} else {
@@ -151,14 +150,13 @@ func leaderboardRecalculateTrueSkill(format string) {
 	}
 
 	// Fix the "Date of Last Race" column
-	if err := db.Users.SetLastRace(format); err != nil {
-		logger.Error("Database error while setting the last race:", err)
+	if err := db.Users.SetLastRace(string(format)); err != nil {
+		logger.Error("Failed to set set the last race:", err)
 		return
 	}
 
 	logger.Info("Successfully reset the TrueSkill leaderboard for " + format + ".")
 }
-*/
 
 /*
 	Subroutines

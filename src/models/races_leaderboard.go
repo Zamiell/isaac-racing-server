@@ -9,7 +9,7 @@ import (
 	but these functions are only used in "leaderboard.go"
 */
 
-func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
+func (*Races) GetAllRacesForLeaderboard(format string) ([]RaceHistory, error) {
 	allRaces := make([]RaceHistory, 0)
 
 	var SQLString string
@@ -38,6 +38,7 @@ func (*Races) GetAllRaces(format string) ([]RaceHistory, error) {
 				format = "` + format + `"
 				AND finished = 1
 				AND solo = 0
+				AND datetime_finished > "` + RepentanceReleasedDatetime + `"
 			ORDER BY
 				id
 		`

@@ -74,7 +74,7 @@ func leaderboardRecalculateRankedSolo() {
 	}
 
 	var allRaces []models.RaceHistory
-	if v, err := db.Races.GetAllRaces(format); err != nil {
+	if v, err := db.Races.GetAllRacesForLeaderboard(format); err != nil {
 		logger.Error("Database error while getting all of the races:", err)
 		return
 	} else {
