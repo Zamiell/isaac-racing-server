@@ -84,4 +84,16 @@ func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
 	// Join the user to the channel for that race
 	d.Room = "_race_" + strconv.Itoa(raceID)
 	websocketRoomJoinSub(s, d)
+
+	// Send a reminder message to people playing ranked solo races
+	if race.Ruleset.Ranked && race.Ruleset.Solo {
+		type PrivateMessageMessage struct {
+			Name    string `json:"name"`
+			Message string `json:"message"`
+		}
+		websocketEmit(s, "privateMessage", &PrivateMessageMessage{
+			"SERVER",
+			"In order to prevent cheating, you must stream your races on Twitch or YouTube to be eligible for the Season 3 Ranked Solo leaderboards.",
+		})
+	}
 }
