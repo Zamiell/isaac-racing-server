@@ -12,17 +12,8 @@ func httpDebug(c *gin.Context) {
 		return
 	}
 
-	logger.Debug("httpDebug function entered.")
-	httpDebugFunc()
-	logger.Debug("httpDebug function finished.")
+	logger.Debug("debugFunc entered.")
+	debugFunc()
+	logger.Debug("debugFunc finished.")
 	c.String(http.StatusOK, http.StatusText(http.StatusOK))
-}
-
-func httpDebugFunc() {
-	logger.Debug("Doing seeded...")
-	leaderboardRecalculateTrueSkill("seeded")
-	logger.Debug("Doing unseeded...")
-	leaderboardRecalculateTrueSkill("unseeded")
-	logger.Debug("Doing diversity...")
-	leaderboardRecalculateTrueSkill("diversity")
 }
