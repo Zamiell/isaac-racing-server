@@ -52,6 +52,8 @@ linters:
     - noctx
     # We use some unused parameters for command function uniformity
     - unparam
+    # We have some utility unused functions
+    - unused
     # We don't need to wrap all errors
     - wrapcheck
     # WSL requires excessive newlines around if statements
