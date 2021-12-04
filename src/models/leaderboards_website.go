@@ -78,7 +78,8 @@ func (*Users) GetLeaderboardSeeded(racesNeeded int) ([]LeaderboardRowSeeded, err
 			ROUND(u.seeded_trueskill, 2),
 			ROUND(u.seeded_trueskill_change, 2),
 			u.seeded_num_races,
-			(SELECT
+			(
+				SELECT
 					MIN(run_time)
 				FROM
 					race_participants
@@ -87,7 +88,10 @@ func (*Users) GetLeaderboardSeeded(racesNeeded int) ([]LeaderboardRowSeeded, err
 				WHERE
 					place > 0
 					AND u.id = user_id
-					AND races.format = 'seeded') as r_time,
+					AND races.solo = 0
+					AND races.format = 'seeded'
+					AND races.datetime_finished > "`+RepentanceReleasedDatetime+`"
+			) as r_time,
 			u.seeded_last_race,
 			MAX(rp.race_id),
 			u.verified,
@@ -150,7 +154,8 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int) ([]LeaderboardRowUnseeded,
 			ROUND(u.unseeded_trueskill, 2),
 			ROUND(u.unseeded_trueskill_change, 2),
 			u.unseeded_num_races,
-			(SELECT
+			(
+				SELECT
 					MIN(run_time)
 				FROM
 					race_participants
@@ -159,7 +164,10 @@ func (*Users) GetLeaderboardUnseeded(racesNeeded int) ([]LeaderboardRowUnseeded,
 				WHERE
 					place > 0
 					AND u.id = user_id
-					AND races.format = 'unseeded') as r_time,
+					AND races.solo = 0
+					AND races.format = 'unseeded'
+					AND races.datetime_finished > "`+RepentanceReleasedDatetime+`"
+			) as r_time,
 			u.unseeded_last_race,
 			MAX(rp.race_id),
 			u.verified,
@@ -223,7 +231,8 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int) ([]LeaderboardRowDiversit
 			ROUND(u.diversity_trueskill, 2),
 			ROUND(u.diversity_trueskill_change, 2),
 			u.diversity_num_races,
-			(SELECT
+			(
+				SELECT
 					MIN(run_time)
 				FROM
 					race_participants
@@ -232,7 +241,10 @@ func (*Users) GetLeaderboardDiversity(racesNeeded int) ([]LeaderboardRowDiversit
 				WHERE
 					place > 0
 					AND u.id = user_id
-					AND races.format = 'diversity') as r_time,
+					AND races.solo = 0
+					AND races.format = 'diversity'
+					AND races.datetime_finished > "`+RepentanceReleasedDatetime+`"
+			) as r_time,
 			u.diversity_last_race,
 			MAX(rp.race_id),
 			u.verified,

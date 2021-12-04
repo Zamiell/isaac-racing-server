@@ -162,13 +162,20 @@ func leaderboardRecalculateTrueSkill(format RaceFormat) {
 	Subroutines
 */
 
-func leaderboardAdjustTrueSkill(p1Mu float64, p1Sigma float64, p2Mu float64, p2Sigma float64, draw bool) (float64, float64, float64, float64) {
+func leaderboardAdjustTrueSkill(
+	p1Mu float64,
+	p1Sigma float64,
+	p2Mu float64,
+	p2Sigma float64,
+	draw bool,
+) (float64, float64, float64, float64) {
 	// Based on code from:
 	// https://godoc.org/github.com/mafredri/go-trueskill
 	ts := trueskill.New()
 	p1 := trueskill.NewPlayer(p1Mu, p1Sigma)
 	p2 := trueskill.NewPlayer(p2Mu, p2Sigma)
-	tsPlayers := []trueskill.Player{p1, p2} // The first player that is put into the "tsPlayers" slice is the one who wins
+	// The first player that is put into the "tsPlayers" slice is the one who wins
+	tsPlayers := []trueskill.Player{p1, p2}
 	newTSPlayers, _ := ts.AdjustSkills(tsPlayers, draw)
 
 	return newTSPlayers[0].Mu(), newTSPlayers[0].Sigma(), newTSPlayers[1].Mu(), newTSPlayers[1].Sigma()
