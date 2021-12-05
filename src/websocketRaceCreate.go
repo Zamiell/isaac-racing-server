@@ -20,7 +20,6 @@ const (
 )
 
 func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	userID := d.v.UserID
 	username := d.v.Username
 	admin := d.v.Admin
@@ -204,7 +203,6 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 }
 
 func ban(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	userID := d.v.UserID
 
 	/*

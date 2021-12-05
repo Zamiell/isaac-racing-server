@@ -5,7 +5,6 @@ import (
 )
 
 func websocketHandleDisconnect(s *melody.Session) {
-	// Local variables
 	d := &IncomingWebsocketData{}
 	d.Command = "websocketHandleDisconnect"
 	if !websocketGetSessionValues(s, d) {

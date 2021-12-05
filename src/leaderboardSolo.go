@@ -68,7 +68,7 @@ func leaderboardRecalculateRankedSolo() {
 	// ("ranked_solo" refers to the prefix on the "users" table name in the database)
 	format := "ranked_solo"
 
-	if err := db.Users.ResetRankedSolo(); err != nil {
+	if err := db.Users.ResetRankedSoloAll(); err != nil {
 		logger.Error("Database error while resetting the unseeded solo stats:", err)
 		return
 	}

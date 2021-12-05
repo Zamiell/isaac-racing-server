@@ -9,7 +9,6 @@ import (
 )
 
 func websocketAdminShutdown(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	admin := d.v.Admin
 	comment := d.Comment

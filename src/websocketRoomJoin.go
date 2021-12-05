@@ -15,7 +15,6 @@ import (
 */
 
 func websocketRoomJoin(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 
 	// Validate that the requested room is sane
@@ -59,7 +58,6 @@ func websocketRoomJoin(s *melody.Session, d *IncomingWebsocketData) {
 */
 
 func websocketRoomJoinSub(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	admin := d.v.Admin
 	muted := d.v.Muted

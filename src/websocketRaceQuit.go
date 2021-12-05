@@ -6,7 +6,6 @@ import (
 
 // This is also called manually by the "race.Start3" function
 func websocketRaceQuit(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 
 	/*

@@ -11,7 +11,6 @@ import (
 )
 
 func httpRegister(c *gin.Context) {
-	// Local variables
 	r := c.Request
 	w := c.Writer
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)

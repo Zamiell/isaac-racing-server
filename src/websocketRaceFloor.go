@@ -7,7 +7,6 @@ import (
 )
 
 func websocketRaceFloor(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	floorNum := d.FloorNum
 	stageType := d.StageType

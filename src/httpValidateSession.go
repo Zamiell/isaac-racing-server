@@ -20,7 +20,6 @@ import (
 
 // Called from the "httpWS()" function
 func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
-	// Local variables
 	r := c.Request
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 

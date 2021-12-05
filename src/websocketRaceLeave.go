@@ -7,7 +7,6 @@ import (
 )
 
 func websocketRaceLeave(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 
 	/*

@@ -5,7 +5,6 @@ import (
 )
 
 func websocketRaceRoom(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	roomID := d.RoomID
 

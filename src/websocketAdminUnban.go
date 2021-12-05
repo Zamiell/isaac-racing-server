@@ -7,7 +7,6 @@ import (
 )
 
 func websocketAdminUnban(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	admin := d.v.Admin
 	recipient := d.Name

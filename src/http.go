@@ -92,8 +92,15 @@ type TemplateData struct {
 
 func httpInit() {
 	// Create a new Gin HTTP router
-	gin.SetMode(gin.ReleaseMode) // Comment this out to debug HTTP stuff
-	httpRouter := gin.Default()
+	gin.SetMode(gin.ReleaseMode)
+	httpRouter := gin.New()
+	httpRouter.Use(gin.Recovery())
+
+	// Uncomment this to debug HTTP stuff
+	/*
+		gin.SetMode(gin.DebugMode)
+		httpRouter.Use(gin.Logger())
+	*/
 
 	// Read some HTTP server configuration values from environment variables
 	// (they were loaded from the .env file in main.go)
@@ -152,7 +159,6 @@ func httpInit() {
 		// This is because when a user requests "/", they will also request the CSS and images
 		// Based on: https://github.com/julianshen/gin-limiter/blob/master/example/web.go
 		limiterMiddleware := limiter.NewRateLimiter(time.Second*60, 60, func(c *gin.Context) (string, error) {
-			// Local variables
 			r := c.Request
 			ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 

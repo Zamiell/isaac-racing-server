@@ -16,7 +16,6 @@ import (
 */
 
 func websocketRoomMessage(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	userID := d.v.UserID
 	username := d.v.Username
 	muted := d.v.Muted

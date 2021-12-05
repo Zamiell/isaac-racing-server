@@ -9,7 +9,6 @@ import (
 )
 
 func httpProfiles(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 	currentPage := 1
 	usersPerPage := 50

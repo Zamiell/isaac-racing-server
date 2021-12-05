@@ -13,7 +13,6 @@ type TournamentStats struct {
 }
 
 func httpTournament(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 	currentTournament := true
 

@@ -5,7 +5,6 @@ import (
 )
 
 func httpDownload(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 
 	data := TemplateData{

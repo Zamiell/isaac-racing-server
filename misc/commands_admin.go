@@ -20,7 +20,6 @@ type RoomSetAdminMessage struct {
 }
 
 func websocketAdminBanIP(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	functionName := "adminBanIP"
 	userID := conn.UserID
 	username := conn.Username
@@ -62,7 +61,6 @@ func websocketAdminBanIP(s *melody.Session, d *IncomingWebsocketData) {
 }
 
 func websocketAdminUnbanIP(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	functionName := "adminUnbanIP"
 	username := conn.Username
 	ip := data.IP
@@ -103,7 +101,6 @@ func websocketAdminUnbanIP(s *melody.Session, d *IncomingWebsocketData) {
 }
 
 func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	functionName := "adminMute"
 	userID := conn.UserID
 	username := conn.Username
@@ -210,7 +207,6 @@ func websocketAdminMute(s *melody.Session, d *IncomingWebsocketData) {
 }
 
 func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	functionName := "adminUnmute"
 	username := conn.Username
 	recipient := data.Name
@@ -312,7 +308,6 @@ func websocketAdminUnmute(s *melody.Session, d *IncomingWebsocketData) {
 }
 
 func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	functionName := "adminPromote"
 	username := conn.Username
 	recipient := data.Name
@@ -404,7 +399,6 @@ func websocketAdminPromote(s *melody.Session, d *IncomingWebsocketData) {
 }
 
 func websocketAdminDemote(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	functionName := "adminDemote"
 	username := conn.Username
 	recipient := data.Name

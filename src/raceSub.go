@@ -53,7 +53,6 @@ var characters = []string{
 */
 
 func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
-	// Local variables
 	ruleset := d.Ruleset
 
 	// Validate the ruleset format
@@ -133,7 +132,6 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 }
 
 func raceValidateRulesetRankedSolo(s *melody.Session, d *IncomingWebsocketData) bool {
-	// Local variables
 	ruleset := d.Ruleset
 
 	if ruleset.Format != RaceFormatSeeded {

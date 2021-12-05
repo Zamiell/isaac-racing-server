@@ -19,7 +19,6 @@ import (
 */
 
 func websocketHandleMessage(s *melody.Session, msg []byte) {
-	// Local variables
 	functionName := "websocketHandleMessage"
 
 	// Get the username from the session

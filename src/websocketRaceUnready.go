@@ -5,7 +5,6 @@ import (
 )
 
 func websocketRaceUnready(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 
 	/*

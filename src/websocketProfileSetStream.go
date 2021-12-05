@@ -13,7 +13,6 @@ import (
 */
 
 func websocketProfileSetStream(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	userID := d.v.UserID
 	username := d.v.Username
 	oldStreamURL := d.v.StreamURL

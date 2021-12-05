@@ -8,7 +8,6 @@ import (
 )
 
 func httpProfile(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 	racesAllTotal := 5
 

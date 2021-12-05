@@ -32,7 +32,6 @@ type LeaderboardUnseeded []models.LeaderboardRowUnseeded
 */
 
 func httpLeaderboards(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 	seededRacesNeeded := 5
 	unseededRacesNeeded := 5

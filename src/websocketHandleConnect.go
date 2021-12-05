@@ -10,7 +10,6 @@ import (
 )
 
 func websocketHandleConnect(s *melody.Session) {
-	// Local variables
 	d := &IncomingWebsocketData{}
 	d.Command = "websocketHandleConnect"
 	if !websocketGetSessionValues(s, d) {

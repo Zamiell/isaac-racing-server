@@ -5,7 +5,9 @@ import (
 )
 
 func websocketRankedSoloReset(s *melody.Session, d *IncomingWebsocketData) {
-	if err := db.Users.ResetRankedSolo(); err != nil {
+	userID := d.v.UserID
+
+	if err := db.Users.ResetRankedSolo(userID); err != nil {
 		logger.Error("Failed to reset the ranked solo fields:", err)
 		websocketError(s, d.Command, "")
 		return

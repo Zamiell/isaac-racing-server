@@ -8,7 +8,6 @@ import (
 
 // This is also called manually by the "websocketRaceCreate" function
 func websocketRaceJoin(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	userID := d.v.UserID
 	username := d.v.Username
 	raceID := d.ID

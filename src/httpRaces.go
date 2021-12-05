@@ -10,7 +10,6 @@ import (
 )
 
 func httpRaces(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 	currentPage := 1
 	racesPerPage := 20
@@ -64,7 +63,6 @@ func httpRaces(c *gin.Context) {
 }
 
 func httpRace(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 
 	raceID, err := strconv.ParseInt(c.Params.ByName("raceid"), 10, 32)

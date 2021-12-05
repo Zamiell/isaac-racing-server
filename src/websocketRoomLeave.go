@@ -12,7 +12,6 @@ import (
 */
 
 func websocketRoomLeave(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 
 	// Validate that the requested room is sane
@@ -53,7 +52,6 @@ func websocketRoomLeave(s *melody.Session, d *IncomingWebsocketData) {
 */
 
 func websocketRoomLeaveSub(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	room := d.Room
 

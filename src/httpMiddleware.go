@@ -14,7 +14,6 @@ import (
 // (we do this on the server because client-side blocking is common via Adblock
 // Plus, uBlock Origin, etc.)
 func httpMwGoogleAnalytics(c *gin.Context) {
-	// Local variables
 	w := c.Writer
 	r := c.Request
 
@@ -45,7 +44,6 @@ func httpMwGoogleAnalytics(c *gin.Context) {
 	// before using it inside of a goroutine
 	cCp := c.Copy()
 	go func(cCp *gin.Context) {
-		// Local variables
 		r := cCp.Request
 
 		ip, _, _ := net.SplitHostPort(r.RemoteAddr)

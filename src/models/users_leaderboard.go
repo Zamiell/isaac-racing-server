@@ -8,6 +8,7 @@ package models
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"strconv"
 )
 
@@ -194,6 +195,9 @@ func (*Users) SetStatsRankedSolo(
 	forfeitPenalty int,
 	startingBuild int,
 ) error {
+	fmt.Println("Setting stats for ranked solo user:", userID)
+	fmt.Println("Starting build is:", startingBuild)
+
 	adjustedAverage := realAverage + forfeitPenalty
 
 	// 1800000 is 30 minutes (1000 * 60 * 30)
@@ -253,7 +257,36 @@ func (*Users) SetStatsRankedSolo(
 	return nil
 }
 
-func (*Users) ResetRankedSolo() error {
+func (*Users) ResetRankedSolo(userID int) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		UPDATE users
+		SET
+			ranked_solo_adjusted_average = 0,
+			ranked_solo_real_average = 0,
+			ranked_solo_num_forfeits = 0,
+			ranked_solo_forfeit_penalty = 0,
+			ranked_solo_lowest_time = 0,
+			ranked_solo_num_races = 0,
+			ranked_solo_last_race = NULL,
+			ranked_solo_metadata = NULL
+		WHERE
+			id = ?
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(userID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (*Users) ResetRankedSoloAll() error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
 		UPDATE users

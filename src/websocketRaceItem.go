@@ -8,7 +8,6 @@ import (
 )
 
 func websocketRaceItem(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	raceID := d.ID
 	itemID := d.ItemID

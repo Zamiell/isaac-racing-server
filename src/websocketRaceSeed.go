@@ -5,7 +5,6 @@ import (
 )
 
 func websocketRaceSeed(s *melody.Session, d *IncomingWebsocketData) {
-	// Local variables
 	username := d.v.Username
 	seed := d.Seed
 
