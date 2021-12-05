@@ -3,6 +3,7 @@ package server
 import (
 	"net"
 	"net/http"
+	"strings"
 	"unicode/utf8"
 
 	"github.com/gin-contrib/sessions"
@@ -96,6 +97,17 @@ func httpRegister(c *gin.Context) {
 		return
 	} else if userExists {
 		http.Error(w, "Someone has already claimed that username.", http.StatusUnauthorized)
+		return
+	}
+
+	// Validate that the username is not reserved
+	usernameLowercase := strings.ToLower(username)
+	if usernameLowercase == "server" ||
+		usernameLowercase == "racing" ||
+		usernameLowercase == "racing+" ||
+		usernameLowercase == "racingplus" {
+
+		http.Error(w, "That username is reserved.", http.StatusUnauthorized)
 		return
 	}
 
