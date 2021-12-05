@@ -8,7 +8,6 @@ package models
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"strconv"
 )
 
@@ -195,9 +194,6 @@ func (*Users) SetStatsRankedSolo(
 	forfeitPenalty int,
 	startingBuild int,
 ) error {
-	fmt.Println("Setting stats for ranked solo user:", userID)
-	fmt.Println("Starting build is:", startingBuild)
-
 	adjustedAverage := realAverage + forfeitPenalty
 
 	// 1800000 is 30 minutes (1000 * 60 * 30)
