@@ -51,7 +51,9 @@ Find all races from user:
 
     SELECT users.username, races.id, races.name, races.datetime_finished FROM races JOIN race_participants ON races.id = race_participants.race_id JOIN users ON users.id = race_participants.user_id WHERE users.username = "TestAccount1";
 
+Delete corrupted races:
 
+    DELETE FROM races WHERE ranked = 1 AND solo = 1 AND datetime_finished > "2021-12-03 00:00:00" AND datetime_finished < "2021-12-05 18:15:00";
 
 
 -------------

@@ -8,12 +8,16 @@ import (
 )
 
 func debugFunc() {
-	logger.Debug("Doing seeded...")
-	leaderboardRecalculateTrueSkill("seeded")
-	logger.Debug("Doing unseeded...")
-	leaderboardRecalculateTrueSkill("unseeded")
-	logger.Debug("Doing diversity...")
-	leaderboardRecalculateTrueSkill("diversity")
+	/*
+		logger.Debug("Doing seeded...")
+		leaderboardRecalculateTrueSkill("seeded")
+		logger.Debug("Doing unseeded...")
+		leaderboardRecalculateTrueSkill("unseeded")
+		logger.Debug("Doing diversity...")
+		leaderboardRecalculateTrueSkill("diversity")
+	*/
+
+	leaderboardRecalculateRankedSolo()
 }
 
 func debugPrintGlobals() {
