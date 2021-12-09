@@ -194,7 +194,8 @@ func (*Races) GetRankedSoloRacesForUser(format string, userID int) ([]RaceHistor
 func (*Races) DeleteOldRankedSoloRaces(userID int) error {
 	var stmt *sql.Stmt
 	if v, err := db.Prepare(`
-		DELETE FROM races
+		DELETE races
+		FROM races
 		JOIN race_participants ON race_participants.race_id = races.id
 		JOIN users ON users.id = race_participants.user_id
 		WHERE
