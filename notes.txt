@@ -55,6 +55,10 @@ Delete corrupted races:
 
     DELETE FROM races WHERE ranked = 1 AND solo = 1 AND datetime_finished > "2021-12-03 00:00:00" AND datetime_finished < "2021-12-05 18:15:00";
 
+Delete old ranked solo races for specific user:
+
+    DELETE races FROM races JOIN race_participants ON race_participants.race_id = races.id JOIN users ON users.id = race_participants.user_id WHERE races.ranked = 1 AND races.solo = 1 AND races.datetime_finished > "2021-12-03 00:00:00" AND users.username = "mgln" AND races.id < 214073;
+
 
 -------------
 OLD SQL NOTES
