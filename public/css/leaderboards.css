@@ -10,9 +10,10 @@
 .float_center {
   float: right;
   position: relative;
-  left: -50%
+  left: -50%;
   text-align: center;
 }
+
 .float_center > .child {
   position: relative;
   left: 50%;
@@ -80,7 +81,12 @@ span#lastEloChange.red {
   color: tomato;
   font-size: .75em;
 }
+
 span#lastEloChange.green {
   color: rgb(0, 215, 0);
   font-size: .75em;
+}
+
+.strikethrough > td {
+  text-decoration: line-through;
 }

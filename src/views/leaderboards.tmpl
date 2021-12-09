@@ -197,7 +197,7 @@
 				<tbody>
 					{{ range $index, $results := .LeaderboardRankedSolo }}
 
-						<tr>
+						<tr class="{{ if eq .NumRaces 100}}strikethrough{{end}}">
 							<td class="lb-rank">{{ $index }}</td>
 							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
 							<td class="lb-adj-avg">{{ .AdjustedAverage }}</td>
@@ -220,6 +220,7 @@
 								{{- end -}}
 							</td>
 						</tr>
+
 					{{- end }}
 				</tbody>
 			</table>
