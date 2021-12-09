@@ -106,3 +106,28 @@ func (*Races) GetAllRacesForLeaderboard(format string) ([]RaceHistory, error) {
 
 	return allRaces, nil
 }
+
+func (*Races) DeleteOldRankedSoloRaces(userID int) error {
+	var stmt *sql.Stmt
+	if v, err := db.Prepare(`
+		DELETE FROM races
+		JOIN race_participants ON race_participants.race_id = races.id
+		JOIN users ON users.id = race_participants.user_id
+		WHERE
+			races.ranked = 1
+			AND races.solo = 1
+			AND users.id = ?
+			AND races.datetime_finished > "` + RepentanceReleasedDatetime + `"
+	`); err != nil {
+		return err
+	} else {
+		stmt = v
+	}
+	defer stmt.Close()
+
+	if _, err := stmt.Exec(userID); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -20,4 +20,42 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	logger.Debug("debugFunc entered.")
 	debugFunc()
 	logger.Debug("debugFunc finished.")
+
+	debugResetSpecificRaces(s, d)
+}
+
+func debugResetSpecificRaces(s *melody.Session, d *IncomingWebsocketData) {
+	username := d.Name
+	if username == "" {
+		return
+	}
+
+	// Get the user ID
+	var userID int
+	if exists, v, err := db.Users.Exists(username); err != nil {
+		logger.Error("Failed to check to see if \""+username+"\" exists:", err)
+		websocketError(s, d.Command, "")
+		return
+	} else if !exists {
+		websocketError(s, d.Command, "That user does not exist.")
+		return
+	} else {
+		userID = v
+	}
+
+	// Delete specific races
+	if err := db.Races.DeleteOldRankedSoloRaces(userID); err != nil {
+		logger.Error("Failed to delete the old ranked solo races:", err)
+		websocketError(s, d.Command, "")
+		return
+	}
+
+	type PrivateMessageMessage struct {
+		Name    string `json:"name"`
+		Message string `json:"message"`
+	}
+	websocketEmit(s, "privateMessage", &PrivateMessageMessage{
+		"SERVER",
+		"Successfully reset ranked solo data.",
+	})
 }

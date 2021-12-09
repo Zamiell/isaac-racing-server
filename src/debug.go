@@ -17,7 +17,7 @@ func debugFunc() {
 		leaderboardRecalculateTrueSkill("diversity")
 	*/
 
-	leaderboardRecalculateRankedSolo()
+	// leaderboardRecalculateRankedSolo()
 }
 
 func debugPrintGlobals() {

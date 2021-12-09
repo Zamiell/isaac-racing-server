@@ -13,6 +13,12 @@ func websocketRankedSoloReset(s *melody.Session, d *IncomingWebsocketData) {
 		return
 	}
 
+	if err := db.Races.DeleteOldRankedSoloRaces(userID); err != nil {
+		logger.Error("Failed to delete the old ranked solo races:", err)
+		websocketError(s, d.Command, "")
+		return
+	}
+
 	type PrivateMessageMessage struct {
 		Name    string `json:"name"`
 		Message string `json:"message"`
