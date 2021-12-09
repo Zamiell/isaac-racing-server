@@ -37,7 +37,7 @@ func debugRecalculateRankedSoloForSpecificUser(s *melody.Session, d *IncomingWeb
 		websocketError(s, d.Command, "")
 		return
 	} else if !exists {
-		websocketError(s, d.Command, "That user does not exist.")
+		websocketError(s, d.Command, "The user of \""+username+"\" does not exist.")
 		return
 	} else {
 		userID = v
@@ -51,6 +51,6 @@ func debugRecalculateRankedSoloForSpecificUser(s *melody.Session, d *IncomingWeb
 	}
 	websocketEmit(s, "privateMessage", &PrivateMessageMessage{
 		"SERVER",
-		"Successfully reset ranked solo data.",
+		"Successfully recalculated ranked solo stats for: " + username,
 	})
 }
