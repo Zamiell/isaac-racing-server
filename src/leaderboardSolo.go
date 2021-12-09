@@ -1,11 +1,13 @@
 package server
 
 import (
+	"strconv"
+
 	"github.com/Zamiell/isaac-racing-server/models"
 )
 
 const (
-	NumUnseededRacesForAverage = 100
+	NumRankedSoloRacesForAverage = 100
 )
 
 func leaderboardUpdateRankedSolo(race *Race) {
@@ -17,7 +19,7 @@ func leaderboardUpdateRankedSolo(race *Race) {
 
 	// Get their ranked solo times for this season
 	var unseededTimes []models.UnseededTime
-	if v, err := db.RaceParticipants.GetNRankedSoloTimes(racer.ID, NumUnseededRacesForAverage); err != nil {
+	if v, err := db.RaceParticipants.GetNRankedSoloTimes(racer.ID, NumRankedSoloRacesForAverage); err != nil {
 		logger.Error("Database error while getting the ranked solo times:", err)
 		return
 	} else {
@@ -61,7 +63,7 @@ func leaderboardUpdateRankedSolo(race *Race) {
 	}
 }
 
-func leaderboardRecalculateRankedSolo() {
+func leaderboardRecalculateRankedSoloAll() {
 	// This is equal to either the format in the database, or "ranked_solo" as an arbitrary string
 	// ("ranked_solo" is not a real format, but it lets the child function know what specified rows
 	// to query)
@@ -114,4 +116,58 @@ func leaderboardRecalculateRankedSolo() {
 	}
 
 	logger.Info("Successfully reset the leaderboard for " + format + ".")
+}
+
+func leaderboardRecalculateRankedSoloSpecificUser(userID int) {
+	// This is equal to either the format in the database, or "ranked_solo" as an arbitrary string
+	// ("ranked_solo" is not a real format, but it lets the child function know what specified rows
+	// to query)
+	// ("ranked_solo" refers to the prefix on the "users" table name in the database)
+	format := "ranked_solo"
+
+	if err := db.Users.ResetRankedSolo(userID); err != nil {
+		logger.Error("Database error while resetting the unseeded solo stats:", err)
+		return
+	}
+
+	var allRaces []models.RaceHistory
+	if v, err := db.Races.GetRankedSoloRacesForUser(format, userID); err != nil {
+		logger.Error("Database error while getting the ranked solo races for user "+strconv.Itoa(userID)+":", err)
+		return
+	} else {
+		allRaces = v
+	}
+
+	for _, modelsRace := range allRaces {
+		// Convert the "RaceHistory" struct to a "Race" struct
+		race := &Race{}
+		race.ID = int(modelsRace.RaceID.Int64)
+
+		newFormat := format
+		if format == "ranked_solo" {
+			newFormat = "unseeded"
+		}
+		race.Ruleset.Format = RaceFormat(newFormat)
+
+		race.Racers = make(map[string]*Racer)
+		for _, modelsRacer := range modelsRace.RaceParticipants {
+			racer := &Racer{
+				ID:    int(modelsRacer.ID.Int64),
+				Name:  modelsRacer.RacerName.String,
+				Place: int(modelsRacer.RacerPlace.Int64),
+			}
+			race.Racers[modelsRacer.RacerName.String] = racer
+		}
+
+		// Pretend like this race just finished
+		leaderboardUpdateRankedSolo(race)
+	}
+
+	// Fix the "Date of Last Race" column
+	if err := db.Users.SetLastRace(format); err != nil {
+		logger.Error("Database error while setting the last race:", err)
+		return
+	}
+
+	logger.Info("Successfully reset the ranked solo leaderboard for user:", userID)
 }

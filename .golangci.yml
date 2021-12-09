@@ -25,7 +25,7 @@ linters:
     # gocognit complains about having large functions
     - gocognit
     # goconst complains about common strings
-    #- goconst
+    - goconst
     # gocritic complains about needing to make case statements
     - gocritic
     # gocyclo complains about having large functions

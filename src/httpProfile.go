@@ -51,7 +51,7 @@ func httpProfile(c *gin.Context) {
 	}
 
 	// Get the race data for the last x races
-	raceDataSoloRanked, err := db.Races.GetSoloRankedRaceProfileHistory(player, NumUnseededRacesForAverage)
+	raceDataSoloRanked, err := db.Races.GetSoloRankedRaceProfileHistory(player, NumRankedSoloRacesForAverage)
 	if err != nil {
 		logger.Error("Failed to get the race data: ", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

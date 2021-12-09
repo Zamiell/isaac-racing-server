@@ -21,10 +21,10 @@ func websocketDebug(s *melody.Session, d *IncomingWebsocketData) {
 	debugFunc()
 	logger.Debug("debugFunc finished.")
 
-	debugResetSpecificRaces(s, d)
+	debugRecalculateRankedSoloForSpecificUser(s, d)
 }
 
-func debugResetSpecificRaces(s *melody.Session, d *IncomingWebsocketData) {
+func debugRecalculateRankedSoloForSpecificUser(s *melody.Session, d *IncomingWebsocketData) {
 	username := d.Name
 	if username == "" {
 		return
@@ -43,12 +43,7 @@ func debugResetSpecificRaces(s *melody.Session, d *IncomingWebsocketData) {
 		userID = v
 	}
 
-	// Delete specific races
-	if err := db.Races.DeleteOldRankedSoloRaces(userID); err != nil {
-		logger.Error("Failed to delete the old ranked solo races:", err)
-		websocketError(s, d.Command, "")
-		return
-	}
+	leaderboardRecalculateRankedSoloSpecificUser(userID)
 
 	type PrivateMessageMessage struct {
 		Name    string `json:"name"`
