@@ -8,6 +8,7 @@ import (
 
 const (
 	NumRankedSoloRacesForAverage = 100
+	ThirtyMinutesInMilliseconds  = 30 * 60 * 1000
 )
 
 func leaderboardUpdateRankedSolo(race *Race) {
@@ -17,21 +18,26 @@ func leaderboardUpdateRankedSolo(race *Race) {
 		racer = v
 	}
 
-	// Get their ranked solo times for this season
-	var unseededTimes []models.UnseededTime
-	if v, err := db.RaceParticipants.GetNRankedSoloTimes(racer.ID, NumRankedSoloRacesForAverage); err != nil {
+	// Get their ranked solo results for this season
+	var raceResults []models.RaceResult
+	if v, err := db.RaceParticipants.GetNRankedSoloRaceResults(racer.ID, NumRankedSoloRacesForAverage); err != nil {
 		logger.Error("Database error while getting the ranked solo times:", err)
 		return
 	} else {
-		unseededTimes = v
+		raceResults = v
 	}
 
 	var numForfeits int
+	lowestTime := int64(ThirtyMinutesInMilliseconds)
 	var sumTimes int64
-	for _, race := range unseededTimes {
-		if race.Place > 0 {
+	for _, raceResult := range raceResults {
+		if raceResult.Place > 0 {
 			// They finished
-			sumTimes += race.RunTime
+			sumTimes += raceResult.RunTime
+
+			if raceResult.RunTime < lowestTime {
+				lowestTime = raceResult.RunTime
+			}
 		} else {
 			// They quit
 			numForfeits++
@@ -40,14 +46,14 @@ func leaderboardUpdateRankedSolo(race *Race) {
 
 	var averageTime float64
 	var forfeitPenalty float64
-	if len(unseededTimes) == numForfeits {
+	if len(raceResults) == numForfeits {
 		// If they forfeited every race, then we will have a divide by 0 later on,
 		// so arbitrarily set it to 30 minutes (1000 * 60 * 30)
 		averageTime = 1800000
 		forfeitPenalty = 1800000
 	} else {
-		averageTime = float64(sumTimes) / float64(len(unseededTimes)-numForfeits)
-		forfeitPenalty = averageTime * float64(numForfeits) / float64(len(unseededTimes))
+		averageTime = float64(sumTimes) / float64(len(raceResults)-numForfeits)
+		forfeitPenalty = averageTime * float64(numForfeits) / float64(len(raceResults))
 	}
 
 	// Update their stats in the database
@@ -56,6 +62,7 @@ func leaderboardUpdateRankedSolo(race *Race) {
 		int(averageTime),
 		numForfeits,
 		int(forfeitPenalty),
+		lowestTime,
 		race.Ruleset.StartingBuild,
 	); err != nil {
 		logger.Error("Database error while setting the ranked solo stats for \""+racer.Name+"\":", err)

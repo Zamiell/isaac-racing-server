@@ -192,6 +192,7 @@ func (*Users) SetStatsRankedSolo(
 	realAverage int,
 	numForfeits int,
 	forfeitPenalty int,
+	lowestTime int64,
 	startingBuild int,
 ) error {
 	adjustedAverage := realAverage + forfeitPenalty
@@ -217,16 +218,7 @@ func (*Users) SetStatsRankedSolo(
 			),
 			ranked_solo_num_forfeits = ?,
 			ranked_solo_forfeit_penalty = ?,
-			ranked_solo_lowest_time = (
-				SELECT IFNULL(MIN(race_participants.run_time), 1800000)
-				FROM race_participants
-					JOIN races ON race_participants.race_id = races.id
-				WHERE race_participants.user_id = ?
-					AND race_participants.place > 0
-					AND races.ranked = 1
-					AND races.solo = 1
-					AND races.format = "unseeded"
-			),
+			ranked_solo_lowest_time = ?,
 			ranked_solo_last_race = NOW(),
 			ranked_solo_metadata = ?
 		WHERE id = ?
@@ -243,7 +235,7 @@ func (*Users) SetStatsRankedSolo(
 		userID,
 		numForfeits,
 		forfeitPenalty,
-		userID,
+		lowestTime,
 		startingBuild,
 		userID,
 	); err != nil {

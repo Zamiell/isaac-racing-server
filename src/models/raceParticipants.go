@@ -105,16 +105,15 @@ func (*RaceParticipants) GetFinishedRaces(userID int) ([]Race, error) {
 	return raceList, nil
 }
 
-// Used in the "achievements1_8()" function
-type UnseededTime struct {
-	Place   int // -1 is quit, -2 is disqualified
-	RunTime int64
+type RaceResult struct {
+	Place   int   // -1 is quit, -2 is disqualified
+	RunTime int64 // In milliseconds
 }
 
 // Get a list of the a player's times for ranked solo races
 // Used in the "leaderboardUpdateSoloUnseeded()" function
-func (*RaceParticipants) GetNRankedSoloTimes(userID int, n int) ([]UnseededTime, error) {
-	var timeList []UnseededTime
+func (*RaceParticipants) GetNRankedSoloRaceResults(userID int, n int) ([]RaceResult, error) {
+	var timeList []RaceResult
 
 	var rows *sql.Rows
 	if v, err := db.Query(`
@@ -139,7 +138,7 @@ func (*RaceParticipants) GetNRankedSoloTimes(userID int, n int) ([]UnseededTime,
 
 	// Iterate over the races
 	for rows.Next() {
-		var race UnseededTime
+		var race RaceResult
 		if err := rows.Scan(&race.Place, &race.RunTime); err != nil {
 			return timeList, err
 		}
