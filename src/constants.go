@@ -104,7 +104,6 @@ func loadAllItems() {
 }
 
 func loadAllBuilds() {
-	// Open the JSON file and verify it was good
 	jsonFilePath := path.Join(libPath, "builds.json")
 	var jsonFile []byte
 	if v, err := ioutil.ReadFile(jsonFilePath); err != nil {
@@ -113,7 +112,6 @@ func loadAllBuilds() {
 		jsonFile = v
 	}
 
-	// Create all the items
 	if err := json.Unmarshal(jsonFile, &allBuilds); err != nil {
 		logger.Fatal("Failed to unmarshal the builds:", err)
 	}

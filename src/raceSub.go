@@ -7,48 +7,6 @@ import (
 )
 
 /*
-	Constants
-*/
-
-var characters = []string{
-	"Isaac",             // 0
-	"Magdalene",         // 1
-	"Cain",              // 2
-	"Judas",             // 3
-	"Blue Baby",         // 4
-	"Eve",               // 5
-	"Samson",            // 6
-	"Azazel",            // 7
-	"Lazarus",           // 8
-	"Eden",              // 9
-	"The Lost",          // 10
-	"Lilith",            // 11
-	"Keeper",            // 12
-	"Apollyon",          // 13
-	"The Forgotten",     // 14
-	"Bethany",           // 15
-	"Jacob & Esau",      // 16
-	"Tainted Isaac",     // 17
-	"Tainted Magdalene", // 18
-	"Tainted Cain",      // 19
-	"Tainted Judas",     // 20
-	"Tainted Blue Baby", // 21
-	"Tainted Eve",       // 22
-	"Tainted Samson",    // 23
-	"Tainted Azazel",    // 24
-	"Tainted Lazarus",   // 25
-	"Tainted Eden",      // 26
-	"Tainted Lost",      // 27
-	"Tainted Lilith",    // 28
-	"Tainted Keeper",    // 29
-	"Tainted Apollyon",  // 30
-	"Tainted Forgotten", // 31
-	"Tainted Bethany",   // 32
-	"Tainted Jacob",     // 33
-	"Random Baby",       // 34
-}
-
-/*
 	Race validation subroutines
 */
 
@@ -102,12 +60,6 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 
 		websocketError(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 		return false
-	} else if ruleset.Format == RaceFormatSeeded &&
-		(ruleset.StartingBuild < 0 || ruleset.StartingBuild > len(allBuilds)) { // 0 is random
-
-		msg := "The build of \"" + strconv.Itoa(ruleset.StartingBuild) + "\" is not a valid starting build."
-		websocketError(s, d.Command, msg)
-		return false
 	}
 
 	// Validate multiplayer ranked games
@@ -126,6 +78,11 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	// Validate ranked solo games
 	if ruleset.Ranked && ruleset.Solo {
 		return raceValidateRulesetRankedSolo(s, d)
+	}
+
+	// Validate seeded games
+	if ruleset.Format == RaceFormatSeeded {
+		return raceValidateRulesetSeeded(s, d)
 	}
 
 	return true
@@ -152,6 +109,31 @@ func raceValidateRulesetRankedSolo(s *melody.Session, d *IncomingWebsocketData) 
 	// Validate the difficulty
 	if ruleset.Difficulty != "normal" {
 		websocketError(s, d.Command, "That is not a valid difficulty.")
+		return false
+	}
+
+	return true
+}
+
+func raceValidateRulesetSeeded(s *melody.Session, d *IncomingWebsocketData) bool {
+	ruleset := d.Ruleset
+
+	if ruleset.StartingBuild < 0 || ruleset.StartingBuild >= len(allBuilds) { // 0 is random
+		msg := "The build of \"" + strconv.Itoa(ruleset.StartingBuild) + "\" is not a valid starting build."
+		websocketError(s, d.Command, msg)
+		return false
+	}
+
+	if ruleset.Character == "Tainted Lazarus" {
+		msg := "Tainted Lazarus is illegal for seeded races since his mechanics are difficult to seed properly."
+		websocketError(s, d.Command, msg)
+		return false
+	}
+
+	illegalCharacters := buildExceptions[ruleset.StartingBuild]
+	if stringInSlice(ruleset.Character, illegalCharacters) {
+		msg := "The character of " + ruleset.Character + " is illegal in combination with the starting build of: " + getBuildName(ruleset.StartingBuild)
+		websocketError(s, d.Command, msg)
 		return false
 	}
 
