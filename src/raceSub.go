@@ -24,13 +24,8 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	}
 
 	// Validate the character
-	validCharacter := false
-	for _, character := range characters { // Valid characters are defined above
-		if ruleset.Character == character {
-			validCharacter = true
-			break
-		}
-	}
+	// (valid characters are defined in "characters.go")
+	validCharacter := stringInSlice(ruleset.Character, characters)
 	if ruleset.Character == "random" {
 		validCharacter = true
 	}
@@ -70,35 +65,33 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 
 	// Validate specific things for seeded races
 	if ruleset.Format == RaceFormatSeeded {
-		if ruleset.Character == "Tainted Lazarus" {
-			msg := "Tainted Lazarus is illegal for seeded races since his mechanics are difficult to seed properly."
-			websocketWarning(s, d.Command, msg)
-			return false
-		}
-
+		// Check for character + build anti-synergies
 		illegalCharacters := buildExceptions[ruleset.StartingBuild]
 		if stringInSlice(ruleset.Character, illegalCharacters) {
 			msg := "The character of " + ruleset.Character + " is illegal in combination with the starting build of: " + getBuildName(ruleset.StartingBuild)
 			websocketWarning(s, d.Command, msg)
 			return false
 		}
-	}
 
-	// Validate multiplayer ranked games
-	if !ruleset.Solo {
-		if ruleset.Ranked {
-			websocketWarning(s, d.Command, "Multiplayer races must be unranked.")
+		if ruleset.Character == "Tainted Lazarus" {
+			msg := "Tainted Lazarus is illegal for seeded races since his mechanics are difficult to seed properly."
+			websocketWarning(s, d.Command, msg)
 			return false
 		}
-
-		// Set the ruleset to ranked since it is a multiplayer game
-		// (in the past, there was multiplayer unranked and ranked,
-		// so this is a monkey fix to avoid changing the client)
-		return true
 	}
 
+	if ruleset.Solo {
+		return raceValidateRulesetSolo(s, d)
+	}
+
+	return raceValidateRulesetMultiplayer(s, d)
+}
+
+func raceValidateRulesetSolo(s *melody.Session, d *IncomingWebsocketData) bool {
+	ruleset := d.Ruleset
+
 	// Validate ranked solo games
-	if ruleset.Ranked && ruleset.Solo {
+	if ruleset.Ranked {
 		return raceValidateRulesetRankedSolo(s, d)
 	}
 
@@ -126,6 +119,17 @@ func raceValidateRulesetRankedSolo(s *melody.Session, d *IncomingWebsocketData) 
 	// Validate the difficulty
 	if ruleset.Difficulty != "normal" {
 		websocketWarning(s, d.Command, "That is not a valid difficulty.")
+		return false
+	}
+
+	return true
+}
+
+func raceValidateRulesetMultiplayer(s *melody.Session, d *IncomingWebsocketData) bool {
+	ruleset := d.Ruleset
+
+	if !ruleset.Ranked {
+		websocketWarning(s, d.Command, "Multiplayer races must be ranked.")
 		return false
 	}
 
