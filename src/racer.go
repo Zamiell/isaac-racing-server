@@ -23,7 +23,7 @@ type Racer struct {
 	Rooms                []*Room
 	CharacterNum         int // Only used in multi-character races
 	Place                int
-	PlaceMid             int
+	PlaceMid             int // -1 if quit or finished
 	PlaceMidOld          int
 	DatetimeFinished     int64
 	RunTime              int64 // in milliseconds
