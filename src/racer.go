@@ -17,7 +17,7 @@ type Racer struct {
 	FloorNum             int
 	StageType            int
 	BackwardsPath        bool
-	DatetimeArrivedFloor int64
+	DatetimeArrivedFloor int64 // Epoch timestamp in milliseconds
 	Items                []*Item
 	StartingItem         int
 	Rooms                []*Room
@@ -26,7 +26,7 @@ type Racer struct {
 	PlaceMid             int // -1 if quit or finished
 	PlaceMidOld          int
 	DatetimeFinished     int64
-	RunTime              int64 // in milliseconds
+	RunTime              int64 // In milliseconds
 	Comment              string
 }
 

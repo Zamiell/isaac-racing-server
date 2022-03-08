@@ -83,26 +83,26 @@ func (race *Race) SendAllFloor(racer *Racer) {
 	for racerName := range race.Racers {
 		// Not all racers may be online during a race
 		if s, ok := websocketSessions[racerName]; ok {
-			timeBehindLeader := int64(0)
+			millisecondsBehindLeader := int64(0)
 			if leader != nil && racer.PlaceMid > 1 {
-				timeBehindLeader = racer.DatetimeArrivedFloor - leader.DatetimeArrivedFloor
+				millisecondsBehindLeader = racer.DatetimeArrivedFloor - leader.DatetimeArrivedFloor
 			}
 
 			type RacerSetFloorMessage struct {
-				ID                   int    `json:"id"`
-				Name                 string `json:"name"`
-				FloorNum             int    `json:"floorNum"`
-				StageType            int    `json:"stageType"`
-				DatetimeArrivedFloor int64  `json:"datetimeArrivedFloor"`
-				TimeBehindLeader     int64  `json:"timeBehindLeader"`
+				ID                       int    `json:"id"`
+				Name                     string `json:"name"`
+				FloorNum                 int    `json:"floorNum"`
+				StageType                int    `json:"stageType"`
+				DatetimeArrivedFloor     int64  `json:"datetimeArrivedFloor"`
+				MillisecondsBehindLeader int64  `json:"millisecondsBehindLeader"`
 			}
 			websocketEmit(s, "racerSetFloor", &RacerSetFloorMessage{
-				ID:                   race.ID,
-				Name:                 racer.Name,
-				FloorNum:             racer.FloorNum,
-				StageType:            racer.StageType,
-				DatetimeArrivedFloor: racer.DatetimeArrivedFloor,
-				TimeBehindLeader:     timeBehindLeader,
+				ID:                       race.ID,
+				Name:                     racer.Name,
+				FloorNum:                 racer.FloorNum,
+				StageType:                racer.StageType,
+				DatetimeArrivedFloor:     racer.DatetimeArrivedFloor,
+				MillisecondsBehindLeader: millisecondsBehindLeader,
 			})
 		}
 	}

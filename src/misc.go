@@ -50,6 +50,7 @@ func isAlphaNumericUnderscore(str string) bool {
 	return isValid
 }
 
+// getTimestamp returns the Epoch timestamp in milliseconds.
 // From: https://stackoverflow.com/questions/24122821/go-golang-time-now-unixnano-convert-to-milliseconds
 func getTimestamp() int64 {
 	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
