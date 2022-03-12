@@ -112,8 +112,9 @@ var (
 
 		// #27 - Monstro's Lung + The Sad Onion
 		// Keeper - Huge tears down, resulting in a loss of DPS overall
+		// Tainted Lilith - Tears down, worse than having no starter with the fetus
 		// Tainted Keeper - Huge tears down, resulting in a loss of DPS overall
-		{"Keeper", "Tainted Keeper"},
+		{"Keeper", "Tainted Lilith", "Tainted Keeper"},
 
 		{}, // #28 - Technology + A Lump of Coal
 		{}, // #29 - Twisted Pair + Twisted Pair
