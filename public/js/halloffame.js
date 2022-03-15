@@ -1,6 +1,6 @@
 const LAST_RANKED_SOLO_SEASON = 2;
 
-let activeLeaderboard = "season1R9"; // This has to be the first value
+let activeLeaderboard = "season1R7AB"; // This has to be the first value
 let transition = false;
 
 const tableIDs = [
