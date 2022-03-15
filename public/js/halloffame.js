@@ -1,15 +1,22 @@
-const LAST_R7_SEASON = 8;
 const LAST_RANKED_SOLO_SEASON = 2;
 
-let activeLeaderboard = "season1r9"; // This has to be the first value
+let activeLeaderboard = "season1R9"; // This has to be the first value
 let transition = false;
 
-const tableIDs = ["season1r9", "season1r14"];
-for (i = 2; i <= LAST_R7_SEASON; i++) {
-  tableIDs.push(`season${i}r7`);
-}
+const tableIDs = [
+  "season1R9AB",
+  "season1R14AB",
+  "season2R7AB",
+  "season3R7AB",
+  "season4R7AB",
+  "season5R7AB",
+  "season6R7AB",
+  "season7R7AB",
+  "season8R7AB",
+  "season1R7Rep",
+];
 for (i = 1; i <= LAST_RANKED_SOLO_SEASON; i++) {
-  tableIDs.push(`season${i}rankedSolo`);
+  tableIDs.push(`season${i}RankedSolo`);
 }
 
 $(document).ready(() => {
@@ -17,16 +24,6 @@ $(document).ready(() => {
   ConvertTimes("td.td-time");
   ConvertForfeitRate("td.td-forfeit-rate-50", 50);
   ConvertForfeitRate("td.td-forfeit-rate-100", 100);
-
-  for (const tableID of tableIDs) {
-    $(`#${tableID}-table`).tablesorter({
-      headers: {
-        ".hof-th-date, .hof-th-proof": {
-          sorter: false,
-        },
-      },
-    });
-  }
 
   hideAllBoards();
   selectLeaderboard(activeLeaderboard);

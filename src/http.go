@@ -66,16 +66,16 @@ type TemplateData struct {
 	LeaderboardRankedSolo []models.LeaderboardRowUnseededSolo
 
 	// Hall of Fame stuff
-	Season1r9  []HallOfFameEntry
-	Season1r14 []HallOfFameEntry
-	Season2r7  []HallOfFameEntry
-	Season3r7  []HallOfFameEntry
-	Season4r7  []HallOfFameEntry
-	Season5r7  []HallOfFameEntry
-	Season6r7  []HallOfFameEntry
-	Season7r7  []HallOfFameEntry
-	Season8r7  []HallOfFameEntry
-	//Season9r7 []HallOfFameEntry
+	Season1R9AB       []HallOfFameEntry
+	Season1R14AB      []HallOfFameEntry
+	Season2R7AB       []HallOfFameEntry
+	Season3R7AB       []HallOfFameEntry
+	Season4R7AB       []HallOfFameEntry
+	Season5R7AB       []HallOfFameEntry
+	Season6R7AB       []HallOfFameEntry
+	Season7R7AB       []HallOfFameEntry
+	Season8R7AB       []HallOfFameEntry
+	Season1R7Rep      []HallOfFameEntry
 	Season1RankedSolo []HallOfFameEntryOnline
 	Season2RankedSolo []HallOfFameEntryOnline
 

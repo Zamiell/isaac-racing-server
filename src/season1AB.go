@@ -1,6 +1,6 @@
 package server
 
-var season1r9 = []HallOfFameEntry{
+var season1R9AB = []HallOfFameEntry{
 	{
 		Rank:        1,
 		Racer:       "Dea1h",
@@ -102,7 +102,7 @@ var season1r9 = []HallOfFameEntry{
 	},
 }
 
-var season1r14 = []HallOfFameEntry{
+var season1R14AB = []HallOfFameEntry{
 	{
 		Rank:        1,
 		Racer:       "Dea1h",

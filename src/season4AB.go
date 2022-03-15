@@ -1,6 +1,6 @@
 package server
 
-var season4r7 = []HallOfFameEntry{
+var season4R7AB = []HallOfFameEntry{
 	{
 		Rank:        1,
 		Racer:       "antizoubilamakA",
