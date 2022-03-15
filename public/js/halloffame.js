@@ -1,8 +1,5 @@
 const LAST_RANKED_SOLO_SEASON = 2;
 
-let activeLeaderboard = "season1R7AB"; // This has to be the first value
-let transition = false;
-
 const tableIDs = [
   "season1R9AB",
   "season1R14AB",
@@ -18,6 +15,9 @@ const tableIDs = [
 for (i = 1; i <= LAST_RANKED_SOLO_SEASON; i++) {
   tableIDs.push(`season${i}RankedSolo`);
 }
+
+let activeLeaderboard = tableIDs[0];
+let transition = false;
 
 $(document).ready(() => {
   ConvertTimeStamps("td.td-date");
