@@ -16,12 +16,12 @@ jobs:
       - name: Test to see if the project compiles
         run: bash build.sh
 
-      - name: Lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          # Must match the version in "install_linter.sh"
-          version: v1.41.1
-          working-directory: src
+      #- name: Lint
+      #  uses: golangci/golangci-lint-action@v2
+      #  with:
+      #    # Must match the version in "install_linter.sh"
+      #    version: v1.41.1
+      #    working-directory: src
 
   discord:
     name: Discord Failure Notification
