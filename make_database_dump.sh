@@ -18,4 +18,6 @@ if [[ -z $DB_PORT ]]; then
   DB_PORT=3306
 fi
 
-mysqldump -u"$DB_USER" -p"$DB_PASS" -D"$DB_NAME" --host="$DB_HOST" --port="$DB_PORT" > "/tmp/$DB_NAME.sql"
+BACKUP_PATH="/tmp/$DB_NAME.sql
+mysqldump -u"$DB_USER" -p"$DB_PASS" --host="$DB_HOST" --port="$DB_PORT" "$DB_NAME" > "$BACKUP_PATH"
+gzip "$BACKUP_PATH"
