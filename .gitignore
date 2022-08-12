@@ -16,10 +16,6 @@ tournaments
 # The compiled binary
 isaac-racing-server
 
-# Helper scripts
-database_shell.sh
-make_database_dump.sh
-
 # Library files
 node_modules
 
