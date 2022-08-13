@@ -84,8 +84,8 @@ Later, to renew the certificate:
   - `apt install supervisor`
   - `systemctl enable supervisor` (this is needed due to [a quirk in Ubuntu 16.04](http://unix.stackexchange.com/questions/281774/ubuntu-server-16-04-cannot-get-supervisor-to-start-automatically))
 - Copy the configuration files:
-  - `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/supervisord.conf" "/etc/supervisord/supervisord.conf"`
-  - `cp "$GOPATH/Zamiell/isaac-racing-server/install/supervisord/isaac-racing-server.conf" "/etc/supervisord/conf.d/isaac-racing-server.conf"`
+  - `cp "/root/isaac-racing-server/install/supervisord/supervisord.conf" "/etc/supervisord/supervisord.conf"`
+  - `cp "/root/isaac-racing-server/install/supervisord/isaac-racing-server.conf" "/etc/supervisord/conf.d/isaac-racing-server.conf"`
 - Start it: `systemctl start supervisor`
 
 Later, to manage the service:
