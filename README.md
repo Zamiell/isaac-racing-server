@@ -86,6 +86,7 @@ Later, to renew the certificate:
 - Copy the configuration files:
   - `mkdir -p "/etc/supervisord"`
   - `cp "/root/isaac-racing-server/install/supervisord/supervisord.conf" "/etc/supervisord/supervisord.conf"`
+  - `mkdir -p "/etc/supervisord/conf.d"`
   - `cp "/root/isaac-racing-server/install/supervisord/isaac-racing-server.conf" "/etc/supervisord/conf.d/isaac-racing-server.conf"`
 - Start it: `systemctl start supervisor`
 
