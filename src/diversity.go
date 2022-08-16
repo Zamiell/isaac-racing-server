@@ -97,7 +97,8 @@ var validDiversityPassiveItems = [...]int{
 	// Booster Pack items
 	511, 513, 514, 517, 518, 519, 520, 524, 525, 526,
 	528, 529, 530, 531, 532, 533, 534, 535, 537, 538,
-	539, 540, 541, 542, 543, 544, 546, 547, 548, 549,
+	// Marrow (541) is banned
+	539, 540, 542, 543, 544, 546, 547, 548, 549,
 
 	// Repentance items
 	// Broken Shovel Top (550) and Broken Shovel Bottom (551) are banned
