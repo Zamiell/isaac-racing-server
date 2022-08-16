@@ -39,7 +39,7 @@ var validDiversityActiveItems = [...]int{
 	263, 555, 556, 557, 577, 578, 580, 582, 585, 604, // Mom's Shovel (552) is banned
 	605, 609, 611, 623, 625, 628, 631, 635, 638, 639, // Genesis (622) and R Key (636) are banned
 	640, 642, 650, 653, 655, 685, 687, 704, 705, 706, // Esau Jr (703) is banned
-	709, 710, 711, 712, 713, 719, 720, 722, 723, 728, // Recall (714) is banned
+	709, 710, 711, 712, 713, 719, 720, 722, 723, 728, // Recall (714) and Hold (715) are banned
 	729,
 }
 
@@ -109,6 +109,7 @@ var validDiversityPassiveItems = [...]int{
 	603, 606, 607, 608, 610, 612, 614, 615, 616, 617,
 	// Knife Piece #1 (626), Knife Piece #2 (627), and Dogma (633) are banned
 	618, 619, 621, 624, 629, 632, 634, 637, 641, 643,
+	// Damocles (Passive) (656) is banned
 	644, 645, 646, 647, 649, 651, 652, 654, 657, 658,
 	// Tropicamide (659) and Dad's Note (668) are banned
 	660, 661, 663, 664, 665, 667, 669, 670, 671, 672,
