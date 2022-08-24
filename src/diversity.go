@@ -189,7 +189,7 @@ var characterItemBlacklist = map[string][]int{
 	"Bethany":           {230, 584},      // Abaddon, Book of Virtues
 	"Jacob & Esau":      {534},           // Schoolbag
 	"Tainted Isaac":     {619},           // Birthright
-	"Tainted Magdalene": {205, 534, 724}, // Sharp Plug, Schoolbag, Hypercoagulation
+	"Tainted Magdalene": {205, 534}, 	  // Sharp Plug, Schoolbag
 	"Tainted Judas":     {534},           // Schoolbag
 	"Tainted Blue Baby": {534},           // Schoolbag
 	"Tainted Eve":       {534, 713},      // Schoolbag, Sumptorium
