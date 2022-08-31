@@ -76,14 +76,6 @@ func httpLeaderboards(c *gin.Context) {
 	// Construct the "Most Races Played" leaderboard
 	// TODO
 
-	// Round some numbers
-	for _, row := range leaderboardSeeded {
-		row.SeededTrueSkillDelta = toFixed(row.SeededTrueSkillDelta, 2)
-	}
-	for _, row := range leaderboardUnseeded {
-		row.UnseededTrueSkillDelta = toFixed(row.UnseededTrueSkillDelta, 2)
-	}
-
 	data := TemplateData{
 		Title:                 "Leaderboards",
 		LeaderboardSeeded:     leaderboardSeeded,

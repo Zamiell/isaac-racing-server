@@ -64,11 +64,10 @@
 				</thead>
 				<tbody>
 					{{ range $index, $results := .LeaderboardSeeded }}
-
 						<tr>
 							<td class="lb-rank">{{ $index }}</td>
 							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
-							<td class="lb-trueskill">{{ .SeededTrueSkill }} <span id="lastEloChange" class="{{ if lt .SeededTrueSkillDelta 0.0 -}} red {{- else if gt .SeededTrueSkillDelta 0.0}} green {{- end}}">{{if gt .SeededTrueSkillDelta 0.0}}+{{end}}{{ if ne .SeededTrueSkillDelta 0.0 -}}{{- .SeededTrueSkillDelta -}}{{ end -}}</span></td>
+							<td class="lb-trueskill">{{ .SeededTrueSkill }} <span id="lastEloChange" class="{{ if lt .SeededTrueSkillDelta 0.0 -}} red {{- else if gt .SeededTrueSkillDelta 0.0}} green {{- end}}">{{if gt .SeededTrueSkillDelta 0.0}}+{{end}}{{ if ne .SeededTrueSkillDelta 0.0 -}}{{- printf "%.2f" .SeededTrueSkillDelta -}}{{ end -}}</span></td>
 							<td class="lb-num-races">{{ .SeededNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .SeededLowestTime.Value }}</td>
 							<td class="lb-last-race"><a href="/race/{{ .SeededLastRaceID }}">{{ .SeededLastRace.Value }}</a></td>
@@ -111,7 +110,7 @@
 						<tr>
 							<td class="lb-rank">{{ $index }}</td>
 							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
-							<td class="lb-trueskill">{{ .UnseededTrueSkill }} <span id="lastEloChange" class="{{ if lt .UnseededTrueSkillDelta 0.0 -}} red {{- else if gt .UnseededTrueSkillDelta 0.0}} green {{- end}}">{{if gt .UnseededTrueSkillDelta 0.0}}+{{end}}{{ if ne .UnseededTrueSkillDelta 0.0 -}}{{- .UnseededTrueSkillDelta -}}{{ end -}}</span></td>
+							<td class="lb-trueskill">{{ .UnseededTrueSkill }} <span id="lastEloChange" class="{{ if lt .UnseededTrueSkillDelta 0.0 -}} red {{- else if gt .UnseededTrueSkillDelta 0.0}} green {{- end}}">{{if gt .UnseededTrueSkillDelta 0.0}}+{{end}}{{ if ne .UnseededTrueSkillDelta 0.0 -}}{{- printf "%.2f" .UnseededTrueSkillDelta -}}{{ end -}}</span></td>
 							<td class="lb-num-races">{{ .UnseededNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .UnseededLowestTime.Value }}</td>
 							<td class="lb-last-race"><a href="/race/{{ .UnseededLastRaceID }}">{{ .UnseededLastRace.Value }}</a></td>
@@ -154,7 +153,7 @@
 						<tr>
 							<td class="lb-rank">{{ $index }}</td>
 							<td class="lb-name"><a href="/profile/{{ .Name }}">{{ .Name }}</a></td>
-							<td class="lb-trueskill">{{ .DivTrueSkill }} <span id="lastEloChange" class="{{ if lt .DivTrueSkillDelta 0.0 -}} red {{- else if gt .DivTrueSkillDelta 0.0}} green {{- end}}">{{if gt .DivTrueSkillDelta 0.0}}+{{end}}{{ if ne .DivTrueSkillDelta 0.0 -}}{{- .DivTrueSkillDelta -}}{{ end -}}</span></td>
+							<td class="lb-trueskill">{{ .DivTrueSkill }} <span id="lastEloChange" class="{{ if lt .DivTrueSkillDelta 0.0 -}} red {{- else if gt .DivTrueSkillDelta 0.0}} green {{- end}}">{{if gt .DivTrueSkillDelta 0.0}}+{{end}}{{ if ne .DivTrueSkillDelta 0.0 -}}{{- printf "%.2f" .DivTrueSkillDelta -}}{{ end -}}</span></td>
 							<td class="lb-num-races">{{ .DivNumRaces.Value }}</td>
 							<td class="lb-fastest">{{ .DivLowestTime.Value }}</td>
 							<td class="lb-last-race"><a href="/race/{{ .DivLastRaceID }}">{{ .DivLastRace.Value }}</a></td>
