@@ -67,13 +67,22 @@ func httpLeaderboards(c *gin.Context) {
 	}
 
 	// Construct the "Top 10 Unseeded Times" leaderboard
-	/*var leaderboardTop10Times string
-	for _, row := range leaderboardUnseeded {
-
-	}*/
+	/*
+		var leaderboardTop10Times string
+		for _, row := range leaderboardUnseeded {
+		}
+	*/
 
 	// Construct the "Most Races Played" leaderboard
 	// TODO
+
+	// Round some numbers
+	for _, row := range leaderboardSeeded {
+		row.SeededTrueSkillDelta = toFixed(row.SeededTrueSkillDelta, 2)
+	}
+	for _, row := range leaderboardUnseeded {
+		row.UnseededTrueSkillDelta = toFixed(row.UnseededTrueSkillDelta, 2)
+	}
 
 	data := TemplateData{
 		Title:                 "Leaderboards",
