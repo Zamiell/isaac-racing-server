@@ -26,7 +26,7 @@ var season2R7Rep = []HallOfFameEntry{
 		Racer:       "tayu",
 		ProfileName: "tayu",
 		Time:        2888,
-		Date:        "2021-08-07",
+		Date:        "2022-08-07",
 		Proof:       "https://www.youtube.com/watch?v=Y9-05jneA24",
 		Site:        "YouTube",
 	},
