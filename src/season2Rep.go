@@ -18,7 +18,7 @@ var season2R7Rep = []HallOfFameEntry{
 		Time:        2738,
 		Date:        "2022-03-17",
 		Proof:       "https://www.youtube.com/watch?v=_FMJjWuz9a0",
-		Site:        "Youtube",
+		Site:        "YouTube",
 	},
 
 	{
