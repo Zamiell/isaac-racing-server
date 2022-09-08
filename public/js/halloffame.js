@@ -11,6 +11,7 @@ const tableIDs = [
   "season7R7AB",
   "season8R7AB",
   "season1R7Rep",
+  "season2R7Rep",
 ];
 for (i = 1; i <= LAST_RANKED_SOLO_SEASON; i++) {
   tableIDs.push(`season${i}RankedSolo`);
