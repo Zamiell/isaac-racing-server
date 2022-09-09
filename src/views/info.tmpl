@@ -94,7 +94,7 @@
 				<h3>What does Racing+ do when it starts up?</h3>
 				<ul>
 					<li>It checks to make sure you have at least one fully unlocked save file.</li>
-					<li>It checks to make sure your Racing+ Lua mod is not corrupted, since Steam sucks at keeping it in sync with the latest version. If you do not have the Racing+ Lua mod at all, then it will skip this part.</li>
+					<li>It checks to make sure your Racing+ Lua mod is not corrupted, since Steam is not good at keeping it in sync with the latest version. If you do not have the Racing+ Lua mod at all, then it will skip this part.</li>
 				</ul>
 
 				<div style="height: 1em;" id="faq-mods"></div><!-- Spacing -->
@@ -103,7 +103,7 @@
 					Is it possible to use Racing+ with a custom mod or multiple mods?
 				</h3>
 				<p class="margin-half">
-					Yes! Perform the following steps:
+					Yes. Perform the following steps:
 				</p>
 				<ul>
 					<li>Open the Racing+ program and make sure you are in the lobby.</li>
@@ -155,16 +155,16 @@
 
 				<div style="height: 1em;" id="faq-log-error"></div><!-- Spacing -->
 				<h3>What do I do if the client won't let me click the "Ready" button?</h3>
-				<p>If you are started a run and the client is not detecting it, you probably have one of two problems.</p>
-				<p><strong>1)</strong> Your Isaac installation could be corrupted. Open up your Isaac "log.txt" file, which is located here by default:</p>
+				<p>In-game, the Racing+ icon below the key count will turn green when it is connected to the Racing+ client. (Normally, this icon will be blue.) If the icon is currently blue, then you will never be able to click ready in the client.</p>
+				<p>Once the Racing+ client is open and you are in the lobby, you should be able to restart the game (by holding the R button) in order to turn the icon from blue to green. If this does not work, then restart your computer and try again.</p>
+				<p>If that still does not fix the problem, check to see if the "--luadebug" launch flag is enabled. See <a href="https://bindingofisaacrebirth.fandom.com/wiki/Launch_Options">the instructions on the wiki</a> for more details.</p>
+				<p>If that is properly set, then your Isaac installation could be corrupted. Open up your Isaac "log.txt" file, which is located here by default:</p>
 				<p><code>C:\Users\[YourUsername]\Documents\My Games\Binding of Isaac Repentance\log.txt</code></p>
 				<p>Search for the word "error". If you see something like this:</p>
 				<p><pre>[INFO] - Running Lua Script: resources/scripts/main.lua
 [INFO] - ERR: cannot open resources/scripts/main.lua: No such file or directory
 [INFO] - There was an error running the lua file: resources/scripts/main.lua</pre></p>
 				<p>This means that certain files are missing in your <code>resources</code> folder that are necessary for mods to run. Completely nuke your Isaac installation, ensure that all of the files are deleted, and then reinstall.</p>
-				<p><strong>2)</strong> You could have multiple installations of Isaac on your computer and Racing+ is pointed at the wrong "log.txt" file. From the lobby, click the "Settings" button at the top. This will allow you to change the log file that the Racing+ client is pointed at.</p>
-				<p>As a troubleshooting step, verify that you are looking at the right log file by starting a run, writing down the seed, opening up the "log.txt" file in Notepad, and searching to see if the game wrote the seed to the log file. If it didn't, then you need to find your real "log.txt" file and have Racing+ point to that one!</p>
 
 				<div style="height: 1em;" id="faq-username"></div><!-- Spacing -->
 				<h3>How do I change my username?</h3>
