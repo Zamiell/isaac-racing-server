@@ -46,6 +46,9 @@ var (
 
 			// The piercing shots do nothing for the bone club.
 			"Tainted Forgotten", // 35
+			
+			// The piercing shots do nothing for Azazel's Brimstone.
+			"Azazel", // 7
 		},
 
 		// #5 - Dr. Fetus
