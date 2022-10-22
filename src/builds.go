@@ -41,14 +41,17 @@ var (
 
 		// #4 - Death's Touch
 		{
+			// The piercing shots do nothing for Azazel's Brimstone.
+			"Azazel", // 7
+
 			// The piercing shots do nothing for the bone club.
 			"The Forgotten", // 16
 
+			// The piercing shots do nothing for Tainted Azazel's Brimstone.
+			"Tainted Azazel", // 28
+
 			// The piercing shots do nothing for the bone club.
 			"Tainted Forgotten", // 35
-			
-			// The piercing shots do nothing for Azazel's Brimstone.
-			"Azazel", // 7
 		},
 
 		// #5 - Dr. Fetus
