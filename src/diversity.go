@@ -129,7 +129,7 @@ var validDiversityTrinkets = [...]int{
 	11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
 	21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
 	31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
-	41, 42, 43, 44, 45, 46, 48, 49, 50, 51,
+	41, 42, 43, 44, 45, 46, 48, 49, 50, 51, // 47 is Polaroid (obsolete)
 	52, 53, 54, 55, 56, 57, 58, 59, 60, 61,
 
 	// Afterbirth trinkets
@@ -189,7 +189,7 @@ var characterItemBlacklist = map[string][]int{
 	"Bethany":           {230, 584},      // Abaddon, Book of Virtues
 	"Jacob & Esau":      {534},           // Schoolbag
 	"Tainted Isaac":     {619},           // Birthright
-	"Tainted Magdalene": {205, 534}, 	  // Sharp Plug, Schoolbag
+	"Tainted Magdalene": {205, 534},      // Sharp Plug, Schoolbag
 	"Tainted Judas":     {534},           // Schoolbag
 	"Tainted Blue Baby": {534},           // Schoolbag
 	"Tainted Eve":       {534, 713},      // Schoolbag, Sumptorium
