@@ -22,7 +22,7 @@ const (
 	RepentanceReleasedDatetime = "2021-05-21 00:00:00"
 
 	SoloSeason3StartDatetime = "2021-12-03 00:00:00"
-	SoloSeason3EndDatetime   = "2030-00-00 00:00:00"
+	SoloSeason3EndDatetime   = "2022-01-01 00:00:00"
 
 	SoloSeasonStartDatetime = SoloSeason3StartDatetime
 	SoloSeasonEndDatetime   = SoloSeason3EndDatetime

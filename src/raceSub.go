@@ -23,6 +23,15 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		return false
 	}
 
+	if ruleset.Format == RaceFormatSeeded && ruleset.Solo {
+		websocketWarning(
+			s,
+			d.Command,
+			"Racing+ online ranked solo season 2 has concluded. You cannot play ranked solo until season 3 starts.",
+		)
+		return false
+	}
+
 	// Validate the character
 	// (valid characters are defined in "characters.go")
 	validCharacter := stringInSlice(ruleset.Character, characters)

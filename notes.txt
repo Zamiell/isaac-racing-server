@@ -1,5 +1,5 @@
 Notes:
-- Season 2 began on March 18th, 2018 (see "rankedUnseededSoloSeason2StartDatetime")
+- Season 2 began on March 18th, 2018. (See the "SoloSeasonStartDatetime" constant.)
 - 536 is old Schoolbag ID, is always 2nd item (105 is first item)
 - Race at 2018-04-01 03:55:49 has Schoolbag on slot 536
 - Race at 2018-05-01 04:39:59 has Schoolbag on slot 536

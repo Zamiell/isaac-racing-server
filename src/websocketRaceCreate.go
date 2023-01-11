@@ -211,7 +211,7 @@ func ban(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Add this username to the ban list in the database
 	if err := db.BannedUsers.Insert(userID, AutomaticBanAdminID, AutomaticBanReason); err != nil {
-		logger.Error("Database error while userting the banned user:", err)
+		logger.Error("Database error while inserting the banned user:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
