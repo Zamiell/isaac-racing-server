@@ -4,6 +4,6 @@
   "author": "Zamiell",
   "license": "GPL-3.0",
   "dependencies": {
-    "isaac-racing-common": "^1.0.7"
+    "isaac-racing-common": "^1.0.8"
   }
 }
