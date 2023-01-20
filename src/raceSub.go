@@ -23,7 +23,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		return false
 	}
 
-	if ruleset.Format == RaceFormatSeeded && ruleset.Solo {
+	if ruleset.Format == RaceFormatSeeded && ruleset.Solo && ruleset.Ranked {
 		websocketWarning(
 			s,
 			d.Command,
