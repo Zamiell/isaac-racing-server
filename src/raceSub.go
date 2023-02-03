@@ -27,7 +27,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		websocketWarning(
 			s,
 			d.Command,
-			"Racing+ online ranked solo season 2 has concluded. You cannot play ranked solo until season 3 starts.",
+			"Racing+ online ranked solo season 3 has concluded. You cannot play ranked solo until season 4 starts.",
 		)
 		return false
 	}
