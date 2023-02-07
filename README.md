@@ -48,7 +48,7 @@ These instructions assume you are running Ubuntu 16.04 LTS. Some adjustment will
 - Build the server, which will automatically download install all of the Go dependencies:
   - `./build.sh`
 - Set up environment variables:
-  - `cp .env_template .env`
+  - `cp .env.example .env`
   - `nano .env`
     - Create a random 64 digit alphanumeric string for `SESSION_SECRET`.
     - Change the `DB_PASS` value accordingly.
