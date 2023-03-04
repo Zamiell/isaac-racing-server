@@ -44,7 +44,7 @@ func leaderboardUpdateTrueSkill(race *Race) {
 		}
 
 		for j, racer2 := range racerNames {
-			// Skip this player if they are facing themself or we have already done the matchup
+			// Skip this player if they are facing themselves or we have already done the matchup
 			if j <= i {
 				continue
 			}
@@ -151,7 +151,7 @@ func leaderboardRecalculateTrueSkill(format RaceFormat) {
 
 	// Fix the "Date of Last Race" column
 	if err := db.Users.SetLastRace(string(format)); err != nil {
-		logger.Error("Failed to set set the last race:", err)
+		logger.Error("Failed to set the last race:", err)
 		return
 	}
 

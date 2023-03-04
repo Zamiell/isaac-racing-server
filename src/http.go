@@ -153,7 +153,7 @@ func httpInit() {
 	httpRouter.Use(limiterMiddleware)
 
 	/*
-		This was used as an alterate to the Tollbooth middleware when it wasn't working
+		This was used as an alternate to the Tollbooth middleware when it wasn't working.
 
 		// Use the gin-limiter middleware for rate-limiting
 		// We only allow 60 request per minute, an average of 1 per second

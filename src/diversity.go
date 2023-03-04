@@ -214,7 +214,7 @@ func diversityGetSeed(ruleset Ruleset) string {
 
 	// Get 1 random unique active item
 	var items []int
-	item := validDiversityActiveItems[rand.Intn(len(validDiversityActiveItems))] // nolint: gosec
+	item := validDiversityActiveItems[rand.Intn(len(validDiversityActiveItems))] //nolint: gosec
 	items = append(items, item)
 
 	// Get 3 random unique passive items
@@ -222,7 +222,7 @@ func diversityGetSeed(ruleset Ruleset) string {
 		for {
 			// Initialize the PRNG and get a random element from the slice
 			// (if we don't do this, it will use a seed of 1)
-			randomIndex := rand.Intn(len(validDiversityPassiveItems)) // nolint: gosec
+			randomIndex := rand.Intn(len(validDiversityPassiveItems)) //nolint: gosec
 			item := validDiversityPassiveItems[randomIndex]
 
 			if itemIsBannedOnThisCharacter(item, ruleset.Character) {
@@ -240,10 +240,10 @@ func diversityGetSeed(ruleset Ruleset) string {
 	}
 
 	// Get 1 random trinket
-	randomIndex := rand.Intn(len(validDiversityTrinkets)) // nolint: gosec
+	randomIndex := rand.Intn(len(validDiversityTrinkets)) //nolint: gosec
 	trinket := validDiversityTrinkets[randomIndex]
 	// The server has a 10% chance to make the trinket golden
-	if rand.Intn(10) == 0 { // nolint: gosec
+	if rand.Intn(10) == 0 { //nolint: gosec
 		trinket += goldenTrinketModifier
 	}
 	items = append(items, trinket)

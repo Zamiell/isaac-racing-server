@@ -78,7 +78,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	if ruleset.Character == "random" {
 		ruleset.CharacterRandom = true
 		rand.Seed(time.Now().UnixNano())
-		ruleset.Character = characters[rand.Intn(len(characters))] // nolint: gosec
+		ruleset.Character = characters[rand.Intn(len(characters))] //nolint: gosec
 	}
 
 	// Pick a random starting build, if necessary
@@ -87,7 +87,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		ruleset.StartingBuildRandom = true
 		rand.Seed(time.Now().UnixNano())
 		// We don't want to select index 0
-		ruleset.StartingBuild = rand.Intn(len(allBuilds)-1) + 1 // nolint: gosec
+		ruleset.StartingBuild = rand.Intn(len(allBuilds)-1) + 1 //nolint: gosec
 	}
 
 	// Get the specific ranked solo starter for the person who started this race

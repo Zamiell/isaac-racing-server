@@ -108,7 +108,7 @@ func verifySender(mh MessageHeader, addr net.Addr) bool {
 }
 
 func purgeOldSessionsLoop() {
-	tick := time.Tick(purgeInterval) // nolint: staticcheck
+	tick := time.Tick(purgeInterval) //nolint: staticcheck
 
 	for {
 		select {

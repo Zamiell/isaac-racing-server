@@ -8,12 +8,12 @@ import (
 func isaacGetRandomSeed() string {
 	// Get a random uint32
 	rand.Seed(time.Now().UnixNano())
-	seed := rand.Uint32() // nolint: gosec
+	seed := rand.Uint32() //nolint: gosec
 	return isaacSeedToString(seed)
 }
 
-// This algorithm has been reverse engineered from the game's binary by Killburn
-// (and blcd, independently)
+// This algorithm has been reverse engineered from the game's binary by Kilburn (and blcd,
+// independently).
 func isaacSeedToString(num uint32) string {
 	chars := "ABCDEFGHJKLMNPQRSTWXYZ01234V6789"
 
