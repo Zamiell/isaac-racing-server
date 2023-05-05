@@ -9,7 +9,7 @@ require (
 	github.com/didip/tollbooth_gin v0.0.0-20170928041415-5752492be505
 	github.com/getsentry/sentry-go v0.11.0
 	github.com/gin-contrib/sessions v0.0.3
-	github.com/gin-gonic/gin v1.7.2
+	github.com/gin-gonic/gin v1.9.0
 	github.com/go-sql-driver/mysql v1.6.0
 	github.com/joho/godotenv v1.3.0
 	github.com/mafredri/go-trueskill v0.0.0-20190101120706-fc89fbba5a88
