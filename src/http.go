@@ -77,6 +77,7 @@ type TemplateData struct {
 	Season8R7AB       []HallOfFameEntry
 	Season1R7Rep      []HallOfFameEntry
 	Season2R7Rep      []HallOfFameEntry
+	Season3R7Rep      []HallOfFameEntry
 	Season1RankedSolo []HallOfFameEntryOnline
 	Season2RankedSolo []HallOfFameEntryOnline
 
