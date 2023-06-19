@@ -8,12 +8,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func httpWS(c *gin.Context) {
+func httpWebSocket(c *gin.Context) {
 	w := c.Writer
 	r := c.Request
 
-	// The below function will return nil if there is an error or if the user is
-	// not authorized
+	// Print out the HTTP headers. (Uncomment this when debugging.)
+	logger.Debug("Incoming WebSocket connection request. Logging headers:")
+	for key, values := range r.Header {
+		for value := range values {
+			logger.Debug(key, "-->", value)
+		}
+	}
+
+	// The below function will return nil if there is an error or if the user is not authorized.
 	var sessionValues *models.SessionValues
 	if v, err := httpValidateSession(c); err != nil {
 		if err.Error() == "" {

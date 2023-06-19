@@ -1,5 +1,7 @@
 # isaac-racing-server
 
+<!-- markdownlint-disable MD033 -->
+
 If you are not a developer, please visit [the website for Racing+](https://isaacracing.net/).
 
 <br />

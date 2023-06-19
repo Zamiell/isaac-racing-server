@@ -141,8 +141,7 @@ func loadAllTournaments() {
 }
 
 func getBuildFirstCollectibleID(startingBuildIndex int) int {
-	if startingBuildIndex < 0 || startingBuildIndex >= len(allBuilds) {
-		logger.Warning("Got an invalid build index of:", startingBuildIndex)
+	if startingBuildIndex < 0 || startingBuildIndex > len(allBuilds)-1 {
 		return 0
 	}
 
@@ -154,7 +153,6 @@ func getBuildFirstCollectibleID(startingBuildIndex int) int {
 
 func getBuildNameFromBuildIndex(startingBuildIndex int) string {
 	if startingBuildIndex < 0 || startingBuildIndex > len(allBuilds)-1 {
-		logger.Warning("Got an invalid build index of:", startingBuildIndex)
 		return "Unknown"
 	}
 	startingBuild := allBuilds[startingBuildIndex]

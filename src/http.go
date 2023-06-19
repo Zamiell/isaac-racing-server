@@ -179,7 +179,7 @@ func httpInit() {
 	// Path handlers (for the WebSocket server)
 	httpRouter.POST("/login", httpLogin)
 	httpRouter.POST("/register", httpRegister)
-	httpRouter.GET("/ws", httpWS)
+	httpRouter.GET("/ws", httpWebSocket)
 
 	// Path handlers (for the website)
 	httpRouter.GET("/", httpHome)

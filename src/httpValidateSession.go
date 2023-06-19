@@ -18,19 +18,18 @@ import (
 	less than 5 seconds ago. But we also do a few other checks to be thorough.
 */
 
-// Called from the "httpWS()" function
 func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 	r := c.Request
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 
-	// Check to see if their IP is banned
+	// Check to see if their IP is banned.
 	if userIsBanned, err := db.BannedIPs.Check(ip); err != nil {
 		logger.Error("Database error when checking to see if IP \""+ip+"\" is banned:", err)
 		return nil, errors.New("")
 	} else if userIsBanned {
 		logger.Info("IP \"" + ip + "\" tried to establish a WebSocket connection, but they are banned.")
 		msg := "Your IP address has been banned. Please contact an administrator if you think this is a mistake."
-		return nil, errors.New(msg) //nolint:stylecheck
+		return nil, errors.New(msg)
 	}
 
 	/*
@@ -39,7 +38,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		}
 	*/
 
-	// If they have logged in, their cookie should have values matching the SessionValues struct
+	// If they have logged in, their cookie should have values matching the `SessionValues` struct.
 	session := sessions.Default(c)
 	var userID int
 	if v := session.Get("userID"); v == nil {
@@ -91,7 +90,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		twitchBotDelay = v.(int)
 	}
 
-	// Check for sessions that belong to orphaned accounts
+	// Check for sessions that belong to orphaned accounts.
 	if userExists, databaseID, err := db.Users.Exists(username); err != nil {
 		logger.Error("Database error when checking to see if user \""+username+"\" exists:", err)
 		return nil, errors.New("")
@@ -103,7 +102,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		return nil, errors.New("")
 	}
 
-	// Check to see if this user is banned
+	// Check to see if this user is banned.
 	if userIsBanned, err := db.BannedUsers.Check(userID); err != nil {
 		logger.Error("Database error when checking to see if user "+strconv.Itoa(userID)+" is banned:", err)
 		return nil, errors.New("")
@@ -113,8 +112,8 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		return nil, errors.New(msg)
 	}
 
-	// If they got this far, they are a valid user
-	return &models.SessionValues{
+	// If they got this far, they are a valid user.
+	sessionValues := &models.SessionValues{
 		UserID:           userID,
 		Username:         username,
 		Admin:            admin,
@@ -123,5 +122,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 		TwitchBotEnabled: twitchBotEnabled,
 		TwitchBotDelay:   twitchBotDelay,
 		Banned:           false,
-	}, nil
+	}
+
+	return sessionValues, nil
 }
