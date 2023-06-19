@@ -13,12 +13,14 @@ func httpWebSocket(c *gin.Context) {
 	r := c.Request
 
 	// Print out the HTTP headers. (Uncomment this when debugging.)
-	logger.Debug("Incoming WebSocket connection request. Logging headers:")
-	for key, values := range r.Header {
-		for _, value := range values {
-			logger.Debug(key, "-->", value)
+	/*
+		logger.Debug("Incoming WebSocket connection request. Logging headers:")
+		for key, values := range r.Header {
+			for _, value := range values {
+				logger.Debug(key, "-->", value)
+			}
 		}
-	}
+	*/
 
 	// The below function will return nil if there is an error or if the user is not authorized.
 	var sessionValues *models.SessionValues
