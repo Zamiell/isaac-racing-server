@@ -15,7 +15,7 @@ func httpWebSocket(c *gin.Context) {
 	// Print out the HTTP headers. (Uncomment this when debugging.)
 	logger.Debug("Incoming WebSocket connection request. Logging headers:")
 	for key, values := range r.Header {
-		for value := range values {
+		for _, value := range values {
 			logger.Debug(key, "-->", value)
 		}
 	}
