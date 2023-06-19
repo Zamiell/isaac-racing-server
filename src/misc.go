@@ -1,26 +1,15 @@
 package server
 
 import (
+	"log"
 	"math"
+	"math/rand"
 	"strconv"
 	"time"
 	"unicode"
 )
 
-/*
-	Miscellaneous functions
-*/
-
 func intInSlice(a int, slice []int) bool {
-	for _, b := range slice {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
-func stringInSlice(a string, slice []string) bool {
 	for _, b := range slice {
 		if b == a {
 			return true
@@ -51,12 +40,6 @@ func isAlphaNumericUnderscore(str string) bool {
 	return isValid
 }
 
-// getTimestamp returns the Epoch timestamp in milliseconds.
-// From: https://stackoverflow.com/questions/24122821/go-golang-time-now-unixnano-convert-to-milliseconds
-func getTimestamp() int64 {
-	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
-}
-
 func getOrdinal(n int) string {
 	s := []string{"th", "st", "nd", "rd"}
 	v := n % 100
@@ -72,9 +55,35 @@ func getOrdinal(n int) string {
 	return strconv.Itoa(n) + ord
 }
 
+// Returns the random array element and the randomly chosen index.
+func getRandomArrayElement[T any](array []T) (T, int) {
+	if len(array) == 0 {
+		log.Panic("Failed to get a random array element since the provided array was empty.")
+	}
+
+	rand.Seed(time.Now().UnixNano())
+	index := rand.Intn(len(array))
+	return array[index], index
+}
+
+// getTimestamp returns the Epoch timestamp in milliseconds.
+// From: https://stackoverflow.com/questions/24122821/go-golang-time-now-unixnano-convert-to-milliseconds
+func getTimestamp() int64 {
+	return time.Now().UnixNano() / (int64(time.Millisecond) / int64(time.Nanosecond))
+}
+
 // https://stackoverflow.com/questions/18390266/how-can-we-truncate-float64-type-to-a-particular-precision
 func round(num float64) int {
 	return int(num + math.Copysign(0.5, num))
+}
+
+func stringInSlice(a string, slice []string) bool {
+	for _, b := range slice {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }
 
 // https://stackoverflow.com/questions/18390266/how-can-we-truncate-float64-type-to-a-particular-precision

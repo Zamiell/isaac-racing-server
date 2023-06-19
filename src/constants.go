@@ -48,12 +48,6 @@ type JSONItem struct {
 	Text        string `json:"text"`
 }
 
-// For holding the values of the "builds.json" file
-type IsaacItem struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-}
-
 type TournamentInfo struct {
 	Name         string `json:"name"`
 	ChallongeID  string `json:"challonge_id"` //nolint:tagliatelle
@@ -79,7 +73,7 @@ const (
 var (
 	allItems       = make(map[string]*JSONItem)
 	allItemNames   = make(map[int]string)
-	allBuilds      = make([][]IsaacItem, 0)
+	allBuilds      = make([]Build, 0)
 	allTournaments = make([]TournamentInfo, 0)
 )
 
@@ -146,30 +140,30 @@ func loadAllTournaments() {
 	}
 }
 
-func getBuildName(startingBuildIndex int) string {
+func getBuildFirstCollectibleID(startingBuildIndex int) int {
 	if startingBuildIndex < 0 || startingBuildIndex >= len(allBuilds) {
+		logger.Warning("Got an invalid build index of:", startingBuildIndex)
+		return 0
+	}
+
+	startingBuild := allBuilds[startingBuildIndex]
+	firstCollectible := startingBuild.Collectibles[0]
+
+	return firstCollectible.ID
+}
+
+func getBuildNameFromBuildIndex(startingBuildIndex int) string {
+	if startingBuildIndex < 0 || startingBuildIndex > len(allBuilds)-1 {
 		logger.Warning("Got an invalid build index of:", startingBuildIndex)
 		return "Unknown"
 	}
 	startingBuild := allBuilds[startingBuildIndex]
 
-	if len(startingBuild) == 1 {
-		return startingBuild[0].Name
+	// Shorten really long build names.
+	if len(startingBuild.Collectibles) > 2 {
+		firstCollectible := startingBuild.Collectibles[0]
+		return firstCollectible.Name + " + more"
 	}
 
-	if len(startingBuild) == 2 {
-		return startingBuild[0].Name + " + " + startingBuild[1].Name
-	}
-
-	return startingBuild[0].Name + " + more"
-}
-
-func getBuildID(startingBuildIndex int) int {
-	if startingBuildIndex < 0 || startingBuildIndex >= len(allBuilds) {
-		logger.Warning("Got an invalid build index of:", startingBuildIndex)
-		return 0
-	}
-	startingBuild := allBuilds[startingBuildIndex]
-
-	return startingBuild[0].ID
+	return startingBuild.Name
 }

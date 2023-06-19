@@ -65,25 +65,26 @@ func httpProfile(c *gin.Context) {
 		return
 	}
 
-	for i := range raceDataSoloRanked {
-		raceDataSoloRanked[i].RaceFormat.String = strings.Title(raceDataSoloRanked[i].RaceFormat.String)
-		for p := range raceDataSoloRanked[i].RaceParticipants {
-			raceDataSoloRanked[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataSoloRanked[i].RaceParticipants[p].RacerStartingItem.Int64)]
-			if raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				startingBuildIndex := int(raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuild.Int64)
-				raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
-				raceDataSoloRanked[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
+	for _, raceHistory := range raceDataSoloRanked {
+		raceHistory.RaceFormat.String = strings.Title(raceHistory.RaceFormat.String)
+		for _, raceParticipant := range raceHistory.RaceParticipants {
+			raceParticipant.RacerStartingItemName = allItemNames[int(raceParticipant.RacerStartingItem.Int64)]
+			if raceParticipant.RacerStartingBuild.Int64 > 0 {
+				startingBuildIndex := int(raceParticipant.RacerStartingBuild.Int64)
+				raceParticipant.RacerStartingBuildName = getBuildNameFromBuildIndex(startingBuildIndex)
+				raceParticipant.RacerStartingCollectibleID = getBuildFirstCollectibleID(startingBuildIndex)
 			}
 		}
 	}
-	for i := range raceDataAll {
-		raceDataAll[i].RaceFormat.String = strings.Title(raceDataAll[i].RaceFormat.String)
-		for p := range raceDataAll[i].RaceParticipants {
-			raceDataAll[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceDataAll[i].RaceParticipants[p].RacerStartingItem.Int64)]
-			if raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				startingBuildIndex := int(raceDataAll[i].RaceParticipants[p].RacerStartingBuild.Int64)
-				raceDataAll[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
-				raceDataAll[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
+
+	for _, raceHistory := range raceDataAll {
+		raceHistory.RaceFormat.String = strings.Title(raceHistory.RaceFormat.String)
+		for _, raceParticipant := range raceHistory.RaceParticipants {
+			raceParticipant.RacerStartingItemName = allItemNames[int(raceParticipant.RacerStartingItem.Int64)]
+			if raceParticipant.RacerStartingBuild.Int64 > 0 {
+				startingBuildIndex := int(raceParticipant.RacerStartingBuild.Int64)
+				raceParticipant.RacerStartingBuildName = getBuildNameFromBuildIndex(startingBuildIndex)
+				raceParticipant.RacerStartingCollectibleID = getBuildFirstCollectibleID(startingBuildIndex)
 			}
 		}
 	}

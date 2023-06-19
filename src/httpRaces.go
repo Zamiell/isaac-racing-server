@@ -15,7 +15,7 @@ func httpRaces(c *gin.Context) {
 	racesPerPage := 20
 	raceOffset := 0
 
-	// Grab the current page from the URI and set currentPage if found
+	// Grab the current page from the URI and set currentPage if found.
 	i, err := strconv.ParseInt(c.Params.ByName("page"), 10, 32)
 	if err == nil && int(i) > 1 {
 		currentPage = int(i)
@@ -28,6 +28,7 @@ func httpRaces(c *gin.Context) {
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
+
 	// Find total number of pages needed for navigation, if divisible by perPage, remove a page.
 	var totalPages int
 	if totalRaces%racesPerPage == 0 {
@@ -36,15 +37,14 @@ func httpRaces(c *gin.Context) {
 		totalPages = int(math.Floor(float64(totalRaces) / float64(racesPerPage)))
 	}
 
-	// Do special things on the race things with fancy things
-	for i := range raceData {
-		raceData[i].RaceFormat.String = strings.Title(raceData[i].RaceFormat.String)
-		for p := range raceData[i].RaceParticipants {
-			raceData[i].RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData[i].RaceParticipants[p].RacerStartingItem.Int64)]
-			if raceData[i].RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-				startingBuildIndex := int(raceData[i].RaceParticipants[p].RacerStartingBuild.Int64)
-				raceData[i].RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
-				raceData[i].RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
+	for _, raceHistory := range raceData {
+		raceHistory.RaceFormat.String = strings.Title(raceHistory.RaceFormat.String)
+		for _, raceParticipant := range raceHistory.RaceParticipants {
+			raceParticipant.RacerStartingItemName = allItemNames[int(raceParticipant.RacerStartingItem.Int64)]
+			if raceParticipant.RacerStartingBuild.Int64 > 0 {
+				startingBuildIndex := int(raceParticipant.RacerStartingBuild.Int64)
+				raceParticipant.RacerStartingBuildName = getBuildNameFromBuildIndex(startingBuildIndex)
+				raceParticipant.RacerStartingCollectibleID = getBuildFirstCollectibleID(startingBuildIndex)
 			}
 		}
 	}
@@ -81,12 +81,12 @@ func httpRace(c *gin.Context) {
 
 	raceData.RaceFormat.String = strings.Title(raceData.RaceFormat.String)
 	raceFormat := raceData.RaceFormat.String
-	for p := range raceData.RaceParticipants {
-		raceData.RaceParticipants[p].RacerStartingItemName = allItemNames[int(raceData.RaceParticipants[p].RacerStartingItem.Int64)]
-		if raceData.RaceParticipants[p].RacerStartingBuild.Int64 > 0 {
-			startingBuildIndex := int(raceData.RaceParticipants[p].RacerStartingBuild.Int64)
-			raceData.RaceParticipants[p].RacerStartingBuildName = getBuildName(startingBuildIndex)
-			raceData.RaceParticipants[p].RacerStartingBuildID = getBuildID(startingBuildIndex)
+	for _, raceParticipant := range raceData.RaceParticipants {
+		raceParticipant.RacerStartingItemName = allItemNames[int(raceParticipant.RacerStartingItem.Int64)]
+		if raceParticipant.RacerStartingBuild.Int64 > 0 {
+			startingBuildIndex := int(raceParticipant.RacerStartingBuild.Int64)
+			raceParticipant.RacerStartingBuildName = getBuildNameFromBuildIndex(startingBuildIndex)
+			raceParticipant.RacerStartingCollectibleID = getBuildFirstCollectibleID(startingBuildIndex)
 		}
 	}
 

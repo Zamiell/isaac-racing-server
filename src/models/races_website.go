@@ -24,17 +24,17 @@ type RaceHistory struct {
 
 // RaceHistoryParticipants gets the user stats for each racer in each race
 type RaceHistoryParticipants struct {
-	ID                     sql.NullInt64
-	RacerName              sql.NullString
-	RacerPlace             sql.NullInt64
-	RacerTime              sql.NullString
-	RacerSeed              sql.NullString
-	RacerStartingItem      sql.NullInt64
-	RacerStartingItemName  string
-	RacerStartingBuild     sql.NullInt64
-	RacerStartingBuildID   int
-	RacerStartingBuildName string
-	RacerComment           sql.NullString
+	ID                         sql.NullInt64
+	RacerName                  sql.NullString
+	RacerPlace                 sql.NullInt64
+	RacerTime                  sql.NullString
+	RacerSeed                  sql.NullString
+	RacerStartingItem          sql.NullInt64
+	RacerStartingItemName      string
+	RacerStartingBuild         sql.NullInt64
+	RacerStartingCollectibleID int
+	RacerStartingBuildName     string
+	RacerComment               sql.NullString
 }
 
 // GetRacesHistory gets all data for all races

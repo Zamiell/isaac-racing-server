@@ -2,7 +2,6 @@ package server
 
 import (
 	"database/sql"
-	"math/rand"
 	"strconv"
 	"time"
 	"unicode/utf8"
@@ -33,25 +32,25 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		Validation
 	*/
 
-	// Validate that the server is not shutting down soon
+	// Validate that the server is not shutting down soon.
 	if shutdownMode > 0 && admin == 0 {
 		websocketWarning(s, d.Command, "The server is restarting soon (when all ongoing races have finished). You cannot start any new races for the time being.")
 		return
 	}
 
-	// Validate that the race name cannot be empty
+	// Validate that the race name cannot be empty.
 	if name == "" {
 		name = "-"
 	}
 
-	// Validate that the race name is not longer than 100 characters
+	// Validate that the race name is not longer than 100 characters.
 	if utf8.RuneCountInString(name) > 100 {
 		logger.Warning("User \"" + username + "\" sent a race name longer than 100 characters.")
 		websocketError(s, d.Command, "Race names must not be longer than 100 characters.")
 		return
 	}
 
-	// Validate that the ruleset options cannot be empty
+	// Validate that the ruleset options cannot be empty.
 	if ruleset.Format == "" {
 		ruleset.Format = RaceFormatUnseeded
 	}
@@ -62,46 +61,36 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		ruleset.Goal = "The Chest"
 	}
 
-	// Validate the submitted ruleset
+	// Validate the submitted ruleset.
 	if !raceValidateRuleset(s, d) {
 		return
 	}
 
-	// Fix the ranking for multiplayer races
+	// Fix the ranking for multiplayer races.
 	if !ruleset.Solo {
 		ruleset.Ranked = true
 	} else {
 		password = ""
 	}
 
-	// Pick a random character, if necessary
+	// Pick a random character, if necessary.
 	if ruleset.Character == "random" {
 		ruleset.CharacterRandom = true
-		rand.Seed(time.Now().UnixNano())
-		ruleset.Character = characters[rand.Intn(len(characters))] //nolint: gosec
+		ruleset.Character, _ = getRandomArrayElement(characters)
 	}
 
-	// Pick a random starting build, if necessary
-	// (StartingBuild will be -1 in non-seeded races)
-	if ruleset.StartingBuild == 0 {
-		ruleset.StartingBuildRandom = true
-		rand.Seed(time.Now().UnixNano())
-		// We don't want to select index 0
-		ruleset.StartingBuild = rand.Intn(len(allBuilds)-1) + 1 //nolint: gosec
-	}
-
-	// Get the specific ranked solo starter for the person who started this race
+	// Get the specific ranked solo starter for the person who started this race.
 	if ruleset.Ranked && ruleset.Solo {
 		if startingBuild, err := getRankedSoloStartingBuild(userID); err != nil {
 			logger.Error("Failed to get the ranked solo starting build:", err)
 			websocketError(s, d.Command, "")
 			return
 		} else {
-			ruleset.StartingBuild = startingBuild
+			ruleset.StartingBuildIndex = startingBuild
 		}
 	}
 
-	// Check if there are any ongoing races with this name
+	// Check if there are any ongoing races with this name.
 	for _, race := range races {
 		if race.Name == name {
 			websocketError(s, d.Command, "There is already a non-finished race with that name.")
@@ -109,7 +98,8 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		}
 	}
 
-	// Validate that the user is not creating new races over and over, which will generate an annoying sound effect for everyone in the lobby
+	// Validate that the user is not creating new races over and over, which will generate an
+	// annoying sound effect for everyone in the lobby.
 	// Algorithm from: http://stackoverflow.com/questions/667508/whats-a-good-rate-limiting-algorithm
 	// (allow staff/admins to create unlimited races)
 	if admin == 0 && !ruleset.Solo {
@@ -138,7 +128,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		Create
 	*/
 
-	// Create and set a seed if necessary
+	// Create and set a seed if necessary.
 	ruleset.Seed = "-"
 	if ruleset.Format == RaceFormatSeeded {
 		// Create a random Isaac seed
@@ -149,15 +139,12 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	}
 
 	/*
-		Create the race in the database
-		(it will have no data associated with it other than the automatically
-		generated row ID; we want to use this ID as a unique map key)
+		Create the race in the database. (It will have no data associated with it other than the
+		automatically generated row ID; we want to use this ID as a unique map key.)
 
-		The benefit of doing this is that we won't reuse any race IDs after a
-		server restart or crash.
-		Furthermore, we want the ability for racers to be able to submit a race
-		comment after the race has already ended. (Races are deleted from the
-		internal map upon finishing.)
+		The benefit of doing this is that we won't reuse any race IDs after a server restart or
+		crash. Furthermore, we want the ability for racers to be able to submit a race comment after
+		the race has already ended. (Races are deleted from the internal map upon finishing.)
 	*/
 	var raceID int
 	if v, err := db.Races.Insert(); err != nil {
@@ -168,7 +155,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		raceID = v
 	}
 
-	// Create the race and keep track of it in the races map
+	// Create the race and keep track of it in the races map.
 	race := &Race{
 		ID:              raceID,
 		Name:            name,
@@ -183,7 +170,7 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 	}
 	races[raceID] = race
 
-	// Send everyone a notification that a new race has been started
+	// Send everyone a notification that a new race has been started.
 	for _, s := range websocketSessions {
 		websocketEmit(s, "raceCreated", &RaceCreatedMessage{
 			ID:                  race.ID,
@@ -206,17 +193,17 @@ func ban(s *melody.Session, d *IncomingWebsocketData) {
 	userID := d.v.UserID
 
 	/*
-		This code is copied from the "websocketAdminBan()" function
+		This code is copied from the "websocketAdminBan()" function.
 	*/
 
-	// Add this username to the ban list in the database
+	// Add this username to the ban list in the database.
 	if err := db.BannedUsers.Insert(userID, AutomaticBanAdminID, AutomaticBanReason); err != nil {
 		logger.Error("Database error while inserting the banned user:", err)
 		websocketError(s, d.Command, "")
 		return
 	}
 
-	// Add their IP to the banned IP list
+	// Add their IP to the banned IP list.
 	if err := db.BannedIPs.InsertUserIP(userID, AutomaticBanAdminID, AutomaticBanReason); err != nil {
 		logger.Error("Database error while inserting the banned IP:", err)
 		websocketError(s, d.Command, "")
@@ -243,10 +230,10 @@ func getRankedSoloStartingBuild(userID int) (int, error) {
 		return DefaultRankedSoloStart, nil
 	}
 
-	nextItem := int(nullInt64.Int64 + 1)
-	if nextItem >= len(allBuilds) {
-		nextItem = 1 // There is no build with an index of 0
+	nextBuildIndex := int(nullInt64.Int64 + 1)
+	if nextBuildIndex >= len(allBuilds) {
+		nextBuildIndex = 0
 	}
 
-	return nextItem, nil
+	return nextBuildIndex, nil
 }

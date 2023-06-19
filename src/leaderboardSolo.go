@@ -47,8 +47,8 @@ func leaderboardUpdateRankedSolo(race *Race) {
 	var averageTime float64
 	var forfeitPenalty float64
 	if len(raceResults) == numForfeits {
-		// If they forfeited every race, then we will have a divide by 0 later on,
-		// so arbitrarily set it to 30 minutes (1000 * 60 * 30)
+		// If they forfeited every race, then we will have a divide by 0 later on, so arbitrarily
+		// set it to 30 minutes. (1000 * 60 * 30)
 		averageTime = 1800000
 		forfeitPenalty = 1800000
 	} else {
@@ -56,14 +56,14 @@ func leaderboardUpdateRankedSolo(race *Race) {
 		forfeitPenalty = averageTime * float64(numForfeits) / float64(len(raceResults))
 	}
 
-	// Update their stats in the database
+	// Update their stats in the database.
 	if err := db.Users.SetStatsRankedSolo(
 		racer.ID,
 		int(averageTime),
 		numForfeits,
 		int(forfeitPenalty),
 		lowestTime,
-		race.Ruleset.StartingBuild,
+		race.Ruleset.StartingBuildIndex,
 	); err != nil {
 		logger.Error("Database error while setting the ranked solo stats for \""+racer.Name+"\":", err)
 		return

@@ -110,7 +110,7 @@ func httpValidateSession(c *gin.Context) (*models.SessionValues, error) {
 	} else if userIsBanned {
 		logger.Info("User \"" + username + "\" tried to establish a WebSocket connection, but they are banned.")
 		msg := "Your user account has been banned. Please contact an administrator if you think this is a mistake."
-		return nil, errors.New(msg) //nolint: stylecheck
+		return nil, errors.New(msg)
 	}
 
 	// If they got this far, they are a valid user

@@ -32,7 +32,7 @@ type Ruleset struct {
 	Character           string     `json:"character"`
 	CharacterRandom     bool       `json:"characterRandom"`
 	Goal                RaceGoal   `json:"goal"`
-	StartingBuild       int        `json:"startingBuild"`
+	StartingBuildIndex  int        `json:"startingBuildIndex"`
 	StartingBuildRandom bool       `json:"startingBuildRandom"`
 	Seed                string     `json:"seed"`
 	Difficulty          string     `json:"difficulty"`
@@ -265,7 +265,7 @@ const (
 	StageTypeAfterbirth
 	StageTypeGreedMode
 	StageTypeRepentance
-	StagetypeRepentanceB
+	StageTypeRepentanceB
 )
 
 // Account for Repentance floors being offset by 1
@@ -283,7 +283,7 @@ func getAdjustedFloorNum(racer *Racer) int {
 }
 
 func isRepentanceStageType(stageType int) bool {
-	return stageType == StageTypeRepentance || stageType == StagetypeRepentanceB
+	return stageType == StageTypeRepentance || stageType == StageTypeRepentanceB
 }
 
 func (race *Race) SendAllPlaceMid(username string, placeMid int) {
@@ -435,7 +435,7 @@ func (race *Race) Finish() {
 		Character:       race.Ruleset.Character,
 		Goal:            string(race.Ruleset.Goal),
 		Difficulty:      race.Ruleset.Difficulty,
-		StartingBuild:   race.Ruleset.StartingBuild,
+		StartingBuild:   race.Ruleset.StartingBuildIndex,
 		Seed:            race.Ruleset.Seed,
 		Captain:         race.Captain,
 		DatetimeStarted: race.DatetimeStarted,

@@ -13,7 +13,7 @@ import (
 func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 	ruleset := d.Ruleset
 
-	// Validate the ruleset format
+	// Validate the ruleset format.
 	if ruleset.Format != RaceFormatUnseeded &&
 		ruleset.Format != RaceFormatSeeded &&
 		ruleset.Format != RaceFormatDiversity &&
@@ -32,8 +32,8 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		return false
 	}
 
-	// Validate the character
-	// (valid characters are defined in "characters.go")
+	// Validate the character.
+	// (Valid characters are defined in "characters.go".)
 	validCharacter := stringInSlice(ruleset.Character, characters)
 	if ruleset.Character == "random" {
 		validCharacter = true
@@ -43,7 +43,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		return false
 	}
 
-	// Validate the goal
+	// Validate the goal.
 	if ruleset.Goal != RaceGoalBlueBaby &&
 		ruleset.Goal != RaceGoalTheLamb &&
 		ruleset.Goal != RaceGoalMegaSatan &&
@@ -58,26 +58,27 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 		return false
 	}
 
-	// Validate the starting build
+	// Validate the starting build.
 	if ruleset.Format == RaceFormatSeeded {
-		if ruleset.StartingBuild < 0 || ruleset.StartingBuild >= len(allBuilds) { // 0 is random
-			msg := "The build of \"" + strconv.Itoa(ruleset.StartingBuild) + "\" is not a valid starting build."
+		if ruleset.StartingBuildIndex < 0 || ruleset.StartingBuildIndex > len(allBuilds)-1 {
+			msg := "The build of \"" + strconv.Itoa(ruleset.StartingBuildIndex) + "\" is not a valid starting build."
 			websocketWarning(s, d.Command, msg)
 			return false
 		}
 	} else {
-		if ruleset.StartingBuild != -1 {
+		if ruleset.StartingBuildIndex != -1 {
 			websocketWarning(s, d.Command, "You cannot set a starting build for a non-seeded race.")
 			return false
 		}
 	}
 
-	// Validate specific things for seeded races
+	// Validate specific things for seeded races.
 	if ruleset.Format == RaceFormatSeeded {
-		// Check for character + build anti-synergies
-		illegalCharacters := buildExceptions[ruleset.StartingBuild]
-		if stringInSlice(ruleset.Character, illegalCharacters) {
-			msg := "The character of " + ruleset.Character + " is illegal in combination with the starting build of: " + getBuildName(ruleset.StartingBuild)
+		// Check for character + build anti-synergies.
+		build := allBuilds[ruleset.StartingBuildIndex]
+
+		if build.IsCharacterBanned(ruleset.Character) {
+			msg := "The character of " + ruleset.Character + " is illegal in combination with the starting build of: " + getBuildNameFromBuildIndex(ruleset.StartingBuildIndex)
 			websocketWarning(s, d.Command, msg)
 			return false
 		}
@@ -99,7 +100,7 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 func raceValidateRulesetSolo(s *melody.Session, d *IncomingWebsocketData) bool {
 	ruleset := d.Ruleset
 
-	// Validate ranked solo games
+	// Validate ranked solo games.
 	if ruleset.Ranked {
 		return raceValidateRulesetRankedSolo(s, d)
 	}
@@ -125,7 +126,7 @@ func raceValidateRulesetRankedSolo(s *melody.Session, d *IncomingWebsocketData) 
 		return false
 	}
 
-	// Validate the difficulty
+	// Validate the difficulty.
 	if ruleset.Difficulty != "normal" {
 		websocketWarning(s, d.Command, "That is not a valid difficulty.")
 		return false
