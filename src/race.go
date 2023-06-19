@@ -42,7 +42,7 @@ type Ruleset struct {
 	Race object methods
 */
 
-// Get the place that someone would be if they finished the race right now
+// Get the place that someone would be if they finished the race right now.
 func (race *Race) GetCurrentPlace() int {
 	currentPlace := 0
 	for _, racer := range race.Racers {
@@ -65,15 +65,14 @@ func (race *Race) GetLastPlace() int {
 	return lastPlace
 }
 
-// Check to see if a race is ready to start, and if so, start it
-// (called from the "websocketRaceReady" and "websocketRaceLeave" functions)
+// Check to see if a race is ready to start, and if so, start it.
 func (race *Race) CheckStart() {
-	// Check to see if there is only 1 person in the race
+	// Check to see if there is only 1 person in the race.
 	if len(race.Racers) == 1 && !race.Ruleset.Solo {
 		return
 	}
 
-	// Check if everyone is ready
+	// Check if everyone is ready.
 	for _, racer := range race.Racers {
 		if racer.Status != RacerStatusReady {
 			return
@@ -103,7 +102,7 @@ func (race *Race) SetRacerStatus(username string, status RacerStatus) {
 	racer.Status = status
 
 	for racerName := range race.Racers {
-		// Not all racers may be online during a race
+		// Not all racers may be online during a race.
 		if s, ok := websocketSessions[racerName]; ok {
 			type RacerSetStatusMessage struct {
 				ID      int         `json:"id"`
@@ -123,9 +122,9 @@ func (race *Race) SetRacerStatus(username string, status RacerStatus) {
 	}
 }
 
-// Recalculate everyone's mid-race places
+// Recalculate everyone's mid-race places.
 func (race *Race) SetAllPlaceMid() {
-	// Get the place that someone would be if they finished the race right now
+	// Get the place that someone would be if they finished the race right now.
 	currentPlace := race.GetCurrentPlace()
 	lastPlace := race.GetLastPlace()
 	if debug {
@@ -143,7 +142,8 @@ func (race *Race) SetAllPlaceMid() {
 
 	for _, racer := range race.Racers {
 		if racer.Status != RacerStatusRacing {
-			// We don't need to calculate the mid-race place of someone who already finished or quit
+			// We don't need to calculate the mid-race place of someone who already finished or
+			// quit.
 			if debug {
 				logger.Debug("Skipping " + racer.Name + "since they already finished or quit.")
 			}
@@ -153,7 +153,7 @@ func (race *Race) SetAllPlaceMid() {
 		racerOnRepentanceFloor := isRepentanceStageType(racer.StageType)
 
 		if racer.FloorNum == 1 && racer.CharacterNum == 1 && !racerOnRepentanceFloor && !racer.BackwardsPath {
-			// Mid-race places are not calculated until racers get to the second floor
+			// Mid-race places are not calculated until racers get to the second floor.
 			racer.PlaceMid = lastPlace
 			if debug {
 				logger.Debug("Skipping " + racer.Name + "since they are on the first floor finished or quit.")
@@ -163,25 +163,25 @@ func (race *Race) SetAllPlaceMid() {
 
 		racer.PlaceMid = currentPlace
 
-		// Find racers that should be ahead of us
+		// Find racers that should be ahead of us.
 		for _, racer2 := range race.Racers {
-			// Skip ourselves
+			// Skip ourselves.
 			if racer2.ID == racer.ID {
 				continue
 			}
 
 			// We don't count people who finished or quit since our starting point is on
-			// "currentPlace"
+			// "currentPlace".
 			if racer2.Status != RacerStatusRacing {
 				continue
 			}
 
-			// If they are on a lower character than us, we must be ahead of them
+			// If they are on a lower character than us, we must be ahead of them.
 			if racer2.CharacterNum < racer.CharacterNum {
 				continue
 			}
 
-			// If they are on a higher character than us, we must be behind them
+			// If they are on a higher character than us, we must be behind them.
 			if racer2.CharacterNum > racer.CharacterNum {
 				racer.PlaceMid++
 				continue
@@ -190,31 +190,31 @@ func (race *Race) SetAllPlaceMid() {
 			adjustedFloorNumUs := getAdjustedFloorNum(racer)
 			adjustedFloorNumThem := getAdjustedFloorNum(racer2)
 
-			// Only account for "Backwards Path" logic on races with specific goals
+			// Only account for "Backwards Path" logic on races with specific goals.
 			if race.Ruleset.Goal == RaceGoalBeast || race.Ruleset.Goal == RaceGoalCustom {
 				// If they are not on the backwards path, and we are on the backwards path,
-				// we must be ahead of them
+				// we must be ahead of them.
 				if !racer2.BackwardsPath && racer.BackwardsPath {
 					continue
 				}
 
 				// If they are on the backwards path, and we are not on the backwards path,
-				// we must be behind them
+				// we must be behind them.
 				if racer2.BackwardsPath && !racer.BackwardsPath {
 					racer.PlaceMid++
 					continue
 				}
 
-				// If we are both on the backwards path, then floor logic is inverted
+				// If we are both on the backwards path, then floor logic is inverted.
 				if racer2.BackwardsPath && racer.BackwardsPath {
-					// If they are on a higher floor than us, we must be ahead of them
-					// (since we are going downwards)
+					// If they are on a higher floor than us, we must be ahead of them (since we are
+					// going downwards).
 					if adjustedFloorNumThem > adjustedFloorNumUs {
 						continue
 					}
 
-					// If they are on a lower floor than us, we must be behind them
-					// (since we are going downwards)
+					// If they are on a lower floor than us, we must be behind them (since we are
+					// going downwards).
 					if adjustedFloorNumThem < adjustedFloorNumUs {
 						racer.PlaceMid++
 						continue
@@ -222,23 +222,23 @@ func (race *Race) SetAllPlaceMid() {
 				}
 			}
 
-			// If they are on a lower floor than us, we must be ahead of them
+			// If they are on a lower floor than us, we must be ahead of them.
 			if adjustedFloorNumThem < adjustedFloorNumUs {
 				continue
 			}
 
-			// If they are on a higher floor than us, we must be behind them
+			// If they are on a higher floor than us, we must be behind them.
 			if adjustedFloorNumThem > adjustedFloorNumUs {
 				racer.PlaceMid++
 				continue
 			}
 
-			// If they are on the same floor and they arrived after us, we must be ahead of them
+			// If they are on the same floor and they arrived after us, we must be ahead of them.
 			if racer2.DatetimeArrivedFloor > racer.DatetimeArrivedFloor {
 				continue
 			}
 
-			// If they are on the same floor and they arrived before us, we must be behind them
+			// If they are on the same floor and they arrived before us, we must be behind them.
 			if racer2.DatetimeArrivedFloor <= racer.DatetimeArrivedFloor {
 				racer.PlaceMid++
 				continue
@@ -268,13 +268,14 @@ const (
 	StageTypeRepentanceB
 )
 
-// Account for Repentance floors being offset by 1
+// Account for Repentance floors being offset by 1.
 func getAdjustedFloorNum(racer *Racer) int {
 	if isRepentanceStageType(racer.StageType) {
 		return racer.FloorNum + 1
 	}
 
-	// If the player reach Home, we need to tell the server that we're on a lower floor than B1 (since we're going backwards)
+	// If the player reach Home, we need to tell the server that we're on a lower floor than B1
+	// (since we are going backwards).
 	if racer.FloorNum == 13 {
 		return 0
 	}
@@ -288,7 +289,7 @@ func isRepentanceStageType(stageType int) bool {
 
 func (race *Race) SendAllPlaceMid(username string, placeMid int) {
 	for racerName := range race.Racers {
-		// Not all racers may be online during a race
+		// Not all racers may be online during a race.
 		if s, ok := websocketSessions[racerName]; ok {
 			type RacerSetPlaceMidMessage struct {
 				ID       int    `json:"id"`
@@ -304,7 +305,6 @@ func (race *Race) SendAllPlaceMid(username string, placeMid int) {
 	}
 }
 
-// Called from the "CheckStart" function
 func (race *Race) Start() {
 	var secondsToWait int
 	if race.Ruleset.Solo {
@@ -313,15 +313,15 @@ func (race *Race) Start() {
 		secondsToWait = 10
 	}
 
-	// Log the race starting
+	// Log the race starting.
 	logger.Info("Race "+strconv.Itoa(race.ID)+" starting in", secondsToWait, "seconds.")
 
-	// Change the status for this race to "starting"
+	// Change the status for this race to "starting".
 	race.SetStatus("starting")
 
-	// Send everyone in the race a message specifying exactly when it will start
+	// Send everyone in the race a message specifying exactly when it will start.
 	for racerName := range race.Racers {
-		// A racer might go offline the moment before it starts, so check just in case
+		// A racer might go offline the moment before it starts, so check just in case.
 		if s, ok := websocketSessions[racerName]; ok {
 			websocketEmit(s, "raceStart", &RaceStartMessage{
 				ID:            race.ID,
@@ -330,15 +330,15 @@ func (race *Race) Start() {
 		}
 	}
 
-	// Make the Twitch bot announce that the race is starting in 10 seconds
+	// Make the Twitch bot announce that the race is starting in 10 seconds.
 	twitchRaceStart(race)
 
-	// Return for now and do more things in 10 seconds
+	// Return for now and do more things in 10 seconds.
 	go race.Start2()
 }
 
 func (race *Race) Start2() {
-	// Sleep 3 or 10 seconds
+	// Sleep 3 or 10 seconds.
 	var sleepSeconds int
 	if race.Ruleset.Solo {
 		sleepSeconds = 3
@@ -347,7 +347,7 @@ func (race *Race) Start2() {
 	}
 	time.Sleep(time.Duration(sleepSeconds) * time.Second)
 
-	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	// Lock the command mutex for the duration of the function to ensure synchronous execution.
 	commandMutex.Lock()
 	defer commandMutex.Unlock()
 
@@ -360,33 +360,32 @@ func (race *Race) Start2() {
 	numRacers := len(race.Racers)
 	for _, racer := range race.Racers {
 		racer.Status = RacerStatusRacing
-		racer.PlaceMid = numRacers // Make everyone tied for last place
+		racer.PlaceMid = numRacers // Make everyone tied for last place.
 	}
 
 	// Return for now and do more things later on when it is time to check to see if the race has
-	// been going for too long
+	// been going for too long.
 	go race.Start3()
 }
 
 func (race *Race) Start3() {
 	if race.Ruleset.Format == RaceFormatCustom {
-		// We need to make the timeout longer to accommodate multi-character speedrun races
+		// We need to make the timeout longer to accommodate multi-character speedrun races.
 		time.Sleep(4 * time.Hour)
 	} else {
 		time.Sleep(30 * time.Minute)
 	}
 
-	// Lock the command mutex for the duration of the function to ensure synchronous execution
+	// Lock the command mutex for the duration of the function to ensure synchronous execution.
 	commandMutex.Lock()
 	defer commandMutex.Unlock()
 
-	// Find out if the race is finished
-	// (we remove finished races from the "races" map)
+	// Find out if the race is finished. (We remove finished races from the "races" map.)
 	if _, ok := races[race.ID]; !ok {
 		return
 	}
 
-	// Force the remaining racers to quit
+	// Force the remaining racers to quit.
 	for _, racer := range race.Racers {
 		if racer.Status != RacerStatusRacing {
 			continue
@@ -416,16 +415,16 @@ func (race *Race) CheckFinish() {
 }
 
 func (race *Race) Finish() {
-	// Log the race finishing
+	// Log the race finishing.
 	logger.Info("Race " + strconv.Itoa(race.ID) + " finished.")
 
-	// Let everyone know it ended
+	// Let everyone know it ended.
 	race.SetStatus("finished")
 
-	// Remove it from the map
+	// Remove it from the map.
 	delete(races, race.ID)
 
-	// Write it to the database
+	// Write it to the database.
 	databaseRace := &models.Race{
 		ID:              race.ID,
 		Name:            race.Name,
