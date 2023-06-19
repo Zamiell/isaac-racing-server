@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-isaac-racing-common@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/isaac-racing-common/-/isaac-racing-common-1.0.8.tgz#4d74f0789fa9195d2760703f37c8af2065b47eda"
-  integrity sha512-4+cknGN8opslGqO7a54PMGLD664Flj+aFDVs7uF53SIeyoMYM4ek/Pbiq3I70p4+w70cMmnqdmiujk70EuC5AA==
+isaac-racing-common@^1.0.10:
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/isaac-racing-common/-/isaac-racing-common-1.0.10.tgz#322e5935062283e084b7076d04c1ea7147567f01"
+  integrity sha512-Zp1nvnjg8+SXTo65iTlscUnGDm+jqke8hQlmDMWy9Saj1Pi2JCnTKDWNgyWIi728NuU+HUYT9FjNULOtvoH1pQ==
