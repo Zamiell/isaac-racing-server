@@ -149,6 +149,10 @@ func httpInit() {
 	}
 	if !useTLS {
 		options.Secure = false
+
+		// `SameSiteLaxMode` does not work in development for some reason, so we will debug in
+		// production for the time being.
+		options.SameSite = http.SameSiteLaxMode
 	}
 	sessionStore.Options(options)
 	httpRouter.Use(sessions.Sessions(HTTPSessionName, sessionStore))
