@@ -50,6 +50,8 @@ linters:
     - nlreturn
     # We do not need to use contexts in certain situations
     - noctx
+    # TODO
+    - nosnakecase
     # We use some unused parameters for command function uniformity
     - unparam
     # We have some utility unused functions
