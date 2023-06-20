@@ -26,16 +26,15 @@ type Race struct {
 }
 
 type Ruleset struct {
-	Ranked              bool       `json:"ranked"`
-	Solo                bool       `json:"solo"`
-	Format              RaceFormat `json:"format"`
-	Character           string     `json:"character"`
-	CharacterRandom     bool       `json:"characterRandom"`
-	Goal                RaceGoal   `json:"goal"`
-	StartingBuildIndex  int        `json:"startingBuildIndex"`
-	StartingBuildRandom bool       `json:"startingBuildRandom"`
-	Seed                string     `json:"seed"`
-	Difficulty          string     `json:"difficulty"`
+	Ranked             bool       `json:"ranked"`
+	Solo               bool       `json:"solo"`
+	Format             RaceFormat `json:"format"`
+	Character          string     `json:"character"`
+	CharacterRandom    bool       `json:"characterRandom"`
+	Goal               RaceGoal   `json:"goal"`
+	StartingBuildIndex int        `json:"startingBuildIndex"`
+	Seed               string     `json:"seed"`
+	Difficulty         string     `json:"difficulty"`
 }
 
 /*
