@@ -75,7 +75,6 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 
 	// Pick a random character, if necessary.
 	if ruleset.Character == "random" {
-		ruleset.CharacterRandom = true
 		ruleset.Character, _ = getRandomArrayElement(characters)
 	}
 
