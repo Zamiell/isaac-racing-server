@@ -1,9 +1,7 @@
 package server
 
 import (
-	"log"
 	"math"
-	"math/rand"
 	"strconv"
 	"time"
 	"unicode"
@@ -53,17 +51,6 @@ func getOrdinal(n int) string {
 		ord = s[0]
 	}
 	return strconv.Itoa(n) + ord
-}
-
-// Returns the random array element and the randomly chosen index.
-func getRandomArrayElement[T any](array []T) (T, int) {
-	if len(array) == 0 {
-		log.Panic("Failed to get a random array element since the provided array was empty.")
-	}
-
-	rand.Seed(time.Now().UnixNano())
-	index := rand.Intn(len(array))
-	return array[index], index
 }
 
 // getTimestamp returns the Epoch timestamp in milliseconds.

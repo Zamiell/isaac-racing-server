@@ -34,9 +34,6 @@ func raceValidateRuleset(s *melody.Session, d *IncomingWebsocketData) bool {
 
 	// Validate the character. (Valid characters are defined in "characters.go".)
 	validCharacter := stringInSlice(ruleset.Character, characters)
-	if ruleset.Character == "random" {
-		validCharacter = true
-	}
 	if !validCharacter {
 		websocketWarning(s, d.Command, "That is not a valid character.")
 		return false

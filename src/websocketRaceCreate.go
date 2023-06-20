@@ -73,11 +73,6 @@ func websocketRaceCreate(s *melody.Session, d *IncomingWebsocketData) {
 		password = ""
 	}
 
-	// Pick a random character, if necessary.
-	if ruleset.Character == "random" {
-		ruleset.Character, _ = getRandomArrayElement(characters)
-	}
-
 	// Get the specific ranked solo starter for the person who started this race.
 	if ruleset.Ranked && ruleset.Solo {
 		if startingBuild, err := getRankedSoloStartingBuild(userID); err != nil {
