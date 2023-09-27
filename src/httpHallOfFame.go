@@ -21,6 +21,7 @@ func httpHallOfFame(c *gin.Context) {
 		Season1R7Rep:      season1R7Rep,
 		Season2R7Rep:      season2R7Rep,
 		Season3R7Rep:      season3R7Rep,
+		Season4R7Rep:      season4R7Rep,
 		Season1RankedSolo: season1RankedSolo,
 		Season2RankedSolo: season2RankedSolo,
 	}
