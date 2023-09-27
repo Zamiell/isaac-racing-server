@@ -22,6 +22,7 @@
                     <option value="season1R7Rep">R+7 Season 1 (Repentance)</option>
                     <option value="season2R7Rep">R+7 Season 2 (Repentance)</option>
                     <option value="season3R7Rep">R+7 Season 3 (Repentance)</option>
+                    <option value="season4R7Rep">R+7 Season 4 (Repentance)</option>
                     <option value="season1RankedSolo">Ranked Solo Season 1 (Afterbirth+)</option>
                     <option value="season2RankedSolo">Ranked Solo Season 2 (Afterbirth+)</option>
                     <!--<option value="season3ranked">Ranked Solo Season 1 (Repentance)</option>-->
@@ -353,6 +354,34 @@
             </thead>
             <tbody>
             {{ range .Season3R7Rep }}
+                <tr>
+                    <td class="td-rank"> {{ .Rank }} </td>
+                    <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
+                    <td class="td-time">{{ .Time }}</td>
+                    <td class="td-date">{{ .Date }}</td>
+                    <td class="td-proof"><a href="{{ .Proof }}" target="_blank"><img height="16px"  src="public/img/{{ .Site }}.png" /></a></td>
+                </tr>
+            {{ end }}
+            </tbody>
+        </table>
+        </div>
+    </section>
+
+    <!-- Start of R+7 Season 4 (Rep) -->
+    <section id="hof-season4R7Rep" class="box">
+        <div class="table-wrapper">
+        <table id="season4R7Rep-table" class="alt lb tablesorter">
+            <thead>
+                <tr>
+                    <th class="th-rank">Rank</th>
+                    <th class="th-racer">Player</th>
+                    <th class="th-time">Time</th>
+                    <th class="th-date" data-sorter="false">Date</th>
+                    <th class="th-proof" data-sorter="false">Video</th>
+                </tr>
+            </thead>
+            <tbody>
+            {{ range .Season4R7Rep }}
                 <tr>
                     <td class="td-rank"> {{ .Rank }} </td>
                     <td class="td-racer"><a href=/profile/{{ .ProfileName }}>{{ .Racer }}</a></td>
